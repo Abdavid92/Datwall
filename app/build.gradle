@@ -57,6 +57,7 @@ dependencies {
     //Three party libraries
     implementation 'moe.feng.common:material-stepper-view:0.2.5'
     implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
+    implementation 'org.apache:commons-lang:2.4'
 
     //Gson
     implementation 'com.google.code.gson:gson:2.8.6'
