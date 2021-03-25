@@ -12,9 +12,9 @@ import kotlinx.android.parcel.Parcelize
 class App(
     @PrimaryKey
     @ColumnInfo(name = "package_name")
-    val packageName: String,
-    override val uid: Int,
-    override val name: String,
+    var packageName: String,
+    override var uid: Int,
+    override var name: String,
     var version: String,
     override var access: Boolean,
     @ColumnInfo(name = "foreground_access")
@@ -22,17 +22,34 @@ class App(
     @ColumnInfo(name = "temp_access")
     var tempAccess: Boolean,
     var internet: Boolean,
-    val executable: Boolean,
+    var executable: Boolean,
     var ask: Boolean,
     var national: Boolean,
     @ColumnInfo(name = "allow_annotations")
-    override val allowAnnotations: String?,
+    override var allowAnnotations: String?,
     @ColumnInfo(name = "blocked_annotations")
-    override val blockedAnnotations: String?,
+    override var blockedAnnotations: String?,
     @Ignore
     var traffic: Traffic?
 ) : IApp {
 
+
+    constructor(): this(
+        "",
+        0,
+        "",
+        "",
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        null,
+        null,
+        null
+    )
 
     override fun hashCode(): Int {
         var result = packageName.hashCode()

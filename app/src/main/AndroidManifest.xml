@@ -10,6 +10,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall">
+        <service
+            android:name=".services.TrackerService"
+            android:enabled="true"
+            android:exported="false"></service>
+
+        <receiver
+            android:name=".receivers.ChangeNetworkReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name=".receivers.UninstallPackageReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">

@@ -4,11 +4,11 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class AppGroup(
-    override val uid: Int,
-    override val name: String,
+    override var uid: Int,
+    override var name: String,
     private val apps: List<App>,
-    override val allowAnnotations: String?,
-    override val blockedAnnotations: String?
+    override var allowAnnotations: String?,
+    override var blockedAnnotations: String?
 ) : IApp, Collection<App> {
 
     override var access: Boolean
