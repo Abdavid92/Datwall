@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.os.Build
+import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -34,6 +36,7 @@ class IconManager @Inject constructor(context: Context) : Manager(context) {
 
     init {
         if (!cacheDir.exists()) {
+            //Si el directorio de cache de íconos no existe lo creo
             cacheDir.mkdir()
         }
     }
@@ -46,16 +49,20 @@ class IconManager @Inject constructor(context: Context) : Manager(context) {
      * @param versionName - Versión de la aplicación
      * */
     private fun create(packageName: String, versionName: String) {
+        //File que contendrá el ícono
         val file = File(cacheDir, makeIconName(packageName, versionName))
 
          if (file.createNewFile()) {
-            val icon = getResizedBitmap(drawableToBitmap(packageManager.getApplicationIcon(packageName)), 100)
-
-            try {
-                icon.compress(Bitmap.CompressFormat.PNG, 100, FileOutputStream(file))
-            } catch (e: FileNotFoundException) {
-
+            /*Si logré crear el file, construyo el ícono de la aplicación o uno predeterminado de android
+              en caso de que la aplicación no tenga ícono*/
+            val icon = try {
+                getResizedBitmap(drawableToBitmap(packageManager.getApplicationIcon(packageName)), 100)
+            } catch (e: Exception) {
+                getResizedBitmap(drawableToBitmap(ContextCompat.getDrawable(context, android.R.drawable.sym_def_app_icon)), 100)
             }
+
+            //Guardo el ícono en el file
+            icon?.compress(Bitmap.CompressFormat.PNG, 100, FileOutputStream(file))
         }
     }
 
@@ -144,18 +151,21 @@ class IconManager @Inject constructor(context: Context) : Manager(context) {
      * @param maxSize - Tamaño que se le asignará a la imagen
      * @return Imagen redimencionada
      * */
-    private fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
-        var width = image.width
-        var height = image.height
-        val bitmapRatio = width.toFloat() / height
-        if (bitmapRatio > 1) {
-            width = maxSize
-            height = (width / bitmapRatio).toInt()
-        } else {
-            height = maxSize
-            width = (height * bitmapRatio).toInt()
+    private fun getResizedBitmap(image: Bitmap?, maxSize: Int): Bitmap? {
+        image?.let {
+            var width = image.width
+            var height = image.height
+            val bitmapRatio = width.toFloat() / height
+            if (bitmapRatio > 1) {
+                width = maxSize
+                height = (width / bitmapRatio).toInt()
+            } else {
+                height = maxSize
+                width = (height * bitmapRatio).toInt()
+            }
+            return Bitmap.createScaledBitmap(image, width, height, true)
         }
-        return Bitmap.createScaledBitmap(image, width, height, true)
+        return null
     }
 
     /**
@@ -164,20 +174,23 @@ class IconManager @Inject constructor(context: Context) : Manager(context) {
      * @param drawable - Drawable a convertir
      * @return Bitmap
      * */
-    private fun drawableToBitmap(drawable: Drawable): Bitmap {
-        if (drawable is BitmapDrawable) {
-            if (drawable.bitmap != null) {
-                return drawable.bitmap
+    private fun drawableToBitmap(drawable: Drawable?): Bitmap? {
+        drawable?.let {
+            if (drawable is BitmapDrawable) {
+                if (drawable.bitmap != null) {
+                    return drawable.bitmap
+                }
             }
+            val bitmap = if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            } else {
+                Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+            }
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            return bitmap
         }
-        val bitmap = if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
-            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-        } else {
-            Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
-        }
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmap
+        return null
     }
 }

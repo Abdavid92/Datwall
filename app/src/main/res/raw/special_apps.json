@@ -1,0 +1,37 @@
+[
+  {
+    "packageName": "com.google.android.gms",
+    "blockedAnnotations": "Si bloqueas este servicio, aplicaciones como Gmail, Google Maps y Play Store podrían dejar de funcionar.",
+    "access": true
+  },
+  {
+    "packageName": "com.google.android.gsf",
+    "blockedAnnotations": "Si bloqueas este servicio, aplicaciones como Gmail, Google Maps y Play Store podrían dejar de funcionar.",
+    "access": true
+  },
+  {
+    "packageName": "com.google.android.backuptransport",
+    "blockedAnnotations": "Si bloqueas este servicio, aplicaciones como Gmail, Google Maps y Play Store podrían dejar de funcionar.",
+    "access": true
+  },
+  {
+    "packageName": "com.whatsapp",
+    "blockedAnnotations": "Si bloqueas esta aplicación, no entrarán los mensajes ni las llamadas hasta que no la abras.",
+    "access": true
+  },
+  {
+    "packageName": "org.telegram.messenger",
+    "blockedAnnotations": "Si bloqueas esta aplicación, no entrarán los mensajes ni las llamadas hasta que no la abras.",
+    "access": true
+  },
+  {
+    "packageName": "com.dewmobile.kuaiya.play",
+    "allowAnnotations": "Esta aplicación consume cantidades considerables de datos innecesariamente. Recomendamos mantenerla bloqueada.",
+    "access": false
+  },
+  {
+    "packageName": "com.android.providers.downloads",
+    "blockedAnnotations": "Si bloqueas esta aplicación, muchas aplicaciones que dependen de esta no podrán realizar descargas.",
+    "access": true
+  }
+]

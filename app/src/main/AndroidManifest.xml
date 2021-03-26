@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.smartsolutions.paquetes">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application
         android:name=".DatwallApplication"
         android:allowBackup="true"
@@ -10,19 +13,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall">
-        <service
-            android:name=".services.TrackerService"
+        <receiver
+            android:name=".receivers.PackageMonitorReceiver"
             android:enabled="true"
-            android:exported="false"></service>
-
+            android:exported="true">
+            <intent-filter
+                android:priority="9999">
+                <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".receivers.ChangeNetworkReceiver"
             android:enabled="true"
-            android:exported="false" />
-        <receiver
-            android:name=".receivers.UninstallPackageReceiver"
-            android:enabled="true"
-            android:exported="false" />
+            android:exported="false">
+        </receiver>
 
         <activity
             android:name=".MainActivity"

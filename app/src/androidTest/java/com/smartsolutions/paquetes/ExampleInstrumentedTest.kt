@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes
 
+import android.content.pm.ChangedPackages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
@@ -20,5 +21,13 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.smartsolutions.paquetes", appContext.packageName)
+    }
+
+    @Test
+    fun changePackages() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val changePackages = context.packageManager.getChangedPackages(0)
+
+        assertNotNull(changePackages)
     }
 }

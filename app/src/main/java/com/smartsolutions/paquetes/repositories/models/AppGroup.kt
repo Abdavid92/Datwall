@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.repositories.models
 
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class AppGroup(

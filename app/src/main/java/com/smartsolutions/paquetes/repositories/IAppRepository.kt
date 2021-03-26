@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.repositories
 
+import android.content.pm.PackageInfo
 import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
@@ -91,7 +92,7 @@ interface IAppRepository {
      * @param task - Función que se ejecuta después de actualizar la lista de aplicaciones.
      * Recibe esta lista como argumento
      * */
-    suspend fun update(apps: List<IApp>, task: (apps: List<App>) -> Unit)
+    suspend fun update(apps: List<IApp>, task: (apps: List<IApp>) -> Unit)
 
     /**
      * Elimina una aplicación
@@ -107,4 +108,30 @@ interface IAppRepository {
      * @param task - Función que se ejecuta después de eliminar la aplicación
      * */
     suspend fun delete(app: App, task: (app: App) -> Unit)
+
+    /**
+     * Llena una nueva aplicación con los datos del PackageInfo.
+     * Ademas resuelve otros datos necesarios. Este método no se debe usar
+     * en una aplicación existente porque restablece todos los valores de esta.
+     * En su lugar use el método fillApp
+     *
+     * @param app - Aplicación a llenar
+     * @param info - PackageInfo que se usará para llenar la aplicación
+     *
+     * @see fillApp
+     * */
+    fun fillNewApp(app: App, info: PackageInfo)
+
+    /**
+     * LLena una aplicación existente con los datos del PackageInfo.
+     * Este no debe usarse en una nueva aplicación porque no llenará todos los datos
+     * para no restablecer los valores mutables. Mas bien debe usarse para actualizar
+     * los datos de una aplicación que ha sido actualizada en el sistema.
+     *
+     * @param app - Aplicación a llenar
+     * @param info - PackageInfo que se usará para llenar la aplicación
+     *
+     * @see fillNewApp
+     * */
+    fun fillApp(app: App, info: PackageInfo)
 }

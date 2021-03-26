@@ -53,6 +53,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.4'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.4'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
 
     //Three party libraries
     implementation 'moe.feng.common:material-stepper-view:0.2.5'
