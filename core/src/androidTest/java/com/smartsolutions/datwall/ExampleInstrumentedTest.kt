@@ -1,6 +1,5 @@
-package com.smartsolutions.paquetes
+package com.smartsolutions.datwall
 
-import android.content.pm.ChangedPackages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
@@ -20,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.smartsolutions.paquetes", appContext.packageName)
+        assertEquals("com.smartsolutions.datwall.test", appContext.packageName)
     }
 }
