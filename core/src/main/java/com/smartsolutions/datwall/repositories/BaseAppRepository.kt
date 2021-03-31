@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Pair
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.smartsolutions.datwall.R
@@ -13,13 +14,14 @@ import com.smartsolutions.datwall.repositories.models.AppGroup
 import com.smartsolutions.datwall.repositories.models.SpecialApp
 
 abstract class BaseAppRepository(
-    context: Context,
+    private val context: Context,
     gson: Gson
 ) : IAppRepository {
 
     private val packageManager: PackageManager = context.packageManager
 
     private val specialApps: Array<SpecialApp>
+    private val specialGroups: Array<SpecialApp>
     private val nationalApps: Array<String>
 
     init {
@@ -35,6 +37,44 @@ abstract class BaseAppRepository(
 
         val type = object : TypeToken<Array<SpecialApp>>() {}.type
         specialApps = gson.fromJson(json, type)
+
+        json = context.resources.openRawResource(R.raw.app_groups)
+            .bufferedReader()
+            .readText()
+
+        specialGroups = gson.fromJson(json, type)
+    }
+
+    protected fun fillAppGroup(appGroup: AppGroup): AppGroup {
+
+        val specialGroup = getSpecialGroup(appGroup)
+
+        if (specialGroup != null) {
+            appGroup.apply {
+                name = specialGroup.name!!
+                access = specialGroup.access
+                allowAnnotations = specialGroup.allowAnnotations
+                blockedAnnotations = specialGroup.blockedAnnotations
+            }
+        } else {
+            createGroupName(appGroup)
+        }
+
+        return appGroup
+    }
+
+    private fun createGroupName(appGroup: AppGroup) {
+        appGroup.name = context.getString(R.string.generic_group_name, appGroup.uid)
+    }
+
+    private fun getSpecialGroup(appGroup: AppGroup): SpecialApp? {
+        appGroup.forEach { app ->
+            specialGroups.forEach { specialGroup ->
+                if (app.packageName == specialGroup.packageName)
+                    return specialGroup
+            }
+        }
+        return null
     }
 
     override fun fillNewApp(app: App, info: PackageInfo) {
@@ -65,10 +105,6 @@ abstract class BaseAppRepository(
             app.allowAnnotations = it.allowAnnotations
             app.blockedAnnotations = it.blockedAnnotations
         }
-    }
-
-    protected fun fillAppGroup(appGroup: AppGroup) {
-        //TODO: Not yet implemented
     }
 
     private fun getSpecialApp(packageName: String): SpecialApp? {

@@ -16,7 +16,7 @@ import dagger.hilt.components.SingletonComponent
 object ExternalDependenciesModule {
 
     @Provides
-    fun proviceGson() = Gson()
+    fun provideGson() = Gson()
 
     @Provides
     fun provideDbContext(@ApplicationContext context: Context): DbContext =

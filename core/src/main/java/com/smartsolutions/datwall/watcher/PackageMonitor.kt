@@ -24,8 +24,7 @@ class PackageMonitor @Inject constructor(
      * Si encuentra alguna averigua cuales fueron los cambios que tuvieron y
      * actualiza el repositorio.
      *
-     * @return True si fué creada o eliminada alguna aplicación. False si no hubieron cambios o si
-     * solo fué actualizada alguna aplicación.
+     * @return Una lista con los cambios que se encontraron y sus nombres de paquetes respectivos
      * */
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun synchronizeDatabase(): List<Pair<String, ChangeType>> {

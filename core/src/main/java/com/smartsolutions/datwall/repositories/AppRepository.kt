@@ -1,26 +1,34 @@
 package com.smartsolutions.datwall.repositories
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.smartsolutions.datwall.data.IAppDao
 import com.smartsolutions.datwall.repositories.models.App
 import com.smartsolutions.datwall.repositories.models.AppGroup
 import com.smartsolutions.datwall.repositories.models.IApp
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.lang.ref.WeakReference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
+/**
+ * Implementación de la interfaz IAppRepository
+ * */
 class AppRepository @Inject constructor(
     @ApplicationContext
     context: Context,
     gson: Gson,
     private val dao: IAppDao
-): BaseAppRepository(context, gson) {
+): BaseAppRepository(context, gson), CoroutineScope {
 
-    private val convertedData = WeakReference<MutableLiveData<List<IApp>>>(MutableLiveData())
+    //Contexto de las co-rutinas
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
+    //Lista de observadores
     private val listObserver = mutableListOf<Observer>()
 
     override val appsCount: Int
@@ -36,34 +44,44 @@ class AppRepository @Inject constructor(
         get() = dao.apps
 
     override fun registerObserver(observer: Observer) {
-        observer.change(convertToListIApp(dao.apps))
         this.listObserver.add(observer)
+
+        launch {
+            val list = convertToListIApp(dao.apps)
+
+            withContext(Dispatchers.Main) {
+                observer.change(list)
+            }
+        }
     }
 
     override fun unregisterObserver(observer: Observer) {
         this.listObserver.remove(observer)
     }
 
-    override fun liveData(): LiveData<List<IApp>> = convertedData.get() ?: MutableLiveData()
-
     override suspend fun get(packageName: String): App? = dao.get(packageName)
 
     override suspend fun get(uid: Int): IApp {
+        //Obtengo los datos
         val apps = dao.get(uid)
 
         return if (apps.size == 1)
+            //Si la lista de aplicaciones es de uno retorno una instancia de App
             apps[0]
         else {
+            //Sino creo un grupo y lo retorno
             val appGroup = AppGroup(
                 uid,
                 "",
             apps.toMutableList(),
             null,
             null)
-            appGroup.name = createGroupName(appGroup)
-            appGroup
+
+            fillAppGroup(appGroup)
         }
     }
+
+    override suspend fun getAllByGroup(): List<IApp> = convertToListIApp(dao.apps)
 
     override suspend fun create(app: App) {
         dao.create(app)
@@ -109,13 +127,19 @@ class AppRepository @Inject constructor(
         refreshObservers()
     }
 
+    /**
+     * Convierte una lista de IApp en una lista de App
+     * */
     private fun convertToListApp(apps: List<IApp>): List<App> {
+        //Lista final de App
         val list = mutableListOf<App>()
 
         apps.forEach {
+            //Si el elemento es una App la añado a la lista
             if (it is App)
                 list.add(it)
             else if (it is AppGroup) {
+                //Si es un grupo añado las apps
                 it.forEach { app ->
                     list.add(app)
                 }
@@ -140,9 +164,6 @@ class AppRepository @Inject constructor(
                     null,
                     null
                 )
-
-                fillAppGroup(appGroup)
-
                 listGroup.add(appGroup)
             }
         }
@@ -150,18 +171,24 @@ class AppRepository @Inject constructor(
         return MutableList(listGroup.size) {
             return@MutableList if (listGroup[it].size == 1)
                 listGroup[it][0]
-            else
-                listGroup[it]
+            else {
+                fillAppGroup(listGroup[it])
+            }
         }
     }
 
-    private fun createGroupName(appGroup: AppGroup): String {
-        return "new group"
-    }
-
+    /**
+     * Lanza los observadores con datos frescos
+     * */
     private fun refreshObservers() {
-        listObserver.forEach {
-            it.change(convertToListIApp(dao.apps))
+        launch {
+            val list = convertToListIApp(dao.apps)
+
+            withContext(Dispatchers.Main) {
+                listObserver.forEach {
+                    it.change(list)
+                }
+            }
         }
     }
 }

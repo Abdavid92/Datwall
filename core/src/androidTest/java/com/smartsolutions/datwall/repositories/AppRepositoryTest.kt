@@ -39,6 +39,22 @@ class AppRepositoryTest {
     }
 
     @Test
+    fun getAllByGroups() {
+        runBlocking {
+            val apps = appRepository.getAllByGroup()
+
+            assertNotNull(apps)
+
+            assertNotEquals(0, apps.size)
+
+            val app = apps.firstOrNull { it is App && it.packageName == "com.android.calculator2" }
+
+            if (app != null)
+                assertNotEquals(true, (app as App).internet)
+        }
+    }
+
+    @Test
     fun getAll() {
         val result = appRepository.all
 

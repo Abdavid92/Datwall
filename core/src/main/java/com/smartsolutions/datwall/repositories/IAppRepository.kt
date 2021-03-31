@@ -45,13 +45,6 @@ interface IAppRepository {
     fun unregisterObserver(observer: Observer)
 
     /**
-     * Obtiene todas las aplicaciones
-     *
-     * @return LiveData con la lista de aplicaciones organizadas por grupos
-     * */
-    fun liveData(): LiveData<List<IApp>>
-
-    /**
      * Obtiene una aplicación por el nombre de paquete
      *
      * @param packageName - Nombre de paquete de la aplicación a buscar
@@ -64,6 +57,11 @@ interface IAppRepository {
      * Obtiene una aplicación o un grupo de ellas por el uid
      * */
     suspend fun get(uid: Int): IApp
+
+    /**
+     * Obtiene todas la aplicaciones organizadas por grupo
+     * */
+    suspend fun getAllByGroup(): List<IApp>
 
     /**
      * Inserta una aplicación en base de datos

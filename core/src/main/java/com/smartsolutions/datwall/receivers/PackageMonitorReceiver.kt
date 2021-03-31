@@ -3,6 +3,7 @@ package com.smartsolutions.datwall.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import com.smartsolutions.datwall.watcher.ChangeType
 import com.smartsolutions.datwall.watcher.PackageMonitor
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,20 +24,21 @@ class PackageMonitorReceiver : BroadcastReceiver(), CoroutineScope {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-        val packageName = intent.data?.encodedSchemeSpecificPart
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+            val packageName = intent.data?.encodedSchemeSpecificPart
 
-        packageName?.let {
+            packageName?.let {
 
-            val changeType: ChangeType = when (intent.action) {
-                Intent.ACTION_PACKAGE_ADDED -> ChangeType.Created
-                Intent.ACTION_PACKAGE_REPLACED -> ChangeType.Updated
-                Intent.ACTION_PACKAGE_FULLY_REMOVED -> ChangeType.Deleted
-                else -> ChangeType.None
-            }
+                val changeType: ChangeType = when (intent.action) {
+                    Intent.ACTION_PACKAGE_ADDED -> ChangeType.Created
+                    Intent.ACTION_PACKAGE_REPLACED -> ChangeType.Updated
+                    Intent.ACTION_PACKAGE_FULLY_REMOVED -> ChangeType.Deleted
+                    else -> ChangeType.None
+                }
 
-            launch {
-                packageMonitor.synchronizeDatabase(it, changeType)
-                TODO("Reiniciar el vpn en algunos casos")
+                launch {
+                    packageMonitor.synchronizeDatabase(it, changeType)
+                }
             }
         }
     }
