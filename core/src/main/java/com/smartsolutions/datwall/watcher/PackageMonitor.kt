@@ -23,14 +23,9 @@ class PackageMonitor @Inject constructor(
      * Obtiene las aplicaciones cambiadas del PackageManager.
      * Si encuentra alguna averigua cuales fueron los cambios que tuvieron y
      * actualiza el repositorio.
-     *
-     * @return Una lista con los cambios que se encontraron y sus nombres de paquetes respectivos
      * */
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun synchronizeDatabase(): List<Pair<String, ChangeType>> {
-
-        //Lista con los cambios realizados
-        val changes = mutableListOf<Pair<String, ChangeType>>()
+    suspend fun synchronizeDatabase() {
 
         //Reviso que existan aplicaciones con cambios
         packageManager.getChangedPackages(sequenceNumber)?.let {
@@ -54,8 +49,6 @@ class PackageMonitor @Inject constructor(
                         appRepository.fillApp(app, info)
                         //La actualizo en base de datos
                         appRepository.update(app)
-                        //Agrego el cambio en la lista
-                        changes.add(Pair(app.packageName, ChangeType.Updated))
                     } else if (app == null) {
                         //Instancio una nueva App
                         app = App()
@@ -63,20 +56,15 @@ class PackageMonitor @Inject constructor(
                         appRepository.fillNewApp(app, info)
                         //Y la creo
                         appRepository.create(app)
-                        //Agrego el cambio en la lista
-                        changes.add(Pair(app.packageName, ChangeType.Created))
                     }
                 } catch (e: PackageManager.NameNotFoundException) {
                     //Si no encontré el packageInfo es porque fué desinstalada
                     if (app != null) {
                         appRepository.delete(app)
-                        //Agrego el cambio en la lista
-                        changes.add(Pair(app.packageName, ChangeType.Deleted))
                     }
                 }
             }
         }
-        return changes
     }
 
     /**

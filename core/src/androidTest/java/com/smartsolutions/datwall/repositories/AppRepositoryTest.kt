@@ -66,8 +66,21 @@ class AppRepositoryTest {
     @Test
     fun observable() {
 
-        appRepository.registerObserver(object : Observer {
-            override fun change(apps: List<IApp>) {
+        appRepository.registerObserver(object : Observer() {
+
+            override fun onCreate(apps: List<App>) {
+                assertTrue(apps.isNotEmpty())
+            }
+
+            override fun onUpdate(apps: List<App>) {
+                assertTrue(apps.isNotEmpty())
+            }
+
+            override fun onDelete(apps: List<App>) {
+                assertTrue(apps.isNotEmpty())
+            }
+
+            override fun onChange(apps: List<IApp>) {
                 assertTrue(apps.isNotEmpty())
                 Log.i(observableTag, "La lista contiene ${apps.size} elementos")
             }

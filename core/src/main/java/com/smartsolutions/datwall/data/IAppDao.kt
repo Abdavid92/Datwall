@@ -31,6 +31,9 @@ interface IAppDao {
     @Insert
     suspend fun create(app: App)
 
+    @Insert
+    suspend fun create(apps: List<App>)
+
     @Update
     suspend fun update(app: App)
 
@@ -39,4 +42,7 @@ interface IAppDao {
 
     @Delete
     suspend fun delete(app: App)
+
+    @Delete
+    suspend fun delete(apps: List<App>)
 }

@@ -1,6 +1,7 @@
 package com.smartsolutions.datwall.repositories
 
 import android.content.pm.PackageInfo
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.smartsolutions.datwall.repositories.models.App
 import com.smartsolutions.datwall.repositories.models.IApp
@@ -38,6 +39,14 @@ interface IAppRepository {
     fun registerObserver(observer: Observer)
 
     /**
+     * Registra un observador atado a un ciclo de vida que estará pendiente de los cambios en base de datos.
+     *
+     * @param lifecycleOwner - Ciclo de vida
+     * @param observer - Observador a registrar
+     * */
+    fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer)
+
+    /**
      * Elimina un observador del registro
      *
      * @param observer - Observador a eliminar
@@ -71,13 +80,11 @@ interface IAppRepository {
     suspend fun create(app: App)
 
     /**
-     * Inserta una aplicación y ejecuta una función
+     * Inserta una lista de aplicaciones
      *
-     * @param app - Aplicación a insertar
-     * @param task - Función que se ejecuta después de insertar la aplicación.
-     * Como argumento se le pasa la aplicación que se insertó
+     * @param apps - Lista de aplicaciones a insertar
      * */
-    suspend fun create(app: App, task: (app: App) -> Unit)
+    suspend fun create(apps: List<IApp>)
 
     /**
      * Actualiza una aplicación
@@ -87,29 +94,11 @@ interface IAppRepository {
     suspend fun update(app: App)
 
     /**
-     * Actualiza una aplicación y ejecuta una función
-     *
-     * @param app - Aplicación a actualizar
-     * @param task - Función que se ejecuta después de actualizar la aplicación.
-     * Como argumento se le pasa la aplicación que se actualizó
-     * */
-    suspend fun update(app: App, task: (app: App) -> Unit)
-
-    /**
      * Actualiza una lista de aplicaciones
      *
      * @param apps - Lista de aplicaciones
      * */
     suspend fun update(apps: List<IApp>)
-
-    /**
-     * Actualiza una lista de aplicaciones y ejecuta una función
-     *
-     * @param apps - Lista de aplicaciones
-     * @param task - Función que se ejecuta después de actualizar la lista de aplicaciones.
-     * Recibe esta lista como argumento
-     * */
-    suspend fun update(apps: List<IApp>, task: (apps: List<IApp>) -> Unit)
 
     /**
      * Elimina una aplicación
@@ -119,12 +108,11 @@ interface IAppRepository {
     suspend fun delete(app: App)
 
     /**
-     * Elimina una aplicación y ejecuta una función
+     * Elimina una lista de aplicaciones
      *
-     * @param app - Aplicación a eliminar
-     * @param task - Función que se ejecuta después de eliminar la aplicación
+     * @param apps - Lista de aplicaciones a eliminar
      * */
-    suspend fun delete(app: App, task: (app: App) -> Unit)
+    suspend fun delete(apps: List<IApp>)
 
     /**
      * Llena una nueva aplicación con los datos del PackageInfo.

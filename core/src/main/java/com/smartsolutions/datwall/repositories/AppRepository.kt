@@ -1,11 +1,14 @@
 package com.smartsolutions.datwall.repositories
 
 import android.content.Context
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.google.gson.Gson
 import com.smartsolutions.datwall.data.IAppDao
 import com.smartsolutions.datwall.repositories.models.App
 import com.smartsolutions.datwall.repositories.models.AppGroup
 import com.smartsolutions.datwall.repositories.models.IApp
+import com.smartsolutions.datwall.watcher.ChangeType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +32,7 @@ class AppRepository @Inject constructor(
         get() = Dispatchers.IO
 
     //Lista de observadores
-    private val listObserver = mutableListOf<Observer>()
+    private val listObserver = mutableListOf<Pair<LifecycleOwner?, Observer>>()
 
     override val appsCount: Int
         get() = dao.appsCount
@@ -44,19 +47,33 @@ class AppRepository @Inject constructor(
         get() = dao.apps
 
     override fun registerObserver(observer: Observer) {
-        this.listObserver.add(observer)
+        this.listObserver.add(Pair(null, observer))
 
         launch {
             val list = convertToListIApp(dao.apps)
 
             withContext(Dispatchers.Main) {
-                observer.change(list)
+                observer.onChange(list)
+            }
+        }
+    }
+
+    override fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer) {
+        this.listObserver.add(Pair(lifecycleOwner, observer))
+
+        launch {
+            val list = convertToListIApp(dao.apps)
+
+            withContext(Dispatchers.Main) {
+                observer.onChange(list)
             }
         }
     }
 
     override fun unregisterObserver(observer: Observer) {
-        this.listObserver.remove(observer)
+        this.listObserver.firstOrNull { it.second == observer }?.let {
+            this.listObserver.remove(it)
+        }
     }
 
     override suspend fun get(packageName: String): App? = dao.get(packageName)
@@ -85,46 +102,38 @@ class AppRepository @Inject constructor(
 
     override suspend fun create(app: App) {
         dao.create(app)
-        refreshObservers()
+        observersOnChangeType(listOf(app), ChangeType.Created)
     }
 
-    override suspend fun create(app: App, task: (app: App) -> Unit) {
-        dao.create(app)
-        task(app)
-        refreshObservers()
+    override suspend fun create(apps: List<IApp>) {
+        val list = convertToListApp(apps)
+
+        dao.create(list)
+        observersOnChangeType(list, ChangeType.Created)
     }
 
     override suspend fun update(app: App) {
         dao.update(app)
-        refreshObservers()
-    }
-
-    override suspend fun update(app: App, task: (app: App) -> Unit) {
-        dao.update(app)
-        task(app)
-        refreshObservers()
+        observersOnChangeType(listOf(app), ChangeType.Updated)
     }
 
     override suspend fun update(apps: List<IApp>) {
-        dao.update(convertToListApp(apps))
-        refreshObservers()
-    }
+        val list = convertToListApp(apps)
 
-    override suspend fun update(apps: List<IApp>, task: (apps: List<IApp>) -> Unit) {
-        dao.update(convertToListApp(apps))
-        task(apps)
-        refreshObservers()
+        dao.update(list)
+        observersOnChangeType(list, ChangeType.Updated)
     }
 
     override suspend fun delete(app: App) {
         dao.delete(app)
-        refreshObservers()
+        observersOnChangeType(listOf(app), ChangeType.Deleted)
     }
 
-    override suspend fun delete(app: App, task: (app: App) -> Unit) {
-        dao.delete(app)
-        task(app)
-        refreshObservers()
+    override suspend fun delete(apps: List<IApp>) {
+        val list = convertToListApp(apps)
+
+        dao.delete(list)
+        observersOnChangeType(list, ChangeType.Deleted)
     }
 
     /**
@@ -178,15 +187,41 @@ class AppRepository @Inject constructor(
     }
 
     /**
-     * Lanza los observadores con datos frescos
+     * Lanza los eventos de los observadores
      * */
-    private fun refreshObservers() {
-        launch {
-            val list = convertToListIApp(dao.apps)
+    private suspend fun observersOnChangeType(apps: List<App>, type: ChangeType) {
 
-            withContext(Dispatchers.Main) {
-                listObserver.forEach {
-                    it.change(list)
+        //Lista de todas las aplcaciones que se usará para lanzar el evento onChange
+        val all = convertToListIApp(dao.apps)
+
+        /*Cambio de contexto hacia el hilo principal para poder
+          tocar vistas dentro de
+          estos eventos*/
+        withContext(Dispatchers.Main) {
+            listObserver.forEach {
+
+                //Si el ciclo de vida está destruido
+                if (it.first?.lifecycle?.currentState == Lifecycle.State.DESTROYED)
+                    //Elimino el observador
+                    unregisterObserver(it.second)
+                else {
+                    //Lanzo el evento correspondiente al cambio
+                    when (type) {
+                        ChangeType.Created -> {
+                            it.second.onCreate(apps)
+                        }
+                        ChangeType.Updated -> {
+                            it.second.onUpdate(apps)
+                        }
+                        ChangeType.Deleted -> {
+                            it.second.onDelete(apps)
+                        }
+                        ChangeType.None -> {
+                            //None
+                        }
+                    }
+                    //Lanzo el evento onChange
+                    it.second.onChange(all)
                 }
             }
         }

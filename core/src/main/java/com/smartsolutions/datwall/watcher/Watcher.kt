@@ -88,30 +88,22 @@ class Watcher @Inject constructor(
     }
 
     private suspend fun launchBroadcasts(packageName: String) {
-        if (context.packageName != packageName) {
+        if (currentPackageName != packageName) {
 
             appRepository.get(packageName)?.let { app ->
-                if (app.executable || watcherUtils.isTheLauncher(packageName) && currentPackageName != packageName) {
+                val intent = Intent(ACTION_CHANGE_APP_FOREGROUND)
+                    .putExtra(EXTRA_FOREGROUND_APP, app)
 
-                    val intent = Intent(ACTION_CHANGE_APP_FOREGROUND)
-                        .putExtra(EXTRA_APP, app)
-
-                    if (localBroadcastManager.sendBroadcast(intent))
-                        Log.i(TAG, "launchBroadcasts: send broadcast success")
-                    else
-                        Log.i(TAG, "launchBroadcasts: fail sending broadcast")
-
-                    currentPackageName?.let {
-                        appRepository.get(it)?.let { delayApp ->
-
-                            val delayIntent = Intent(ACTION_DELAY_APP_FOREGROUND)
-                                .putExtra(EXTRA_APP, delayApp)
-
-                            localBroadcastManager.sendBroadcast(delayIntent)
-
-                        }
+                currentPackageName?.let {
+                    appRepository.get(it)?.let { app ->
+                        intent.putExtra(EXTRA_DELAY_APP, app)
                     }
                 }
+
+                Log.i(TAG, "launchBroadcasts: sending broadcast with ${app.packageName}")
+
+                localBroadcastManager.sendBroadcast(intent)
+
                 currentPackageName = packageName
             }
         }
@@ -134,14 +126,13 @@ class Watcher @Inject constructor(
         const val ACTION_CHANGE_APP_FOREGROUND = "com.smartsolutions.datwall.action.CHANGE_APP_FOREGROUND"
 
         /**
-         * Broadcast que se lanza junto con @see ACTION_CHANGE_APP_FOREGROUND
-         * cuando una aplicación deja el primer plano.
+         * Extra que contiene la aplicación que entró en el primer plano.
          * */
-        const val ACTION_DELAY_APP_FOREGROUND = "com.smartsolutions.datwall.action.DELAY_APP_FOREGROUND"
+        const val EXTRA_FOREGROUND_APP = "com.smartsolutions.datwall.extra.FOREGROUND_APP"
 
         /**
-         * Extra que contiene la aplicación que entró o dejó el primer plano.
+         * Extra que contiene la aplicación que dejó el primer plano.
          * */
-        const val EXTRA_APP = "com.smartsolutions.datwall.extra.APP"
+        const val EXTRA_DELAY_APP = "com.smartsolutions.datwall.extra.DELAY_APP"
     }
 }

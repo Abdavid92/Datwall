@@ -6,16 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
-import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.datwall.repositories.models.App
 import com.smartsolutions.datwall.watcher.PackageMonitor
 import com.smartsolutions.datwall.watcher.Watcher
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -43,25 +40,14 @@ class DatwallApplication : Application() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 intent?.let {
 
-                    val app = intent.getParcelableExtra<App>(Watcher.EXTRA_APP)
+                    val app = intent.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)
 
-                    when (it.action) {
-                        Watcher.ACTION_CHANGE_APP_FOREGROUND -> {
-                            Log.i(TAG, "La app ${app?.packageName} está en primer plano")
-                        }
-                        Watcher.ACTION_DELAY_APP_FOREGROUND -> {
-                            Log.i(TAG, "La app ${app?.packageName} dejó el primer plano")
-                        }
-                        else -> {
-                            //None
-                        }
-                    }
+                    Log.i(TAG, "La app ${app?.packageName} está en primer plano")
                 }
             }
         }
 
         val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
-        filter.addAction(Watcher.ACTION_DELAY_APP_FOREGROUND)
 
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, filter)
