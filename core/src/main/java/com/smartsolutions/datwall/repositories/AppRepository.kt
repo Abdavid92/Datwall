@@ -113,27 +113,27 @@ class AppRepository @Inject constructor(
     }
 
     override suspend fun update(app: App) {
-        dao.update(app)
-        observersOnChangeType(listOf(app), ChangeType.Updated)
+        if (dao.update(app) > 0)
+            observersOnChangeType(listOf(app), ChangeType.Updated)
     }
 
     override suspend fun update(apps: List<IApp>) {
         val list = convertToListApp(apps)
 
-        dao.update(list)
-        observersOnChangeType(list, ChangeType.Updated)
+        if (dao.update(list) > 0)
+            observersOnChangeType(list, ChangeType.Updated)
     }
 
     override suspend fun delete(app: App) {
-        dao.delete(app)
-        observersOnChangeType(listOf(app), ChangeType.Deleted)
+        if (dao.delete(app) > 0)
+            observersOnChangeType(listOf(app), ChangeType.Deleted)
     }
 
     override suspend fun delete(apps: List<IApp>) {
         val list = convertToListApp(apps)
 
-        dao.delete(list)
-        observersOnChangeType(list, ChangeType.Deleted)
+        if (dao.delete(list) > 0)
+            observersOnChangeType(list, ChangeType.Deleted)
     }
 
     /**

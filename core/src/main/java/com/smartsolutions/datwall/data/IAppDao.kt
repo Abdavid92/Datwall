@@ -35,14 +35,14 @@ interface IAppDao {
     suspend fun create(apps: List<App>)
 
     @Update
-    suspend fun update(app: App)
+    suspend fun update(app: App): Int
 
     @Update
-    suspend fun update(apps: List<App>)
+    suspend fun update(apps: List<App>): Int
 
     @Delete
-    suspend fun delete(app: App)
+    suspend fun delete(app: App): Int
 
     @Delete
-    suspend fun delete(apps: List<App>)
+    suspend fun delete(apps: List<App>): Int
 }
