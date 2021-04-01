@@ -49,27 +49,37 @@ class AppRepository @Inject constructor(
         get() = dao.apps
 
     override fun registerObserver(observer: Observer) {
-        this.listObserver.add(Pair(null, observer))
+        if (!observerExist(observer))
+            this.listObserver.add(Pair(null, observer))
 
         launch {
-            val list = convertToListIApp(dao.apps)
+            if (dao.appsCount > 0) {
+                val list = convertToListIApp(dao.apps)
 
-            withContext(Dispatchers.Main) {
-                observer.onChange(list)
+                withContext(Dispatchers.Main) {
+                    observer.onChange(list)
+                }
             }
         }
     }
 
     override fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer) {
-        this.listObserver.add(Pair(lifecycleOwner, observer))
+        if (!observerExist(observer))
+            this.listObserver.add(Pair(lifecycleOwner, observer))
 
         launch {
-            val list = convertToListIApp(dao.apps)
+            if (dao.appsCount > 0) {
+                val list = convertToListIApp(dao.apps)
 
-            withContext(Dispatchers.Main) {
-                observer.onChange(list)
+                withContext(Dispatchers.Main) {
+                    observer.onChange(list)
+                }
             }
         }
+    }
+
+    private fun observerExist(observer: Observer): Boolean {
+        return this.listObserver.firstOrNull { it.second == observer } != null
     }
 
     override fun unregisterObserver(observer: Observer) {

@@ -30,6 +30,11 @@ class VpnConnection @Inject constructor(
      * */
     var pendingIntent: PendingIntent? = null
 
+    val connected: Boolean
+        get() = connection?.fileDescriptor?.valid() == true
+
+    private var isConnecting = false
+
     /**
      * Conexión vpn
      * */
@@ -45,16 +50,18 @@ class VpnConnection @Inject constructor(
         override fun onChange(apps: List<IApp>) {
             if (hasUpdate(apps)) {
 
-                restart(apps)
+                establishConnection(apps)
             }
         }
     }
 
     fun start() {
-        if (service == null)
-            throw IllegalStateException("VpnService not initialized")
+        if (!connected) {
+            if (service == null)
+                throw IllegalStateException("VpnService not initialized")
 
-        appRepository.registerObserver(this.observer)
+            appRepository.registerObserver(this.observer)
+        }
     }
 
     fun restart() {
@@ -62,25 +69,32 @@ class VpnConnection @Inject constructor(
             val apps = appRepository.getAllByGroup()
 
             withContext(Dispatchers.Main) {
-                restart(apps)
+                establishConnection(apps)
             }
         }
     }
 
-    private fun restart(apps: List<IApp>) {
-        saveMarksOfAccess(apps)
+    private fun establishConnection(apps: List<IApp>) {
+        if (!isConnecting) {
 
-        handshake(apps)?.let {
+            isConnecting = true
 
-            if (connection != null) {
-                try {
-                    connection?.close()
-                } catch (e: Exception) {
+            saveMarksOfAccess(apps)
 
+            handshake(apps)?.let {
+
+                if (connection != null) {
+                    try {
+                        connection?.close()
+                    } catch (e: Exception) {
+
+                    }
                 }
+
+                connection = it.establish()
             }
 
-            connection = it.establish()
+            isConnecting = false
         }
     }
 
@@ -147,7 +161,7 @@ class VpnConnection @Inject constructor(
     }
 
     private fun hasUpdate(apps: List<IApp>): Boolean {
-        if (marksOfAccess.isEmpty())
+        if (marksOfAccess.isEmpty() || marksOfAccess.size != apps.size)
             return true
 
         for (i in apps.indices) {
