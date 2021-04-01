@@ -6,6 +6,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -34,6 +35,10 @@ class AndroidServicesModule {
     @RequiresApi(Build.VERSION_CODES.M)
     fun provideNetworkStatsManager(@ApplicationContext context: Context): NetworkStatsManager =
         ContextCompat.getSystemService(context, NetworkStatsManager::class.java) ?: throw NullPointerException()
+
+    @Provides
+    fun provideTelephonyManager(@ApplicationContext context: Context): TelephonyManager =
+        ContextCompat.getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException()
 
     @Provides
     fun provideLocalBroadcastManager(@ApplicationContext context: Context) =

@@ -8,4 +8,6 @@ interface IApp: Parcelable {
     var access: Boolean
     var allowAnnotations: String?
     var blockedAnnotations: String?
+
+    fun accessHashCode(): Int
 }

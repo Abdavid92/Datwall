@@ -13,15 +13,14 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ExternalDependenciesModule {
+object DependenciesModule {
 
     @Provides
     fun provideGson() = Gson()
 
     @Provides
     fun provideDbContext(@ApplicationContext context: Context): DbContext =
-        Room.databaseBuilder(context, DbContext::class.java, "data.db")
-            .build()
+        DbContext.getInstance(context)
 
     @Provides
     fun provideIAppDao(dbContext: DbContext): IAppDao = dbContext.getAppDao()

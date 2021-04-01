@@ -1,17 +1,16 @@
 package com.smartsolutions.datwall.watcher
 
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.datwall.repositories.IAppRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,10 +18,9 @@ import kotlin.coroutines.CoroutineContext
  * Se encarga también de mantener actualizada la base de datos con los cambios de las aplicaciones
  * solo cuando el sistema es Android 8 en adelante.
  * */
+@Singleton
 class Watcher @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
-    private val packageMonitor: PackageMonitor,
+    val packageMonitor: PackageMonitor,
     private val watcherUtils: WatcherUtils,
     private val appRepository: IAppRepository,
     private val localBroadcastManager: LocalBroadcastManager

@@ -24,8 +24,6 @@ class DatwallApplication : Application() {
     @Inject
     lateinit var packageMonitor: PackageMonitor
 
-    private val TAG = "Watcher"
-
     override fun onCreate() {
         super.onCreate()
 
@@ -34,28 +32,10 @@ class DatwallApplication : Application() {
                 watcher.start()
             }
         }
-
-        val receiver = object : BroadcastReceiver() {
-
-            override fun onReceive(context: Context?, intent: Intent?) {
-                intent?.let {
-
-                    val app = intent.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)
-
-                    Log.i(TAG, "La app ${app?.packageName} está en primer plano")
-                }
-            }
-        }
-
-        val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
-
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(receiver, filter)
     }
 
     override fun onTerminate() {
         watcher.stop()
-
         super.onTerminate()
     }
 }

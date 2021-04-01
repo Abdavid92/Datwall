@@ -18,7 +18,10 @@ import javax.inject.Inject
 /**
  * Clase administradora de los íconos de las aplicaciones
  * */
-class IconManager @Inject constructor(@ApplicationContext context: Context) : Manager(context) {
+class IconManager @Inject constructor(
+    @ApplicationContext
+    private val context: Context
+) {
 
     /**
      * Servicio que se usa para obtener los íconos de las aplicaciones

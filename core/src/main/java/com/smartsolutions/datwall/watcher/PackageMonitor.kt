@@ -4,14 +4,17 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.smartsolutions.datwall.data.IAppDao
 import com.smartsolutions.datwall.repositories.IAppRepository
 import com.smartsolutions.datwall.repositories.models.App
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * Se encarga de mantener el repositorio actualizado con
+ * Se encarga de actualizar el repositorio con
  * todos los cambios que ocurran en las aplicaciones del sistema.
  * */
+@Singleton
 class PackageMonitor @Inject constructor(
     private val packageManager: PackageManager,
     private val appRepository: IAppRepository
@@ -116,29 +119,39 @@ class PackageMonitor @Inject constructor(
      * @param task - Función a ejecutar cuando termina el proceso de sincronización
      * */
     suspend fun forceSynchronization(task: (() -> Unit)? = null) {
+        //Obtengo las aplicaciones instaladas
         val installedPackages = packageManager.getInstalledPackages(0)
 
+        //Obtengo las aplicaciones guardadas en base de datos
         val apps = appRepository.all
 
         installedPackages.forEach { info ->
+            //Por cada aplicación instalada, busco en la aplicaciones guardadas.
             var app = apps.firstOrNull { it.packageName == info.packageName }
 
             if (app == null) {
+                /*Si no la encuentro la instancio, la lleno
+                * y la guardo en la base de datos.*/
                 app = App()
 
                 appRepository.fillNewApp(app, info)
                 appRepository.create(app)
             } else if (versionNotEquals(app.version, info)) {
+                /*Pero si la encuentro reviso que la version sea diferente.
+                * Si lo es, la actualizo.*/
                 appRepository.fillApp(app, info)
                 appRepository.update(app)
             }
         }
 
+        //Esta iteración es para buscar las aplicaciones que han sido desinstaladas.
         apps.forEach { app ->
+            //Si no esta dentro de las aplicaciones instaladas, la elimino de la base de datos.
             if (installedPackages.firstOrNull { app.packageName == it.packageName } == null) {
                 appRepository.delete(app)
             }
         }
+        //Por último ejecuto la tarea que se pasó como parámetro.
         task?.invoke()
     }
 

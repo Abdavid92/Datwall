@@ -65,4 +65,12 @@ class AppGroup(
     override fun set(index: Int, element: App): App = apps.set(index, element)
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<App> = apps.subList(fromIndex, toIndex)
+
+    override fun accessHashCode(): Int {
+        var code = ""
+        apps.forEach {
+            code += it.accessHashCode().toString()
+        }
+        return code.toInt()
+    }
 }

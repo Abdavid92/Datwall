@@ -15,11 +15,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
 /**
  * Implementación de la interfaz IAppRepository
  * */
+@Singleton
 class AppRepository @Inject constructor(
     @ApplicationContext
     context: Context,
