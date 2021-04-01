@@ -19,9 +19,15 @@ object DependenciesModule {
     fun provideGson() = Gson()
 
     @Provides
-    fun provideDbContext(@ApplicationContext context: Context): DbContext =
+    fun provideDbContext(@ApplicationContext context: Context) =
         DbContext.getInstance(context)
 
     @Provides
-    fun provideIAppDao(dbContext: DbContext): IAppDao = dbContext.getAppDao()
+    fun provideIAppDao(dbContext: DbContext) = dbContext.getAppDao()
+
+    @Provides
+    fun provideIDataPackageDao(dbContext: DbContext) = dbContext.getDataPackageDao()
+
+    @Provides
+    fun provideIUserDataPackageDao(dbContext: DbContext) = dbContext.getUserDataPackageDao()
 }

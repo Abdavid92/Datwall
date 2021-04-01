@@ -9,7 +9,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface IAppRepositoryModule {
+interface RepositoriesModule {
 
     @Binds
     fun bindIAppRepository(impl: AppRepository): IAppRepository

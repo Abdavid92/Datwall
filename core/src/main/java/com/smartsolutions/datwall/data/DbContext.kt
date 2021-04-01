@@ -5,11 +5,17 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.smartsolutions.datwall.repositories.models.App
+import com.smartsolutions.datwall.repositories.models.DataPackage
+import com.smartsolutions.datwall.repositories.models.UserDataPackage
 
-@Database(entities = [App::class], version = 1, exportSchema = false)
+@Database(entities = [App::class, DataPackage::class, UserDataPackage::class], version = 1, exportSchema = false)
 abstract class DbContext: RoomDatabase() {
 
     abstract fun getAppDao(): IAppDao
+
+    abstract fun getDataPackageDao(): IDataPackageDao
+
+    abstract fun getUserDataPackageDao(): IUserDataPackageDao
 
     companion object {
 

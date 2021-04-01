@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.smartsolutions.datwall.managers.NetworkUsageDigger
 import com.smartsolutions.datwall.repositories.models.App
 import com.smartsolutions.datwall.watcher.PackageMonitor
 import com.smartsolutions.datwall.watcher.Watcher
@@ -32,6 +33,7 @@ class DatwallApplication : Application() {
                 watcher.start()
             }
         }
+
     }
 
     override fun onTerminate() {

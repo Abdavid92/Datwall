@@ -74,6 +74,19 @@ class VpnConnection @Inject constructor(
         }
     }
 
+    fun stop() {
+        appRepository.unregisterObserver(this.observer)
+
+        if (connection != null) {
+            try {
+                connection?.close()
+                connection = null
+            } catch (e: Exception) {
+
+            }
+        }
+    }
+
     private fun establishConnection(apps: List<IApp>) {
         if (!isConnecting) {
 
@@ -95,19 +108,6 @@ class VpnConnection @Inject constructor(
             }
 
             isConnecting = false
-        }
-    }
-
-    fun stop() {
-        appRepository.unregisterObserver(this.observer)
-
-        if (connection != null) {
-            try {
-                connection?.close()
-                connection = null
-            } catch (e: Exception) {
-
-            }
         }
     }
 

@@ -210,12 +210,15 @@ class AppRepository @Inject constructor(
           tocar vistas dentro de
           estos eventos*/
         withContext(Dispatchers.Main) {
+
+            val observersToRemove = mutableListOf<Observer>()
+
             listObserver.forEach {
 
                 //Si el ciclo de vida está destruido
                 if (it.first?.lifecycle?.currentState == Lifecycle.State.DESTROYED)
-                    //Elimino el observador
-                    unregisterObserver(it.second)
+                    //Agrego el observador a la lista negra
+                    observersToRemove.add(it.second)
                 else {
                     //Lanzo el evento correspondiente al cambio
                     when (type) {
@@ -235,6 +238,11 @@ class AppRepository @Inject constructor(
                     //Lanzo el evento onChange
                     it.second.onChange(all)
                 }
+            }
+
+            //Eliminos los observadores de la lista negra
+            observersToRemove.forEach {
+                unregisterObserver(it)
             }
         }
     }
