@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.app.usage.NetworkStatsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.telephony.SubscriptionManager
@@ -11,6 +12,7 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,4 +51,8 @@ class AndroidServicesModule {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun provideSubscriptionManager(@ApplicationContext context: Context) =
         ContextCompat.getSystemService(context, SubscriptionManager::class.java) ?: throw NullPointerException()
+
+    @Provides
+    fun providePreferences(@ApplicationContext context: Context): SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(context)
 }

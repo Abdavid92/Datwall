@@ -10,6 +10,9 @@ interface IUserDataPackageDao {
     @Query("SELECT * FROM user_data_package")
     fun getAll(): LiveData<List<UserDataPackage>>
 
+    @Query("SELECT * FROM user_data_package WHERE data_package_id = :dataPackageId")
+    fun getByDataPackageId(dataPackageId: Int): LiveData<List<UserDataPackage>>
+
     @Query("SELECT * FROM user_data_package WHERE id = :id")
     suspend fun get(id: Long): UserDataPackage
 

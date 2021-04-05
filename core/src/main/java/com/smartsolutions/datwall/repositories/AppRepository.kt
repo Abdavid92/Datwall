@@ -36,6 +36,11 @@ class AppRepository @Inject constructor(
     //Lista de observadores
     private val listObserver = mutableListOf<Pair<LifecycleOwner?, Observer>>()
 
+    /**
+     * Indica si se está en una transacción donde no se lanzara ningún evento.
+     * */
+    private val inTransaction = false
+
     override val appsCount: Int
         get() = dao.appsCount
 
@@ -211,6 +216,7 @@ class AppRepository @Inject constructor(
           estos eventos*/
         withContext(Dispatchers.Main) {
 
+            //Lista negra de observadores a remover
             val observersToRemove = mutableListOf<Observer>()
 
             listObserver.forEach {

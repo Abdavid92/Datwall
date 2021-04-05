@@ -9,7 +9,7 @@ import org.apache.commons.lang.time.DateUtils
 import java.util.*
 import kotlin.math.pow
 
-class Traffic(val uid: Int, var _rxBytes : Long, var _txBytes : Long) : Parcelable {
+open class Traffic(val uid: Int, var _rxBytes : Long, var _txBytes : Long) : Parcelable {
 
     var startTime : Long = 0L
 
@@ -81,10 +81,10 @@ class Traffic(val uid: Int, var _rxBytes : Long, var _txBytes : Long) : Parcelab
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    operator fun plusAssign(bucket: NetworkStats.Bucket){
+    open operator fun plusAssign(bucket: NetworkStats.Bucket){
         if (isInDiscountHour(bucket)){
-            this._rxBytes += bucket.rxBytes/2
-            this._txBytes += bucket.txBytes/2
+            this._rxBytes += bucket.rxBytes / 2
+            this._txBytes += bucket.txBytes / 2
         }else {
             this._rxBytes += bucket.rxBytes
             this._txBytes += bucket.txBytes

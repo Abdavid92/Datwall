@@ -1,7 +1,6 @@
 package com.smartsolutions.datwall.modules
 
-import com.smartsolutions.datwall.repositories.AppRepository
-import com.smartsolutions.datwall.repositories.IAppRepository
+import com.smartsolutions.datwall.repositories.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,4 +12,10 @@ interface RepositoriesModule {
 
     @Binds
     fun bindIAppRepository(impl: AppRepository): IAppRepository
+
+    @Binds
+    fun bindIDataPackageRepository(impl: DataPackageRepository): IDataPackageRepository
+
+    @Binds
+    fun bindIUserDataPackageRepository(impl:UserDataPackageRepository): IUserDataPackageRepository
 }

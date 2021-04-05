@@ -1,10 +1,8 @@
 package com.smartsolutions.datwall.repositories.models
 
 import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -12,7 +10,9 @@ import kotlinx.parcelize.Parcelize
     entity = DataPackage::class,
     parentColumns = ["id"],
     childColumns = ["data_package_id"]
-)])
+)], indices = [
+    Index("data_package_id")
+])
 data class UserDataPackage(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
@@ -25,5 +25,10 @@ data class UserDataPackage(
     val finish: Long,
     val active: Boolean,
     @ColumnInfo(name = "data_package_id")
-    val dataPackageId: Int
-): Parcelable
+    val dataPackageId: Int,
+): Parcelable {
+
+    @Ignore
+    @IgnoredOnParcel
+    var dataPackage: DataPackage? = null
+}

@@ -20,11 +20,11 @@ import kotlin.coroutines.CoroutineContext
  * */
 @Singleton
 class Watcher @Inject constructor(
-    val packageMonitor: PackageMonitor,
+    private val packageMonitor: PackageMonitor,
     private val watcherUtils: WatcherUtils,
     private val appRepository: IAppRepository,
     private val localBroadcastManager: LocalBroadcastManager
-) : Runnable, CoroutineScope {
+) : Runnable, AutoCloseable, CoroutineScope {
 
     private val TAG = "Watcher"
 
@@ -60,6 +60,8 @@ class Watcher @Inject constructor(
         this.running = true
 
         thread.start()
+
+        Log.i(TAG, "Watcher is running")
     }
 
     override fun run() {
@@ -77,6 +79,10 @@ class Watcher @Inject constructor(
                         launchBroadcasts(it)
                     }
                 }
+
+                localBroadcastManager.sendBroadcast(Intent(ACTION_TICK))
+
+                Log.i(TAG, "sending tick broadcast")
 
                 Thread.sleep(1000)
             } catch (e: Exception) {
@@ -98,8 +104,6 @@ class Watcher @Inject constructor(
                     }
                 }
 
-                Log.i(TAG, "launchBroadcasts: sending broadcast with ${app.packageName}")
-
                 localBroadcastManager.sendBroadcast(intent)
 
                 currentPackageName = packageName
@@ -114,6 +118,12 @@ class Watcher @Inject constructor(
         this.running = false
         thread.interrupt()
         currentJob?.cancel()
+
+        Log.i(TAG, "Watcher was stopped")
+    }
+
+    override fun close() {
+        stop()
     }
 
     companion object {
@@ -122,6 +132,11 @@ class Watcher @Inject constructor(
          * en primer plano.
          * */
         const val ACTION_CHANGE_APP_FOREGROUND = "com.smartsolutions.datwall.action.CHANGE_APP_FOREGROUND"
+
+        /**
+         * Broadcast que se lanza cada un segundo.
+         * */
+        const val ACTION_TICK = "com.smartsolutions.datwall.action.TICK"
 
         /**
          * Extra que contiene la aplicación que entró en el primer plano.
