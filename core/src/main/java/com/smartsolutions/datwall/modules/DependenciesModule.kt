@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.google.gson.Gson
 import com.smartsolutions.datwall.data.DbContext
 import com.smartsolutions.datwall.data.IAppDao
+import com.smartsolutions.datwall.data.TrafficDbContext
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,6 +24,10 @@ object DependenciesModule {
         DbContext.getInstance(context)
 
     @Provides
+    fun provideTrafficDbContext(@ApplicationContext context: Context) =
+        TrafficDbContext.getInstance(context)
+
+    @Provides
     fun provideIAppDao(dbContext: DbContext) = dbContext.getAppDao()
 
     @Provides
@@ -30,4 +35,7 @@ object DependenciesModule {
 
     @Provides
     fun provideIUserDataPackageDao(dbContext: DbContext) = dbContext.getUserDataPackageDao()
+
+    @Provides
+    fun provideITrafficDao(dbContext: TrafficDbContext) = dbContext.getTrafficDao()
 }

@@ -17,7 +17,7 @@ import java.util.ArrayList
 abstract class NetworkUsageDigger(
     private val networkStatsManager: NetworkStatsManager,
     telephonyManager: TelephonyManager
-) {
+) : NetworkUsageManager() {
     private var ID: String? = null
 
     private var cache = mutableListOf<BucketCache<List<NetworkStats.Bucket>>>()

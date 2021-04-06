@@ -74,10 +74,10 @@ class App(
     /**
      * @return Un número construido basandose en el acceso permanente (access) y el acceso temporal (tempAccess)
      * */
-    override fun accessHashCode(): Int {
+    override fun accessHashCode(): Long {
         val access = if (this.access) 1 else 0
         val tempAccess = if (this.access) 1 else 0
 
-        return "$access$tempAccess".toInt()
+        return "$access$tempAccess".toLong()
     }
 }

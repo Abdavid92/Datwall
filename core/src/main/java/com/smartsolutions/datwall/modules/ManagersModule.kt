@@ -3,6 +3,7 @@ package com.smartsolutions.datwall.modules
 import android.content.Context
 import android.os.Build
 import com.smartsolutions.datwall.managers.*
+import com.smartsolutions.datwall.repositories.TrafficRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,10 +23,10 @@ class ManagersModule {
     }
 
     @Provides
-    fun provideINetworkUsageManager(@ApplicationContext context: Context): INetworkUsageManager {
+    fun provideINetworkUsageManager(@ApplicationContext context: Context, trafficRepository: TrafficRepository): NetworkUsageManager {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            NetworkUsageManager(context)
+            NetworkUsageManagerDefault(context)
         else
-            LegacyNetworkUsageManager(context)
+            NetworkUsageManagerLegacy(trafficRepository)
     }
 }

@@ -55,7 +55,7 @@ class VpnConnection @Inject constructor(
      * aplicaciones. Se usa para saber si existen diferencias de acceso
      * en los lotes de aplicaciones que provee el observador.
      * */
-    private var marksOfAccess: MutableList<Int> = mutableListOf()
+    private var marksOfAccess: MutableList<Long> = mutableListOf()
 
     /**
      * Observador que se registra en el repositorio.

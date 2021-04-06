@@ -1,100 +1,21 @@
 package com.smartsolutions.datwall.managers
 
-import android.app.usage.NetworkStatsManager
-import android.content.Context
-import android.os.Build
-import android.telephony.TelephonyManager
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import com.smartsolutions.datwall.managers.models.Traffic
 import com.smartsolutions.datwall.repositories.models.App
-import com.smartsolutions.datwall.repositories.models.AppGroup
 import com.smartsolutions.datwall.repositories.models.IApp
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.apache.commons.lang.time.DateUtils
-import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
-import kotlin.collections.ArrayList
 
-@RequiresApi(Build.VERSION_CODES.M)
-class NetworkUsageManager @Inject constructor(
-    @ApplicationContext
-    context: Context
-): NetworkUsageDigger(
-    ContextCompat.getSystemService(context, NetworkStatsManager::class.java) ?: throw NullPointerException(),
-    ContextCompat.getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException()
-), INetworkUsageManager {
+abstract class NetworkUsageManager {
+    abstract suspend fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic
 
-    override fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic {
-        val traffic = Traffic(uid, 0L, 0L)
-        traffic.startTime = start
-        traffic.endTime = finish
-        val buckets = getUsage(start, finish)
-        buckets?.let {bucketsList ->
-            bucketsList.forEach { bucket ->
-                if (bucket.uid == uid) {
-                    traffic += bucket
-                }
-            }
-        }
-        return traffic
-    }
+    abstract suspend fun getAppsUsage(start: Long, finish: Long): List<Traffic>
 
-    override fun getAppsUsage(start: Long, finish: Long): List<Traffic> {
-        val result = mutableListOf<Traffic>()
+    abstract suspend fun fillAppsUsage(apps: List<IApp>, start: Long, finish: Long)
 
-        getUsage(start, finish)?.let { buckets ->
-            buckets.forEach { bucket ->
-                var traffic = result.firstOrNull { it.uid == bucket.uid }
+    abstract suspend fun getUsageTotal(start : Long, finish : Long) : Traffic
 
-                if (traffic == null) {
-                    traffic = Traffic(bucket.uid, bucket.rxBytes, bucket.txBytes)
-                    result.add(traffic)
-                } else {
-                    traffic += bucket
-                }
-            }
-        }
-
-        return result
-    }
-
-    override fun fillAppsUsage(apps: List<IApp>, start: Long, finish: Long) {
-        apps.forEach { iapp ->
-            if (iapp is App)
-                iapp.traffic = Traffic(iapp.uid, 0L, 0L)
-            else if (iapp is AppGroup)
-                iapp.forEach { app ->
-                    app.traffic = Traffic(app.uid, 0L, 0L)
-                }
-        }
-
-        getUsage(start, finish)?.let { buckets ->
-            buckets.forEach {bucket ->
-                apps.firstOrNull { it.uid == bucket.uid }?.let { iapp ->
-                    if (iapp is App)
-                        iapp.traffic!! += bucket
-                    else if (iapp is AppGroup)
-                        iapp.forEach { app ->
-                            app.traffic!! += bucket
-                        }
-                }
-            }
-        }
-    }
-
-    override fun getUsageTotal(start : Long, finish : Long) : Traffic {
-        getUsageGeneral(start, finish)?.let {
-            val traffic = Traffic(0, it.rxBytes, it.txBytes)
-            traffic.startTime = start
-            traffic.endTime = finish
-            return traffic
-        }
-        return Traffic(0, 0L, 0L)
-    }
-
-    override fun getAppPerConsumed(apps: List<App>, start: Long, finish: Long, moreConsumed : Boolean) : App?{
+    suspend fun getAppPerConsumed(apps: List<App>, start: Long, finish: Long, moreConsumed : Boolean) : App?{
         if (apps.isEmpty()){
             return null
         }
@@ -114,15 +35,15 @@ class NetworkUsageManager @Inject constructor(
         return app
     }
 
-    override fun getAppUsageDayByHour(uid: Int, day : Date) : List<Pair<String, Traffic>>{
-        val pairList: ArrayList<Pair<String, Traffic>> = ArrayList()
+    suspend fun getAppUsageDayByHour(uid: Int, day : Date) : List<Pair<Long, Traffic>>{
+        val pairList: ArrayList<Pair<Long, Traffic>> = ArrayList()
         var date = NetworkUtils.getZeroHour(day)
 
         while (DateUtils.isSameDay(date, day) && date.time <= System.currentTimeMillis()){
             val start = date.time
             date = DateUtils.setMinutes(date, 59)
             val finish = date.time
-            pairList.add(Pair(SimpleDateFormat("hh aa", Locale.US).format(date), getAppUsage(uid, start, finish)))
+            pairList.add(Pair(date.time, getAppUsage(uid, start, finish)))
             date = DateUtils.addHours(date, 1)
             date = DateUtils.setMinutes(date, 0)
         }

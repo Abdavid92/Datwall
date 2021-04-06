@@ -9,5 +9,5 @@ interface IApp: Parcelable {
     var allowAnnotations: String?
     var blockedAnnotations: String?
 
-    fun accessHashCode(): Int
+    fun accessHashCode(): Long
 }

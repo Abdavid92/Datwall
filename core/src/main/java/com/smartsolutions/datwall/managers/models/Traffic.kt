@@ -5,14 +5,25 @@ import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RequiresApi
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
 import kotlin.math.pow
 
-open class Traffic(val uid: Int, var _rxBytes : Long, var _txBytes : Long) : Parcelable {
+@Entity(tableName = "traffic")
+open class Traffic(val uid: Int,
+                   @ColumnInfo(name = "rx_bytes")
+                   var _rxBytes : Long,
+                   @ColumnInfo(name = "tx_bytes")
+                   var _txBytes : Long) : Parcelable {
 
+    @PrimaryKey(autoGenerate = true)
+    var id : Long = 0L
+    @ColumnInfo(name = "start_time")
     var startTime : Long = 0L
-
+    @ColumnInfo(name = "end_time")
     var endTime : Long = 0L
 
     val rxBytes : Unity
@@ -31,6 +42,10 @@ open class Traffic(val uid: Int, var _rxBytes : Long, var _txBytes : Long) : Par
         startTime = parcel.readLong()
         endTime = parcel.readLong()
     }
+
+    constructor() : this (
+        0, 0L, 0L
+            )
 
 
     fun rxBytes (unit: Unit) = proccesValue(_rxBytes, unit)
