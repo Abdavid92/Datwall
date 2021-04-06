@@ -1,5 +1,6 @@
 package com.smartsolutions.datwall.modules
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.usage.NetworkStatsManager
 import android.app.usage.UsageStatsManager
@@ -27,8 +28,13 @@ class AndroidServicesModule {
     fun providePackageManager(@ApplicationContext context: Context): PackageManager = context.packageManager
 
     @Provides
-    fun provideUsageStatsManager(@ApplicationContext context: Context): UsageStatsManager =
-        ContextCompat.getSystemService(context, UsageStatsManager::class.java) ?: throw NullPointerException()
+    @SuppressLint("InlinedApi")
+    fun provideUsageStatsManager(@ApplicationContext context: Context): UsageStatsManager {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+            ContextCompat.getSystemService(context, UsageStatsManager::class.java) ?: throw NullPointerException()
+        else
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+    }
 
     @Provides
     fun provideActivityManager(@ApplicationContext context: Context): ActivityManager =

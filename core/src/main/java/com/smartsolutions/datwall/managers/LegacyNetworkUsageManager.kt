@@ -11,7 +11,7 @@ class LegacyNetworkUsageManager @Inject constructor(
     context: Context
 ): INetworkUsageManager {
     override fun getAppUsage(uid: Int, start: Long, finish: Long): Traffic {
-        TODO("Not yet implemented")
+        throw RuntimeException("Not supported")
     }
 
     override fun getAppsUsage(start: Long, finish: Long): List<Traffic> {

@@ -78,6 +78,7 @@ class FirewallService : VpnService() {
                     //Lanzo el AskActivity con la aplicación
                     val askIntent = Intent(context, AskActivity::class.java)
                         .putExtra(Watcher.EXTRA_FOREGROUND_APP, app)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
                     startActivity(askIntent)
                 } else {

@@ -95,11 +95,17 @@ class Watcher @Inject constructor(
         if (currentPackageName != packageName) {
 
             appRepository.get(packageName)?.let { app ->
+
+                Log.i(TAG, "The application in foreground is ${app.packageName}")
+
                 val intent = Intent(ACTION_CHANGE_APP_FOREGROUND)
                     .putExtra(EXTRA_FOREGROUND_APP, app)
 
                 currentPackageName?.let {
                     appRepository.get(it)?.let { app ->
+
+                        Log.i(TAG, "The application was delay foreground is ${app.packageName}")
+
                         intent.putExtra(EXTRA_DELAY_APP, app)
                     }
                 }

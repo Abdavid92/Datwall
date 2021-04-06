@@ -1,46 +1,38 @@
 package com.smartsolutions.datwall.watcher
 
-import android.app.ActivityManager
+import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
 import javax.inject.Inject
 
 class WatcherUtils @Inject constructor(
     private val usageStatsManager: UsageStatsManager,
-    private val activityManager: ActivityManager,
     private val packageManager: PackageManager
 ) {
-    
+
     fun getLastApp(): String? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        val time = System.currentTimeMillis()
 
-            val time = System.currentTimeMillis()
+        val usageEvents = usageStatsManager.queryEvents(time - 1100, time)
 
-            val statsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 10000, time)
+        var event = UsageEvents.Event()
 
-            if (statsList.isNotEmpty()) {
-                var stats = statsList[0]
+        if (usageEvents.hasNextEvent())
+            usageEvents.getNextEvent(event)
 
-                if (statsList.size > 1) {
+        while (usageEvents.hasNextEvent()) {
+            val newEvent = UsageEvents.Event()
 
-                    statsList.forEach {
-                        if (it.lastTimeUsed > stats.lastTimeUsed)
-                            stats = it
-                    }
-                }
-                return stats.packageName
-            }
+            usageEvents.getNextEvent(newEvent)
 
-        } else {
-            val tasks = activityManager.getRecentTasks(1, ActivityManager.RECENT_IGNORE_UNAVAILABLE)
-
-            if (tasks.isNotEmpty()) {
-                return tasks[0].baseIntent.component?.packageName
-            }
+            if (newEvent.eventType == UsageEvents.Event.ACTIVITY_RESUMED && newEvent.timeStamp > event.timeStamp)
+                event = newEvent
         }
+
+        if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED)
+            return event.packageName
+
         return null
     }
 
