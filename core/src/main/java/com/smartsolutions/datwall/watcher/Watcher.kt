@@ -80,9 +80,9 @@ class Watcher @Inject constructor(
                     }
                 }
 
-                localBroadcastManager.sendBroadcast(Intent(ACTION_TICK))
+                Log.i(TAG, "sending ticktock broadcast")
 
-                Log.i(TAG, "sending tick broadcast")
+                localBroadcastManager.sendBroadcast(Intent(ACTION_TICKTOCK))
 
                 Thread.sleep(1000)
             } catch (e: Exception) {
@@ -136,7 +136,7 @@ class Watcher @Inject constructor(
         /**
          * Broadcast que se lanza cada un segundo.
          * */
-        const val ACTION_TICK = "com.smartsolutions.datwall.action.TICK"
+        const val ACTION_TICKTOCK = "com.smartsolutions.datwall.action.TICKTOCK"
 
         /**
          * Extra que contiene la aplicación que entró en el primer plano.

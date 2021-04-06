@@ -59,22 +59,37 @@ class FirewallService : VpnService() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
 
+            //Aplicación en primer plano
             val foregroundApp = intent?.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)
+            //Aplicación que dejó el primer plano
             val delayApp = intent?.getParcelableExtra<App>(Watcher.EXTRA_DELAY_APP)
 
             foregroundApp?.let { app ->
 
-                if (app.executable && app.ask) {
-                    val intent = Intent(context, AskActivity::class.java)
+                //Si la aplicación tiene acceso en primer plano
+                if (app.foregroundAccess) {
+                    launch {
+                        //Concedo acceso temporal y actualiza en el repostorio
+                        app.tempAccess = true
+                        appRepository.update(app)
+                    }
+                //Pero si no tiene acceso, es ejecutable y se puede preguntar por ella
+                } else if (!app.access && app.executable && app.ask) {
+                    //Lanzo el AskActivity con la aplicación
+                    val askIntent = Intent(context, AskActivity::class.java)
                         .putExtra(Watcher.EXTRA_FOREGROUND_APP, app)
 
-                    startActivity(intent)
+                    startActivity(askIntent)
+                } else {
+                    Log.i(TAG, "onReceive: Empty action for ${app.packageName}")
                 }
-
             }
 
             delayApp?.let { app ->
 
+                /*Si la aplicación que dejó el primer plano tenía
+                * acceso temporal se lo quito y actualiza el repositorio.
+                * Esto hara que el vpn aplique los nuevos cambios automáticamente.*/
                 if (app.tempAccess) {
 
                     app.tempAccess = false
@@ -152,7 +167,7 @@ class FirewallService : VpnService() {
     }
 
     /**
-     * Crea la notificación percistente del servicio.
+     * Crea la notificación persistente del servicio.
      * */
     private fun launchNotification() {
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

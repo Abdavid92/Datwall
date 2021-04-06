@@ -24,6 +24,7 @@ data class UserDataPackage(
     val start: Long,
     val finish: Long,
     val active: Boolean,
+    val simIndex: Int,
     @ColumnInfo(name = "data_package_id")
     val dataPackageId: Int,
 ): Parcelable {

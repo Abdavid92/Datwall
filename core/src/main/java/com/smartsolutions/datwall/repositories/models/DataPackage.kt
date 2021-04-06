@@ -17,6 +17,7 @@ data class DataPackage(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String,
+    val description: String,
     val price: Int,
     val bytes: Long,
     @ColumnInfo(name = "bono_bytes")
@@ -25,6 +26,9 @@ data class DataPackage(
     @ColumnInfo(name = "bono_cu_bytes")
     @SerializedName("bono_cu_bytes")
     val bonoCuBytes: Long,
+    val network: String,
+    val ussd: String,
+    val url: String,
     val active: Boolean,
 ): Parcelable {
 

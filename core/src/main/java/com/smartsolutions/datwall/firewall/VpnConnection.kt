@@ -81,7 +81,7 @@ class VpnConnection @Inject constructor(
     fun start() {
         //Si no se estableció una conexión previa
         if (!connected) {
-            //Verifico que el servicio no se nulo
+            //Verifico que el servicio no sea nulo
             if (service == null)
                 throw IllegalStateException("VpnService not initialized")
 
@@ -253,7 +253,7 @@ class VpnConnection @Inject constructor(
     }
 
     /**
-     * Verifica que las marcas de acceso o el tamaño de la lista e aplicaciones sean diferentes.
+     * Verifica que las marcas de acceso o el tamaño de la lista de aplicaciones sean diferentes.
      *
      * @return true si hay diferencias, false en caso contrario
      * */
@@ -272,6 +272,9 @@ class VpnConnection @Inject constructor(
      * Guarda las marcas de acceso.
      * */
     private fun saveMarksOfAccess(apps: List<IApp>) {
+        //Limpio la lista de marcas para evitar duplicados
+        marksOfAccess.clear()
+
         apps.forEach {
             marksOfAccess.add(it.accessHashCode())
         }

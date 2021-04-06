@@ -53,10 +53,14 @@ class DataPackageRepositoryTest {
         val dataPackage = DataPackage(
             0,
             "Paquete de prueba",
+            "Nula",
             450,
             400,
             500,
             300,
+            "3G",
+            "none",
+            "url",
             true
         )
 
