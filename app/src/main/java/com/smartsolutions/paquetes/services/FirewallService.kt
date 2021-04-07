@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.datwall.PreferencesKeys
+import com.smartsolutions.datwall.PreferencesKeys.datastore
 import com.smartsolutions.datwall.firewall.VpnConnection
 import com.smartsolutions.datwall.repositories.IAppRepository
 import com.smartsolutions.datwall.repositories.models.App
@@ -19,6 +20,7 @@ import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -46,8 +48,6 @@ class FirewallService : VpnService() {
     /**
      * Preferencias de la aplicación
      * */
-    @Inject
-    lateinit var preferences: SharedPreferences
 
     /**
      * Receptor de radiodifución del observador
@@ -120,13 +120,14 @@ class FirewallService : VpnService() {
         launchNotification()
 
         //Si el modo dinámico está activado
-        if (preferences.getBoolean(PreferencesKeys.DYNAMIC_FIREWALL_ON, true)) {
+        datastore.data.map {
+            if (it[PreferencesKeys.DYNAMIC_FIREWALL_ON] == true) {
+                val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
 
-            val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
-
-            //Registro del receptor
-            LocalBroadcastManager.getInstance(this)
-                .registerReceiver(watcherReceiver, filter)
+                //Registro del receptor
+                LocalBroadcastManager.getInstance(this)
+                    .registerReceiver(watcherReceiver, filter)
+            }
         }
     }
 

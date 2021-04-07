@@ -3,11 +3,15 @@ package com.smartsolutions.paquetes
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
-import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
+import com.smartsolutions.datwall.receivers.ChangeNetworkReceiverLegacy
+import com.smartsolutions.datwall.receivers.TrafficWatcherReceiver
 import com.smartsolutions.datwall.watcher.PackageMonitor
 import com.smartsolutions.datwall.watcher.Watcher
 import dagger.hilt.android.HiltAndroidApp

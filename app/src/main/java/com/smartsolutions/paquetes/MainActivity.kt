@@ -1,5 +1,7 @@
 package com.smartsolutions.paquetes
 
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -7,10 +9,13 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.smartsolutions.datwall.receivers.ChangeNetworkReceiverLegacy
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+    val changeNetworkReceiverLegacy : ChangeNetworkReceiverLegacy = ChangeNetworkReceiverLegacy()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +29,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        val filter = IntentFilter()
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+
+        registerReceiver(changeNetworkReceiverLegacy, filter)
 
     }
 }

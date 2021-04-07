@@ -10,7 +10,7 @@ import com.smartsolutions.datwall.managers.models.Traffic
 abstract class TrafficDbContext : RoomDatabase() {
 
     companion object{
-        fun getInstance(context: Context) = Room.databaseBuilder(context, TrafficDbContext::class.java, "traffic.db")
+        fun getInstance(context: Context) = Room.databaseBuilder(context, TrafficDbContext::class.java, "traffic.db").build()
     }
 
     abstract fun getTrafficDao() : ITrafficDao

@@ -28,9 +28,6 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".receivers.ChangeNetworkReceiver"
-            android:enabled="true"
-            android:exported="false"></receiver>
+
     </application>
 </manifest>

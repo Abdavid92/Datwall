@@ -11,10 +11,7 @@ import com.smartsolutions.datwall.repositories.models.App
 import com.smartsolutions.datwall.repositories.models.AppGroup
 import com.smartsolutions.datwall.repositories.models.IApp
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.apache.commons.lang.time.DateUtils
-import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 @RequiresApi(Build.VERSION_CODES.M)
 class NetworkUsageManagerDefault @Inject constructor(
