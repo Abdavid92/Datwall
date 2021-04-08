@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.TrafficStats
+import com.smartsolutions.datwall.PreferencesKeys
+import com.smartsolutions.datwall.dataStore
 import com.smartsolutions.datwall.managers.models.Traffic
 import com.smartsolutions.datwall.repositories.IAppRepository
 import com.smartsolutions.datwall.repositories.Observer
@@ -11,18 +13,28 @@ import com.smartsolutions.datwall.repositories.TrafficRepository
 import com.smartsolutions.datwall.repositories.models.App
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-
+/**
+ * Receiver que se lanza cada un segundo para recojer el tráfico de datos.
+ * Se usa en apis 21 y 22 porque estas no tienen el servicio de estadísticas
+ * de redes.
+ * */
 class TrafficWatcherReceiver @Inject constructor(
     private val appRepository: IAppRepository,
     private val trafficRepository: TrafficRepository)
     : BroadcastReceiver(), CoroutineScope {
 
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
+
+    val traffics : MutableList<Traffic> = mutableListOf()
+
     init {
-        appRepository.registerObserver(object : Observer(){
+        appRepository.registerObserver(object : Observer() {
             override fun onDelete(apps: List<App>) {
                 apps.forEach { app ->
                     traffics.firstOrNull { it.uid == app.uid }?.let {
@@ -33,40 +45,39 @@ class TrafficWatcherReceiver @Inject constructor(
         })
     }
 
-    val traffics : MutableList<Traffic> = mutableListOf()
-
-    override fun onReceive(context: Context?, intent: Intent?) {
+    override fun onReceive(context: Context, intent: Intent) {
         launch {
-            appRepository.all.forEach { app->
-                val rxBytes = TrafficStats.getUidRxBytes(app.uid)
-                val txBytes = TrafficStats.getUidTxBytes(app.uid)
 
-                var trafficOld = traffics.firstOrNull { it.uid == app.uid }
-                val time = System.currentTimeMillis()
+            context.dataStore.data.map { preferences ->
 
-                if (trafficOld == null){
-                    trafficOld = Traffic(app.uid, rxBytes, txBytes)
-                    trafficOld.endTime = time
-                    traffics.add(trafficOld)
-                }else {
-                    val traffic = Traffic(app.uid, rxBytes - trafficOld._rxBytes, txBytes - trafficOld._txBytes)
-                    traffic.startTime = trafficOld.endTime
-                    traffic.endTime = time
-                    if (traffic._rxBytes > 0 || traffic._txBytes > 0) {
-                        trafficRepository.create(traffic)
+                val dataConnected = preferences[PreferencesKeys.DATA_MOBILE_ON] == true
+
+                appRepository.all.forEach { app->
+                    val rxBytes = TrafficStats.getUidRxBytes(app.uid)
+                    val txBytes = TrafficStats.getUidTxBytes(app.uid)
+
+                    var trafficOld = traffics.firstOrNull { it.uid == app.uid }
+                    val time = System.currentTimeMillis()
+
+                    if (trafficOld == null){
+                        trafficOld = Traffic(app.uid, rxBytes, txBytes)
+                        trafficOld.endTime = time
+                        traffics.add(trafficOld)
+                    }else {
+                        val traffic = Traffic(app.uid, rxBytes - trafficOld._rxBytes, txBytes - trafficOld._txBytes)
+                        traffic.startTime = trafficOld.endTime
+                        traffic.endTime = time
+
+                        if (dataConnected && (traffic._rxBytes > 0 || traffic._txBytes > 0)) {
+                            trafficRepository.create(traffic)
+                        }
+
+                        trafficOld._rxBytes = rxBytes
+                        trafficOld._txBytes = txBytes
+                        trafficOld.endTime = time
                     }
-                    trafficOld._rxBytes = rxBytes
-                    trafficOld._txBytes = txBytes
-                    trafficOld.endTime = time
-                    TODO("Falta por verificar si hay datos encedidos")
                 }
             }
         }
-
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
-
-
 }

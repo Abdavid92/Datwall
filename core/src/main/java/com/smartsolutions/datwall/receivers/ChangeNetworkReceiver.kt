@@ -38,6 +38,7 @@ class ChangeNetworkReceiver @Inject constructor(
                 networkInfo = it
 
                 if (!isDelayed) {
+                    isDelayed = true
                     /*
                     * Este Handler se usa para poder quedarse con el último networkInfo
                     * que se obtuvo ya que este broadcast se lanza varias veces. Para evitar
@@ -63,7 +64,6 @@ class ChangeNetworkReceiver @Inject constructor(
                                 this@ChangeNetworkReceiver.networkInfo = null
                             }
                         }, 500)
-                    isDelayed = true
                 }
             }
         }

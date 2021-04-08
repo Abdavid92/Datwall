@@ -48,7 +48,8 @@ class PackageMonitorReceiver : BroadcastReceiver(), CoroutineScope {
 
                 launch {
                     /*Sincronizo la base de datos con el nombre de paquete
-                    * de la aplicación afectada y el tipo de cambio que se produjo.*/
+                     * de la aplicación afectada y el tipo de cambio que se produjo.
+                     * */
                     packageMonitor.synchronizeDatabase(it, changeType)
                 }
             }

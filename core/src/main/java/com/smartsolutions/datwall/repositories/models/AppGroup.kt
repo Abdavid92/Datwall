@@ -2,15 +2,40 @@ package com.smartsolutions.datwall.repositories.models
 
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Grupo de aplicaciones que tiene el mismo uid.
+ * */
 @Parcelize
 class AppGroup(
+    /**
+     * Identificador único (uid)
+     * */
     override var uid: Int,
+    /**
+     * Nombre del grupo
+     * */
     override var name: String,
+    /**
+     * Lista de aplicaciones
+     * */
     private var apps: MutableList<App>,
+    /**
+     * Anotación de advertencia que se muestra cuando se intenta conceder
+     * el acceso permanente al grupo completo.
+     * */
     override var allowAnnotations: String?,
+    /**
+     * Anotación de advertencia que se muestra cuando se intenta bloquear
+     * el acceso permanente al grupo completo.
+     * */
     override var blockedAnnotations: String?
 ) : IApp, MutableList<App> {
 
+    /**
+     * Indica si el grupo de aplicaciones tiene acceso permanente.
+     * Cuando esta propiedad se asigna, cambia el acceso a toads las aplicaciones
+     * del grupo. Si una sola aplicación no tiene acceso, esta propiedad estará en `falso`.
+     * */
     override var access: Boolean
         get() {
             apps.forEach {
@@ -66,6 +91,11 @@ class AppGroup(
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<App> = apps.subList(fromIndex, toIndex)
 
+    /**
+     * Obtiene un número construido con basandose en el acceso permanente y temporal
+     * de las aplicaciones del grupo. Este número se usa en el firewall para identificar diferencias
+     * de acceso entre dos listas de aplicaciones y grupos.
+     * */
     override fun accessHashCode(): Long {
         var code = ""
         apps.forEach {
