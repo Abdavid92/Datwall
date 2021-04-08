@@ -12,28 +12,64 @@ import org.apache.commons.lang.time.DateUtils
 import java.util.*
 import kotlin.math.pow
 
+/**
+ * Representa un fragmento de tráfico de datos tanto
+ * para una aplicación como para todas la aplicaciones,
+ * dependiendo si uid es distinto de cero.
+ * */
 @Entity(tableName = "traffic")
-open class Traffic(val uid: Int,
-                   @ColumnInfo(name = "rx_bytes")
-                   var _rxBytes : Long,
-                   @ColumnInfo(name = "tx_bytes")
-                   var _txBytes : Long) : Parcelable {
+open class Traffic(
+    /**
+     * Uid de la aplicación que pertenece el tráfico de datos.
+     * Cero si no pertenece a ninguna.*/
+    val uid: Int,
+    /**
+     * Tráfico de descarga en bytes
+     * */
+    @ColumnInfo(name = "rx_bytes")
+    var _rxBytes : Long,
+    /**
+     * Tráfico de subida en bytes
+     * */
+    @ColumnInfo(name = "tx_bytes")
+    var _txBytes : Long
+    ) : Parcelable {
 
+    /**
+     * Id auto-generado proveniente de la base de datos
+     * */
     @PrimaryKey(autoGenerate = true)
     var id : Long = 0L
+
+    /**
+     * Tiempo de inicio en que se transmitió este fragmento de tráfico
+     * */
     @ColumnInfo(name = "start_time")
     var startTime : Long = 0L
+
+    /**
+     * Tiempo en que se cerró este fragmento de tráfico
+     * */
     @ColumnInfo(name = "end_time")
     var endTime : Long = 0L
 
+    /**
+     * Bytes de bajada optimizados a la unidad más conveniente
+     * */
     val rxBytes : Unity
-        get() = proccesValue(_rxBytes)
+        get() = processValue(_rxBytes)
 
+    /**
+     * Bytes de subida optimizados a la unidad más conveniente
+     * */
     val txBytes : Unity
-        get() = proccesValue(_txBytes)
+        get() = processValue(_txBytes)
 
+    /**
+     * Suma de todos los bytes optimizados a la unidad más conveniente
+     * */
     val totalBytes : Unity
-        get() = proccesValue(_rxBytes + _txBytes)
+        get() = processValue(_rxBytes + _txBytes)
 
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -48,30 +84,54 @@ open class Traffic(val uid: Int,
             )
 
 
-    fun rxBytes (unit: Unit) = proccesValue(_rxBytes, unit)
+    /**
+     * @return Bytes de bajada optimizados a la unidad dada como parámetro.
+     *
+     * @param unit - Unidad de medida
+     * */
+    fun rxBytes (unit: Unit) = processValue(_rxBytes, unit)
 
-    fun txBytes (unit: Unit) = proccesValue(_txBytes, unit)
+    /**
+     * @return Bytes de subida optimizados a la unidad dada como parámetro.
+     *
+     * @param unit - Unidad de medida
+     * */
+    fun txBytes (unit: Unit) = processValue(_txBytes, unit)
 
-    fun totalBytes (unit: Unit) = proccesValue(_txBytes + _rxBytes, unit)
+    /**
+     * @return Suma de todos los bytes optimizados a la unidad dada como parámetro.
+     *
+     * @param unit - Unidad de medida
+     * */
+    fun totalBytes (unit: Unit) = processValue(_txBytes + _rxBytes, unit)
 
+    /**
+     * @return Suma de bytes
+     * */
     fun getAllBytes () : Long {
         return _rxBytes + _txBytes
     }
 
 
+    /**
+     * Procesa y obtiene la unidad más optima para los bytes dados.
+     *
+     * @param bytes - Bytes que se van a procesar
+     * @param unit - Parametro opcional en caso de que se quiera especificar la unidad de medida.
+     * */
     @Suppress("NAME_SHADOWING")
-    private fun proccesValue(bytes: Long, unit: Unit? = null) : Unity {
-        val GB = 1024.0.pow(3.0)
-        val MB = 1024.0.pow(2.0)
+    private fun processValue(bytes: Long, unit: Unit? = null) : Unity {
+        val gb = 1024.0.pow(3.0)
+        val mb = 1024.0.pow(2.0)
 
         var unit = unit
 
         if (unit == null){
             unit = when {
-                GB <= bytes -> {
+                gb <= bytes -> {
                     Unit.GB
                 }
-                MB <= bytes -> {
+                mb <= bytes -> {
                     Unit.MB
                 }
                 else -> {
@@ -82,10 +142,10 @@ open class Traffic(val uid: Int,
 
         val value = when (unit) {
             Unit.GB -> {
-                bytes/GB
+                bytes/gb
             }
             Unit.MB -> {
-                bytes/MB
+                bytes/mb
             }
             else -> {
                 bytes/1024.0
@@ -137,10 +197,27 @@ open class Traffic(val uid: Int,
         return Date(bucket.startTimeStamp).after(startTime) && Date(bucket.endTimeStamp).before(finishTime)
     }
 
+    /**
+     * Unidad que contiene los bytes y la unidad de medida
+     * */
     data class Unity(val value : Double, val unit: Unit)
 
+    /**
+     * Unidades de medidas
+     * */
     enum class Unit {
-        KB, MB, GB
+        /**
+         * Kilobytes
+         * */
+        KB,
+        /**
+         * Megabytes
+         * */
+        MB,
+        /**
+         * Gigabytes
+         * */
+        GB
     }
 
 

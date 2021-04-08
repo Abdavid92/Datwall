@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.datwall.PreferencesKeys
-import com.smartsolutions.datwall.PreferencesKeys.datastore
+import com.smartsolutions.datwall.dataStore
 import com.smartsolutions.datwall.firewall.VpnConnection
 import com.smartsolutions.datwall.repositories.IAppRepository
 import com.smartsolutions.datwall.repositories.models.App
@@ -73,8 +73,10 @@ class FirewallService : VpnService() {
                         app.tempAccess = true
                         appRepository.update(app)
                     }
-                //Pero si no tiene acceso, es ejecutable y se puede preguntar por ella
-                } else if (!app.access && app.executable && app.ask) {
+                /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
+                 * y se puede preguntar por ella
+                 * */
+                } else if (!app.access && app.executable && app.internet && app.ask) {
                     //Lanzo el AskActivity con la aplicación
                     val askIntent = Intent(context, AskActivity::class.java)
                         .putExtra(Watcher.EXTRA_FOREGROUND_APP, app)
@@ -120,7 +122,7 @@ class FirewallService : VpnService() {
         launchNotification()
 
         //Si el modo dinámico está activado
-        datastore.data.map {
+        dataStore.data.map {
             if (it[PreferencesKeys.DYNAMIC_FIREWALL_ON] == true) {
                 val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
 

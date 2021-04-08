@@ -2,15 +2,28 @@ package com.smartsolutions.datwall.managers
 
 import androidx.annotation.IntDef
 import org.apache.commons.lang.time.DateUtils
-import java.lang.IllegalArgumentException
 import java.util.*
+import kotlin.IllegalArgumentException
 
+/**
+ * Métodos de utilidad para NetworkUsageManager.
+ * */
 object NetworkUtils {
 
+    /**
+     * Calcula el porcentaje.
+     * @param total - Valor base.
+     * @param part - Valor relativo.
+     * */
     fun calculatePercent(total : Double, part : Double) : Int{
         return (100 * part / total).toInt()
     }
 
+    /**
+     * Obtiene la hora cero de un día.
+     *
+     * @param day - Día que se le va a obtener la hora
+     * */
     fun getZeroHour (day : Date) : Date {
         var date = day
         date = try {
@@ -24,7 +37,20 @@ object NetworkUtils {
         return date
     }
 
-    fun getTimestamp(@Period trafficPeriod: Int): Array<Long> {
+    /**
+     * Obtiene diferentes periodos de tiempo para sacarles las estadísticas de tráfico.
+     *
+     * @param trafficPeriod - Constante que determina el periodo a obtener.
+     *
+     * @return Un arreglo de dos elemento con el tiempo de inicio y el tiempo de
+     * finalización.
+     *
+     * @see PERIOD_TODAY
+     * @see PERIOD_YESTERDAY
+     * @see PERIOD_WEEK
+     * @see PERIOD_MONTH
+     * */
+    fun getTimePeriod(@Period trafficPeriod: Int): Array<Long> {
         return when (trafficPeriod) {
             0 -> {
                 arrayOf(
@@ -63,16 +89,29 @@ object NetworkUtils {
                 )
             }
             else -> {
-                arrayOf(
-                        0L, 0L
-                )
+                throw IllegalArgumentException("Unknown period")
             }
         }
     }
 
+    /**
+     * Día de hoy
+     * */
     const val PERIOD_TODAY = 0
+
+    /**
+     * Día de ayer
+     * */
     const val PERIOD_YESTERDAY = 1
+
+    /**
+     * Esta semana
+     * */
     const val PERIOD_WEEK = 2
+
+    /**
+     * Este mes
+     * */
     const val PERIOD_MONTH = 3
 
 }
