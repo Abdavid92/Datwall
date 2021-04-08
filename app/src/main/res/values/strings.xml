@@ -5,4 +5,5 @@
     <string name="title_notifications">Notifications</string>
     <string name="firewall_service_running">Cortafuegos iniciado</string>
     <string name="main_notification_channel_name">Canal principal de notificaciones</string>
+    <string name="alert_notification_channel_name">Canal de alertas y mensajes</string>
 </resources>

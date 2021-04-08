@@ -9,6 +9,7 @@ import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.smartsolutions.datwall.NotificationChannels
 import com.smartsolutions.datwall.watcher.ChangeNetworkCallback
 import com.smartsolutions.datwall.watcher.PackageMonitor
 import com.smartsolutions.datwall.watcher.Watcher
@@ -19,7 +20,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Clase principal de la aplicación
+ * Clase principal de la aplicación. Contiene el inyector y se
+ * encarga de iniciar los observadores, servicios, registrar los
+ * callbacks y sembrar la base de datos.
  * */
 @HiltAndroidApp
 class DatwallApplication : Application() {
@@ -61,14 +64,14 @@ class DatwallApplication : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             createNotificationChannels()
 
-        //Registro los receivers y callbacks
-        registerReceiversAndCallbacks()
+        //Registro los callbacks
+        registerCallbacks()
     }
 
     /**
-     * Registra los receiver y los callbacks de la aplicación.
+     * Registra los callbacks de la aplicación.
      * */
-    private fun registerReceiversAndCallbacks() {
+    private fun registerCallbacks() {
         /* Si el sdk es api 23 o mayor se registra un callback de tipo
          * NetworkCallback en el ConnectivityManager para escuchar los cambios de redes.
          * */
@@ -100,6 +103,15 @@ class DatwallApplication : Application() {
             )
 
             notificationManager.createNotificationChannel(mainChannel)
+
+            //Canal de alertas y mensajes
+            val alertChannel = NotificationChannel(
+                NotificationChannels.ALERT_CHANNEL_ID,
+                getString(R.string.alert_notification_channel_name),
+                NotificationManager.IMPORTANCE_HIGH
+            )
+
+            notificationManager.createNotificationChannel(alertChannel)
         }
     }
 }

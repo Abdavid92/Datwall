@@ -14,7 +14,7 @@ import com.smartsolutions.datwall.repositories.IAppRepository
 import com.smartsolutions.datwall.repositories.models.App
 import com.smartsolutions.datwall.watcher.Watcher
 import com.smartsolutions.paquetes.MainActivity
-import com.smartsolutions.paquetes.NotificationChannels
+import com.smartsolutions.datwall.NotificationChannels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import dagger.hilt.android.AndroidEntryPoint
