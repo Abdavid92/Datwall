@@ -5,7 +5,11 @@ import com.smartsolutions.datwall.webApis.models.Result
 
 interface IMiCubacelApi {
 
-    suspend fun signUp(account: MiCubacelAccount): Result<Any>
+    suspend fun signUpNewUser(account: MiCubacelAccount): Result<Any>
 
-    suspend fun signIn(phone: String, password: String)
+    suspend fun signUpVerifyRegistration(code : String): Result<Any>
+
+    suspend fun signUpEnterPassword(account: MiCubacelAccount) : Result<Any>
+
+    suspend fun signIn(account: MiCubacelAccount) : Result<Any>
 }
