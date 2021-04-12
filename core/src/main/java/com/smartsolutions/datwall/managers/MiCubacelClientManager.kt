@@ -8,9 +8,11 @@ import javax.inject.Inject
 import kotlin.Exception
 import kotlin.coroutines.CoroutineContext
 
-class MiCubacelClientManager @Inject constructor(private val client: MCubacelClient) : CoroutineScope {
+class MiCubacelClientManager() : CoroutineScope {
 
-    private val TAG = "MiCubacelClientManager"
+    private val client = MCubacelClient()
+
+    private val TAG = "EJV"
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
@@ -20,12 +22,12 @@ class MiCubacelClientManager @Inject constructor(private val client: MCubacelCli
     fun loadHomePage() {
         sendRequests(9, { client.resolveHomeUrl() }, object : Callback<String> {
             override fun onSuccess(response: String) {
-                Log.i(TAG, "onSuccess: Coñoooo!!! $response")
+                Log.i(TAG, "onSuccess: Yesss!!! $response jobs ${jobs.size}")
                 loadHomePage(response)
             }
 
             override fun onFail() {
-                Log.i(TAG, "onFail: Noooo!!!!")
+                Log.i(TAG, "onFail: Noooo!!!!  jobs ${jobs.size}")
             }
 
         })
@@ -37,15 +39,15 @@ class MiCubacelClientManager @Inject constructor(private val client: MCubacelCli
                 val result = client.readHomePage(response.parse())
 
                 if (result.isEmpty())
-                    Log.i(TAG, "onSuccess: result is empty")
+                    Log.i(TAG, "onSuccess: result is empty  jobs ${jobs.size}")
 
                 result.forEach {
-                    Log.i(TAG, "onSuccess: key -> ${it.key}, value -> ${it.value}")
+                    Log.i(TAG, "onSuccess: key -> ${it.key}, value -> ${it.value}  jobs ${jobs.size}")
                 }
             }
 
             override fun onFail() {
-
+                Log.i(TAG, "FAIL  jobs ${jobs.size}")
             }
         })
     }
@@ -66,38 +68,35 @@ class MiCubacelClientManager @Inject constructor(private val client: MCubacelCli
                             val response = request() ?: throw NullPointerException()
                             if (!onSuccess) {
                                 onSuccess = true
-                                if (this.isActive)
-                                    //withContext(Dispatchers.Main) {
-                                        callback.onSuccess(response)
-                                    //}
+                                clearJobs()
+                                Log.i(TAG, "success $i  jobs ${jobs.size}")
+                                callback.onSuccess(response)
                             }
-                            clearJobs()
                         }
                     } catch (e: Exception) {
-                        if (fails + 1 == attempt) {
-                            //withContext(Dispatchers.Main) {
-                                callback.onFail()
-                            //}
+                        Log.i(TAG, "fail $i error: ${e.message}  jobs ${jobs.size}")
+                        if (fails + 1 == attempt && !onSuccess) {
                             clearJobs()
+                            callback.onFail()
                         } else
                             fails++
                     }
                 }
             })
-            Thread.sleep(500)
+            if (onSuccess)
+                break
+            Thread.sleep(1000)
         }
     }
 
     private fun clearJobs() {
         jobs.forEach {
-            if (!it.isCompleted)
-                it.cancel()
+            it.cancel()
         }
         jobs.clear()
     }
 
     interface Callback<T> {
-
         fun onSuccess(response: T)
         fun onFail()
     }

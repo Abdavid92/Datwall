@@ -1,7 +1,6 @@
 package com.smartsolutions.micubacel_client
 
 import org.jsoup.Connection
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
 class MCubacelClient {
@@ -51,7 +50,7 @@ class MCubacelClient {
 
         val result = mutableMapOf<String, String>()
 
-        val username = page.select("div[class=\"banner_bg_color mBottom20\"]").first().select("h2").text().replace("Bienvenido ", "").replace(" a MiCubacel", "").trimEnd().trimStart()
+        val username = page.select("div[class=\"banner_bg_color mBottom20\"]").first().select("h2").text().replace("Bienvenido", "").replace("a MiCubacel", "").trimEnd().trimStart()
         if (username.isNotEmpty()) {
             result["username"] = username
         }

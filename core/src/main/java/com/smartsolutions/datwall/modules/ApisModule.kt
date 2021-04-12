@@ -10,7 +10,4 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 interface ApisModule {
 
-    @Binds
-    fun bindIMiCubacelApi(miCubacelApi: MCubacelClient) : MCubacelClient
-
 }
