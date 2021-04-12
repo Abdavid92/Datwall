@@ -1,5 +1,6 @@
 package com.smartsolutions.datwall.modules
 
+import com.smartsolutions.micubacel_client.MCubacelClient
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -10,6 +11,6 @@ import dagger.hilt.components.SingletonComponent
 interface ApisModule {
 
     @Binds
-    fun bindIMiCubacelApi(miCubacelApi: MiCubacelApi) : IMiCubacelApi
+    fun bindIMiCubacelApi(miCubacelApi: MCubacelClient) : MCubacelClient
 
 }
