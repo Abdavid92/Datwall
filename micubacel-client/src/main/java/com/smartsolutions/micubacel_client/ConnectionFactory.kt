@@ -21,7 +21,7 @@ object ConnectionFactory {
 
         val connection = Jsoup.connect(url)
             .userAgent("Mozilla/5.0")
-            .timeout(15000)
+            .timeout(10000)
             .maxBodySize(1024.0.pow(2.0).toInt() * 5)
             .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
             .header("Accept-Language", "es-ES")
@@ -33,7 +33,9 @@ object ConnectionFactory {
         }
 
         cookies?.let {
-            connection.cookies(it)
+            if (it.isNotEmpty()) {
+                connection.cookies(it)
+            }
         }
         return connection
     }

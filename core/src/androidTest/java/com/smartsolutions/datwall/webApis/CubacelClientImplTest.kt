@@ -10,6 +10,6 @@ class CubacelClientImplTest {
 
     @Test
     fun test() {
-        client.loadHome()
+
     }
 }

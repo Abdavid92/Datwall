@@ -1,6 +1,8 @@
 package com.smartsolutions.micubacel_client
 
 import org.jsoup.Connection
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
 class MCubacelClient {
 
@@ -8,32 +10,36 @@ class MCubacelClient {
 
     private var cookies = mapOf<String, String>()
 
-    private val urls = mutableMapOf<String, String>()
+    private val urls = mutableMapOf<String, String>(
+        Pair("products", "https://mi.cubacel.net/primary/_-iiVGcd3i"),
+        Pair("myAccount", "https://mi.cubacel.net/primary/_-ijqJlSHh")
+    )
 
     var username: String? = null
         private set
 
-    fun loadHome() {
-        var response = ConnectionFactory.newConnection(baseHomeUrl)
-            .execute()
+    fun resolveHomeUrl() : String? {
+        val response = ConnectionFactory.newConnection(baseHomeUrl).execute()
 
         response.parse().select("a[class=\"link_msdp langChange\"]").forEach { url ->
 
         cookies = response.cookies()
 
             if (url.attr("id") == "spanishLanguage") {
-                response = ConnectionFactory.newConnection(baseHomeUrl + url.attr("href"), cookies = cookies)
-                    .execute()
-
-                readHomePage(response)
+                return baseHomeUrl + url.attr("href")
             }
         }
+
+        return null
     }
 
-    private fun readHomePage(response: Connection.Response) {
 
-        val page = response.parse()
+    fun loadPage(url : String) : Connection.Response {
+        return ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
+    }
 
+
+    fun readHomePage(page : Document)  : Map<String, String> {
         page.select("div[class=\"collapse navbar-collapse navbar-main-collapse\"]")
             .first()
             .select("li").forEach { li ->
@@ -43,6 +49,34 @@ class MCubacelClient {
                 }
             }
 
+        val result = mutableMapOf<String, String>()
 
+        val username = page.select("div[class=\"banner_bg_color mBottom20\"]").first().select("h2").text().replace("Bienvenido ", "").replace(" a MiCubacel", "").trimEnd().trimStart()
+        if (username.isNotEmpty()) {
+            result["username"] = username
+        }
+
+        val columns = page.select("div[class=\"greayheader_row\"]")
+
+        if (columns.isNotEmpty()){
+            val columPhone = columns.select("div[class=\"col1\"]")
+            if (columPhone.size > 1){
+                result["phone"] = columPhone[1].text()
+            }
+
+            val columCredit = columns.select("div[class=\"col2 btype\"]")
+            if (columCredit.size > 1){
+                result["credit"] = columCredit[1].text().trimStart().trimEnd()
+            }
+
+            val columnExpire = columns.select("div[class=\"col3 btype\"]")
+            if (columnExpire.size > 1){
+                result["expire"] = columnExpire[1].text()
+            }
+        }
+
+        return result
     }
+
+
 }
