@@ -38,4 +38,24 @@ class MiCubacelApiTest {
 
     }
 
+    @Test
+    fun signIn() {
+        val account = MiCubacelAccount(
+            "Abel",
+        "Llera",
+            "55055870",
+            "Abel.2021",
+            "Abel.2021",
+            null,
+            null
+        )
+
+        runBlocking {
+
+            val result = api.signIn(account)
+
+
+        }
+    }
+
 }

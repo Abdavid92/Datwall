@@ -2,6 +2,7 @@ package com.smartsolutions.datwall.webApis
 
 import com.smartsolutions.datwall.webApis.models.MiCubacelAccount
 import com.smartsolutions.datwall.webApis.models.Result
+import org.jsoup.nodes.Document
 
 interface IMiCubacelApi {
 
@@ -11,5 +12,7 @@ interface IMiCubacelApi {
 
     suspend fun signUpEnterPassword(account: MiCubacelAccount) : Result<Any>
 
-    suspend fun signIn(account: MiCubacelAccount) : Result<Any>
+    suspend fun signIn(account: MiCubacelAccount) : Result<Document>
+
+
 }

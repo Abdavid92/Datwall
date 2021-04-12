@@ -6,7 +6,7 @@ data class MiCubacelAccount(
     val phone: String,
     val password: String,
     val passwordConfirmation: String,
-    val cookies: Map<String, String>?,
+    var cookies: Map<String, String>?,
     val credit: Float?,
-    val verified: Boolean = false
+    var verified: Boolean = false
 )

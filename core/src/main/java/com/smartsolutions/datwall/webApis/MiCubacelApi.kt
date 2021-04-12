@@ -1,16 +1,22 @@
 package com.smartsolutions.datwall.webApis
 
+import android.content.Context
+import com.smartsolutions.datwall.R
 import com.smartsolutions.datwall.webApis.models.MiCubacelAccount
 import com.smartsolutions.datwall.webApis.models.Result
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import org.jsoup.Connection
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.io.IOException
 import javax.inject.Inject
 import javax.net.ssl.SSLContext
 import kotlin.coroutines.CoroutineContext
 
 class MiCubacelApi @Inject constructor(
+    @ApplicationContext
+    private val context: Context,
     private val sslContext: SSLContext
 ): IMiCubacelApi, CoroutineScope {
 
@@ -24,6 +30,8 @@ class MiCubacelApi @Inject constructor(
         "https://mi.cubacel.net:8443/login/VerifyRegistrationCode",
         "https://mi.cubacel.net:8443/login/recovery/RegisterPasswordCreation"
     )
+
+    private val loginAction = "https://mi.cubacel.net:8443/login/Login"
 
     private var cookies : MutableMap<String, String>  = mutableMapOf()
 
@@ -43,7 +51,7 @@ class MiCubacelApi @Inject constructor(
             if (elements != null && elements.size > 0){
                 cookies = connection.response().cookies()
             }else{
-                return Result.Fail("No se pudo conectar")
+                return Result.Fail(context.getString(R.string.sign_up_fail))
             }
 
         } catch (e: IOException) {
@@ -63,11 +71,11 @@ class MiCubacelApi @Inject constructor(
 
             val elements = document.getElementsByAttributeValue("action", "https://mi.cubacel.net:8443/login/recovery/RegisterPasswordCreation")
 
-            if (elements != null && elements.size > 0){
+            return if (elements != null && elements.size > 0){
                 cookies = connection.response().cookies()
-                return Result.Success(null)
+                Result.Success(null)
             }else {
-                return Result.Fail("Codigo Incorrecto")
+                Result.Fail(context.getString(R.string.sign_up_wrong_code))
             }
 
         }catch (e : IOException){
@@ -89,11 +97,11 @@ class MiCubacelApi @Inject constructor(
                 "https://mi.cubacel.net:8443/login/jsp/register-confirmation.jsp?language=es#"
             )
 
-            if (elements != null && elements.size > 0){
+            return if (elements != null && elements.size > 0){
                 cookies = connection.response().cookies()
-                return Result.Success(null)
+                Result.Success(null)
             }else {
-                return Result.Fail("No se pudo crear la cuenta")
+                Result.Fail(context.getString(R.string.sign_up_fail))
             }
 
         }catch (e : IOException){
@@ -102,15 +110,37 @@ class MiCubacelApi @Inject constructor(
     }
 
 
-    override suspend fun signIn(account: MiCubacelAccount) : Result<Any> {
-        TODO("Not yet implemented")
+    override suspend fun signIn(account: MiCubacelAccount) : Result<Document> {
+        val connection = jsoupConnect(loginAction)
+            .data("username", account.phone)
+            .data("password", account.password)
+
+        val document = connection.post()
+
+        return if (!isErrorPage(document)) {
+
+            cookies = connection.response().cookies()
+            account.cookies = cookies
+            account.verified = true
+
+            Result.Success(document)
+        } else
+            Result.Fail(context.getString(R.string.fail_sign_in))
     }
 
 
-    private fun jsoupConnect(url : String) : Connection{
+    private fun jsoupConnect(url : String) : Connection {
        return Jsoup.connect(url)
             .header("Accept-Language", "es")
             .sslSocketFactory(sslContext.socketFactory)
             .timeout(timeout)
+    }
+
+    private fun isErrorPage(document: Document): Boolean {
+        val errorPage = document.getElementsByClass("error_page")
+
+        val errorBlocking = document.getElementsByClass("error_Block")
+
+        return errorPage.isNotEmpty() && errorBlocking.isNotEmpty()
     }
 }
