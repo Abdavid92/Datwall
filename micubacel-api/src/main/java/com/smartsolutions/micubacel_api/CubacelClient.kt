@@ -519,7 +519,7 @@ class CubacelClient {
         const val ETECSA_HOME_PAGE_URL = "http://www.etecsa.cu"
 
         const val MCP_LOGIN_URL = "https://mi.cubacel.net:8443/login/Login"
-        const val MCP_WELCOME_LOGIN_ES_URL = "https://mi.cubacel.net:8443/login/jsp/welcome-login.jsp-?language=es"
+        const val MCP_WELCOME_LOGIN_ES_URL = "https://mi.cubacel.net:8443/login/jsp/welcome-login.jsp?language=es"
         const val MCP_FORGOT_URL = "https://mi.cubacel.net:8443/login/jsp/forgot-password.jsp"
         const val MCP_FORGOT_ACTION_URL = "https://mi.cubacel.net:8443/login/recovery/ForgotPassword"
         const val MCP_RESET_PASSWORD_URL = "https://mi.cubacel.net:8443/login/recovery/ResetPassword"

@@ -1,5 +1,6 @@
 package com.smartsolutions.micubacel_client
 
+import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 
@@ -9,32 +10,40 @@ class MCubacelClient {
 
     private var cookies = mapOf<String, String>()
 
-    private val urls = mutableMapOf<String, String>(
+    private val urls = mutableMapOf(
         Pair("products", "https://mi.cubacel.net/primary/_-iiVGcd3i"),
-        Pair("myAccount", "https://mi.cubacel.net/primary/_-ijqJlSHh")
+        Pair("myAccount", "https://mi.cubacel.net/primary/_-ijqJlSHh"),
+        Pair("login", "https://mi.cubacel.net:8443/login/Login")
     )
 
-    var username: String? = null
-        private set
 
-    fun resolveHomeUrl() : String? {
-        val response = ConnectionFactory.newConnection(baseHomeUrl).execute()
-
-        response.parse().select("a[class=\"link_msdp langChange\"]").forEach { url ->
-
-        cookies = response.cookies()
-
-            if (url.attr("id") == "spanishLanguage") {
-                return baseHomeUrl + url.attr("href")
-            }
+    fun resolveHomeUrl(updateCookies: Boolean) : String? {
+        val url = urls["home"]
+        if (url != null && url.isNotEmpty()){
+            return url
         }
 
+        val response = ConnectionFactory.newConnection(baseHomeUrl).execute()
+        if (updateCookies) {
+            cookies = response.cookies()
+        }
+
+        response.parse().select("a[class=\"link_msdp langChange\"]").forEach { url ->
+            if (url.attr("id") == "spanishLanguage") {
+                urls["home"] = baseHomeUrl + url.attr("href")
+                return urls["home"]
+            }
+        }
         return null
     }
 
 
-    fun loadPage(url : String) : Connection.Response {
-        return ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
+    fun loadPage(url : String, updateCookies : Boolean = false) : Document {
+        val response = ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
+        if (updateCookies){
+            cookies = response.cookies()
+        }
+        return response.parse()
     }
 
 
@@ -58,23 +67,44 @@ class MCubacelClient {
         val columns = page.select("div[class=\"greayheader_row\"]")
 
         if (columns.isNotEmpty()){
+
             val columPhone = columns.select("div[class=\"col1\"]")
-            if (columPhone.size > 1){
-                result["phone"] = columPhone[1].text()
+            if (columPhone.size == 1 && columPhone[0].childrenSize() == 2) {
+                result["phone"] = columPhone[0].child(1).text().trimStart().trimEnd()
             }
 
             val columCredit = columns.select("div[class=\"col2 btype\"]")
-            if (columCredit.size > 1){
-                result["credit"] = columCredit[1].text().trimStart().trimEnd()
+            if (columCredit.size == 1 && columCredit[0].childrenSize() == 2) {
+                result["credit"] = columCredit[0].child(1).text().trimStart().trimEnd()
             }
 
             val columnExpire = columns.select("div[class=\"col3 btype\"]")
-            if (columnExpire.size > 1){
-                result["expire"] = columnExpire[1].text()
+            if (columnExpire.size == 1 && columnExpire[0].childrenSize() == 2){
+                result["expire"] = columnExpire[0].child(1).text().trimStart().trimEnd()
             }
         }
 
         return result
+    }
+
+
+    fun signIn(phone: String, password: String)  {
+        val data = mapOf(
+            Pair("language", "es_ES"),
+            Pair("username", phone),
+            Pair("password", password)
+        )
+        val response = ConnectionFactory.newConnection(url = urls["login"]!!, cookies = cookies, data = data)
+            .method(Connection.Method.POST)
+            .execute()
+
+        val page = response.parse()
+
+        if (page.select("div[class=\"body_wrapper error_page\"]").first() != null){
+            throw UnprocessableRequestException()
+        }
+
+        cookies = response.cookies()
     }
 
 
