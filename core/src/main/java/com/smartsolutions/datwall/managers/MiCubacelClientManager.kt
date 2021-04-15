@@ -55,16 +55,7 @@ class MiCubacelClientManager() : CoroutineScope {
 
 
     fun signUp(firstName : String, lastName : String, phone: String, callback: Callback<Any>) {
-        sendRequests(100,
-            { client.loadPage("https://mi.cubacel.net:8443/login/jsp/registerNew.jsp", true) }, object : Callback<Document>{
-                override fun onSuccess(response: Document) {
-                    sendRequests(1, {client.signUp(firstName, lastName, phone)}, callback)
-                }
-
-                override fun onFail(throwable: Throwable) {
-
-                }
-            })
+        sendRequests(1, {client.signUp(firstName, lastName, phone)}, callback)
     }
 
 
@@ -76,9 +67,19 @@ class MiCubacelClientManager() : CoroutineScope {
         sendRequests(9, {client.createPassword(password)}, callback)
     }
 
-
-
-    private fun <T> sendRequests(attempt: Int, request: () -> T?, callback: Callback<T>) {
+    /**
+     * Ejecuta una cantidad específica de peticiones http de manera paralela.
+     * Cuando se recibe la primera respuesta, se cancelan todas las demas peticiones y
+     * se lanzan los eventos correspondiente del callback.
+     * En caso de no recibir respuesta a ninguna de las peticiones realizadas,
+     * se lanza el evento fail del callback.
+     *
+     * @param attempt - Número de peticiones a ejecutar.
+     * @param request - Función que contiene el código de la petición http.
+     * @param callback - Callback que recibirá la respuesta o el error.
+     * @param T - Tipo de respuesta que retorna la petición.
+     * */
+    private inline fun <T> sendRequests(attempt: Int, crossinline request: () -> T?, callback: Callback<T>) {
         launch {
             var fails = 1
             var completed = false
@@ -119,6 +120,46 @@ class MiCubacelClientManager() : CoroutineScope {
                 if (completed)
                     break
                 delay(1000L)
+            }
+        }
+    }
+
+    /**
+     * Ejecuta una petición http una cantidad de veces determinada mientras no tenga éxito.
+     * Deja de ejecutar la peticion si se supera la cantidad de intentos o  si la peticion
+     * tiene respuesta.
+     *
+     * @param attempt - Número de intentos.
+     * @param request - Petición http.
+     * @param callback - Callback que recibirá la respuesta o el error.
+     * */
+    private fun <T> sendQueueRequests(attempt: Int, request: () -> T?, callback: Callback<T>) {
+        launch {
+
+            for (i in 1..attempt) {
+
+                try {
+
+                    val response = request() ?: throw NullPointerException()
+
+                    withContext(Dispatchers.Main) {
+                        callback.onSuccess(response)
+                    }
+                    break
+                } catch (e: UnprocessableRequestException) {
+                    withContext(Dispatchers.Main) {
+                        callback.onFail(e)
+                    }
+                    break
+                } catch (e: Exception) {
+                    if (i == attempt) {
+                        withContext(Dispatchers.Main) {
+                            callback.onFail(e)
+                        }
+                    }
+                }
+
+                delay(1000)
             }
         }
     }

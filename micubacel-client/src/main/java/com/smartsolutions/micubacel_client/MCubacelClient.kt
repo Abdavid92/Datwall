@@ -62,7 +62,15 @@ class MCubacelClient {
 
         val result = mutableMapOf<String, String>()
 
-        val username = page.select("div[class=\"banner_bg_color mBottom20\"]").first().select("h2").text().replace("Bienvenido", "").replace("a MiCubacel", "").trimEnd().trimStart()
+        val username = page.select("div[class=\"banner_bg_color mBottom20\"]")
+            .first()
+            .select("h2")
+            .text()
+            .replace("Bienvenido", "")
+            .replace("a MiCubacel", "")
+            .trimEnd()
+            .trimStart()
+
         if (username.isNotEmpty()) {
             result["username"] = username
         }
@@ -118,7 +126,9 @@ class MCubacelClient {
             Pair("agree", "on")
         )
 
-        val response = ConnectionFactory.newConnection(urls["create"]!!, data, cookies ).method(Connection.Method.POST).execute()
+        val response = ConnectionFactory.newConnection(urls["create"]!!, data, cookies )
+            .method(Connection.Method.POST)
+            .execute()
 
         val page = response.parse()
 
@@ -134,7 +144,9 @@ class MCubacelClient {
         val data = mapOf(
             Pair("username", code)
         )
-        val response = ConnectionFactory.newConnection(urls["verify"]!!, data, cookies).method(Connection.Method.POST).execute()
+        val response = ConnectionFactory.newConnection(urls["verify"]!!, data, cookies)
+            .method(Connection.Method.POST)
+            .execute()
 
         val page = response.parse()
 
