@@ -13,7 +13,8 @@ class MCubacelClient {
     private val urls = mutableMapOf(
         Pair("products", "https://mi.cubacel.net/primary/_-iiVGcd3i"),
         Pair("myAccount", "https://mi.cubacel.net/primary/_-ijqJlSHh"),
-        Pair("login", "https://mi.cubacel.net:8443/login/Login")
+        Pair("login", "https://mi.cubacel.net:8443/login/Login"),
+        Pair("create", "https://mi.cubacel.net:8443/login/NewUserRegistration")
     )
 
 
@@ -106,6 +107,22 @@ class MCubacelClient {
 
         cookies = response.cookies()
     }
+
+    fun signUp(firstName: String, lastName: String, phone: String) {
+        val data = mapOf(
+            Pair("msisdn", phone),
+            Pair("firstname", firstName),
+            Pair("lastname", lastName),
+            Pair("agree", "on")
+        )
+
+        val response = ConnectionFactory.newConnection(urls["create"]!!, data, cookies ).method(Connection.Method.POST).execute()
+
+        
+    }
+
+
+
 
 
 }
