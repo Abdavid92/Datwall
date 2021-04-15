@@ -14,7 +14,9 @@ class MCubacelClient {
         Pair("products", "https://mi.cubacel.net/primary/_-iiVGcd3i"),
         Pair("myAccount", "https://mi.cubacel.net/primary/_-ijqJlSHh"),
         Pair("login", "https://mi.cubacel.net:8443/login/Login"),
-        Pair("create", "https://mi.cubacel.net:8443/login/NewUserRegistration")
+        Pair("create", "https://mi.cubacel.net:8443/login/NewUserRegistration"),
+        Pair("verify", "https://mi.cubacel.net:8443/login/VerifyRegistrationCode"),
+        Pair("passwordCreation", "https://mi.cubacel.net:8443/login/recovery/RegisterPasswordCreation")
     )
 
 
@@ -101,8 +103,8 @@ class MCubacelClient {
 
         val page = response.parse()
 
-        if (page.select("div[class=\"body_wrapper error_page\"]").first() != null){
-            throw UnprocessableRequestException()
+        if (isErrorPage(page)){
+            throw UnprocessableRequestException(errorMessage(page))
         }
 
         cookies = response.cookies()
@@ -118,11 +120,68 @@ class MCubacelClient {
 
         val response = ConnectionFactory.newConnection(urls["create"]!!, data, cookies ).method(Connection.Method.POST).execute()
 
-        
+        val page = response.parse()
+
+        if (isErrorPage(page) || page.select("form[action=\"/login/VerifyRegistrationCode\"]").first() == null){
+            throw UnprocessableRequestException(errorMessage(page))
+        }
+
+        cookies = response.cookies()
+    }
+
+
+    fun verifyCode(code: String){
+        val data = mapOf(
+            Pair("username", code)
+        )
+        val response = ConnectionFactory.newConnection(urls["verify"]!!, data, cookies).method(Connection.Method.POST).execute()
+
+        val page = response.parse()
+
+        if (isErrorPage(page) || page.select("form[action=\"/login/recovery/RegisterPasswordCreation\"]").first() == null){
+            throw UnprocessableRequestException(errorMessage(page))
+        }
+
+    }
+
+    fun createPassword(password: String, cpassword: String){
+        val data = mapOf(
+            Pair("newPassword", password),
+            Pair("cnewPassword", cpassword)
+        )
+
+        val response = ConnectionFactory.newConnection(urls["passwordCreation"]!!, data, cookies).method(Connection.Method.POST).execute()
+
+        val page = response.parse()
+
+        if (isErrorPage(page)){
+            throw UnprocessableRequestException(errorMessage(page))
+        }
     }
 
 
 
+    private fun isErrorPage(page: Document) : Boolean{
+        if (page.select("div[class=\"body_wrapper error_page\"]").first() != null){
+            return true
+        }
+        return false
+    }
 
+    private fun errorMessage(page: Document): String?{
+        if (isErrorPage(page)){
+            return try {
+                page.select("div[class=\"body_wrapper error_page\"]").first()
+                    .select("div[class=\"welcome_login error_Block\"]").first()
+                    .select("div[class=\"container\"]").first()
+                    .select("b").first().text()
+            } catch (e: NullPointerException) {
+                page.select("div[class=\"body_wrapper error_page\"]").first()
+                    .select("div[class=\"welcome_login error_Block\"]").first()
+                    .select("div[class=\"container\"]").first().text()
+            }
+        }
+        return null
+    }
 
 }

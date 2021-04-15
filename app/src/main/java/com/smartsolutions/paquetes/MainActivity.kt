@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-        singIn()
+        verifyCode()
     }
 
     fun singIn(){
@@ -66,5 +66,49 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
 
         }, false)
+    }
+
+    fun singUp(){
+        client.signUp("SAFYHD", "jhdvweifdwe", "52379969", object : MiCubacelClientManager.Callback<Any>{
+            override fun onSuccess(response: Any) {
+                Log.i("EJV", "Creacion de cuenta iniciado")
+            }
+
+            override fun onFail(throwable: Throwable) {
+                if (throwable is UnprocessableRequestException){
+                    Log.i("EJV", "No se pudo cargar la creacion de la cuenta")
+                }else {
+                    Log.i("EJV", "No se pudo conectar para crear")
+                }
+            }
+        })
+    }
+
+    fun verifyCode(){
+        client.verifyCode("1234", object :MiCubacelClientManager.Callback<Any>{
+            override fun onSuccess(response: Any) {
+                Log.i("EJV", "Verificado correctamente")
+            }
+
+            override fun onFail(throwable: Throwable) {
+                if (throwable is UnprocessableRequestException){
+                    Log.i("EJV", "No se pudo verificar ${throwable.message}")
+                }else {
+                    Log.i("EJV", "No se pudo conectar para verificar el codigo")
+                }
+            }
+        })
+    }
+
+    fun createPassword(){
+        client.createPassword("cacac", "acacca", object : MiCubacelClientManager.Callback<Any>{
+            override fun onSuccess(response: Any) {
+
+            }
+
+            override fun onFail(throwable: Throwable) {
+
+            }
+        })
     }
 }

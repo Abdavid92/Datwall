@@ -54,11 +54,18 @@ class MiCubacelClientManager() : CoroutineScope {
 
 
 
-    fun signUp(firstName : String, lastName : String, phone: String){
-
+    fun signUp(firstName : String, lastName : String, phone: String, callback: Callback<Any>) {
+        sendRequests(1, {client.signUp(firstName, lastName, phone)}, callback)
     }
 
 
+    fun verifyCode(code: String, callback: Callback<Any>) {
+        sendRequests(9, {client.verifyCode(code)}, callback)
+    }
+
+    fun createPassword(password: String, cpassword: String, callback: Callback<Any>) {
+        sendRequests(9, {client.createPassword(password, cpassword)}, callback)
+    }
 
 
 
