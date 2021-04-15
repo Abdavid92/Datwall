@@ -8,7 +8,7 @@ class MCubacelClient {
 
     private val baseHomeUrl = "https://mi.cubacel.net"
 
-    private var cookies = mapOf<String, String>()
+    private var cookies = mutableMapOf<String, String>()
 
     private val urls = mutableMapOf(
         Pair("products", "https://mi.cubacel.net/primary/_-iiVGcd3i"),
@@ -28,7 +28,7 @@ class MCubacelClient {
 
         val response = ConnectionFactory.newConnection(baseHomeUrl).execute()
         if (updateCookies) {
-            cookies = response.cookies()
+            updateCookies(response.cookies())
         }
 
         response.parse().select("a[class=\"link_msdp langChange\"]").forEach { url ->
@@ -44,7 +44,7 @@ class MCubacelClient {
     fun loadPage(url : String, updateCookies : Boolean = false) : Document {
         val response = ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
         if (updateCookies){
-            cookies = response.cookies()
+            updateCookies(response.cookies())
         }
         return response.parse()
     }
@@ -107,7 +107,7 @@ class MCubacelClient {
             throw UnprocessableRequestException(errorMessage(page))
         }
 
-        cookies = response.cookies()
+        updateCookies(response.cookies())
     }
 
     fun signUp(firstName: String, lastName: String, phone: String) {
@@ -126,7 +126,7 @@ class MCubacelClient {
             throw UnprocessableRequestException(errorMessage(page))
         }
 
-        cookies = response.cookies()
+        updateCookies(response.cookies())
     }
 
 
@@ -142,21 +142,24 @@ class MCubacelClient {
             throw UnprocessableRequestException(errorMessage(page))
         }
 
+        updateCookies(response.cookies())
+
     }
 
-    fun createPassword(password: String, cpassword: String){
+    fun createPassword(password: String){
         val data = mapOf(
             Pair("newPassword", password),
-            Pair("cnewPassword", cpassword)
+            Pair("cnewPassword", password)
         )
 
         val response = ConnectionFactory.newConnection(urls["passwordCreation"]!!, data, cookies).method(Connection.Method.POST).execute()
 
         val page = response.parse()
 
-        if (isErrorPage(page)){
+        if (isErrorPage(page) || page.select("form[action=\"/login/jsp/welcome-login.jsp?language=es\"]").first() == null){
             throw UnprocessableRequestException(errorMessage(page))
         }
+        updateCookies(response.cookies())
     }
 
 
@@ -182,6 +185,12 @@ class MCubacelClient {
             }
         }
         return null
+    }
+
+    private fun updateCookies(updateCookies : Map<String, String>){
+        updateCookies.forEach {
+            cookies[it.key] = it.value
+        }
     }
 
 }

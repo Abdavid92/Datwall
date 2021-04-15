@@ -28,7 +28,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-        verifyCode()
+
+        singUp()
     }
 
     fun singIn(){
@@ -69,14 +70,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun singUp(){
-        client.signUp("SAFYHD", "jhdvweifdwe", "52379969", object : MiCubacelClientManager.Callback<Any>{
+        client.signUp("ELier", "Viera", "52379969", object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "Creacion de cuenta iniciado")
             }
 
             override fun onFail(throwable: Throwable) {
                 if (throwable is UnprocessableRequestException){
-                    Log.i("EJV", "No se pudo cargar la creacion de la cuenta")
+                    Log.i("EJV", "No se pudo cargar la creacion de la cuenta ${throwable.message}")
                 }else {
                     Log.i("EJV", "No se pudo conectar para crear")
                 }
@@ -84,10 +85,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
     }
 
-    fun verifyCode(){
-        client.verifyCode("1234", object :MiCubacelClientManager.Callback<Any>{
+    fun verifyCode(code :String){
+        client.verifyCode(code, object :MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "Verificado correctamente")
+                createPassword()
             }
 
             override fun onFail(throwable: Throwable) {
@@ -101,13 +103,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun createPassword(){
-        client.createPassword("cacac", "acacca", object : MiCubacelClientManager.Callback<Any>{
+        client.createPassword("hola1237", object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
-
+                Log.i("EJV", "Cuenta creada")
             }
 
             override fun onFail(throwable: Throwable) {
-
+                if (throwable is UnprocessableRequestException){
+                    Log.i("EJV", "No se pudo crear la cuenta ${throwable.message}")
+                }else {
+                    Log.i("EJV", "No se pudo conectar para crear la cuenta")
+                }
             }
         })
     }

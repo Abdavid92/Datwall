@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -56,6 +58,14 @@ class HomeFragment : Fragment() {
                 }
                 context?.startService(intent)
             }
+        }
+
+        val edit = view.findViewById<EditText>(R.id.editTextNumberSigned)
+
+        val button = view.findViewById<Button>(R.id.button)
+
+        button.setOnClickListener {
+            (activity as MainActivity).verifyCode(edit.text.toString())
         }
     }
 
