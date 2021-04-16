@@ -6,6 +6,7 @@ import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestExcept
 import kotlinx.coroutines.*
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import kotlin.Exception
 import kotlin.coroutines.CoroutineContext
 
@@ -55,7 +56,7 @@ class MiCubacelClientManager() : CoroutineScope {
 
 
     fun signUp(firstName : String, lastName : String, phone: String, callback: Callback<Any>) {
-        sendRequests(1, {client.signUp(firstName, lastName, phone)}, callback)
+        sendQueueRequests(9, {client.signUp(firstName, lastName, phone)}, callback)
     }
 
 
@@ -66,6 +67,32 @@ class MiCubacelClientManager() : CoroutineScope {
     fun createPassword(password: String, callback: Callback<Any>) {
         sendRequests(9, {client.createPassword(password)}, callback)
     }
+
+
+    fun getUserDataPackagesInfo(){
+        Log.i("EJV", "Enviando peticion de paquetes")
+        sendRequests(9, {client.obtainPackagesInfo()}, object : Callback<Pair<Document, List<Element>>>{
+            override fun onSuccess(response: Pair<Document, List<Element>>) {
+                val page = response.first
+                val elements = response.second
+
+                elements.forEach {
+                    val element = it
+                    element.text()
+                }
+            }
+
+            override fun onFail(throwable: Throwable) {
+                if (throwable is UnprocessableRequestException){
+                    Log.i("EJV", "No se ha iniciado sesion")
+                }else {
+                    Log.i("EJV", "Fallido")
+                }
+            }
+        })
+    }
+
+
 
     /**
      * Ejecuta una cantidad específica de peticiones http de manera paralela.
@@ -133,7 +160,7 @@ class MiCubacelClientManager() : CoroutineScope {
      * @param request - Petición http.
      * @param callback - Callback que recibirá la respuesta o el error.
      * */
-    private fun <T> sendQueueRequests(attempt: Int, request: () -> T?, callback: Callback<T>) {
+    private inline fun <T> sendQueueRequests(attempt: Int, crossinline request: () -> T?, callback: Callback<T>) {
         launch {
 
             for (i in 1..attempt) {

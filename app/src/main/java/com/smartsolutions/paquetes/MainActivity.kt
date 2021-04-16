@@ -29,14 +29,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        singUp()
+      singIn()
     }
 
     fun singIn(){
         client.signIn("52379969", "Geaelf*1736#", object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "LOGEADO")
-                loadHome()
+                client.getUserDataPackagesInfo()
             }
 
             override fun onFail(throwable: Throwable) {
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun singUp(){
-        client.signUp("ELier", "Viera", "52379969", object : MiCubacelClientManager.Callback<Any>{
+        client.signUp("Alexis", "Leon", "53814765", object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "Creacion de cuenta iniciado")
             }
@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun createPassword(){
-        client.createPassword("hola1237", object : MiCubacelClientManager.Callback<Any>{
+        client.createPassword("Alexis2021", object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "Cuenta creada")
             }

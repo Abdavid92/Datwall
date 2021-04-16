@@ -3,6 +3,7 @@ package com.smartsolutions.micubacel_client
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 
 class MCubacelClient {
 
@@ -17,6 +18,14 @@ class MCubacelClient {
         Pair("create", "https://mi.cubacel.net:8443/login/NewUserRegistration"),
         Pair("verify", "https://mi.cubacel.net:8443/login/VerifyRegistrationCode"),
         Pair("passwordCreation", "https://mi.cubacel.net:8443/login/recovery/RegisterPasswordCreation")
+    )
+
+    private val packagesID = listOf(
+        "myStat_3001",
+        "myStat_30012",
+        "myStat_bonusDataN",
+        "myStat_2001",
+        "myStat_bonusData"
     )
 
 
@@ -118,6 +127,7 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
+
     fun signUp(firstName: String, lastName: String, phone: String) {
         val data = mapOf(
             Pair("msisdn", phone),
@@ -139,7 +149,6 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
-
     fun verifyCode(code: String){
         val data = mapOf(
             Pair("username", code)
@@ -155,7 +164,6 @@ class MCubacelClient {
         }
 
         updateCookies(response.cookies())
-
     }
 
     fun createPassword(password: String){
@@ -175,12 +183,32 @@ class MCubacelClient {
     }
 
 
+    fun obtainPackagesInfo() : Pair<Document, List<Element>> {
+        val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = cookies).execute()
+
+        val page = response.parse()
+        val elements = mutableListOf<Element>()
+
+        if (!isLoged(page)){
+            throw UnprocessableRequestException("Login Fail")
+        }
+
+        packagesID.forEach { id ->
+            page.getElementById(id)?.let { element ->
+                elements.add(element)
+            }
+        }
+
+        return Pair(page, elements)
+    }
+
+
+    private fun isLoged(page: Document) : Boolean {
+        return page.select("div[class=\"myaccount_details\"]").first() != null && page.select("a[id=\"mySignin\"]").first() == null
+    }
 
     private fun isErrorPage(page: Document) : Boolean{
-        if (page.select("div[class=\"body_wrapper error_page\"]").first() != null){
-            return true
-        }
-        return false
+        return page.select("div[class=\"body_wrapper error_page\"]").first() != null
     }
 
     private fun errorMessage(page: Document): String?{
