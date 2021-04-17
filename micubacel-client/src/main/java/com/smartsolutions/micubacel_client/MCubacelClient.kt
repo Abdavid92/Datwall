@@ -189,11 +189,18 @@ class MCubacelClient {
         val page = response.parse()
         val elements = mutableListOf<Element>()
 
-        if (!isLoged(page)){
+        if (!isLogged(page)){
             throw UnprocessableRequestException("Login Fail")
         }
 
+        val data = mutableMapOf<String, String>()
+
         packagesID.forEach { id ->
+
+            page.getElementById(id)?.let { element ->
+                data.put(getKey(id), getValue(element))
+            }
+
             page.getElementById(id)?.let { element ->
                 elements.add(element)
             }
@@ -202,8 +209,16 @@ class MCubacelClient {
         return Pair(page, elements)
     }
 
+    private fun getKey(id: String): String {
+        TODO("Not yet implemented")
+    }
 
-    private fun isLoged(page: Document) : Boolean {
+    private fun getValue(element: Element): String {
+        TODO("Not yet implemented")
+    }
+
+
+    private fun isLogged(page: Document) : Boolean {
         return page.select("div[class=\"myaccount_details\"]").first() != null && page.select("a[id=\"mySignin\"]").first() == null
     }
 
@@ -233,4 +248,13 @@ class MCubacelClient {
         }
     }
 
+    companion object {
+
+        const val DATA_BYTES = "bytes"
+        const val DATA_BONUS_BYTES = "bonus_bytes"
+        const val DATA_BONUS_CU_BYTES = "bonus_cu_bytes"
+        const val DATA_START_DATE = "start_date"
+        const val DATA_FINISH_DATE = "finish_date"
+
+    }
 }

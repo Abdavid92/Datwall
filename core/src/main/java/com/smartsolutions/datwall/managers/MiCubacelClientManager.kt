@@ -1,6 +1,7 @@
 package com.smartsolutions.datwall.managers
 
 import android.util.Log
+import com.smartsolutions.datwall.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.MCubacelClient
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import kotlinx.coroutines.*
@@ -69,7 +70,7 @@ class MiCubacelClientManager() : CoroutineScope {
     }
 
 
-    fun getUserDataPackagesInfo(){
+    fun getUserDataPackagesInfo(callback: Callback<UserDataPackage>) {
         Log.i("EJV", "Enviando peticion de paquetes")
         sendRequests(9, {client.obtainPackagesInfo()}, object : Callback<Pair<Document, List<Element>>>{
             override fun onSuccess(response: Pair<Document, List<Element>>) {
