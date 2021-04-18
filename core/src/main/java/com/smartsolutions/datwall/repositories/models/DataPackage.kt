@@ -6,7 +6,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.smartsolutions.datwall.jsonAdapters.BooleanAdapter
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
@@ -28,7 +30,7 @@ data class DataPackage(
     val bonoCuBytes: Long,
     val network: String,
     val ussd: String,
-    val url: String,
+    val url: String,@JsonAdapter(BooleanAdapter::class)
     val active: Boolean,
 ): Parcelable {
 

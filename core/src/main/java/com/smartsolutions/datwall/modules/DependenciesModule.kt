@@ -2,20 +2,23 @@ package com.smartsolutions.datwall.modules
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.room.Room
 import com.google.gson.Gson
 import com.smartsolutions.datwall.data.DbContext
-import com.smartsolutions.datwall.data.IAppDao
 import com.smartsolutions.datwall.data.TrafficDbContext
+import com.smartsolutions.datwall.dataStore
+import com.smartsolutions.datwall.interceptors.CookieJarProcessor
+import com.smartsolutions.datwall.webApis.DatwallWebApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.X509TrustManager
 
 @Module
@@ -46,13 +49,37 @@ object DependenciesModule {
     fun provideITrafficDao(dbContext: TrafficDbContext) = dbContext.getTrafficDao()
 
     @Provides
-    fun provideSslSocketFactory(): SSLContext {
+    fun provideDatwallWebApi(client: OkHttpClient): DatwallWebApi {
+        return Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:8000/api/")
+            .client(client)
+            .build()
+            .create(DatwallWebApi::class.java)
+    }
+
+    @Provides
+    fun provideOkHttpClient(
+        @ApplicationContext
+        context: Context,
+        sslContext: SSLContext,
+        trustManager: Array<X509TrustManager>
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .sslSocketFactory(sslContext.socketFactory, trustManager[0])
+            .cookieJar(CookieJarProcessor(context.dataStore))
+            .connectTimeout(3000, TimeUnit.MILLISECONDS)
+            .build()
+    }
+
+    @Provides
+    fun provideSslSocketFactory(trustManager: Array<X509TrustManager>): SSLContext {
         val sslContext = SSLContext.getInstance("SSL")
-        sslContext.init(null, buildTrustManager(), SecureRandom())
+        sslContext.init(null, trustManager, SecureRandom())
         return sslContext
     }
 
-    private fun buildTrustManager(): Array<X509TrustManager> =
+    @Provides
+    fun provideTrustManager(): Array<X509TrustManager> =
         arrayOf(object : X509TrustManager {
             @SuppressLint("TrustAllX509TrustManager")
             override fun checkClientTrusted(p0: Array<out X509Certificate>?, p1: String?) {}
