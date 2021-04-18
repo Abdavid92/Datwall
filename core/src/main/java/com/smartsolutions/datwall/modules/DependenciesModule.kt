@@ -3,8 +3,7 @@ package com.smartsolutions.datwall.modules
 import android.annotation.SuppressLint
 import android.content.Context
 import com.google.gson.Gson
-import com.smartsolutions.datwall.data.DbContext
-import com.smartsolutions.datwall.data.TrafficDbContext
+import com.smartsolutions.datwall.data.*
 import com.smartsolutions.datwall.dataStore
 import com.smartsolutions.datwall.interceptors.CookieJarProcessor
 import com.smartsolutions.datwall.webApis.DatwallWebApi
@@ -17,7 +16,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
-import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
@@ -29,11 +27,11 @@ object DependenciesModule {
     fun provideGson() = Gson()
 
     @Provides
-    fun provideDbContext(@ApplicationContext context: Context) =
+    fun provideDbContext(@ApplicationContext context: Context): DbContext =
         DbContext.getInstance(context)
 
     @Provides
-    fun provideTrafficDbContext(@ApplicationContext context: Context) =
+    fun provideTrafficDbContext(@ApplicationContext context: Context): TrafficDbContext =
         TrafficDbContext.getInstance(context)
 
     @Provides
@@ -67,7 +65,6 @@ object DependenciesModule {
         return OkHttpClient.Builder()
             .sslSocketFactory(sslContext.socketFactory, trustManager[0])
             .cookieJar(CookieJarProcessor(context.dataStore))
-            .connectTimeout(3000, TimeUnit.MILLISECONDS)
             .build()
     }
 

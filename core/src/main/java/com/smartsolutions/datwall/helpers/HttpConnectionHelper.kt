@@ -1,6 +1,5 @@
 package com.smartsolutions.datwall.helpers
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import com.google.gson.Gson
@@ -17,31 +16,46 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import okhttp3.ResponseBody
 import retrofit2.Call
-import java.io.IOException
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
+/**
+ * Clase de ayuda para realizar peticiones http a las apis alojadas
+ * en servidores de infinityfreeapp.com
+ * */
 class HttpConnectionHelper @Inject constructor(
     @ApplicationContext
-    private val context: Context,
-    val gson: Gson
+    private val context: Context
 ): CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
 
-    inline fun sendRequestAsync(crossinline call: () -> Call<ResponseBody>, callback: ResponseCallback<String?>) {
+    /**
+     * Ejecuta una petición http de manera asíncrona. Retorna el resultado en un callback.
+     *
+     * @param call - Función que contruye la petición.
+     * @param callback - Callback que resibe el resultado.
+     * */
+    inline fun sendRequestAsync(crossinline call: () -> Call<ResponseBody>, callback: ResponseCallback<String>) {
         launch {
             try {
-                callback.onSuccess(sendRequest(call))
+                callback.onSuccess(sendRequest(call) ?: throw UnprocessableRequestException("Empty body"))
             } catch (e: Exception) {
                 callback.onFail(e)
             }
         }
     }
 
+    /**
+     * Ejecuta una petición http y retorna el cuerpo de la respuesta o lanza
+     * una excepción si no tuvo éxito.
+     *
+     * @param call - Función que contruye la petición.
+     * @return Cuerpo de la respuesta en un String.
+     * */
     @Throws(Exception::class)
     inline fun sendRequest(crossinline call: () -> Call<ResponseBody>): String? {
         //Hago tres intentos de llamadas

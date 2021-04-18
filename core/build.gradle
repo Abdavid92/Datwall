@@ -58,6 +58,9 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
+    //OkHttp
+    api 'com.squareup.okhttp3:okhttp:3.14.9'
+
     //Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
 
