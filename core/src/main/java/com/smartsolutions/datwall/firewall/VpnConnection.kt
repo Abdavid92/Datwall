@@ -13,7 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Clase que estable la conexión vpn. Este vpn
+ * Clase que establece la conexión vpn. Este vpn
  * actúa como un bloqueador de la conexión a internet, ya que
  * no se conecta a ningún servidor externo. Será como
  * un callejón sin salida. Todas las

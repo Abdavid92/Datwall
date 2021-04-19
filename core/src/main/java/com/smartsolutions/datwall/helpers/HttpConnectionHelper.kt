@@ -87,6 +87,8 @@ class HttpConnectionHelper @Inject constructor(
                     throw UnprocessableRequestException("Empty body")
                 }
             } else if (i == 2) {
+                /*Si la respuesta no tuvo éxito y es el último intento,
+                * obtengo el código http y lanzo la excepción correspondiente*/
                 throw when (response.code()) {
                     401 -> {
                         UnauthorizedException()
@@ -111,14 +113,24 @@ class HttpConnectionHelper @Inject constructor(
         return null
     }
 
+    /**
+     * Ejecuta el script, genera las cookies y las
+     * guardas en el dataStore.
+     *
+     * @param body - Código html con el script
+     * */
     fun generateCookies(body: String) {
+        //Obtengo el valor de las tres variables
         val a = getVar(body, "a")
         val b = getVar(body, "b")
         val c = getVar(body, "c")
 
+        //Si logré obtenerlas
         if (a != null && b != null && c != null) {
+            //Instancio el motor de javascript
             val duktape = Duktape.create()
 
+            //Obtengo, leo y evaluo el script
             val input = context.resources
                 .openRawResource(R.raw.script)
 
@@ -126,10 +138,12 @@ class HttpConnectionHelper @Inject constructor(
                 .readText()
             duktape.evaluate(script)
 
+            //Instancio la interfaz que servirá como proxy entre el código javascript y kotlin
             val proxy = duktape.get("Proxy", Proxy::class.java)
 
             runBlocking {
                 context.dataStore.edit {
+                    //Obtengo y guardo las cookies
                     it[PreferencesKeys.DATWALL_COOKIES] = proxy.getCookieValue(a, b, c)
                 }
             }
