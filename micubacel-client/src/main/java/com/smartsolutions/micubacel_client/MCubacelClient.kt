@@ -4,6 +4,7 @@ import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestExcept
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import kotlin.math.pow
 
 class MCubacelClient {
 
@@ -20,9 +21,17 @@ class MCubacelClient {
         Pair("passwordCreation", "https://mi.cubacel.net:8443/login/recovery/RegisterPasswordCreation")
     )
 
-    private val packagesID = listOf(
-        "myStat_3001",
-        "myStat_30012",
+    private val dataKeys = mapOf(
+        Pair("myStat_3001", DATA_BYTES), //Paquete de navegación
+        Pair("myStat_30012", DATA_BONUS_BYTES), //Navegación LTE
+        Pair("myStat_2001", DATA_DAILY_BAG), //Bolsa diaria
+        Pair("myStat_bonusDataN", DATA_BONUS_CU_BYTES), //Navegación nacional
+        Pair("myStat_bonusData", DATA_PROMO_BYTES) //Navegación promocional
+    )
+
+    private val dataIds = listOf(
+        "myStat_3001", //Paquete de datos (megas de navegacion internacional)
+        "myStat_30012", //
         "myStat_bonusDataN",
         "myStat_2001",
         "myStat_bonusData"
@@ -182,20 +191,27 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
-
-    fun obtainPackagesInfo() : Pair<Document, List<Element>> {
+    fun obtainPackagesInfo() : Map<String, Double>/*Pair<Document, List<Element>>*/ {
         val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = cookies).execute()
 
         val page = response.parse()
-        val elements = mutableListOf<Element>()
+        //val elements = mutableListOf<Element>()
 
         if (!isLogged(page)){
             throw UnprocessableRequestException("Login Fail")
         }
 
-        val data = mutableMapOf<String, String>()
+        val data = mutableMapOf<String, Double>()
 
-        packagesID.forEach { id ->
+        dataKeys.forEach {
+            page.getElementById(it.key)?.let { element ->
+                data[it.value] = getValue(element)
+            }
+        }
+
+        return data
+
+        /*dataIds.forEach { id ->
 
             page.getElementById(id)?.let { element ->
                 data.put(getKey(id), getValue(element))
@@ -204,17 +220,32 @@ class MCubacelClient {
             page.getElementById(id)?.let { element ->
                 elements.add(element)
             }
-        }
+        }*/
 
-        return Pair(page, elements)
+        //return Pair(page, elements)
     }
 
     private fun getKey(id: String): String {
         TODO("Not yet implemented")
     }
 
-    private fun getValue(element: Element): String {
-        TODO("Not yet implemented")
+    private fun getValue(element: Element): Double {
+        val text = element.attr("data-text")
+
+        val value: Double
+
+        try {
+            value = text.toDouble()
+        } catch (e: Exception) {
+            return 0.0
+        }
+
+        return when (element.attr("data-info")) {
+            "KB" -> value * 1024
+            "MB" -> value * 1024.0.pow(2)
+            "GB" -> value * 1024.0.pow(3)
+            else -> value
+        }
     }
 
 
@@ -253,8 +284,8 @@ class MCubacelClient {
         const val DATA_BYTES = "bytes"
         const val DATA_BONUS_BYTES = "bonus_bytes"
         const val DATA_BONUS_CU_BYTES = "bonus_cu_bytes"
-        const val DATA_START_DATE = "start_date"
-        const val DATA_FINISH_DATE = "finish_date"
+        const val DATA_PROMO_BYTES = "promo_bytes"
+        const val DATA_DAILY_BAG = "daily_bag"
 
     }
 }

@@ -7,7 +7,7 @@ interface IDataPackageRepository {
 
     fun getAll(): LiveData<List<DataPackage>>
 
-    suspend fun get(id: Int): DataPackage
+    suspend fun get(id: Int): DataPackage?
 
     suspend fun create(dataPackage: DataPackage): Long
 

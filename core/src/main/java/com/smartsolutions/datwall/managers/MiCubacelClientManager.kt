@@ -70,25 +70,34 @@ class MiCubacelClientManager() : CoroutineScope {
     }
 
 
-    fun getUserDataPackagesInfo(callback: Callback<UserDataPackage>) {
+    fun getUserDataPackagesInfo(userDataPackage: UserDataPackage?, callback: Callback<UserDataPackage>) {
         Log.i("EJV", "Enviando peticion de paquetes")
-        sendRequests(9, {client.obtainPackagesInfo()}, object : Callback<Pair<Document, List<Element>>>{
-            override fun onSuccess(response: Pair<Document, List<Element>>) {
-                val page = response.first
-                val elements = response.second
+        sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<Map<String, Double>> {
+            override fun onSuccess(response: Map<String, Double>) {
+                Log.i(TAG, "onSuccess: éxito")
 
-                elements.forEach {
-                    val element = it
-                    element.text()
-                }
+                val dataPackage = userDataPackage?.copy(
+                    bytes = response[MCubacelClient.DATA_BYTES]!!.toLong()
+                )
+                    ?: UserDataPackage(
+                        0,
+                        response[MCubacelClient.DATA_BYTES]?.toLong() ?: 0,
+                        response[MCubacelClient.DATA_BONUS_BYTES]?.toLong() ?: 0,
+                        response[MCubacelClient.DATA_BONUS_CU_BYTES]?.toLong() ?: 0,
+                        0, 0, true, 1, 0
+                    )
+
+                callback.onSuccess(dataPackage)
             }
 
             override fun onFail(throwable: Throwable) {
-                if (throwable is UnprocessableRequestException){
+                if (throwable is UnprocessableRequestException) {
                     Log.i("EJV", "No se ha iniciado sesion")
-                }else {
+                } else {
                     Log.i("EJV", "Fallido")
                 }
+
+                callback.onFail(throwable)
             }
         })
     }

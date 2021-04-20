@@ -9,6 +9,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.smartsolutions.datwall.managers.MiCubacelClientManager
+import com.smartsolutions.datwall.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,7 +37,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         client.signIn("52379969", "Geaelf*1736#", object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "LOGEADO")
-                client.getUserDataPackagesInfo()
+                client.getUserDataPackagesInfo(null, object : MiCubacelClientManager.Callback<UserDataPackage> {
+                    override fun onSuccess(response: UserDataPackage) {
+
+                    }
+
+                    override fun onFail(throwable: Throwable) {
+
+                    }
+
+                })
             }
 
             override fun onFail(throwable: Throwable) {

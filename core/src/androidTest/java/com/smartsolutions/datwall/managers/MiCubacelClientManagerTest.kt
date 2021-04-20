@@ -9,17 +9,24 @@ import org.junit.Assert.*
 
 class MiCubacelClientManagerTest {
 
-    private val manager = MiCubacelClientManager(MCubacelClient())
+    private val manager = MiCubacelClientManager()
 
     @Before
     fun setUp() {
     }
 
-    @Test
+    /*@Test
     fun loadHomePage() {
         runBlocking {
             manager.loadHomePage()
         }
         Thread.sleep(15000)
+    }*/
+
+    @Test
+    fun obtainPackagesInfo() {
+
+
+
     }
 }

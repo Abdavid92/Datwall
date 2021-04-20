@@ -1,5 +1,6 @@
 package com.smartsolutions.datwall.repositories.models
 
+import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.*
 import kotlinx.parcelize.IgnoredOnParcel
@@ -8,7 +9,6 @@ import kotlinx.parcelize.Parcelize
 /**
  * Paquete de datos que ha sido adquirido por el usuario.
  * */
-@Parcelize
 @Entity(tableName = "user_data_package", foreignKeys = [ForeignKey(
     entity = DataPackage::class,
     parentColumns = ["id"],
@@ -67,6 +67,46 @@ data class UserDataPackage(
      * Relación foranea con una instancia de DataPackage.
      * */
     @Ignore
-    @IgnoredOnParcel
     var dataPackage: DataPackage? = null
+
+    constructor(parcel: Parcel) : this(
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readByte() != 0.toByte(),
+        parcel.readInt(),
+        parcel.readInt()
+    ) {
+        dataPackage = parcel.readParcelable(DataPackage::class.java.classLoader)
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(id)
+        parcel.writeLong(bytes)
+        parcel.writeLong(bonusBytes)
+        parcel.writeLong(bonusCuBytes)
+        parcel.writeLong(start)
+        parcel.writeLong(finish)
+        parcel.writeByte(if (active) 1 else 0)
+        parcel.writeInt(simIndex)
+        parcel.writeInt(dataPackageId)
+        parcel.writeParcelable(dataPackage, flags)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<UserDataPackage> {
+        override fun createFromParcel(parcel: Parcel): UserDataPackage {
+            return UserDataPackage(parcel)
+        }
+
+        override fun newArray(size: Int): Array<UserDataPackage?> {
+            return arrayOfNulls(size)
+        }
+    }
 }
