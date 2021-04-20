@@ -6,4 +6,9 @@
     <string name="firewall_service_running">Cortafuegos iniciado</string>
     <string name="main_notification_channel_name">Canal principal de notificaciones</string>
     <string name="alert_notification_channel_name">Canal de alertas y mensajes</string>
+    <string name="generic_group_name">Grupo número %d</string>
+    <string name="fail_sign_in">No se ha podido iniciar sesión</string>
+    <string name="sign_up_fail">No se pudo crear la cuenta</string>
+    <string name="sign_up_wrong_code">Código de verificación incorrecto</string>
+    <string name="accessibility_service_description">Este servicio es necesario para poder detectar la compra de paquetes y la activación de la licencia.</string>
 </resources>

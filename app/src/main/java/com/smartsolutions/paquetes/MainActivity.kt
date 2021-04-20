@@ -8,8 +8,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.smartsolutions.datwall.managers.MiCubacelClientManager
-import com.smartsolutions.datwall.repositories.models.UserDataPackage
+import com.smartsolutions.paquetes.managers.MiCubacelClientManager
+import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun verifyCode(code :String){
-        client.verifyCode(code, object :MiCubacelClientManager.Callback<Any>{
+        client.verifyCode(code, object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "Verificado correctamente")
                 createPassword()

@@ -3,10 +3,9 @@ package com.smartsolutions.paquetes.ui.firewall
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import com.smartsolutions.datwall.managers.IconManager
-import com.smartsolutions.datwall.repositories.IAppRepository
-import com.smartsolutions.datwall.repositories.models.App
-import com.smartsolutions.datwall.watcher.Watcher
+import com.smartsolutions.paquetes.managers.IconManager
+import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.watcher.Watcher
 import com.smartsolutions.paquetes.R
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

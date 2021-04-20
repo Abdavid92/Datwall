@@ -9,10 +9,9 @@ import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import com.smartsolutions.datwall.NotificationChannels
-import com.smartsolutions.datwall.watcher.ChangeNetworkCallback
-import com.smartsolutions.datwall.watcher.PackageMonitor
-import com.smartsolutions.datwall.watcher.Watcher
+import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
+import com.smartsolutions.paquetes.watcher.PackageMonitor
+import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.GlobalScope
