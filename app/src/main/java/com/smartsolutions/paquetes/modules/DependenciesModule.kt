@@ -1,16 +1,39 @@
 package com.smartsolutions.paquetes.modules
 
-import com.smartsolutions.datwall.helpers.IChangeNetworkHelper
-import com.smartsolutions.paquetes.helpers.ChangeNetworkHelper
-import dagger.Binds
+import android.content.Context
+import com.google.gson.Gson
+import com.smartsolutions.paquetes.data.DbContext
+import com.smartsolutions.paquetes.data.TrafficDbContext
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface DependenciesModule {
+object DependenciesModule {
 
-    @Binds
-    fun bindIChangeNetworkHelper(impl: ChangeNetworkHelper): IChangeNetworkHelper
+    @Provides
+    fun provideGson() = Gson()
+
+    @Provides
+    fun provideDbContext(@ApplicationContext context: Context) =
+        DbContext.getInstance(context)
+
+    @Provides
+    fun provideTrafficDbContext(@ApplicationContext context: Context) =
+        TrafficDbContext.getInstance(context)
+
+    @Provides
+    fun provideIAppDao(dbContext: DbContext) = dbContext.getAppDao()
+
+    @Provides
+    fun provideIDataPackageDao(dbContext: DbContext) = dbContext.getDataPackageDao()
+
+    @Provides
+    fun provideIUserDataPackageDao(dbContext: DbContext) = dbContext.getUserDataPackageDao()
+
+    @Provides
+    fun provideITrafficDao(dbContext: TrafficDbContext) = dbContext.getTrafficDao()
 }

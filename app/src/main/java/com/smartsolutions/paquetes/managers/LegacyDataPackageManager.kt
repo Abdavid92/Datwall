@@ -1,9 +1,10 @@
-package com.smartsolutions.datwall.managers
+package com.smartsolutions.paquetes.managers
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import com.smartsolutions.datwall.repositories.models.DataPackage
-import com.smartsolutions.datwall.repositories.models.UserDataPackage
+import com.smartsolutions.paquetes.managers.IDataPackageManager
+import com.smartsolutions.paquetes.repositories.models.DataPackage
+import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 

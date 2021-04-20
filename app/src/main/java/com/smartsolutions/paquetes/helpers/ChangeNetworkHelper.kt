@@ -3,9 +3,8 @@ package com.smartsolutions.paquetes.helpers
 import android.content.Context
 import android.content.Intent
 import androidx.datastore.preferences.core.edit
-import com.smartsolutions.datwall.PreferencesKeys
-import com.smartsolutions.datwall.dataStore
-import com.smartsolutions.datwall.helpers.IChangeNetworkHelper
+import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.services.FirewallService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope

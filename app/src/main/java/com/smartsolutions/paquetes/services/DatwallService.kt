@@ -7,7 +7,7 @@ import android.net.ConnectivityManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import com.smartsolutions.datwall.receivers.ChangeNetworkReceiver
+import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
