@@ -5,10 +5,8 @@ import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.MCubacelClient
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import com.smartsolutions.micubacel_client.models.DataType
-import com.smartsolutions.paquetes.managers.models.Traffic
 import kotlinx.coroutines.*
 import org.jsoup.nodes.Document
-import java.util.*
 import kotlin.Exception
 import kotlin.coroutines.CoroutineContext
 
@@ -71,16 +69,13 @@ class MiCubacelClientManager() : CoroutineScope {
     }
 
 
-    fun getUserDataPackagesInfo(userDataPackage: UserDataPackage?, callback: Callback<Any>) {
+    fun getUserDataPackagesInfo(userDataPackage: UserDataPackage?, callback: Callback<UserDataPackage>) {
         Log.i("EJV", "Enviando peticion de paquetes")
         sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<List<DataType>> {
             override fun onSuccess(response: List<DataType>) {
                 Log.i(TAG, "onSuccess: éxito")
-                response.forEach { dataType ->
-                    val date  = Date(dataType.expire)
-                    val traffic = dataType.bytes / 1024/1024/1024
-                    val text = dataType.type
-                }
+
+
             }
 
             override fun onFail(throwable: Throwable) {
