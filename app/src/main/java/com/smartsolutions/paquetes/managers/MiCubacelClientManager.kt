@@ -4,8 +4,11 @@ import android.util.Log
 import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.MCubacelClient
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
+import com.smartsolutions.micubacel_client.models.DataType
+import com.smartsolutions.paquetes.managers.models.Traffic
 import kotlinx.coroutines.*
 import org.jsoup.nodes.Document
+import java.util.*
 import kotlin.Exception
 import kotlin.coroutines.CoroutineContext
 
@@ -68,24 +71,16 @@ class MiCubacelClientManager() : CoroutineScope {
     }
 
 
-    fun getUserDataPackagesInfo(userDataPackage: UserDataPackage?, callback: Callback<UserDataPackage>) {
+    fun getUserDataPackagesInfo(userDataPackage: UserDataPackage?, callback: Callback<Any>) {
         Log.i("EJV", "Enviando peticion de paquetes")
-        sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<Map<String, Double>> {
-            override fun onSuccess(response: Map<String, Double>) {
+        sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<List<DataType>> {
+            override fun onSuccess(response: List<DataType>) {
                 Log.i(TAG, "onSuccess: éxito")
-
-                val dataPackage = userDataPackage?.copy(
-                    bytes = response[MCubacelClient.DATA_BYTES]!!.toLong()
-                )
-                    ?: UserDataPackage(
-                        0,
-                        response[MCubacelClient.DATA_BYTES]?.toLong() ?: 0,
-                        response[MCubacelClient.DATA_BONUS_BYTES]?.toLong() ?: 0,
-                        response[MCubacelClient.DATA_BONUS_CU_BYTES]?.toLong() ?: 0,
-                        0, 0, true, 1, 0
-                    )
-
-                callback.onSuccess(dataPackage)
+                response.forEach { dataType ->
+                    val date  = Date(dataType.expire)
+                    val traffic = dataType.bytes / 1024/1024/1024
+                    val text = dataType.type
+                }
             }
 
             override fun onFail(throwable: Throwable) {

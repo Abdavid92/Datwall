@@ -1,9 +1,13 @@
 package com.smartsolutions.micubacel_client
 
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
+import com.smartsolutions.micubacel_client.models.DataType
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import sun.rmi.runtime.Log
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.pow
 
 class MCubacelClient {
@@ -191,45 +195,46 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
-    fun obtainPackagesInfo() : Map<String, Double>/*Pair<Document, List<Element>>*/ {
+    fun obtainPackagesInfo() : List<DataType> {
         val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = cookies).execute()
 
         val page = response.parse()
-        //val elements = mutableListOf<Element>()
 
         if (!isLogged(page)){
             throw UnprocessableRequestException("Login Fail")
         }
 
-        val data = mutableMapOf<String, Double>()
+        val data = mutableListOf<DataType>()
 
         dataKeys.forEach {
             page.getElementById(it.key)?.let { element ->
-                data[it.value] = getValue(element)
+                data.add(DataType(it.value, getValue(element), getExpire(element)))
             }
         }
 
         return data
+    }
 
-        /*dataIds.forEach { id ->
-
-            page.getElementById(id)?.let { element ->
-                data.put(getKey(id), getValue(element))
+    private fun getExpire(element: Element): Long {
+        try {
+            val dateText = element.parent().parent().parent().select("div[class=\"expiry_date_right\"]").first().select("span[class=\"date_value\"]").first().text().trimStart().trimEnd()
+            if (dateText.endsWith("am", true) || dateText.endsWith("pm", true)) {
+                return SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.US).parse(dateText).time
+            }else {
+                return SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US).parse(dateText).time
             }
+        }catch (e : Exception){
 
-            page.getElementById(id)?.let { element ->
-                elements.add(element)
-            }
-        }*/
+        }
 
-        //return Pair(page, elements)
+        return 0L
     }
 
     private fun getKey(id: String): String {
         TODO("Not yet implemented")
     }
 
-    private fun getValue(element: Element): Double {
+    private fun getValue(element: Element): Long {
         val text = element.attr("data-text")
 
         val value: Double
@@ -237,15 +242,17 @@ class MCubacelClient {
         try {
             value = text.toDouble()
         } catch (e: Exception) {
-            return 0.0
+            return 0L
         }
 
-        return when (element.attr("data-info")) {
+        val bytes = when (element.attr("data-info")) {
             "KB" -> value * 1024
             "MB" -> value * 1024.0.pow(2)
             "GB" -> value * 1024.0.pow(3)
             else -> value
         }
+
+        return bytes.toLong()
     }
 
 

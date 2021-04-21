@@ -37,8 +37,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         client.signIn("52379969", "Geaelf*1736#", object : MiCubacelClientManager.Callback<Any>{
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "LOGEADO")
-                client.getUserDataPackagesInfo(null, object : MiCubacelClientManager.Callback<UserDataPackage> {
-                    override fun onSuccess(response: UserDataPackage) {
+                client.getUserDataPackagesInfo(null, object : MiCubacelClientManager.Callback<Any> {
+                    override fun onSuccess(response: Any) {
 
                     }
 
