@@ -5,6 +5,7 @@ import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.MCubacelClient
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import com.smartsolutions.micubacel_client.models.DataType
+import com.smartsolutions.micubacel_client.models.ProductGroup
 import kotlinx.coroutines.*
 import org.jsoup.nodes.Document
 import kotlin.Exception
@@ -90,7 +91,13 @@ class MiCubacelClientManager() : CoroutineScope {
         })
     }
 
+    fun getProducts(callback: Callback<List<ProductGroup>>) {
+        sendRequests(9, { client.getProducts() }, callback)
+    }
 
+    fun buyProduct(url: String, callback: Callback<Any>) {
+        sendRequests(9, { client.buyProduct(url) }, callback)
+    }
 
     /**
      * Ejecuta una cantidad específica de peticiones http de manera paralela.

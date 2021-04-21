@@ -19,7 +19,7 @@ android {
         archivesBaseName = "Mis Datos-$versionName"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunner "com.smartsolutions.datwall.HiltTestRunner"
+        testInstrumentationRunner "com.smartsolutions.paquetes.HiltTestRunner"
     }
 
     buildTypes {
@@ -42,7 +42,6 @@ android {
 }
 
 dependencies {
-    //implementation project(path: ':core')
     implementation project(path: ':micubacel-client')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
@@ -75,7 +74,6 @@ dependencies {
 
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    //implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     //Room database
     implementation "androidx.room:room-runtime:$room_version"

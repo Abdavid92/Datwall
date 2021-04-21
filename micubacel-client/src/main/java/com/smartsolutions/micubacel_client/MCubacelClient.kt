@@ -3,6 +3,7 @@ package com.smartsolutions.micubacel_client
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
 import com.smartsolutions.micubacel_client.models.DataType
 import com.smartsolutions.micubacel_client.models.Product
+import com.smartsolutions.micubacel_client.models.ProductGroup
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -255,26 +256,63 @@ class MCubacelClient {
      *
      * @return Una lista de productos
      * */
-    fun getProducts(): List<Product> {
+    fun getProducts(): List<ProductGroup> {
         val page = ConnectionFactory.newConnection(url = urls["products"]!!,cookies = cookies)
             .get()
 
-        val products = mutableListOf<Product>()
+        val productGroup = mutableListOf<ProductGroup>()
 
-        page.select("div[class=\"product_inner_block\"]").forEach {
-            products.add(buildProduct(it))
+        val bags = "Bolsas"
+        val packages = "Paquetes"
+        val packagesLTE = "Paquetes_LTE"
+
+        fun buildProductGroup(element: Element, productType: ProductGroup.GroupType) {
+            val products = mutableListOf<Product>()
+
+            element.nextElementSibling().select("div[class=\"product_inner_block\"]").forEach {
+                products.add(buildProduct(it))
+            }
+
+            productGroup.add(
+                ProductGroup(
+                    productType,
+                    products.toTypedArray()
+                ))
         }
 
-        return products
+        page.select("h3[class=\"product_block_title\"]").forEach { element ->
+            print(element.text())
+            when (element.text()) {
+                bags -> {
+                    buildProductGroup(element, ProductGroup.GroupType.Bag)
+                }
+                packages -> {
+                    buildProductGroup(element, ProductGroup.GroupType.Packages)
+                }
+                packagesLTE -> {
+                    buildProductGroup(element, ProductGroup.GroupType.PackagesLTE)
+                }
+            }
+        }
+
+        return productGroup
     }
 
     /**
-     * Compra un producto
+     * Compra un producto.
      *
-     * @param product - Producto a comprar
+     * @param url - Url del producto a comprar.
      * */
-    fun buyProduct(product: Product) {
-        TODO("Not yet implemented")
+    fun buyProduct(url: String) {
+        val pageConfirmation = ConnectionFactory.newConnection(url, cookies = cookies)
+            .get()
+
+        val urlConfirmation = pageConfirmation
+            .select("a[class=\"offerPresentationProductBuyLink_msdp button_style link_button\"]")
+            .first()
+            .text()
+
+        print(urlConfirmation)
     }
 
     /**
@@ -356,8 +394,8 @@ class MCubacelClient {
             description = element.select("div[class=\"offerPresentationProductDescription_msdp product_desc\"]")
                 .first().select("span").first().text(),
             price = element.select("div[class=\"offerPresentationProductDescription_msdp product_desc\"]")
-                .first().select("span[class=\"bold\"]").first().text().toFloat(),
-            urlBuy = element.select("div[class=\"offerPresentationProductBuyAction_msdp ptype\"]").first()
+                .first().select("span[class=\"bold\"]").first().text().replace(",", "").toFloat(),
+            urlBuy = baseHomeUrl + element.select("div[class=\"offerPresentationProductBuyAction_msdp ptype\"]").first()
                 .select("a[class=\"offerPresentationProductBuyLink_msdp button_style link_button\"]").first()
                 .attr("href")
         )

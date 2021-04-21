@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.smartsolutions.paquetes.managers.MiCubacelClientManager
 import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
+import com.smartsolutions.micubacel_client.models.ProductGroup
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,25 +35,45 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun singIn(){
-        client.signIn("52379969", "Geaelf*1736#", object : MiCubacelClientManager.Callback<Any>{
+        client.signIn("54481298", "05170wen", object : MiCubacelClientManager.Callback<Any> {
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "LOGEADO")
-                client.getUserDataPackagesInfo(null, object : MiCubacelClientManager.Callback<Any> {
-                    override fun onSuccess(response: Any) {
 
+                client.getProducts(object : MiCubacelClientManager.Callback<List<ProductGroup>> {
+
+                    override fun onSuccess(response: List<ProductGroup>) {
+                        response.firstOrNull { it.type == ProductGroup.GroupType.PackagesLTE }
+                            ?.let {
+                                it.products.firstOrNull { it.price >= 1125.0 }?.let {
+
+                                    client.buyProduct(
+                                        it.urlBuy,
+                                        object : MiCubacelClientManager.Callback<Any> {
+                                            override fun onSuccess(response: Any) {
+                                                Log.i("EJV", "onSuccess: compra en proceso")
+                                            }
+
+                                            override fun onFail(throwable: Throwable) {
+                                                throwable.printStackTrace()
+                                            }
+                                        })
+
+                                }
+                            }
                     }
 
                     override fun onFail(throwable: Throwable) {
-
+                        throwable.printStackTrace()
                     }
 
                 })
+
             }
 
             override fun onFail(throwable: Throwable) {
-                if (throwable is UnprocessableRequestException){
+                if (throwable is UnprocessableRequestException) {
                     Log.i("EJV", "Nombre de usuario o contraseña incorrecto")
-                }else {
+                } else {
                     Log.i("EJV", "NO SE PUDO INICIAR SESION")
                 }
             }
