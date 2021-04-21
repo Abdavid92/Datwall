@@ -298,21 +298,40 @@ class MCubacelClient {
         return productGroup
     }
 
-    /**
-     * Compra un producto.
-     *
-     * @param url - Url del producto a comprar.
-     * */
-    fun buyProduct(url: String) {
+    fun resolveUrlBuyProductConfirmation(url: String) : String?{
         val pageConfirmation = ConnectionFactory.newConnection(url, cookies = cookies)
             .get()
 
         val urlConfirmation = pageConfirmation
             .select("a[class=\"offerPresentationProductBuyLink_msdp button_style link_button\"]")
             .first()
-            .text()
 
-        print(urlConfirmation)
+        if (urlConfirmation.text().trimStart().trimEnd().equals("Confirmar", true) ){
+            val url = urlConfirmation.attr("href")
+            return if (url.startsWith(baseHomeUrl)) {
+                url
+            }else {
+                baseHomeUrl + url
+            }
+        }
+
+        return null
+    }
+
+    /**
+     * Compra un producto.
+     *
+     * @param url - Url del producto a comprar.
+     * */
+    fun buyProduct(url: String) {
+        val result = ConnectionFactory.newConnection(url, cookies = cookies).get()
+
+        result.select("div[class=\"products_purchase_details_block\"]").first().select("p")
+            .forEach { p ->
+                if (p.text().contains("error", true)) {
+                    throw UnprocessableRequestException("No se pudo comprar")
+                }
+            }
     }
 
     /**

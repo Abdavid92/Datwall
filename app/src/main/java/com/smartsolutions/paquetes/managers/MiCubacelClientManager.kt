@@ -96,7 +96,16 @@ class MiCubacelClientManager() : CoroutineScope {
     }
 
     fun buyProduct(url: String, callback: Callback<Any>) {
-        sendRequests(9, { client.buyProduct(url) }, callback)
+        sendQueueRequests(9, {client.resolveUrlBuyProductConfirmation(url)}, object : Callback<String>{
+            override fun onSuccess(response: String) {
+                Log.i("EJV", "Se obtuvo URL")
+                sendQueueRequests(9, { client.buyProduct(response) }, callback)
+            }
+
+            override fun onFail(throwable: Throwable) {
+                Log.i("EJV", "FALLO ontecion de url")
+            }
+        })
     }
 
     /**

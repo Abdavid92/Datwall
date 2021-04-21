@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun singIn(){
-        client.signIn("54481298", "05170wen", object : MiCubacelClientManager.Callback<Any> {
+        client.signIn("58474155", "Geaelf-17", object : MiCubacelClientManager.Callback<Any> {
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "LOGEADO")
 
@@ -43,9 +43,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                     override fun onSuccess(response: List<ProductGroup>) {
                         response.firstOrNull { it.type == ProductGroup.GroupType.PackagesLTE }
-                            ?.let {
-                                it.products.firstOrNull { it.price >= 1125.0 }?.let {
-
+                            ?.let { group ->
+                                group.products.firstOrNull { it.price == 200f }?.let {
+                                    Log.i("EJV", "Se obtubo el paquete iniciando compra")
                                     client.buyProduct(
                                         it.urlBuy,
                                         object : MiCubacelClientManager.Callback<Any> {
@@ -54,7 +54,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                                             }
 
                                             override fun onFail(throwable: Throwable) {
-                                                throwable.printStackTrace()
+                                                if (throwable is UnprocessableRequestException) {
+                                                    Log.i("EJV", "No se puede comprar")
+                                                }else {
+                                                    Log.i("EJV", "Fallo compra")
+                                                }
                                             }
                                         })
 
