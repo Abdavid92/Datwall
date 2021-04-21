@@ -1,17 +1,34 @@
 package com.smartsolutions.micubacel_client
 
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
+import com.smartsolutions.micubacel_client.models.DataType
+import com.smartsolutions.micubacel_client.models.Product
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.jvm.Throws
 import kotlin.math.pow
 
+/**
+ * Cliente de mi.cubacel.net
+ * */
 class MCubacelClient {
 
+    /**
+     * Url base de la página principal.
+     * */
     private val baseHomeUrl = "https://mi.cubacel.net"
 
+    /**
+     * Mapa de cookies que guardan las sesiones y otros datos.
+     * */
     private var cookies = mutableMapOf<String, String>()
 
+    /**
+     * Urls principales del sitio.
+     * */
     private val urls = mutableMapOf(
         Pair("products", "https://mi.cubacel.net/primary/_-iiVGcd3i"),
         Pair("myAccount", "https://mi.cubacel.net/primary/_-ijqJlSHh"),
@@ -21,6 +38,10 @@ class MCubacelClient {
         Pair("passwordCreation", "https://mi.cubacel.net:8443/login/recovery/RegisterPasswordCreation")
     )
 
+    /**
+     * Claves de los tag html que contienen los datos de la
+     * cuenta del usuario.
+     * */
     private val dataKeys = mapOf(
         Pair("myStat_3001", DATA_BYTES), //Paquete de navegación
         Pair("myStat_30012", DATA_BONUS_BYTES), //Navegación LTE
@@ -29,15 +50,12 @@ class MCubacelClient {
         Pair("myStat_bonusData", DATA_PROMO_BYTES) //Navegación promocional
     )
 
-    private val dataIds = listOf(
-        "myStat_3001", //Paquete de datos (megas de navegacion internacional)
-        "myStat_30012", //
-        "myStat_bonusDataN",
-        "myStat_2001",
-        "myStat_bonusData"
-    )
-
-
+    /**
+     * Resuelve la url de la página principal en el idioma español.
+     * Este método actualiza las cookies en caso de que se le indique.
+     *
+     * @param updateCookies - Indica si se deben actualizar las cookies.
+     * */
     fun resolveHomeUrl(updateCookies: Boolean) : String? {
         val url = urls["home"]
         if (url != null && url.isNotEmpty()){
@@ -59,7 +77,16 @@ class MCubacelClient {
     }
 
 
-    fun loadPage(url : String, updateCookies : Boolean = false) : Document {
+    /**
+     * Carga la página de la url dada.
+     *
+     * @param url - Url de la página a cargar.
+     * @param updateCookies - Indica si se deben actualizar las cookies.
+     *
+     * @return Document con la página cargada
+     * */
+    @Throws(Exception::class)
+    fun loadPage(url: String, updateCookies: Boolean = false) : Document {
         val response = ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
         if (updateCookies){
             updateCookies(response.cookies())
@@ -67,8 +94,21 @@ class MCubacelClient {
         return response.parse()
     }
 
-
-    fun readHomePage(page : Document)  : Map<String, String> {
+    /**
+     * Lee la página principal y obtiene los datos principales del usuario en
+     * caso de que esté autenticado.
+     *
+     * @param page - Página principal.
+     *
+     * @return Un mapa con los datos esenciales de usuario tales como
+     * el teléfono y el saldo.
+     *
+     * @see USERNAME
+     * @see PHONE
+     * @see CREDIT
+     * @see EXPIRE
+     * */
+    fun readHomePage(page: Document): Map<String, String> {
         page.select("div[class=\"collapse navbar-collapse navbar-main-collapse\"]")
             .first()
             .select("li").forEach { li ->
@@ -90,33 +130,38 @@ class MCubacelClient {
             .trimStart()
 
         if (username.isNotEmpty()) {
-            result["username"] = username
+            result[USERNAME] = username
         }
 
         val columns = page.select("div[class=\"greayheader_row\"]")
 
         if (columns.isNotEmpty()){
 
-            val columPhone = columns.select("div[class=\"col1\"]")
-            if (columPhone.size == 1 && columPhone[0].childrenSize() == 2) {
-                result["phone"] = columPhone[0].child(1).text().trimStart().trimEnd()
+            val columnPhone = columns.select("div[class=\"col1\"]")
+            if (columnPhone.size == 1 && columnPhone[0].childrenSize() == 2) {
+                result[PHONE] = columnPhone[0].child(1).text().trimStart().trimEnd()
             }
 
-            val columCredit = columns.select("div[class=\"col2 btype\"]")
-            if (columCredit.size == 1 && columCredit[0].childrenSize() == 2) {
-                result["credit"] = columCredit[0].child(1).text().trimStart().trimEnd()
+            val columnCredit = columns.select("div[class=\"col2 btype\"]")
+            if (columnCredit.size == 1 && columnCredit[0].childrenSize() == 2) {
+                result[CREDIT] = columnCredit[0].child(1).text().trimStart().trimEnd()
             }
 
             val columnExpire = columns.select("div[class=\"col3 btype\"]")
             if (columnExpire.size == 1 && columnExpire[0].childrenSize() == 2){
-                result["expire"] = columnExpire[0].child(1).text().trimStart().trimEnd()
+                result[EXPIRE] = columnExpire[0].child(1).text().trimStart().trimEnd()
             }
         }
 
         return result
     }
 
-
+    /**
+     * Inicia sesión y guarda las cookies de inicio de sesión.
+     *
+     * @param phone - Teléfono de usuario.
+     * @param password - Contraseña.
+     * */
     fun signIn(phone: String, password: String)  {
         val data = mapOf(
             Pair("language", "es_ES"),
@@ -136,7 +181,13 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
-
+    /**
+     * Iicia el proceso de creación de cuenta.
+     *
+     * @param firstName - Nombres.
+     * @param lastName - Apellidos.
+     * @param phone - Teléfono.
+     * */
     fun signUp(firstName: String, lastName: String, phone: String) {
         val data = mapOf(
             Pair("msisdn", phone),
@@ -158,7 +209,10 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
-    fun verifyCode(code: String){
+    /**
+     * Verifica el código enviado por sms en el proceso de creación de cuenta.
+     * */
+    fun verifyCode(code: String) {
         val data = mapOf(
             Pair("username", code)
         )
@@ -175,7 +229,12 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
-    fun createPassword(password: String){
+    /**
+     * Completa el proceso de creación de cuenta con la contraseña.
+     *
+     * @param password - Contraseña.
+     * */
+    fun createPassword(password: String) {
         val data = mapOf(
             Pair("newPassword", password),
             Pair("cnewPassword", password)
@@ -191,53 +250,96 @@ class MCubacelClient {
         updateCookies(response.cookies())
     }
 
-    fun obtainPackagesInfo() : Map<String, Double>/*Pair<Document, List<Element>>*/ {
+    /**
+     * Obtiene todos los productos disponibles a la venta.
+     *
+     * @return Una lista de productos
+     * */
+    fun getProducts(): List<Product> {
+        val page = ConnectionFactory.newConnection(url = urls["products"]!!,cookies = cookies)
+            .get()
+
+        val products = mutableListOf<Product>()
+
+        page.select("div[class=\"product_inner_block\"]").forEach {
+            products.add(buildProduct(it))
+        }
+
+        return products
+    }
+
+    /**
+     * Compra un producto
+     *
+     * @param product - Producto a comprar
+     * */
+    fun buyProduct(product: Product) {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Obtiene todos los datos de la cuenta del cliente.
+     *
+     * @return Una lista de claves, valor y fecha de expiración en caso
+     * de que aplique.
+     * */
+    fun obtainPackagesInfo() : List<DataType> {
         val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = cookies).execute()
 
         val page = response.parse()
-        //val elements = mutableListOf<Element>()
 
         if (!isLogged(page)){
             throw UnprocessableRequestException("Login Fail")
         }
 
-        val data = mutableMapOf<String, Double>()
+        val data = mutableListOf<DataType>()
 
         dataKeys.forEach {
             page.getElementById(it.key)?.let { element ->
-                data[it.value] = getValue(element)
+                data.add(DataType(it.value, getValue(element), getDateExpired(element)))
             }
         }
 
         return data
-
-        /*dataIds.forEach { id ->
-
-            page.getElementById(id)?.let { element ->
-                data.put(getKey(id), getValue(element))
-            }
-
-            page.getElementById(id)?.let { element ->
-                elements.add(element)
-            }
-        }*/
-
-        //return Pair(page, elements)
     }
 
-    private fun getKey(id: String): String {
-        TODO("Not yet implemented")
+    private fun getDateExpired(element: Element): Long {
+        try {
+            val dateText = element.parent()
+                .parent()
+                .parent()
+                .select("div[class=\"expiry_date_right\"]")
+                .first()
+                .select("span[class=\"date_value\"]")
+                .first()
+                .text()
+                .trimStart()
+                .trimEnd()
+
+            return if (dateText.endsWith("AM", true) || dateText.endsWith("PM", true)) {
+                SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.US)
+                    .parse(dateText)
+                    .time
+            } else {
+                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US)
+                    .parse(dateText)
+                    .time
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return 0
     }
 
-    private fun getValue(element: Element): Double {
+    private fun getValue(element: Element): Long {
         val text = element.attr("data-text")
 
-        val value: Double
+        val value: Float
 
         try {
-            value = text.toDouble()
+            value = text.toFloat()
         } catch (e: Exception) {
-            return 0.0
+            return 0
         }
 
         return when (element.attr("data-info")) {
@@ -245,9 +347,21 @@ class MCubacelClient {
             "MB" -> value * 1024.0.pow(2)
             "GB" -> value * 1024.0.pow(3)
             else -> value
-        }
+        }.toLong()
     }
 
+    private fun buildProduct(element: Element): Product {
+        return Product(
+            title = element.select("h4").first().text(),
+            description = element.select("div[class=\"offerPresentationProductDescription_msdp product_desc\"]")
+                .first().select("span").first().text(),
+            price = element.select("div[class=\"offerPresentationProductDescription_msdp product_desc\"]")
+                .first().select("span[class=\"bold\"]").first().text().toFloat(),
+            urlBuy = element.select("div[class=\"offerPresentationProductBuyAction_msdp ptype\"]").first()
+                .select("a[class=\"offerPresentationProductBuyLink_msdp button_style link_button\"]").first()
+                .attr("href")
+        )
+    }
 
     private fun isLogged(page: Document) : Boolean {
         return page.select("div[class=\"myaccount_details\"]").first() != null && page.select("a[id=\"mySignin\"]").first() == null
@@ -281,10 +395,44 @@ class MCubacelClient {
 
     companion object {
 
+        /**
+         * Nombre de usuario.
+         * */
+        const val USERNAME = "username"
+        /**
+         * Teléfono.
+         * */
+        const val PHONE = "phone"
+        /**
+         * Saldo principal.
+         * */
+        const val CREDIT = "credit"
+        /**
+         * Fecha de expiración de la linea.
+         * */
+        const val EXPIRE = "expire"
+
+        //--------------------------------
+
+        /**
+         * Paquete de navegación.
+         * */
         const val DATA_BYTES = "bytes"
+        /**
+         * Navegación LTE.
+         * */
         const val DATA_BONUS_BYTES = "bonus_bytes"
+        /**
+         * Navegación nacional.
+         * */
         const val DATA_BONUS_CU_BYTES = "bonus_cu_bytes"
+        /**
+         * Navegación promocional.
+         * */
         const val DATA_PROMO_BYTES = "promo_bytes"
+        /**
+         * Bolsa diaria.
+         * */
         const val DATA_DAILY_BAG = "daily_bag"
 
     }

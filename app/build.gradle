@@ -77,9 +77,6 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     //implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
-    //Jsoup
-    //implementation 'org.jsoup:jsoup:1.13.1'
-
     //Room database
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
