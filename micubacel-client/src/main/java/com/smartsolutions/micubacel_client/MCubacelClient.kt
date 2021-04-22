@@ -23,11 +23,6 @@ class MCubacelClient {
     private val baseHomeUrl = "https://mi.cubacel.net"
 
     /**
-     * Mapa de cookies que guardan las sesiones y otros datos.
-     * */
-    private var cookies = mutableMapOf<String, String>()
-
-    /**
      * Urls principales del sitio.
      * */
     private val urls = mutableMapOf(
@@ -108,6 +103,7 @@ class MCubacelClient {
      * @see PHONE
      * @see CREDIT
      * @see EXPIRE
+     *
      * */
     fun readHomePage(page: Document): Map<String, String> {
         page.select("div[class=\"collapse navbar-collapse navbar-main-collapse\"]")
@@ -136,22 +132,18 @@ class MCubacelClient {
 
         val columns = page.select("div[class=\"greayheader_row\"]")
 
+        fun readColumn(cssQuery: String, key: String) {
+            val column = columns.select(cssQuery)
+
+            if (column.size == 1 && column[0].childrenSize() == 2) {
+                result[key] = column[0].child(1).text().trimStart().trimEnd()
+            }
+        }
+
         if (columns.isNotEmpty()){
-
-            val columnPhone = columns.select("div[class=\"col1\"]")
-            if (columnPhone.size == 1 && columnPhone[0].childrenSize() == 2) {
-                result[PHONE] = columnPhone[0].child(1).text().trimStart().trimEnd()
-            }
-
-            val columnCredit = columns.select("div[class=\"col2 btype\"]")
-            if (columnCredit.size == 1 && columnCredit[0].childrenSize() == 2) {
-                result[CREDIT] = columnCredit[0].child(1).text().trimStart().trimEnd()
-            }
-
-            val columnExpire = columns.select("div[class=\"col3 btype\"]")
-            if (columnExpire.size == 1 && columnExpire[0].childrenSize() == 2){
-                result[EXPIRE] = columnExpire[0].child(1).text().trimStart().trimEnd()
-            }
+            readColumn("div[class=\"col1\"]", PHONE)
+            readColumn("div[class=\"col2 btype\"]", CREDIT)
+            readColumn("div[class=\"col3 btype\"]", EXPIRE)
         }
 
         return result
@@ -183,7 +175,7 @@ class MCubacelClient {
     }
 
     /**
-     * Iicia el proceso de creación de cuenta.
+     * Inicia el proceso de creación de cuenta.
      *
      * @param firstName - Nombres.
      * @param lastName - Apellidos.
@@ -203,7 +195,7 @@ class MCubacelClient {
 
         val page = response.parse()
 
-        if (isErrorPage(page) || page.select("form[action=\"/login/VerifyRegistrationCode\"]").first() == null){
+        if (isErrorPage(page) || page.select("form[action=\"/login/VerifyRegistrationCode\"]").first() == null) {
             throw UnprocessableRequestException(errorMessage(page))
         }
 
@@ -211,7 +203,7 @@ class MCubacelClient {
     }
 
     /**
-     * Verifica el código enviado por sms en el proceso de creación de cuenta.
+     * Verifica el código recibido por sms en el proceso de creación de cuenta.
      * */
     fun verifyCode(code: String) {
         val data = mapOf(
@@ -241,11 +233,17 @@ class MCubacelClient {
             Pair("cnewPassword", password)
         )
 
-        val response = ConnectionFactory.newConnection(urls["passwordCreation"]!!, data, cookies).method(Connection.Method.POST).execute()
+        val response = ConnectionFactory
+            .newConnection(urls["passwordCreation"]!!, data, cookies)
+            .method(Connection.Method.POST)
+            .execute()
 
         val page = response.parse()
 
-        if (isErrorPage(page) || page.select("form[action=\"/login/jsp/welcome-login.jsp?language=es\"]").first() == null){
+        if (isErrorPage(page) ||
+            page.select("form[action=\"/login/jsp/welcome-login.jsp?language=es\"]")
+                .first() == null
+        ) {
             throw UnprocessableRequestException(errorMessage(page))
         }
         updateCookies(response.cookies())
@@ -254,7 +252,7 @@ class MCubacelClient {
     /**
      * Obtiene todos los productos disponibles a la venta.
      *
-     * @return Una lista de productos
+     * @return Una lista de productos organizados en grupos.
      * */
     fun getProducts(): List<ProductGroup> {
         val page = ConnectionFactory.newConnection(url = urls["products"]!!,cookies = cookies)
@@ -298,8 +296,16 @@ class MCubacelClient {
         return productGroup
     }
 
-    fun resolveUrlBuyProductConfirmation(url: String) : String?{
-        val pageConfirmation = ConnectionFactory.newConnection(url, cookies = cookies)
+    /**
+     * Resuelve la url de confirmación de compra de un producto.
+     *
+     * @param productUrl - Url de compra del producto.
+     *
+     * @return Url de confirmación de compra o null en caso de
+     * no poder resolverla.
+     * */
+    fun resolveUrlBuyProductConfirmation(productUrl: String) : String? {
+        val pageConfirmation = ConnectionFactory.newConnection(productUrl, cookies = cookies)
             .get()
 
         val urlConfirmation = pageConfirmation
@@ -310,7 +316,7 @@ class MCubacelClient {
             val url = urlConfirmation.attr("href")
             return if (url.startsWith(baseHomeUrl)) {
                 url
-            }else {
+            } else {
                 baseHomeUrl + url
             }
         }
@@ -322,11 +328,18 @@ class MCubacelClient {
      * Compra un producto.
      *
      * @param url - Url del producto a comprar.
+     *
+     * @throws UnprocessableRequestException En caso de ocurrir un
+     * error en la compra.
      * */
+    @Throws(UnprocessableRequestException::class)
     fun buyProduct(url: String) {
-        val result = ConnectionFactory.newConnection(url, cookies = cookies).get()
+        val result = ConnectionFactory.newConnection(url, cookies = cookies)
+            .get()
 
-        result.select("div[class=\"products_purchase_details_block\"]").first().select("p")
+        result.select("div[class=\"products_purchase_details_block\"]")
+            .first()
+            .select("p")
             .forEach { p ->
                 if (p.text().contains("error", true)) {
                     throw UnprocessableRequestException("No se pudo comprar")
@@ -335,17 +348,23 @@ class MCubacelClient {
     }
 
     /**
-     * Obtiene todos los datos de la cuenta del cliente.
+     * Obtiene todos los datos de la cuenta del cliente. Este método se debe llamar
+     * una vez se inició sesión.
      *
      * @return Una lista de claves, valor y fecha de expiración en caso
      * de que aplique.
+     *
+     * @throws UnprocessableRequestException En caso de no tener la sesión iniciada.
      * */
+    @Throws(UnprocessableRequestException::class)
     fun obtainPackagesInfo() : List<DataType> {
-        val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = cookies).execute()
+        val response = ConnectionFactory
+            .newConnection(urls["myAccount"]!!, cookies = cookies)
+            .execute()
 
         val page = response.parse()
 
-        if (!isLogged(page)){
+        if (!isLogged(page)) {
             throw UnprocessableRequestException("Login Fail")
         }
 
@@ -360,6 +379,9 @@ class MCubacelClient {
         return data
     }
 
+    /**
+     * Obtiene la fecha de expiración.
+     * */
     private fun getDateExpired(element: Element): Long {
         try {
             val dateText = element.parent()
@@ -388,6 +410,9 @@ class MCubacelClient {
         return 0
     }
 
+    /**
+     * Obtiene el valor en bytes
+     * */
     private fun getValue(element: Element): Long {
         val text = element.attr("data-text")
 
@@ -407,6 +432,9 @@ class MCubacelClient {
         }.toLong()
     }
 
+    /**
+     * Contruye una instancia de Product y llena sus propiedades.
+     * */
     private fun buildProduct(element: Element): Product {
         return Product(
             title = element.select("h4").first().text(),
@@ -420,15 +448,28 @@ class MCubacelClient {
         )
     }
 
-    private fun isLogged(page: Document) : Boolean {
-        return page.select("div[class=\"myaccount_details\"]").first() != null && page.select("a[id=\"mySignin\"]").first() == null
+    /**
+     * Verifica si se ha iniciado sesión correctamente.
+     * */
+    private fun isLogged(page: Document): Boolean {
+        return page.select("div[class=\"myaccount_details\"]")
+            .first() != null &&
+                page.select("a[id=\"mySignin\"]")
+                    .first() == null
     }
 
-    private fun isErrorPage(page: Document) : Boolean{
+    /**
+     * Verifica si es la página de error.
+     * */
+    private fun isErrorPage(page: Document): Boolean {
         return page.select("div[class=\"body_wrapper error_page\"]").first() != null
     }
 
-    private fun errorMessage(page: Document): String?{
+    /**
+     * Obtiene el mensaje de error de la página de error.
+     * Si se le pasa otra página retorna null.
+     * */
+    private fun errorMessage(page: Document): String? {
         if (isErrorPage(page)){
             return try {
                 page.select("div[class=\"body_wrapper error_page\"]").first()
@@ -444,13 +485,21 @@ class MCubacelClient {
         return null
     }
 
-    private fun updateCookies(updateCookies : Map<String, String>){
+    /**
+     * Actualiza las cookies.
+     * */
+    private fun updateCookies(updateCookies: Map<String, String>) {
         updateCookies.forEach {
             cookies[it.key] = it.value
         }
     }
 
     companion object {
+
+        /**
+         * Mapa de cookies que guardan las sesiones y otros datos.
+         * */
+        private var cookies = mutableMapOf<String, String>()
 
         /**
          * Nombre de usuario.

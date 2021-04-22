@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.repositories.models
 
 import android.os.Parcelable
+import androidx.annotation.StringDef
 import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -25,13 +26,26 @@ data class DataPackage(
     @ColumnInfo(name = "bono_cu_bytes")
     @SerializedName("bono_cu_bytes")
     val bonoCuBytes: Long,
+    @Networks
     val network: String,
     val ussd: String,
-    val url: String,
     val active: Boolean,
+    @Ignore
+    var url: String? = null
 ): Parcelable {
 
     @Ignore
     @IgnoredOnParcel
     var userDataPackages: LiveData<List<UserDataPackage>>? = null
+
+    companion object {
+
+        const val NETWORK_3G_4G = "3G_4G"
+        const val NETWORK_4G = "4G"
+    }
+
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(NETWORK_3G_4G, NETWORK_4G)
+    annotation class Networks
 }

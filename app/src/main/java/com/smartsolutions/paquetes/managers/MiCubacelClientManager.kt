@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
 import android.util.Log
+import androidx.annotation.experimental.Experimental
 import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 import com.smartsolutions.micubacel_client.MCubacelClient
 import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
@@ -11,14 +12,24 @@ import org.jsoup.nodes.Document
 import kotlin.Exception
 import kotlin.coroutines.CoroutineContext
 
-class MiCubacelClientManager() : CoroutineScope {
+/**
+ * Administrador del cliente mi.cubacel.net.
+ * Los métodos de este administrador funcionan de manera
+ * asíncrona y retornan el resultado de la ejecución
+ * a traves de un Callback.
+ * */
+class MiCubacelClientManager : CoroutineScope {
 
+    /**
+     * Instancia del cliente mi.cubacel.net
+     * */
     private val client = MCubacelClient()
 
-    private val TAG = "EJV"
+    private val TAG = "MiCubacelClientManager"
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
+
 
     fun loadHomePage(callback: Callback<Map<String, String>>, updateCookies : Boolean = true) {
         sendRequests(9, { client.resolveHomeUrl(updateCookies) }, object : Callback<String> {
@@ -50,28 +61,47 @@ class MiCubacelClientManager() : CoroutineScope {
         })
     }
 
+    /**
+     * Inicia sesión.
+     * */
     fun signIn(phone: String, password: String, callback : Callback<Any>) {
         sendRequests(9, {client.signIn(phone, password)}, callback)
     }
 
-
-
+    /**
+     * Inicia el proceso de creación de cuenta.
+     *
+     * @param firstName - Nombres.
+     * @param lastName - Apellidos.
+     * @param phone - Teléfono.
+     * */
     fun signUp(firstName : String, lastName : String, phone: String, callback: Callback<Any>) {
         sendQueueRequests(9, {client.signUp(firstName, lastName, phone)}, callback)
     }
 
-
+    /**
+     * Verifica el código recibido por sms.
+     *
+     * @param code - Codigo recibido
+     * */
     fun verifyCode(code: String, callback: Callback<Any>) {
         sendRequests(9, {client.verifyCode(code)}, callback)
     }
 
+    /**
+     * Completa el proceso de creación de la cuenta con una contraseña.
+     *
+     * @param password - Contraseña.
+     * */
     fun createPassword(password: String, callback: Callback<Any>) {
         sendRequests(9, {client.createPassword(password)}, callback)
     }
 
-
+    /**
+     * Obtiene los datos del usuario.
+     * */
     fun getUserDataPackagesInfo(userDataPackage: UserDataPackage?, callback: Callback<UserDataPackage>) {
-        Log.i("EJV", "Enviando peticion de paquetes")
+        Log.i(TAG, "Enviando peticion de paquetes")
         sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<List<DataType>> {
             override fun onSuccess(response: List<DataType>) {
                 Log.i(TAG, "onSuccess: éxito")
@@ -81,9 +111,9 @@ class MiCubacelClientManager() : CoroutineScope {
 
             override fun onFail(throwable: Throwable) {
                 if (throwable is UnprocessableRequestException) {
-                    Log.i("EJV", "No se ha iniciado sesion")
+                    Log.i(TAG, "No se ha iniciado sesion")
                 } else {
-                    Log.i("EJV", "Fallido")
+                    Log.i(TAG, "Fallido")
                 }
 
                 callback.onFail(throwable)
@@ -91,19 +121,27 @@ class MiCubacelClientManager() : CoroutineScope {
         })
     }
 
+    /**
+     * Obtiene una lista de productos a la venta.
+     * */
     fun getProducts(callback: Callback<List<ProductGroup>>) {
         sendRequests(9, { client.getProducts() }, callback)
     }
 
+    /**
+     * Compra un producto.
+     *
+     * @param url - Url del producto a comprar.
+     * */
     fun buyProduct(url: String, callback: Callback<Any>) {
         sendQueueRequests(9, {client.resolveUrlBuyProductConfirmation(url)}, object : Callback<String>{
             override fun onSuccess(response: String) {
-                Log.i("EJV", "Se obtuvo URL")
+                Log.i(TAG, "Se obtuvo URL")
                 sendQueueRequests(9, { client.buyProduct(response) }, callback)
             }
 
             override fun onFail(throwable: Throwable) {
-                Log.i("EJV", "FALLO ontecion de url")
+                Log.i(TAG, "Falló obtención de url")
             }
         })
     }
