@@ -23,6 +23,11 @@ class MCubacelClient {
     private val baseHomeUrl = "https://mi.cubacel.net"
 
     /**
+     * Indica si la sesión esta iniciada
+     * */
+    private var isLogged = false
+
+    /**
      * Urls principales del sitio.
      * */
     private val urls = mutableMapOf(
@@ -49,17 +54,16 @@ class MCubacelClient {
     /**
      * Resuelve la url de la página principal en el idioma español.
      * Este método actualiza las cookies en caso de que se le indique.
-     *
-     * @param updateCookies - Indica si se deben actualizar las cookies.
      * */
-    fun resolveHomeUrl(updateCookies: Boolean) : String? {
+    fun resolveHomeUrl() : String? {
         val url = urls["home"]
         if (url != null && url.isNotEmpty()){
             return url
         }
 
         val response = ConnectionFactory.newConnection(baseHomeUrl).execute()
-        if (updateCookies) {
+
+        if (!isLogged) {
             updateCookies(response.cookies())
         }
 
@@ -77,14 +81,13 @@ class MCubacelClient {
      * Carga la página de la url dada.
      *
      * @param url - Url de la página a cargar.
-     * @param updateCookies - Indica si se deben actualizar las cookies.
      *
      * @return Document con la página cargada
      * */
     @Throws(Exception::class)
-    fun loadPage(url: String, updateCookies: Boolean = false) : Document {
+    fun loadPage(url: String) : Document {
         val response = ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
-        if (updateCookies){
+        if (!isLogged){
             updateCookies(response.cookies())
         }
         return response.parse()
@@ -140,7 +143,7 @@ class MCubacelClient {
             }
         }
 
-        if (columns.isNotEmpty()){
+        if (columns.isNotEmpty()) {
             readColumn("div[class=\"col1\"]", PHONE)
             readColumn("div[class=\"col2 btype\"]", CREDIT)
             readColumn("div[class=\"col3 btype\"]", EXPIRE)
@@ -172,6 +175,8 @@ class MCubacelClient {
         }
 
         updateCookies(response.cookies())
+
+        isLogged = true
     }
 
     /**

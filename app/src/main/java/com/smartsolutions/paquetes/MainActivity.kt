@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun singIn(){
-        client.signIn("58474155", "Geaelf-17", object : MiCubacelClientManager.Callback<Any> {
+        client.signIn("54481298", "05170wen", object : MiCubacelClientManager.Callback<Any> {
             override fun onSuccess(response: Any) {
                 Log.i("EJV", "LOGEADO")
 
@@ -45,23 +45,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         response.firstOrNull { it.type == ProductGroup.GroupType.PackagesLTE }
                             ?.let { group ->
                                 group.products.firstOrNull { it.price == 200f }?.let {
-                                    Log.i("EJV", "Se obtubo el paquete iniciando compra")
-                                    client.buyProduct(
-                                        it.urlBuy,
-                                        object : MiCubacelClientManager.Callback<Any> {
-                                            override fun onSuccess(response: Any) {
-                                                Log.i("EJV", "onSuccess: compra en proceso")
-                                            }
-
-                                            override fun onFail(throwable: Throwable) {
-                                                if (throwable is UnprocessableRequestException) {
-                                                    Log.i("EJV", "No se puede comprar")
-                                                }else {
-                                                    Log.i("EJV", "Fallo compra")
-                                                }
-                                            }
-                                        })
-
+                                    Log.i("EJV", "Se obtuvo el paquete")
                                 }
                             }
                     }
@@ -86,7 +70,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun loadHome(){
-        client.loadHomePage(object : MiCubacelClientManager.Callback<Map<String, String>>{
+        client.loadHomePage(object : MiCubacelClientManager.Callback<Map<String, String>> {
             override fun onSuccess(response: Map<String, String>) {
                 response.forEach {
                     Log.i("EJV", "onSuccess: key -> ${it.key}, value -> ${it.value} ")
@@ -101,7 +85,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
 
-        }, false)
+        })
     }
 
     fun singUp(){

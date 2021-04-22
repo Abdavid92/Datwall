@@ -31,8 +31,8 @@ class MiCubacelClientManager : CoroutineScope {
         get() = Dispatchers.IO
 
 
-    fun loadHomePage(callback: Callback<Map<String, String>>, updateCookies : Boolean = true) {
-        sendRequests(9, { client.resolveHomeUrl(updateCookies) }, object : Callback<String> {
+    fun loadHomePage(callback: Callback<Map<String, String>>) {
+        sendRequests(9, { client.resolveHomeUrl() }, object : Callback<String> {
             override fun onSuccess(response: String) {
                 loadHomePage(response, callback)
             }
@@ -65,7 +65,7 @@ class MiCubacelClientManager : CoroutineScope {
      * Inicia sesión.
      * */
     fun signIn(phone: String, password: String, callback : Callback<Any>) {
-        sendRequests(9, {client.signIn(phone, password)}, callback)
+        sendRequests(9, { client.signIn(phone, password) }, callback)
     }
 
     /**
@@ -100,7 +100,7 @@ class MiCubacelClientManager : CoroutineScope {
     /**
      * Obtiene los datos del usuario.
      * */
-    fun getUserDataPackagesInfo(userDataPackage: UserDataPackage?, callback: Callback<UserDataPackage>) {
+    fun getUserDataPackagesInfo(callback: Callback<UserDataPackage>) {
         Log.i(TAG, "Enviando peticion de paquetes")
         sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<List<DataType>> {
             override fun onSuccess(response: List<DataType>) {

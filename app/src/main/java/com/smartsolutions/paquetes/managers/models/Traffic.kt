@@ -8,9 +8,11 @@ import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.smartsolutions.paquetes.helpers.DataUnit
+import com.smartsolutions.paquetes.helpers.DataValue
+import com.smartsolutions.paquetes.helpers.processValue
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
-import kotlin.math.pow
 
 /**
  * Representa un fragmento de tráfico de datos tanto
@@ -56,19 +58,19 @@ open class Traffic(
     /**
      * Bytes de bajada optimizados a la unidad más conveniente
      * */
-    val rxBytes : Unity
+    val rxBytes : DataValue
         get() = processValue(_rxBytes)
 
     /**
      * Bytes de subida optimizados a la unidad más conveniente
      * */
-    val txBytes : Unity
+    val txBytes : DataValue
         get() = processValue(_txBytes)
 
     /**
      * Suma de todos los bytes optimizados a la unidad más conveniente
      * */
-    val totalBytes : Unity
+    val totalBytes : DataValue
         get() = processValue(_rxBytes + _txBytes)
 
     constructor(parcel: Parcel) : this(
@@ -89,70 +91,27 @@ open class Traffic(
      *
      * @param unit - Unidad de medida
      * */
-    fun rxBytes (unit: Unit) = processValue(_rxBytes, unit)
+    fun rxBytes (unit: DataUnit) = processValue(_rxBytes, unit)
 
     /**
      * @return Bytes de subida optimizados a la unidad dada como parámetro.
      *
      * @param unit - Unidad de medida
      * */
-    fun txBytes (unit: Unit) = processValue(_txBytes, unit)
+    fun txBytes (unit: DataUnit) = processValue(_txBytes, unit)
 
     /**
      * @return Suma de todos los bytes optimizados a la unidad dada como parámetro.
      *
      * @param unit - Unidad de medida
      * */
-    fun totalBytes (unit: Unit) = processValue(_txBytes + _rxBytes, unit)
+    fun totalBytes (unit: DataUnit) = processValue(_txBytes + _rxBytes, unit)
 
     /**
      * @return Suma de bytes
      * */
     fun getAllBytes () : Long {
         return _rxBytes + _txBytes
-    }
-
-
-    /**
-     * Procesa y obtiene la unidad más optima para los bytes dados.
-     *
-     * @param bytes - Bytes que se van a procesar
-     * @param unit - Parametro opcional en caso de que se quiera especificar la unidad de medida.
-     * */
-    @Suppress("NAME_SHADOWING")
-    private fun processValue(bytes: Long, unit: Unit? = null) : Unity {
-        val gb = 1024.0.pow(3.0)
-        val mb = 1024.0.pow(2.0)
-
-        var unit = unit
-
-        if (unit == null){
-            unit = when {
-                gb <= bytes -> {
-                    Unit.GB
-                }
-                mb <= bytes -> {
-                    Unit.MB
-                }
-                else -> {
-                    Unit.KB
-                }
-            }
-        }
-
-        val value = when (unit) {
-            Unit.GB -> {
-                bytes/gb
-            }
-            Unit.MB -> {
-                bytes/mb
-            }
-            else -> {
-                bytes/1024.0
-            }
-        }
-
-        return Unity(value, unit)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -196,31 +155,6 @@ open class Traffic(
 
         return Date(bucket.startTimeStamp).after(startTime) && Date(bucket.endTimeStamp).before(finishTime)
     }
-
-    /**
-     * Unidad que contiene los bytes y la unidad de medida
-     * */
-    data class Unity(val value : Double, val unit: Unit)
-
-    /**
-     * Unidades de medidas
-     * */
-    enum class Unit {
-        /**
-         * Kilobytes
-         * */
-        KB,
-        /**
-         * Megabytes
-         * */
-        MB,
-        /**
-         * Gigabytes
-         * */
-        GB
-    }
-
-
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(uid)

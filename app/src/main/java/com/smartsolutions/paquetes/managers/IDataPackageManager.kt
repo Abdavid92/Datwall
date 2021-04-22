@@ -17,7 +17,7 @@ interface IDataPackageManager {
      *
      * @return LiveData con los paquetes disponibles para la compra.
      * */
-    fun getPackages(): LiveData<DataPackage>
+    fun getPackages(): LiveData<List<DataPackage>>
 
     /**
      * Obtiene el paquete que está en uso actualmente.
