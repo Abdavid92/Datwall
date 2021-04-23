@@ -1,9 +1,9 @@
-package com.smartsolutions.micubacel_client
+package com.smartsolutions.paquetes.micubacel
 
-import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
-import com.smartsolutions.micubacel_client.models.DataType
-import com.smartsolutions.micubacel_client.models.Product
-import com.smartsolutions.micubacel_client.models.ProductGroup
+import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
+import com.smartsolutions.paquetes.micubacel.models.DataType
+import com.smartsolutions.paquetes.micubacel.models.Product
+import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -164,7 +164,11 @@ class MCubacelClient {
             Pair("username", phone),
             Pair("password", password)
         )
-        val response = ConnectionFactory.newConnection(url = urls["login"]!!, cookies = cookies, data = data)
+        val response = ConnectionFactory.newConnection(
+            url = urls["login"]!!,
+            cookies = cookies,
+            data = data
+        )
             .method(Connection.Method.POST)
             .execute()
 
@@ -194,7 +198,7 @@ class MCubacelClient {
             Pair("agree", "on")
         )
 
-        val response = ConnectionFactory.newConnection(urls["create"]!!, data, cookies )
+        val response = ConnectionFactory.newConnection(urls["create"]!!, data, cookies)
             .method(Connection.Method.POST)
             .execute()
 
@@ -238,8 +242,7 @@ class MCubacelClient {
             Pair("cnewPassword", password)
         )
 
-        val response = ConnectionFactory
-            .newConnection(urls["passwordCreation"]!!, data, cookies)
+        val response = ConnectionFactory.newConnection(urls["passwordCreation"]!!, data, cookies)
             .method(Connection.Method.POST)
             .execute()
 
@@ -260,7 +263,7 @@ class MCubacelClient {
      * @return Una lista de productos organizados en grupos.
      * */
     fun getProducts(): List<ProductGroup> {
-        val page = ConnectionFactory.newConnection(url = urls["products"]!!,cookies = cookies)
+        val page = ConnectionFactory.newConnection(url = urls["products"]!!, cookies = cookies)
             .get()
 
         val productGroup = mutableListOf<ProductGroup>()
@@ -363,8 +366,7 @@ class MCubacelClient {
      * */
     @Throws(UnprocessableRequestException::class)
     fun obtainPackagesInfo() : List<DataType> {
-        val response = ConnectionFactory
-            .newConnection(urls["myAccount"]!!, cookies = cookies)
+        val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = cookies)
             .execute()
 
         val page = response.parse()

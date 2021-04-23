@@ -1,20 +1,18 @@
-package com.smartsolutions.paquetes
+package com.smartsolutions.paquetes.ui
 
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.managers.MiCubacelClientManager
-import com.smartsolutions.paquetes.repositories.models.UserDataPackage
-import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
-import com.smartsolutions.micubacel_client.models.ProductGroup
+import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,7 +30,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications))
+            R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
+        ))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 

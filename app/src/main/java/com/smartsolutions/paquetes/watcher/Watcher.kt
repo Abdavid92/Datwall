@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.smartsolutions.paquetes.repositories.IAppRepository
+import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

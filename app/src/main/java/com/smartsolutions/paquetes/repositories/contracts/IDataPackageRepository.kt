@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.repositories
+package com.smartsolutions.paquetes.repositories.contracts
 
 import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.repositories.models.DataPackage

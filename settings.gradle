@@ -1,4 +1,2 @@
-include ':micubacel-client'
-include ':micubacel-api'
 include ':app'
 rootProject.name = "Datwall"

@@ -1,6 +1,9 @@
 package com.smartsolutions.paquetes.modules
 
 import com.smartsolutions.paquetes.repositories.*
+import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
+import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
+import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,5 +20,5 @@ interface RepositoriesModule {
     fun bindIDataPackageRepository(impl: DataPackageRepository): IDataPackageRepository
 
     @Binds
-    fun bindIUserDataPackageRepository(impl: UserDataPackageRepository): IUserDataPackageRepository
+    fun bindIPurchasedPackageRepository(impl: PurchasedPackageRepository): IPurchasedPackageRepository
 }

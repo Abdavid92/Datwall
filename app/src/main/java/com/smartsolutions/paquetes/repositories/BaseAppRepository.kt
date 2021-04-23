@@ -8,6 +8,7 @@ import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.SpecialApp

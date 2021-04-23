@@ -1,12 +1,10 @@
 package com.smartsolutions.paquetes.managers
 
 import android.util.Log
-import androidx.annotation.experimental.Experimental
-import com.smartsolutions.paquetes.repositories.models.UserDataPackage
-import com.smartsolutions.micubacel_client.MCubacelClient
-import com.smartsolutions.micubacel_client.exceptions.UnprocessableRequestException
-import com.smartsolutions.micubacel_client.models.DataType
-import com.smartsolutions.micubacel_client.models.ProductGroup
+import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
+import com.smartsolutions.paquetes.micubacel.MCubacelClient
+import com.smartsolutions.paquetes.micubacel.models.DataType
+import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import kotlinx.coroutines.*
 import org.jsoup.nodes.Document
 import kotlin.Exception
@@ -100,7 +98,7 @@ class MiCubacelClientManager : CoroutineScope {
     /**
      * Obtiene los datos del usuario.
      * */
-    fun getUserDataPackagesInfo(callback: Callback<UserDataPackage>) {
+    fun getUserDataPackagesInfo(callback: Callback<Any>) {
         Log.i(TAG, "Enviando peticion de paquetes")
         sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<List<DataType>> {
             override fun onSuccess(response: List<DataType>) {

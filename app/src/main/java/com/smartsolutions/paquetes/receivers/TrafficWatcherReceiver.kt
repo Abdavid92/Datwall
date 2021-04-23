@@ -7,7 +7,7 @@ import android.net.TrafficStats
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.managers.models.Traffic
-import com.smartsolutions.paquetes.repositories.IAppRepository
+import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.Observer
 import com.smartsolutions.paquetes.repositories.TrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App

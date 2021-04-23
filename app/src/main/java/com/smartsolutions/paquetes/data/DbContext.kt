@@ -13,7 +13,7 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.DataPackage.Companion.NETWORK_3G_4G
 import com.smartsolutions.paquetes.repositories.models.DataPackage.Companion.NETWORK_4G
-import com.smartsolutions.paquetes.repositories.models.UserDataPackage
+import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,7 +21,10 @@ import kotlinx.coroutines.launch
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
  * */
-@Database(entities = [App::class, DataPackage::class, UserDataPackage::class], version = 1, exportSchema = false)
+@Database(entities = [
+    App::class,
+    DataPackage::class,
+    PurchasedPackage::class], version = 1, exportSchema = false)
 abstract class DbContext: RoomDatabase() {
 
     /**
@@ -35,9 +38,9 @@ abstract class DbContext: RoomDatabase() {
     abstract fun getDataPackageDao(): IDataPackageDao
 
     /**
-     * @return Data Access Object para consultar la tabla user_data_packages.
+     * @return Data Access Object para consultar la tabla purchased_packages.
      * */
-    abstract fun getUserDataPackageDao(): IUserDataPackageDao
+    abstract fun getPurchasedPackageDao(): IPurchasedPackageDao
 
     /**
      * Seeder de la tabla data_packages

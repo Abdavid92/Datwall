@@ -19,6 +19,7 @@ abstract class NetworkUsageManager {
      * @param start - Tiempo de inicio del tráfico de datos que se quiere obtener.
      * @param finish - Tiempo de finalización del tráfico de datos.
      *
+     *
      * @return Una instancia de Traffic con los datos recopilados.
      * */
     abstract suspend fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic

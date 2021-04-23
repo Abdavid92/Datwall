@@ -9,8 +9,9 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.firewall.VpnConnection
-import com.smartsolutions.paquetes.repositories.IAppRepository
+import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.watcher.Watcher
 import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import dagger.hilt.android.AndroidEntryPoint

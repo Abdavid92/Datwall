@@ -1,4 +1,4 @@
-package com.smartsolutions.micubacel_client.models
+package com.smartsolutions.paquetes.micubacel.models
 
 data class ProductGroup(
     val type: GroupType,

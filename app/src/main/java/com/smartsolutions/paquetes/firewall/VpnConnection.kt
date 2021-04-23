@@ -3,7 +3,7 @@ package com.smartsolutions.paquetes.firewall
 import android.app.PendingIntent
 import android.net.VpnService
 import android.os.ParcelFileDescriptor
-import com.smartsolutions.paquetes.repositories.IAppRepository
+import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.Observer
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup

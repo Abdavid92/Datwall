@@ -1,29 +1,18 @@
 package com.smartsolutions.paquetes.repositories
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.smartsolutions.paquetes.data.IDataPackageDao
-import com.smartsolutions.paquetes.data.IUserDataPackageDao
+import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import javax.inject.Inject
 
 class DataPackageRepository @Inject constructor(
     private val dataPackageDao: IDataPackageDao,
-    private val userDataPackageDao: IUserDataPackageDao
 ) : IDataPackageRepository {
 
-    override fun getAll(): LiveData<List<DataPackage>> = dataPackageDao.getAll().apply {
-        Transformations.map(this) {
+    override fun getAll(): LiveData<List<DataPackage>> = dataPackageDao.getAll()
 
-            it.forEach { dataPackage ->
-                dataPackage.userDataPackages = userDataPackageDao.getByDataPackageId(dataPackage.id)
-            }
-        }
-    }
-
-    override suspend fun get(id: String): DataPackage? = dataPackageDao.get(id)?.apply {
-        this.userDataPackages = userDataPackageDao.getByDataPackageId(this.id)
-    }
+    override suspend fun get(id: String): DataPackage? = dataPackageDao.get(id)
 
     override suspend fun create(dataPackage: DataPackage): Long = dataPackageDao.create(dataPackage)
 

@@ -31,13 +31,11 @@ data class DataPackage(
     @Networks
     val network: String,
     var ussd: String,
+    var active: Boolean = true
 ) {
 
     @Ignore
     var url: String? = null
-
-    @Ignore
-    var userDataPackages: LiveData<List<UserDataPackage>>? = null
 
     companion object {
         const val NETWORK_3G_4G = "3G_4G"

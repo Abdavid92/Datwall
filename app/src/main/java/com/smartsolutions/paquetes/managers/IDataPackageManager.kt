@@ -2,7 +2,6 @@ package com.smartsolutions.paquetes.managers
 
 import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.repositories.models.DataPackage
-import com.smartsolutions.paquetes.repositories.models.UserDataPackage
 
 /**
  * Administrador de paquetes de datos.
@@ -20,14 +19,6 @@ interface IDataPackageManager {
     fun getPackages(): LiveData<List<DataPackage>>
 
     /**
-     * Obtiene el paquete que está en uso actualmente.
-     *
-     * @return `UserDataPackage` o null si no hay ningún
-     * paquete activo.
-     * */
-    fun getUserDataPackage(): UserDataPackage?
-
-    /**
      * Compra un paquete de datos.
      *
      * @return `true` si la compra tuvo éxito
@@ -40,13 +31,6 @@ interface IDataPackageManager {
      * @param mode - Modo de compra.
      * */
     fun setBuyMode(mode: BuyMode)
-
-    /**
-     * Obtiene el historial de todos los paquetes comprados.
-     *
-     * @return List con todos los paquetes comprados.
-     * */
-    fun getHistory(): List<UserDataPackage>
 
     /**
      * Limpia el historial de compras.

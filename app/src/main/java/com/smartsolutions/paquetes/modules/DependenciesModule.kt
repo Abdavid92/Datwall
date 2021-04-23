@@ -32,8 +32,5 @@ object DependenciesModule {
     fun provideIDataPackageDao(dbContext: DbContext) = dbContext.getDataPackageDao()
 
     @Provides
-    fun provideIUserDataPackageDao(dbContext: DbContext) = dbContext.getUserDataPackageDao()
-
-    @Provides
     fun provideITrafficDao(dbContext: TrafficDbContext) = dbContext.getTrafficDao()
 }

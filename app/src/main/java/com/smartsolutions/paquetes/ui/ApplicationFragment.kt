@@ -1,9 +1,10 @@
-package com.smartsolutions.paquetes
+package com.smartsolutions.paquetes.ui
 
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
+import com.smartsolutions.paquetes.R
 
 abstract class ApplicationFragment: Fragment {
 

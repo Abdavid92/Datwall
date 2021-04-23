@@ -1,4 +1,4 @@
-package com.smartsolutions.micubacel_client.exceptions
+package com.smartsolutions.paquetes.exceptions
 
 import java.lang.Exception
 

@@ -1,7 +1,8 @@
-package com.smartsolutions.paquetes.repositories
+package com.smartsolutions.paquetes.repositories.contracts
 
 import android.content.pm.PackageInfo
 import androidx.lifecycle.LifecycleOwner
+import com.smartsolutions.paquetes.repositories.Observer
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
 

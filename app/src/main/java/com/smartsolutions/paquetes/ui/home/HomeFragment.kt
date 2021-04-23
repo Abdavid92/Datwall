@@ -1,21 +1,18 @@
 package com.smartsolutions.paquetes.ui.home
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
-import android.transition.TransitionInflater
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.smartsolutions.paquetes.ApplicationFragment
-import com.smartsolutions.paquetes.MainActivity
+import com.smartsolutions.paquetes.ui.ApplicationFragment
+import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.services.FirewallService
 
