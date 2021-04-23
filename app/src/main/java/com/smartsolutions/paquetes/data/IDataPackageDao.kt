@@ -11,7 +11,7 @@ interface IDataPackageDao {
     fun getAll(): LiveData<List<DataPackage>>
 
     @Query("SELECT * FROM data_packages WHERE id = :id")
-    suspend fun get(id: Int): DataPackage?
+    suspend fun get(id: String): DataPackage?
 
     @Insert
     suspend fun create(dataPackage: DataPackage): Long

@@ -21,7 +21,7 @@ class DataPackageRepository @Inject constructor(
         }
     }
 
-    override suspend fun get(id: Int): DataPackage? = dataPackageDao.get(id)?.apply {
+    override suspend fun get(id: String): DataPackage? = dataPackageDao.get(id)?.apply {
         this.userDataPackages = userDataPackageDao.getByDataPackageId(this.id)
     }
 

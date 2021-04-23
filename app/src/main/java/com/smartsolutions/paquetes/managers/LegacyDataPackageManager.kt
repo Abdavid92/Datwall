@@ -12,7 +12,7 @@ class LegacyDataPackageManager @Inject constructor(
     @ApplicationContext
     private val context: Context
 ): IDataPackageManager {
-    override fun getPackages(): LiveData<DataPackage> {
+    override fun getPackages(): LiveData<List<DataPackage>> {
         TODO("Not yet implemented")
     }
 

@@ -8,9 +8,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.smartsolutions.paquetes.ApplicationFragment
 import com.smartsolutions.paquetes.R
 
-class DashboardFragment : Fragment() {
+class DashboardFragment : ApplicationFragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel
 

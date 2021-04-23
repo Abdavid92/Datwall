@@ -66,7 +66,7 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override fun getPackages(): LiveData<DataPackage> {
+    override fun getPackages(): LiveData<List<DataPackage>> {
         TODO("Not yet implemented")
     }
 
