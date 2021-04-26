@@ -1,14 +1,14 @@
 package com.smartsolutions.paquetes.data
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface IDataPackageDao {
 
     @Query("SELECT * FROM data_packages")
-    fun getAll(): LiveData<List<DataPackage>>
+    fun getAll(): Flow<List<DataPackage>>
 
     @Query("SELECT * FROM data_packages WHERE id = :id")
     suspend fun get(id: String): DataPackage?

@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
-import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.managers.models.Traffic
+import kotlinx.coroutines.flow.Flow
 
 interface ITrafficRepository {
     suspend fun create(traffic: Traffic): Long
@@ -16,11 +16,15 @@ interface ITrafficRepository {
 
     suspend fun delete(traffics: List<Traffic>): Int
 
-    fun getAllLiveData(): LiveData<List<Traffic>>
+    fun getFlow(): Flow<List<Traffic>>
 
     suspend fun getAll(): List<Traffic>
 
     suspend fun getByUid(uid: Int, startTime: Long, endTime: Long): List<Traffic>
 
+    fun getFlowByUid(uid: Int, startTime: Long, endTime: Long): Flow<List<Traffic>>
+
     suspend fun getByTime(startTime: Long, endTime: Long): List<Traffic>
+
+    fun getFlowByTime(startTime: Long, endTime: Long): Flow<List<Traffic>>
 }

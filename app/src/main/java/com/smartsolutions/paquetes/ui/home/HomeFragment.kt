@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.smartsolutions.paquetes.ui.ApplicationFragment
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.firewall.VpnConnectionUtils
 import com.smartsolutions.paquetes.services.FirewallService
 
 class HomeFragment : ApplicationFragment() {
@@ -43,17 +44,11 @@ class HomeFragment : ApplicationFragment() {
 
         switch.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-                val intent = VpnService.prepare(context)
-
-                if (intent != null)
-                    startActivityForResult(intent, REQUEST_VPN_PERMISSION)
-                else
-                    context?.startService(Intent(context, FirewallService::class.java))
-            } else {
-                val intent = Intent(context, FirewallService::class.java).apply {
-                    action = FirewallService.ACTION_STOP_FIREWALL_SERVICE
+                VpnConnectionUtils.startVpn(requireContext())?.let {
+                    startActivityForResult(it, REQUEST_VPN_PERMISSION)
                 }
-                context?.startService(intent)
+            } else {
+                VpnConnectionUtils.stopVpn(requireContext())
             }
         }
 

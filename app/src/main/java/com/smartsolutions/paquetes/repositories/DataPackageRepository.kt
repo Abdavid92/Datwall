@@ -1,16 +1,16 @@
 package com.smartsolutions.paquetes.repositories
 
-import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.data.IDataPackageDao
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DataPackageRepository @Inject constructor(
     private val dataPackageDao: IDataPackageDao,
 ) : IDataPackageRepository {
 
-    override fun getAll(): LiveData<List<DataPackage>> = dataPackageDao.getAll()
+    override fun getAll(): Flow<List<DataPackage>> = dataPackageDao.getAll()
 
     override suspend fun get(id: String): DataPackage? = dataPackageDao.get(id)
 

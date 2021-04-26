@@ -8,6 +8,8 @@ import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepos
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -20,27 +22,19 @@ class PurchasedPackageRepository @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    override fun getAll(): LiveData<List<PurchasedPackage>> = purchasedPackageDao.getAll().apply {
-        transformationLiveData(this)
-    }
+    override fun getAll(): Flow<List<PurchasedPackage>> =
+        onEach(purchasedPackageDao.getAll())
 
-    override fun getByDate(start: Long, finish: Long): LiveData<List<PurchasedPackage>> =
-        purchasedPackageDao.getByDate(start, finish).apply {
-            transformationLiveData(this)
+    override fun getByDate(start: Long, finish: Long): Flow<List<PurchasedPackage>> =
+        onEach(purchasedPackageDao.getByDate(start, finish))
+
+    override fun get(id: Long): Flow<PurchasedPackage> =
+        purchasedPackageDao.get(id).onEach {
+            it.dataPackage = dataPackageDao.get(it.dataPackageId)
         }
 
-    override fun get(id: Long): LiveData<PurchasedPackage> = purchasedPackageDao.get(id).apply {
-        Transformations.map(this) {
-            launch {
-                it.dataPackage = dataPackageDao.get(it.dataPackageId)
-            }
-        }
-    }
-
-    override fun getByDataPackageId(dataPackageId: String): LiveData<List<PurchasedPackage>> =
-        purchasedPackageDao.getByDataPackageId(dataPackageId).apply {
-            transformationLiveData(this)
-        }
+    override fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>> =
+        onEach(purchasedPackageDao.getByDataPackageId(dataPackageId))
 
     override suspend fun create(purchasedPackage: PurchasedPackage) = purchasedPackageDao.create(purchasedPackage)
 
@@ -54,13 +48,10 @@ class PurchasedPackageRepository @Inject constructor(
 
     override suspend fun delete(purchasedPackages: List<PurchasedPackage>) = purchasedPackageDao.delete(purchasedPackages)
 
-    private fun transformationLiveData(liveData: LiveData<List<PurchasedPackage>>) {
-        Transformations.map(liveData) {
-            launch {
-                it.forEach { purchasedPackage ->
-                    purchasedPackage.dataPackage = dataPackageDao.get(purchasedPackage.dataPackageId)
-                }
+    private fun onEach(flow: Flow<List<PurchasedPackage>>) =
+        flow.onEach {
+            it.forEach { purchasedPackage ->
+                purchasedPackage.dataPackage = dataPackageDao.get(purchasedPackage.dataPackageId)
             }
         }
-    }
 }

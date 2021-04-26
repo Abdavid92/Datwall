@@ -5,6 +5,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.smartsolutions.paquetes.repositories.Observer
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repositorio de aplicaciones
@@ -30,6 +31,13 @@ interface IAppRepository {
      * Obtiene todas las aplicaciones
      * */
     val all: List<App>
+
+    /**
+     * Retorna un Flow con la lista de aplicaciones.
+     *
+     * @return Flow con la lista de aplicaciones.
+     * */
+    fun flow(): Flow<List<App>>
 
     /**
      * Registra un observador que estará a la espera de cambios en base de datos

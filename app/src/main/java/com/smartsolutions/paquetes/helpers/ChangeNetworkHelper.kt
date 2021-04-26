@@ -9,6 +9,8 @@ import com.smartsolutions.paquetes.services.FirewallService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,8 +18,6 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * Implementación de la interfaz IChangeNetworkHelper.
- * Esta clase está ubicada en el paquete superior para poder acceder a los servicios
- * de la aplicación y encenderlos o apagarlos.
  * */
 class ChangeNetworkHelper @Inject constructor(
     @ApplicationContext
@@ -27,19 +27,31 @@ class ChangeNetworkHelper @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
+    /**
+     * Indica si el cortafuegos está encendido.
+     * */
+    private var firewallOn =  false
+
+    init {
+
+        launch {
+            context.dataStore.data.collect {
+                firewallOn = it[PreferencesKeys.FIREWALL_ON] == true
+            }
+        }
+    }
+
     override fun setDataMobileStateOn() {
         launch {
             context.dataStore.edit {
                 it[PreferencesKeys.DATA_MOBILE_ON] = true
             }
+        }
 
-            context.dataStore.data.map {
-                if (it[PreferencesKeys.FIREWALL_ON] == true) {
-                    val intent = Intent(context, FirewallService::class.java)
+        if (firewallOn) {
+            val intent = Intent(context, FirewallService::class.java)
 
-                    context.startService(intent)
-                }
-            }
+            context.startService(intent)
         }
     }
 
@@ -48,15 +60,13 @@ class ChangeNetworkHelper @Inject constructor(
             context.dataStore.edit {
                 it[PreferencesKeys.DATA_MOBILE_ON] = false
             }
+        }
 
-            context.dataStore.data.map {
-                if (it[PreferencesKeys.FIREWALL_ON] == true) {
-                    val intent = Intent(context, FirewallService::class.java)
-                        .setAction(FirewallService.ACTION_STOP_FIREWALL_SERVICE)
+        if (firewallOn) {
+            val intent = Intent(context, FirewallService::class.java)
+                .setAction(FirewallService.ACTION_STOP_FIREWALL_SERVICE)
 
-                    context.startService(intent)
-                }
-            }
+            context.startService(intent)
         }
     }
 }

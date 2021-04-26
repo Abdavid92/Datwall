@@ -1,8 +1,8 @@
 package com.smartsolutions.paquetes.data
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.smartsolutions.paquetes.repositories.models.App
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface IAppDao {
@@ -20,7 +20,7 @@ interface IAppDao {
     val apps: List<App>
 
     @Query("SELECT * FROM apps ORDER BY uid")
-    fun liveData(): LiveData<List<App>>
+    fun flow(): Flow<List<App>>
 
     @Query("SELECT * FROM apps WHERE package_name = :packageName")
     fun get(packageName: String): App?

@@ -4,9 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.smartsolutions.paquetes.managers.models.Traffic
-import com.smartsolutions.paquetes.repositories.models.DataPackage
 
 /**
  * Conexión al la base de datos traffic.db

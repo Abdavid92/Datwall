@@ -2,12 +2,17 @@ package com.smartsolutions.paquetes.repositories.contracts
 
 import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
+import kotlinx.coroutines.flow.Flow
 
 interface IPurchasedPackageRepository {
-    fun getAll(): LiveData<List<PurchasedPackage>>
-    fun getByDate(start: Long, finish: Long): LiveData<List<PurchasedPackage>>
-    fun get(id: Long): LiveData<PurchasedPackage>
-    fun getByDataPackageId(dataPackageId: String): LiveData<List<PurchasedPackage>>
+
+    fun getAll(): Flow<List<PurchasedPackage>>
+
+    fun getByDate(start: Long, finish: Long): Flow<List<PurchasedPackage>>
+
+    fun get(id: Long): Flow<PurchasedPackage>
+
+    fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>>
 
     suspend fun create(purchasedPackage: PurchasedPackage): Long
 

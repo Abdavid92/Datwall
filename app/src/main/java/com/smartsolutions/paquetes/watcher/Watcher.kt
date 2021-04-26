@@ -80,7 +80,7 @@ class Watcher @Inject constructor(
                     }
                 }
 
-                Log.i(TAG, "sending ticktock broadcast")
+                //Log.i(TAG, "sending ticktock broadcast")
 
                 localBroadcastManager.sendBroadcast(Intent(ACTION_TICKTOCK))
 

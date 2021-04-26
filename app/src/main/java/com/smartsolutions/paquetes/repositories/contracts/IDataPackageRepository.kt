@@ -1,11 +1,11 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
-import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import kotlinx.coroutines.flow.Flow
 
 interface IDataPackageRepository {
 
-    fun getAll(): LiveData<List<DataPackage>>
+    fun getAll(): Flow<List<DataPackage>>
 
     suspend fun get(id: String): DataPackage?
 
