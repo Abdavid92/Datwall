@@ -15,14 +15,6 @@ import dagger.hilt.components.SingletonComponent
 class ManagersModule {
 
     @Provides
-    fun provideIDataPackageManager(@ApplicationContext context: Context): IDataPackageManager {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            DataPackageManager(context)
-        else
-            LegacyDataPackageManager(context)
-    }
-
-    @Provides
     fun provideINetworkUsageManager(@ApplicationContext context: Context, trafficRepository: TrafficRepository): NetworkUsageManager {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             NetworkUsageManagerDefault(context)

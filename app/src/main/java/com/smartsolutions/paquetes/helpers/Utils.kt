@@ -5,6 +5,9 @@ import kotlin.math.pow
 private val GB = 1024.0.pow(3.0)
 private val MB = 1024.0.pow(2.0)
 
+/**
+ * Crea un id para un DataPackage
+ * */
 fun createDataPackageId(name: String, price: Float): String {
     return name.trim() + price.toString()
 }

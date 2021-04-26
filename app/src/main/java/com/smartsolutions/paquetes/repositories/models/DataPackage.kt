@@ -14,6 +14,9 @@ import kotlinx.parcelize.IgnoredOnParcel
  * */
 @Entity(tableName = "data_packages")
 data class DataPackage(
+    /**
+     *
+     * */
     @PrimaryKey
     val id: String,
     val name: String,

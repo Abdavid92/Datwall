@@ -1,9 +1,12 @@
 package com.smartsolutions.paquetes.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -34,63 +37,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-        singIn()
     }
 
-    fun singIn(){
-        client.signIn("54481298", "05170wen", object : MiCubacelClientManager.Callback<Any> {
-            override fun onSuccess(response: Any) {
-                Log.i("EJV", "LOGEADO")
-
-                client.getProducts(object : MiCubacelClientManager.Callback<List<ProductGroup>> {
-
-                    override fun onSuccess(response: List<ProductGroup>) {
-                        response.firstOrNull { it.type == ProductGroup.GroupType.PackagesLTE }
-                            ?.let { group ->
-                                group.products.firstOrNull { it.price == 200f }?.let {
-                                    Log.i("EJV", "Se obtuvo el paquete")
-                                }
-                            }
-                    }
-
-                    override fun onFail(throwable: Throwable) {
-                        throwable.printStackTrace()
-                    }
-
-                })
-
-            }
-
-            override fun onFail(throwable: Throwable) {
-                if (throwable is UnprocessableRequestException) {
-                    Log.i("EJV", "Nombre de usuario o contraseña incorrecto")
-                } else {
-                    Log.i("EJV", "NO SE PUDO INICIAR SESION")
-                }
-            }
-
-        })
-    }
-
-    fun loadHome(){
-        client.loadHomePage(object : MiCubacelClientManager.Callback<Map<String, String>> {
-            override fun onSuccess(response: Map<String, String>) {
-                response.forEach {
-                    Log.i("EJV", "onSuccess: key -> ${it.key}, value -> ${it.value} ")
-                }
-            }
-
-            override fun onFail(throwable: Throwable) {
-                if (throwable is UnprocessableRequestException){
-                    Log.i("EJV", "Pagina vacia, NO se ha iniciado sesion")
-                }else{
-                    Log.i("EJV", "No se pudo obtener los datos")
-                }
-            }
-
-        })
-    }
 
     fun singUp(){
         client.signUp("Alexis", "Leon", "53814765", object : MiCubacelClientManager.Callback<Any>{

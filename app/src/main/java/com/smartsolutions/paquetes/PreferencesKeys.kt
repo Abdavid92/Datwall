@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 
 val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -31,4 +32,9 @@ object PreferencesKeys {
      * Esta clave es de tipo Boolean.
      * */
     val DATA_MOBILE_ON = booleanPreferencesKey("data_mobile_on")
+
+    /**
+     * Modo de compra de los paquertes de datos.
+     * */
+    val BUY_MODE = stringPreferencesKey("buy_mode")
 }

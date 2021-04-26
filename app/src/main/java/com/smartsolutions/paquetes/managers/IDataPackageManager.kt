@@ -1,7 +1,8 @@
 package com.smartsolutions.paquetes.managers
 
-import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Administrador de paquetes de datos.
@@ -14,18 +15,23 @@ interface IDataPackageManager {
      * Obtiene todos los paquetes disponibles para
      * la compra.
      *
-     * @return LiveData con los paquetes disponibles para la compra.
+     * @return Flow con los paquetes disponibles para la compra.
      * */
-    fun getPackages(): LiveData<List<DataPackage>>
-
-
+    fun getPackages(): Flow<List<DataPackage>>
 
     /**
      * Compra un paquete de datos.
-     *
-     * @return `true` si la compra tuvo éxito
      * */
-    fun buyDataPackage(id: Int): Boolean
+    fun buyDataPackage(id: Int)
+
+    /**
+     * Registra un paquete comprado y actualiza los corresppondientes
+     * repositorios.
+     *
+     * @param smsBody - Cuerpo del mensage rrecibido como confirmación
+     * del paquete comprado.
+     * */
+    fun registerDataPackage(smsBody: String)
 
     /**
      * Establece el modo de compra.
@@ -33,6 +39,11 @@ interface IDataPackageManager {
      * @param mode - Modo de compra.
      * */
     fun setBuyMode(mode: BuyMode)
+
+    /**
+     * Obtiene el historial de compras de paquetes.
+     * */
+    fun getHistory(): Flow<List<PurchasedPackage>>
 
     /**
      * Limpia el historial de compras.
