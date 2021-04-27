@@ -22,7 +22,7 @@ interface IDataPackageManager {
     /**
      * Compra un paquete de datos.
      * */
-    fun buyDataPackage(id: Int)
+    fun buyDataPackage(id: String)
 
     /**
      * Registra un paquete comprado y actualiza los corresppondientes

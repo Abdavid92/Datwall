@@ -9,9 +9,12 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
+import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,7 +30,9 @@ import kotlin.coroutines.CoroutineContext
 class DataPackageManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val dataPackageRepository: IDataPackageRepository
+    private val dataPackageRepository: IDataPackageRepository,
+    private val purchasedPackageRepository: IPurchasedPackageRepository,
+    private val ussdHelper: USSDHelper
 ): IDataPackageManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -39,7 +44,8 @@ class DataPackageManager @Inject constructor(
 
         launch {
             context.dataStore.data.collect {
-                buyMode = IDataPackageManager.BuyMode.valueOf(it[PreferencesKeys.BUY_MODE] ?: "MiCubacel")
+                buyMode = IDataPackageManager.BuyMode
+                    .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.BuyMode.USSD.name)
             }
         }
     }
@@ -48,8 +54,15 @@ class DataPackageManager @Inject constructor(
         return dataPackageRepository.getAll()
     }
 
-    override fun buyDataPackage(id: Int) {
-        TODO("Not yet implemented")
+    override fun buyDataPackage(id: String) {
+        when (buyMode) {
+            IDataPackageManager.BuyMode.USSD -> {
+                buyDataPackageForUSSD(id)
+            }
+            IDataPackageManager.BuyMode.MiCubacel -> {
+                buyDataPackageForMiCubacel(id)
+            }
+        }
     }
 
     override fun registerDataPackage(smsBody: String) {
@@ -57,15 +70,22 @@ class DataPackageManager @Inject constructor(
     }
 
     override fun setBuyMode(mode: IDataPackageManager.BuyMode) {
-        TODO("Not yet implemented")
+        launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.BUY_MODE] = mode.name
+            }
+        }
     }
 
-    override fun getHistory(): Flow<List<PurchasedPackage>> {
-        TODO("Not yet implemented")
-    }
+    override fun getHistory(): Flow<List<PurchasedPackage>> =
+        purchasedPackageRepository.getAll()
 
     override fun clearHistory() {
-        TODO("Not yet implemented")
+        launch {
+            purchasedPackageRepository.getAll().collect {
+                purchasedPackageRepository.delete(it)
+            }
+        }
     }
 
     fun getActiveSimIndex(): Int {
@@ -102,5 +122,12 @@ class DataPackageManager @Inject constructor(
             }
         }
         return -1
+    }
+
+    private fun buyDataPackageForUSSD(id: String) {
+    }
+
+    private fun buyDataPackageForMiCubacel(id: String) {
+        TODO("Not yet implemented")
     }
 }

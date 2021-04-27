@@ -18,7 +18,6 @@ object PreferencesKeys {
      * Indica si el cortafuegos debe ser encendido o no.
      * Esta clave es de tipo Boolean.
      * */
-
     val FIREWALL_ON = booleanPreferencesKey("firewall_on")
 
     /**

@@ -1,5 +1,14 @@
 package com.smartsolutions.paquetes.helpers
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.telephony.TelephonyManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlin.math.pow
 
 private val GB = 1024.0.pow(3.0)

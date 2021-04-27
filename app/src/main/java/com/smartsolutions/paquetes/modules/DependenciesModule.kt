@@ -33,4 +33,7 @@ object DependenciesModule {
 
     @Provides
     fun provideITrafficDao(dbContext: TrafficDbContext) = dbContext.getTrafficDao()
+
+    @Provides
+    fun provideIPurchasedPackageDao(dbContext: DbContext) = dbContext.getPurchasedPackageDao()
 }
