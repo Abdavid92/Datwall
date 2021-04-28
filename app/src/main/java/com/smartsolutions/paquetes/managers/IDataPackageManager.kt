@@ -12,6 +12,17 @@ import kotlinx.coroutines.flow.Flow
 interface IDataPackageManager {
 
     /**
+     * Modo de compra.
+     * */
+    var buyMode: BuyMode
+
+    /**
+     * Configura los paquetes de datos en dependencia
+     * de los que tenga disponible la tarjeta sim.
+     * */
+    fun configureDataPackages()
+
+    /**
      * Obtiene todos los paquetes disponibles para
      * la compra.
      *
@@ -32,13 +43,6 @@ interface IDataPackageManager {
      * del paquete comprado.
      * */
     fun registerDataPackage(smsBody: String)
-
-    /**
-     * Establece el modo de compra.
-     *
-     * @param mode - Modo de compra.
-     * */
-    fun setBuyMode(mode: BuyMode)
 
     /**
      * Obtiene el historial de compras de paquetes.

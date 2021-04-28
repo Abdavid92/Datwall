@@ -11,6 +11,7 @@ import com.google.android.material.button.MaterialButton
 import com.smartsolutions.paquetes.ui.ApplicationFragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.helpers.string
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -47,9 +48,9 @@ class DashboardFragment : ApplicationFragment() {
     
     private fun deleteOne(view: View) {
         //dashboardViewModel.deleteOne()
-        ussdHelper.sendUSSDRequest("*222#", object : USSDHelper.Callback {
-            override fun onSuccess(response: String) {
-                Toast.makeText(context, response, Toast.LENGTH_LONG).show()
+        ussdHelper.sendUSSDRequestLegacy("*133#", object : USSDHelper.Callback {
+            override fun onSuccess(response: Array<CharSequence>) {
+                Toast.makeText(context, response.string(), Toast.LENGTH_LONG).show()
             }
 
             override fun onFail(errorCode: Int, message: String) {

@@ -95,3 +95,13 @@ enum class DataUnit {
      * */
     GB
 }
+
+fun Array<CharSequence>.string(): String {
+    var text = ""
+
+    this.forEach {
+        text += it
+    }
+
+    return text
+}

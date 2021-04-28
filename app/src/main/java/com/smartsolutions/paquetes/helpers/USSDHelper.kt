@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.Message
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
@@ -34,10 +35,10 @@ class USSDHelper @Inject constructor(
      * Tiempo de espera antes de notificar que
      * falló la ejecución del código ussd. Esta
      * propiedad se usa en api 24 para abajo. De
-     * manera predeterminada tiene un valor de 3000
+     * manera predeterminada tiene un valor de 20000
      * milisegundos.
      * */
-    var timeout = 3000L
+    var timeout = 20000L
 
     /**
      * Mensajes de los diferentes errores. Los índices
@@ -53,26 +54,6 @@ class USSDHelper @Inject constructor(
     )
 
     /**
-     * Ejecuta un código ussd y lanza un broadcast con el resultado
-     * de la ejecución. El broadcast contendrá el cuerpo de la respuesta
-     * o un código de error si la ejecución no tuvo éxito.
-     *
-     * @param ussd - Código ussd.
-     * @param activityNewTask - Este parámetro se usa en api 24 para abajo.
-     * Indica si se debe poner Intent.FLAG_ACTIVITY_NEW_TASK en el intent
-     * que se usa para ejecutar el código ussd. Esto debe ser usado cuando
-     * se intenta usar este método en un contexto que no sea una activity o un
-     * fragment.
-     * */
-    /*fun sendUSSDRequest(ussd: String, activityNewTask: Boolean = false) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            sendUSSDRequestOreo(ussd)
-        } else {
-            sendUSSDRequestLegacy(ussd, activityNewTask)
-        }
-    }*/
-
-    /**
      * Ejecuta un código ussd y retorna un callback con el resultado
      * de la ejecución.
      *
@@ -84,11 +65,11 @@ class USSDHelper @Inject constructor(
      * se intenta usar este método en un contexto que no sea una activity o un
      * fragment.
      * */
-    fun sendUSSDRequest(ussd: String, callback: Callback?, activityNewTask: Boolean = false) {
+    fun sendUSSDRequest(ussd: String, callback: Callback?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             sendUSSDRequestOreo(ussd, callback)
         } else {
-            sendUSSDRequestLegacy(ussd, activityNewTask, callback)
+            sendUSSDRequestLegacy(ussd, callback)
         }
     }
 
@@ -99,12 +80,10 @@ class USSDHelper @Inject constructor(
      * @param activityNewTask - True si se usa este método en un contexto que no sea
      * una activity o un fragment.
      * */
-    fun openAccessibilityServicesActivity(activityNewTask: Boolean = false) {
+    fun openAccessibilityServicesActivity() {
 
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-
-        if (activityNewTask)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         context.startActivity(intent)
     }
@@ -129,7 +108,11 @@ class USSDHelper @Inject constructor(
                     request: String?,
                     response: CharSequence?
                 ) {
-                    callback?.onSuccess(response.toString())
+                    if (response != null) {
+                        callback?.onSuccess(arrayOf(response))
+                    } else {
+                        callback?.onSuccess(arrayOf())
+                    }
                 }
 
                 override fun onReceiveUssdResponseFailed(
@@ -154,183 +137,75 @@ class USSDHelper @Inject constructor(
         }
     }
 
-    /*@RequiresApi(Build.VERSION_CODES.O)
-    private fun sendUSSDRequestOreo(ussd: String) {
-        ContextCompat.getSystemService(context, TelephonyManager::class.java)?.let {
-
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.CALL_PHONE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                val intent = Intent(ACTION_SEND_USSD_REQUEST)
-                    .putExtra(EXTRA_RESULT, false)
-                    .putExtra(EXTRA_ERROR_CODE, 0)
-
-                LocalBroadcastManager.getInstance(context)
-                    .sendBroadcast(intent)
-
-                return
-            }
-
-            it.sendUssdRequest(ussd, object : TelephonyManager.UssdResponseCallback() {
-
-                override fun onReceiveUssdResponse(
-                    telephonyManager: TelephonyManager?,
-                    request: String?,
-                    response: CharSequence?
-                ) {
-                    val intent = Intent(ACTION_SEND_USSD_REQUEST)
-                        .putExtra(EXTRA_RESULT, true)
-                        .putExtra(EXTRA_RESPONSE, response.toString())
-
-                    LocalBroadcastManager.getInstance(context)
-                        .sendBroadcast(intent)
-                }
-
-                override fun onReceiveUssdResponseFailed(
-                    telephonyManager: TelephonyManager?,
-                    request: String?,
-                    failureCode: Int
-                ) {
-
-                    val intent = Intent(ACTION_SEND_USSD_REQUEST)
-                        .putExtra(EXTRA_RESULT, false)
-
-                    when (failureCode) {
-                        TelephonyManager.USSD_RETURN_FAILURE -> {
-                            intent.putExtra(EXTRA_ERROR_CODE, 2)
-                        }
-                        TelephonyManager.USSD_ERROR_SERVICE_UNAVAIL -> {
-                            intent.putExtra(EXTRA_ERROR_CODE, 1)
-                        }
-                        else -> intent.putExtra(EXTRA_ERROR_CODE, 2)
-                    }
-
-                    LocalBroadcastManager.getInstance(context)
-                        .sendBroadcast(intent)
-                }
-           }, Handler(Looper.getMainLooper()))
-        }
-    }*/
-
-    private fun sendUSSDRequestLegacy(ussd: String, activityNewTask: Boolean, callback: Callback?) {
-        if (!accessibilityServiceEnabled()) {
-            callback?.onFail(3, errorMessages[3])
-            return
-        }
-
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
+    /**
+     * Ejecuta un código ussd y retorna un callback.
+     * */
+    fun sendUSSDRequestLegacy(ussd: String, callback: Callback? = null) {
+        if (ActivityCompat
+                .checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
             callback?.onFail(0, errorMessages[0])
             return
         }
 
-        var complete = false
+        callback?.let {
+            if (!accessibilityServiceEnabled()) {
+                it.onFail(3, errorMessages[3])
+                return
+            }
 
-        val intent = Intent(context, UIScannerService::class.java)
-            .setAction(UIScannerService.ACTION_WAIT_USSD_CODE)
+            var complete = false
 
-        context.startService(intent)
+            val intent = Intent(context, UIScannerService::class.java)
+                .setAction(UIScannerService.ACTION_WAIT_USSD_CODE)
 
-        val callIntent = Intent(Intent.ACTION_CALL)
-            .setData(Uri.parse("tel:" + Uri.encode(ussd)))
+            context.startService(intent)
 
-        if (activityNewTask)
-            callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val receiver = object : BroadcastReceiver() {
 
-        context.startActivity(callIntent)
+                override fun onReceive(context: Context, intent: Intent) {
+                    LocalBroadcastManager.getInstance(context)
+                        .unregisterReceiver(this)
+                    complete = true
 
-        val receiver = object : BroadcastReceiver() {
+                    val result = intent.getBooleanExtra(EXTRA_RESULT, false)
+                    val response = intent.getCharSequenceArrayExtra(EXTRA_RESPONSE)
 
-            override fun onReceive(context: Context, intent: Intent) {
-                LocalBroadcastManager.getInstance(context)
-                    .unregisterReceiver(this)
-                complete = true
-
-                val result = intent.getBooleanExtra(EXTRA_RESULT, false)
-                val response = intent.getStringExtra(EXTRA_RESPONSE)
-
-                if (result && response != null) {
-                    callback?.onSuccess(response)
-                } else {
-                    callback?.onFail(2, errorMessages[2])
+                    if (result && response != null) {
+                        it.onSuccess(response)
+                    } else {
+                        it.onFail(2, errorMessages[2])
+                    }
                 }
             }
-        }
 
-        val filter = IntentFilter(ACTION_SEND_USSD_REQUEST)
-
-        LocalBroadcastManager.getInstance(context)
-            .registerReceiver(receiver, filter)
-
-        val handler = Handler(Looper.getMainLooper())
-
-        handler.postDelayed({
-            if (!complete) {
-                val cancelIntent = Intent(context, UIScannerService::class.java)
-                    .setAction(UIScannerService.ACTION_CANCEL_WAIT_USSD_CODE)
-
-                context.startService(cancelIntent)
-
-                callback?.onFail(4, errorMessages[4])
-
-                LocalBroadcastManager.getInstance(context)
-                    .unregisterReceiver(receiver)
-            }
-        }, timeout)
-    }
-
-    /*private fun sendUSSDRequestLegacy(ussd: String, activityNewTask: Boolean) {
-        if (!accessibilityServiceEnabled()) {
-
-            val intent = Intent(ACTION_SEND_USSD_REQUEST)
-                .putExtra(EXTRA_RESULT, false)
-                .putExtra(EXTRA_ERROR_CODE, 3)
+            val filter = IntentFilter(ACTION_SEND_USSD_REQUEST)
 
             LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(intent)
-            return
+                .registerReceiver(receiver, filter)
+
+            val handler = Handler(Looper.getMainLooper())
+
+            handler.postDelayed({
+                if (!complete) {
+                    val cancelIntent = Intent(context, UIScannerService::class.java)
+                        .setAction(UIScannerService.ACTION_CANCEL_WAIT_USSD_CODE)
+
+                    context.startService(cancelIntent)
+
+                    it.onFail(4, errorMessages[4])
+
+                    LocalBroadcastManager.getInstance(context)
+                        .unregisterReceiver(receiver)
+                }
+            }, timeout)
         }
-
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
-            val intent = Intent(ACTION_SEND_USSD_REQUEST)
-                .putExtra(EXTRA_RESULT, false)
-                .putExtra(EXTRA_ERROR_CODE, 0)
-
-            LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(intent)
-            return
-        }
-
-        val intent = Intent(context, UIScannerService::class.java)
-            .setAction(UIScannerService.ACTION_WAIT_USSD_CODE)
-
-        context.startService(intent)
 
         val callIntent = Intent(Intent.ACTION_CALL)
             .setData(Uri.parse("tel:" + Uri.encode(ussd)))
-
-        if (activityNewTask)
-            callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         context.startActivity(callIntent)
-
-        val handler = Handler(Looper.getMainLooper())
-
-        handler.postDelayed({
-            val cancelIntent = Intent(context, UIScannerService::class.java)
-                .setAction(UIScannerService.ACTION_CANCEL_WAIT_USSD_CODE)
-
-            context.startService(cancelIntent)
-
-            val broadcastErrorIntent = Intent(ACTION_SEND_USSD_REQUEST)
-                .putExtra(EXTRA_RESULT, false)
-                .putExtra(EXTRA_ERROR_CODE, 4)
-
-            LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(broadcastErrorIntent)
-        }, timeout)
-    }*/
+    }
 
     private fun accessibilityServiceEnabled(): Boolean {
         val pref = Settings.Secure
@@ -367,14 +242,20 @@ class USSDHelper @Inject constructor(
 
         /**
          * Cuerpo de la respuesta en caso de tener éxito.
-         * Este es un extra de tipo String.
+         * Este es un extra de tipo Array<CharSequence>.
          * */
         const val EXTRA_RESPONSE = "com.smartsolutions.paquetes.extra.RESPONSE"
+
+        const val MISSING_CALL_PERMISSION = 0
+        const val TELEPHONY_SERVICE_UNAVAILABLE = 1
+        const val USSD_CODE_FAILED = 2
+        const val ACCESSIBILITY_SERVICE_UNAVAILABLE = 3
+        const val CONNECTION_TIMEOUT = 4
     }
 
     interface Callback {
 
-        fun onSuccess(response: String)
+        fun onSuccess(response: Array<CharSequence>)
 
         fun onFail(errorCode: Int, message: String)
     }

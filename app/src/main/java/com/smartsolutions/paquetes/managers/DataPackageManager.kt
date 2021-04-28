@@ -13,6 +13,8 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.micubacel.models.Product
+import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -32,13 +34,22 @@ class DataPackageManager @Inject constructor(
     private val context: Context,
     private val dataPackageRepository: IDataPackageRepository,
     private val purchasedPackageRepository: IPurchasedPackageRepository,
-    private val ussdHelper: USSDHelper
+    private val ussdHelper: USSDHelper,
+    private val miCubacelClientManager: MiCubacelClientManager
 ): IDataPackageManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    private lateinit var buyMode: IDataPackageManager.BuyMode
+    override var buyMode: IDataPackageManager.BuyMode = IDataPackageManager.BuyMode.USSD
+        set(value) {
+            launch {
+                context.dataStore.edit {
+                    it[PreferencesKeys.BUY_MODE] = value.name
+                }
+            }
+            field = value
+        }
 
     init {
 
@@ -48,6 +59,18 @@ class DataPackageManager @Inject constructor(
                     .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.BuyMode.USSD.name)
             }
         }
+    }
+
+    override fun configureDataPackages() {
+        ussdHelper.sendUSSDRequestLegacy("*133*1#", object : USSDHelper.Callback {
+            override fun onSuccess(response: Array<CharSequence>) {
+
+            }
+
+            override fun onFail(errorCode: Int, message: String) {
+
+            }
+        })
     }
 
     override fun getPackages(): Flow<List<DataPackage>> {
@@ -69,13 +92,13 @@ class DataPackageManager @Inject constructor(
 
     }
 
-    override fun setBuyMode(mode: IDataPackageManager.BuyMode) {
+    /*fun setBuyMode(mode: IDataPackageManager.BuyMode) {
         launch {
             context.dataStore.edit {
                 it[PreferencesKeys.BUY_MODE] = mode.name
             }
         }
-    }
+    }*/
 
     override fun getHistory(): Flow<List<PurchasedPackage>> =
         purchasedPackageRepository.getAll()
@@ -125,9 +148,25 @@ class DataPackageManager @Inject constructor(
     }
 
     private fun buyDataPackageForUSSD(id: String) {
+        launch {
+            dataPackageRepository.get(id)?.let {
+                ussdHelper.sendUSSDRequestLegacy(it.ussd)
+            }
+        }
     }
 
     private fun buyDataPackageForMiCubacel(id: String) {
-        TODO("Not yet implemented")
+        launch {
+            miCubacelClientManager.getProducts(object : MiCubacelClientManager.Callback<List<ProductGroup>> {
+                override fun onSuccess(response: List<ProductGroup>) {
+
+                }
+
+                override fun onFail(throwable: Throwable) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+        }
     }
 }

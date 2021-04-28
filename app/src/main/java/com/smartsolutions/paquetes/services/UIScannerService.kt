@@ -2,6 +2,8 @@
 package com.smartsolutions.paquetes.services
 
 import android.accessibilityservice.AccessibilityService
+import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -30,7 +32,7 @@ class UIScannerService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
 
-        val response = event.text.toString()
+        val response = event.text.toTypedArray()
 
         /*
         * Si se está esperando el resultado de un código ussd y
@@ -57,19 +59,18 @@ class UIScannerService : AccessibilityService() {
     /**
      * Indica si es o no el resultado esperado.
      * */
-    private fun isExpectedUSSDCode(response: String): Boolean {
-        /**
-         * Cuando se ejecuta un código ussd, los servicios telefónicos
-         * ejecutan un ProgressDialog para mostrar que se está esperando respuesta.
-         * Este dialog es detectado por el servicio pero no tiene ningún contenido.
-         * Solo muestra el applicationLabel de los servicios telefónicos. La idea es
-         * simplemente obtener dicho label y verificar si el contenido del evento
-         * contiene este texto.
-         * */
+    private fun isExpectedUSSDCode(textList: Array<CharSequence>): Boolean {
         val phoneServiceName = packageManager
             .getApplicationLabel(packageManager.getApplicationInfo("com.android.phone", 0))
 
-        return response != "[$phoneServiceName]"
+        var string = ""
+
+        textList.forEach {
+            string += it.toString()
+        }
+
+        return !string.contains(phoneServiceName, true) &&
+                !string.contains("ussd", true)
     }
 
     override fun onInterrupt() {
