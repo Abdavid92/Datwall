@@ -24,9 +24,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.suspendCoroutine
 
 
 class DataPackageManager @Inject constructor(
@@ -41,43 +43,48 @@ class DataPackageManager @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    override var buyMode: IDataPackageManager.BuyMode = IDataPackageManager.BuyMode.USSD
+    private var _buyMode: IDataPackageManager.BuyMode = IDataPackageManager.BuyMode.USSD
+    override var buyMode: IDataPackageManager.BuyMode
+        get() = _buyMode
         set(value) {
             launch {
                 context.dataStore.edit {
                     it[PreferencesKeys.BUY_MODE] = value.name
                 }
             }
-            field = value
+            _buyMode = value
         }
 
     init {
-
         launch {
             context.dataStore.data.collect {
-                buyMode = IDataPackageManager.BuyMode
+                _buyMode = IDataPackageManager.BuyMode
                     .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.BuyMode.USSD.name)
             }
         }
     }
 
     override fun configureDataPackages() {
-        ussdHelper.sendUSSDRequestLegacy("*133*1#", object : USSDHelper.Callback {
-            override fun onSuccess(response: Array<CharSequence>) {
+        launch {
+            ussdHelper.sendUSSDRequestLegacy("*133*1#")?.let { response ->
+                if (response.size > 1) {
+                    val text = response[0].split("\n")
 
+                    if (text.size == 4) {
+                        print(text)
+                    } else if (text.size == 5) {
+                        print(text)
+                    }
+                }
             }
-
-            override fun onFail(errorCode: Int, message: String) {
-
-            }
-        })
+        }
     }
 
     override fun getPackages(): Flow<List<DataPackage>> {
         return dataPackageRepository.getAll()
     }
 
-    override fun buyDataPackage(id: String) {
+    override suspend fun buyDataPackage(id: String) {
         when (buyMode) {
             IDataPackageManager.BuyMode.USSD -> {
                 buyDataPackageForUSSD(id)
@@ -91,14 +98,6 @@ class DataPackageManager @Inject constructor(
     override fun registerDataPackage(smsBody: String) {
 
     }
-
-    /*fun setBuyMode(mode: IDataPackageManager.BuyMode) {
-        launch {
-            context.dataStore.edit {
-                it[PreferencesKeys.BUY_MODE] = mode.name
-            }
-        }
-    }*/
 
     override fun getHistory(): Flow<List<PurchasedPackage>> =
         purchasedPackageRepository.getAll()
@@ -147,26 +146,26 @@ class DataPackageManager @Inject constructor(
         return -1
     }
 
-    private fun buyDataPackageForUSSD(id: String) {
-        launch {
-            dataPackageRepository.get(id)?.let {
-                ussdHelper.sendUSSDRequestLegacy(it.ussd)
-            }
+    private suspend fun buyDataPackageForUSSD(id: String) {
+        dataPackageRepository.get(id)?.let {
+
+            if (it.ussd.isEmpty())
+                throw IllegalStateException("Packages not configured")
+
+            ussdHelper.sendUSSDRequestLegacy(it.ussd)
         }
     }
 
-    private fun buyDataPackageForMiCubacel(id: String) {
-        launch {
-            miCubacelClientManager.getProducts(object : MiCubacelClientManager.Callback<List<ProductGroup>> {
-                override fun onSuccess(response: List<ProductGroup>) {
+    private suspend fun buyDataPackageForMiCubacel(id: String) {
+        val productGroups = miCubacelClientManager.getProducts()
 
-                }
+        for (group in productGroups) {
+            val product = group.firstOrNull { it.id == id }
 
-                override fun onFail(throwable: Throwable) {
-                    TODO("Not yet implemented")
-                }
-
-            })
+            if (product != null) {
+                miCubacelClientManager.buyProduct(product.urlBuy)
+                break
+            }
         }
     }
 }

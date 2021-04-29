@@ -12,7 +12,12 @@ import com.smartsolutions.paquetes.ui.ApplicationFragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.helpers.string
+import com.smartsolutions.paquetes.managers.IDataPackageManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -22,6 +27,9 @@ class DashboardFragment : ApplicationFragment() {
 
     @Inject
     lateinit var ussdHelper: USSDHelper
+
+    @Inject
+    lateinit var dataPackageManager: IDataPackageManager
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -48,15 +56,6 @@ class DashboardFragment : ApplicationFragment() {
     
     private fun deleteOne(view: View) {
         //dashboardViewModel.deleteOne()
-        ussdHelper.sendUSSDRequestLegacy("*133#", object : USSDHelper.Callback {
-            override fun onSuccess(response: Array<CharSequence>) {
-                Toast.makeText(context, response.string(), Toast.LENGTH_LONG).show()
-            }
-
-            override fun onFail(errorCode: Int, message: String) {
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-            }
-
-        })
+        dataPackageManager.configureDataPackages()
     }
 }

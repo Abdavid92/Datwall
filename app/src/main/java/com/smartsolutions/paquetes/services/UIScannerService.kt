@@ -2,12 +2,12 @@
 package com.smartsolutions.paquetes.services
 
 import android.accessibilityservice.AccessibilityService
-import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import java.util.*
 
 /**
  * Servicio de accesibilidad encargado de obtener el resultado de los
@@ -51,6 +51,24 @@ class UIScannerService : AccessibilityService() {
             LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(intent)
 
+            tryCloseDialog(event)
+        }
+    }
+
+    private fun tryCloseDialog(event: AccessibilityEvent) {
+        var nodes = event.source
+            .findAccessibilityNodeInfosByText(getString(android.R.string.cancel)
+                .toUpperCase(Locale.ROOT))
+
+        if (nodes.isEmpty())
+            nodes = event.source
+                .findAccessibilityNodeInfosByText(getString(android.R.string.cancel))
+
+        if (nodes.isNotEmpty()) {
+            nodes.forEach {
+                it.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            }
+        } else {
             //Presiono el botón atras para cerrar el diálogo.
             performGlobalAction(GLOBAL_ACTION_BACK)
         }

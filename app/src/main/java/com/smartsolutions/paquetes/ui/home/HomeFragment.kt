@@ -55,10 +55,6 @@ class HomeFragment : ApplicationFragment() {
         val edit = view.findViewById<EditText>(R.id.editTextNumberSigned)
 
         val button = view.findViewById<Button>(R.id.button)
-
-        button.setOnClickListener {
-            (activity as MainActivity).verifyCode(edit.text.toString())
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 
 import org.junit.Assert.*

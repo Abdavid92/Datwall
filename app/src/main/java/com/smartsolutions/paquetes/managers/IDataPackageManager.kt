@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.managers
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.flow.Flow
+import kotlin.jvm.Throws
 
 /**
  * Administrador de paquetes de datos.
@@ -33,7 +34,7 @@ interface IDataPackageManager {
     /**
      * Compra un paquete de datos.
      * */
-    fun buyDataPackage(id: String)
+    suspend fun buyDataPackage(id: String)
 
     /**
      * Registra un paquete comprado y actualiza los corresppondientes

@@ -1,14 +1,14 @@
 package com.smartsolutions.paquetes.managers
 
-import android.util.Log
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.micubacel.MCubacelClient
-import com.smartsolutions.paquetes.micubacel.models.DataType
-import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import kotlinx.coroutines.*
-import org.jsoup.nodes.Document
+import javax.inject.Inject
 import kotlin.Exception
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.jvm.Throws
 
 /**
  * Administrador del cliente mi.cubacel.net.
@@ -16,54 +16,41 @@ import kotlin.coroutines.CoroutineContext
  * asíncrona y retornan el resultado de la ejecución
  * a traves de un Callback.
  * */
-class MiCubacelClientManager : CoroutineScope {
+class MiCubacelClientManager @Inject constructor(
+
+): CoroutineScope {
 
     /**
      * Instancia del cliente mi.cubacel.net
      * */
     private val client = MCubacelClient()
 
-    private val TAG = "MiCubacelClientManager"
-
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
+    /**
+     * Carga la página principal.
+     * */
+    @Throws(UnprocessableRequestException::class)
+    suspend fun loadHomePage(): Map<String, String> {
+        val url = sendRequests(9) { client.resolveHomeUrl() }
 
-    fun loadHomePage(callback: Callback<Map<String, String>>) {
-        sendRequests(9, { client.resolveHomeUrl() }, object : Callback<String> {
-            override fun onSuccess(response: String) {
-                loadHomePage(response, callback)
-            }
+        val page = sendRequests(9) { client.loadPage(url) }
 
-            override fun onFail(throwable: Throwable) {
-                callback.onFail(throwable)
-            }
+        val result = client.readHomePage(page)
 
-        })
-    }
+        if (result.isEmpty())
+            throw UnprocessableRequestException(UnprocessableRequestException.Reason.NO_LOGIN)
 
-    private fun loadHomePage(url: String, callback: Callback<Map<String, String>>) {
-        sendRequests(9, { client.loadPage(url) }, object : Callback<Document> {
-            override fun onSuccess(response: Document) {
-                val result = client.readHomePage(response)
-                if (result.isEmpty()){
-                    callback.onFail(UnprocessableRequestException())
-                }else {
-                    callback.onSuccess(result)
-                }
-            }
-
-            override fun onFail(throwable: Throwable) {
-                callback.onFail(throwable)
-            }
-        })
+        return result
     }
 
     /**
      * Inicia sesión.
      * */
-    fun signIn(phone: String, password: String, callback : Callback<Any>) {
-        sendRequests(9, { client.signIn(phone, password) }, callback)
+    @Throws(UnprocessableRequestException::class)
+    suspend fun signIn(phone: String, password: String) {
+        sendRequests(9) { client.signIn(phone, password) }
     }
 
     /**
@@ -73,8 +60,8 @@ class MiCubacelClientManager : CoroutineScope {
      * @param lastName - Apellidos.
      * @param phone - Teléfono.
      * */
-    fun signUp(firstName : String, lastName : String, phone: String, callback: Callback<Any>) {
-        sendQueueRequests(9, {client.signUp(firstName, lastName, phone)}, callback)
+    suspend fun signUp(firstName : String, lastName : String, phone: String) {
+        sendQueueRequests(9) { client.signUp(firstName, lastName, phone) }
     }
 
     /**
@@ -82,8 +69,9 @@ class MiCubacelClientManager : CoroutineScope {
      *
      * @param code - Codigo recibido
      * */
-    fun verifyCode(code: String, callback: Callback<Any>) {
-        sendRequests(9, {client.verifyCode(code)}, callback)
+    @Throws(UnprocessableRequestException::class)
+    suspend fun verifyCode(code: String) {
+        sendQueueRequests(9) { client.verifyCode(code) }
     }
 
     /**
@@ -91,57 +79,30 @@ class MiCubacelClientManager : CoroutineScope {
      *
      * @param password - Contraseña.
      * */
-    fun createPassword(password: String, callback: Callback<Any>) {
-        sendRequests(9, {client.createPassword(password)}, callback)
+    suspend fun createPassword(password: String) {
+        sendQueueRequests(9) { client.createPassword(password) }
     }
 
     /**
      * Obtiene los datos del usuario.
      * */
-    fun getUserDataPackagesInfo(callback: Callback<Any>) {
-        Log.i(TAG, "Enviando peticion de paquetes")
-        sendRequests(9, { client.obtainPackagesInfo() }, object : Callback<List<DataType>> {
-            override fun onSuccess(response: List<DataType>) {
-                Log.i(TAG, "onSuccess: éxito")
+    suspend fun getUserDataPackagesInfo() {
 
-
-            }
-
-            override fun onFail(throwable: Throwable) {
-                if (throwable is UnprocessableRequestException) {
-                    Log.i(TAG, "No se ha iniciado sesion")
-                } else {
-                    Log.i(TAG, "Fallido")
-                }
-
-                callback.onFail(throwable)
-            }
-        })
     }
 
     /**
      * Obtiene una lista de productos a la venta.
      * */
-    fun getProducts(callback: Callback<List<ProductGroup>>) {
-        sendRequests(9, { client.getProducts() }, callback)
-    }
+    suspend fun getProducts() = sendRequests(9) { client.getProducts() }
 
     /**
      * Compra un producto.
      *
      * @param url - Url del producto a comprar.
      * */
-    fun buyProduct(url: String, callback: Callback<Any>) {
-        sendQueueRequests(9, {client.resolveUrlBuyProductConfirmation(url)}, object : Callback<String>{
-            override fun onSuccess(response: String) {
-                Log.i(TAG, "Se obtuvo URL")
-                sendQueueRequests(9, { client.buyProduct(response) }, callback)
-            }
-
-            override fun onFail(throwable: Throwable) {
-                Log.i(TAG, "Falló obtención de url")
-            }
-        })
+    suspend fun buyProduct(url: String) {
+        val urlConfirmation = sendQueueRequests(9) { client.resolveUrlBuyProductConfirmation(url) }
+        sendQueueRequests(9) { client.buyProduct(urlConfirmation) }
     }
 
     /**
@@ -156,47 +117,42 @@ class MiCubacelClientManager : CoroutineScope {
      * @param callback - Callback que recibirá la respuesta o el error.
      * @param T - Tipo de respuesta que retorna la petición.
      * */
-    private inline fun <T> sendRequests(attempt: Int, crossinline request: () -> T?, callback: Callback<T>) {
-        launch {
+    private suspend inline fun <T> sendRequests(attempt: Int, crossinline request: () -> T?): T {
+        return suspendCancellableCoroutine {
             var fails = 1
-            var completed = false
 
-            for (i in 1..attempt) {
-                launch {
-                    if (this.isActive) {
+            GlobalScope.launch(coroutineContext) {
+                for (i in 1..attempt) {
+                    if (it.isCompleted || it.isCancelled)
+                        break
+
+                    launch {
                         try {
-                            if (!completed) {
-                                val response = request() ?: throw NullPointerException()
-                                if (!completed) {
-                                    completed = true
-                                    Log.i(TAG, "success $i ")
-                                    withContext(Dispatchers.Main){
-                                        callback.onSuccess(response)
-                                    }
-                                }
+                            if (!it.isCompleted && !it.isCancelled) {
+                                it.resume(request() ?: throw NullPointerException())
+                                it.cancel()
                             }
-                        } catch (e: UnprocessableRequestException){
-                            if (!completed) {
-                                completed = true
-                                withContext(Dispatchers.Main){
-                                    callback.onFail(e)
-                                }
+
+                        } catch (e: UnprocessableRequestException) {
+
+                            if (!it.isCompleted && !it.isCancelled) {
+                                it.resumeWithException(e)
+                                it.cancel()
                             }
-                        }catch (e: Exception) {
-                            if (fails + 1 == attempt && !completed) {
-                                completed = true
-                                Log.i(TAG, "fail $fails error: ${e.message} ")
-                                withContext(Dispatchers.Main){
-                                    callback.onFail(e)
+
+                        } catch (e: Exception) {
+                            if (fails + 1 == attempt) {
+
+                                if (!it.isCompleted && !it.isCancelled) {
+                                    it.resumeWithException(e)
+                                    it.cancel()
                                 }
                             } else
                                 fails++
                         }
                     }
+                    delay(500L)
                 }
-                if (completed)
-                    break
-                delay(1000L)
             }
         }
     }
@@ -210,39 +166,23 @@ class MiCubacelClientManager : CoroutineScope {
      * @param request - Petición http.
      * @param callback - Callback que recibirá la respuesta o el error.
      * */
-    private inline fun <T> sendQueueRequests(attempt: Int, crossinline request: () -> T?, callback: Callback<T>) {
-        launch {
-
+    private suspend inline fun <T> sendQueueRequests(attempt: Int, crossinline request: () -> T?): T {
+        return suspendCancellableCoroutine {
             for (i in 1..attempt) {
-
                 try {
 
-                    val response = request() ?: throw NullPointerException()
+                    it.resume(request() ?: throw NullPointerException())
 
-                    withContext(Dispatchers.Main) {
-                        callback.onSuccess(response)
-                    }
                     break
                 } catch (e: UnprocessableRequestException) {
-                    withContext(Dispatchers.Main) {
-                        callback.onFail(e)
-                    }
+                    it.resumeWithException(e)
                     break
                 } catch (e: Exception) {
                     if (i == attempt) {
-                        withContext(Dispatchers.Main) {
-                            callback.onFail(e)
-                        }
+                        it.resumeWithException(e)
                     }
                 }
-
-                delay(1000)
             }
         }
-    }
-
-    interface Callback<T> {
-        fun onSuccess(response: T)
-        fun onFail(throwable: Throwable)
     }
 }

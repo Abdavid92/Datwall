@@ -57,7 +57,7 @@ class MCubacelClient {
      * */
     fun resolveHomeUrl() : String? {
         val url = urls["home"]
-        if (url != null && url.isNotEmpty()){
+        if (url != null && url.isNotEmpty()) {
             return url
         }
 
@@ -175,7 +175,7 @@ class MCubacelClient {
         val page = response.parse()
 
         if (isErrorPage(page)){
-            throw UnprocessableRequestException(errorMessage(page))
+            throw UnprocessableRequestException(UnprocessableRequestException.Reason.BAG_CREDENTIALS, errorMessage(page))
         }
 
         updateCookies(response.cookies())
@@ -225,7 +225,7 @@ class MCubacelClient {
         val page = response.parse()
 
         if (isErrorPage(page) || page.select("form[action=\"/login/recovery/RegisterPasswordCreation\"]").first() == null){
-            throw UnprocessableRequestException(errorMessage(page))
+            throw UnprocessableRequestException(UnprocessableRequestException.Reason.WRONG_CODE, errorMessage(page))
         }
 
         updateCookies(response.cookies())
@@ -350,7 +350,7 @@ class MCubacelClient {
             .select("p")
             .forEach { p ->
                 if (p.text().contains("error", true)) {
-                    throw UnprocessableRequestException("No se pudo comprar")
+                    throw UnprocessableRequestException("No se pudo comprar el producto.")
                 }
             }
     }
@@ -372,7 +372,7 @@ class MCubacelClient {
         val page = response.parse()
 
         if (!isLogged(page)) {
-            throw UnprocessableRequestException("Login Fail")
+            throw UnprocessableRequestException(UnprocessableRequestException.Reason.NO_LOGIN, "Debe inciar sesión.")
         }
 
         val data = mutableListOf<DataType>()
