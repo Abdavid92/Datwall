@@ -16,9 +16,7 @@ import kotlin.jvm.Throws
  * asíncrona y retornan el resultado de la ejecución
  * a traves de un Callback.
  * */
-class MiCubacelClientManager @Inject constructor(
-
-): CoroutineScope {
+class MiCubacelClientManager @Inject constructor(): CoroutineScope {
 
     /**
      * Instancia del cliente mi.cubacel.net

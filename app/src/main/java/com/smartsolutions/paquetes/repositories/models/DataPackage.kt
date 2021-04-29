@@ -34,7 +34,8 @@ data class DataPackage(
     @Networks
     val network: String,
     var ussd: String,
-    var active: Boolean = true
+    val index: Int,
+    var active: Boolean = false
 ) {
 
     @Ignore

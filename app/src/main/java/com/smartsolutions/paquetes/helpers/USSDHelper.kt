@@ -59,26 +59,6 @@ class USSDHelper @Inject constructor(
     )
 
     /**
-     * Ejecuta un código ussd y retorna un callback con el resultado
-     * de la ejecución.
-     *
-     * @param ussd - Código ussd.
-     * @param callback - Callback con el resultado.
-     * @param activityNewTask - Este parámetro se usa en api 24 para abajo.
-     * Indica si se debe poner Intent.FLAG_ACTIVITY_NEW_TASK en el intent
-     * que se usa para ejecutar el código ussd. Esto debe ser usado cuando
-     * se intenta usar este método en un contexto que no sea una activity o un
-     * fragment.
-     * */
-    fun sendUSSDRequest(ussd: String, callback: Callback?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            sendUSSDRequestOreo(ussd, callback)
-        } else {
-            sendUSSDRequestLegacy(ussd, callback)
-        }
-    }
-
-    /**
      * Ejecuta un código ussd
      *
      * @param ussd - Código ussd.
@@ -104,52 +84,6 @@ class USSDHelper @Inject constructor(
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         context.startActivity(intent)
-    }
-
-    @SuppressLint("MissingPermission")
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun sendUSSDRequestOreo(ussd: String, callback: Callback?) {
-        ContextCompat.getSystemService(context, TelephonyManager::class.java)?.let {
-
-            if (!callPermissionGranted()) {
-                callback?.onFail(0, errorMessages[0])
-                return
-            }
-
-            it.sendUssdRequest(ussd, object : TelephonyManager.UssdResponseCallback() {
-
-                override fun onReceiveUssdResponse(
-                    telephonyManager: TelephonyManager?,
-                    request: String?,
-                    response: CharSequence?
-                ) {
-                    if (response != null) {
-                        callback?.onSuccess(arrayOf(response))
-                    } else {
-                        callback?.onSuccess(arrayOf())
-                    }
-                }
-
-                override fun onReceiveUssdResponseFailed(
-                    telephonyManager: TelephonyManager?,
-                    request: String?,
-                    failureCode: Int
-                ) {
-                    var code = 2
-
-                    when (failureCode) {
-                        TelephonyManager.USSD_RETURN_FAILURE -> {
-                            code = 2
-                        }
-                        TelephonyManager.USSD_ERROR_SERVICE_UNAVAIL -> {
-                            code = 1
-                        }
-                    }
-
-                    callback?.onFail(code, errorMessages[code])
-                }
-            }, Handler(Looper.getMainLooper()))
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -205,75 +139,6 @@ class USSDHelper @Inject constructor(
     }
 
     /**
-     * Ejecuta un código ussd y retorna un callback.
-     * */
-    fun sendUSSDRequestLegacy(ussd: String, callback: Callback?) {
-        if (!callPermissionGranted()) {
-            callback?.onFail(0, errorMessages[0])
-            return
-        }
-
-        callback?.let {
-            if (!accessibilityServiceEnabled()) {
-                it.onFail(3, errorMessages[3])
-                return
-            }
-
-            var complete = false
-
-            val intent = Intent(context, UIScannerService::class.java)
-                .setAction(UIScannerService.ACTION_WAIT_USSD_CODE)
-
-            context.startService(intent)
-
-            val receiver = object : BroadcastReceiver() {
-
-                override fun onReceive(context: Context, intent: Intent) {
-                    LocalBroadcastManager.getInstance(context)
-                        .unregisterReceiver(this)
-                    complete = true
-
-                    val result = intent.getBooleanExtra(EXTRA_RESULT, false)
-                    val response = intent.getCharSequenceArrayExtra(EXTRA_RESPONSE)
-
-                    if (result && response != null) {
-                        it.onSuccess(response)
-                    } else {
-                        it.onFail(2, errorMessages[2])
-                    }
-                }
-            }
-
-            val filter = IntentFilter(ACTION_SEND_USSD_REQUEST)
-
-            LocalBroadcastManager.getInstance(context)
-                .registerReceiver(receiver, filter)
-
-            val handler = Handler(Looper.getMainLooper())
-
-            handler.postDelayed({
-                if (!complete) {
-                    val cancelIntent = Intent(context, UIScannerService::class.java)
-                        .setAction(UIScannerService.ACTION_CANCEL_WAIT_USSD_CODE)
-
-                    context.startService(cancelIntent)
-
-                    it.onFail(4, errorMessages[4])
-
-                    LocalBroadcastManager.getInstance(context)
-                        .unregisterReceiver(receiver)
-                }
-            }, timeout)
-        }
-
-        val callIntent = Intent(Intent.ACTION_CALL)
-            .setData(Uri.parse("tel:" + Uri.encode(ussd)))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        context.startActivity(callIntent)
-    }
-
-    /**
      * Ejecuta un código ussd. Este método usa un servicio de accesibilidad para
      * leer el cuerpo de la respuesta en caso de que se pida.
      *
@@ -288,7 +153,7 @@ class USSDHelper @Inject constructor(
      *
      * @throws USSDRequestException Si se va a leer el cuerpo de la respuesta, el servicio de
      * accesibilidad debe estar encendido o se lanzará una excepción.
-     * El permiso de realizar llamadas debe estar condedido para que no se lanze un excepción.
+     * El permiso de realizar llamadas debe estar concedido para que no se lanze un excepción.
      * Si la respuesta se demora más del tiempo dado en la propiedad timeout se lanza una excepción.
      * */
     @Throws(USSDRequestException::class)
@@ -306,18 +171,12 @@ class USSDHelper @Inject constructor(
         if (readResponse) {
             return suspendCancellableCoroutine {
 
-                var isCancelled = false
-
                 //Si el servicio de accesibilidad está apagado lanzo un error.
                 if (!accessibilityServiceEnabled()) {
                     it.resumeWithException(USSDRequestException(
                         ACCESSIBILITY_SERVICE_UNAVAILABLE,
                     errorMessages[ACCESSIBILITY_SERVICE_UNAVAILABLE]))
-                    isCancelled = true
-                }
-
-                if (!isCancelled) {
-
+                } else {
                     val intent = Intent(context, UIScannerService::class.java)
                         .setAction(UIScannerService.ACTION_WAIT_USSD_CODE)
 
@@ -380,7 +239,7 @@ class USSDHelper @Inject constructor(
         }
     }
 
-    fun callPermissionGranted(): Boolean =
+    private fun callPermissionGranted(): Boolean =
         ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
 
     private fun accessibilityServiceEnabled(): Boolean {
@@ -442,12 +301,5 @@ class USSDHelper @Inject constructor(
          * Se ha agotado el tiempo de espera.
          * */
         const val CONNECTION_TIMEOUT = 4
-    }
-
-    interface Callback {
-
-        fun onSuccess(response: Array<CharSequence>)
-
-        fun onFail(errorCode: Int, message: String)
     }
 }

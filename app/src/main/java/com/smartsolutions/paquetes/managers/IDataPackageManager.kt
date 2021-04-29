@@ -34,7 +34,7 @@ interface IDataPackageManager {
     /**
      * Compra un paquete de datos.
      * */
-    suspend fun buyDataPackage(id: String)
+    suspend fun buyDataPackage(dataPackage: DataPackage)
 
     /**
      * Registra un paquete comprado y actualiza los corresppondientes

@@ -5,18 +5,23 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.smartsolutions.paquetes.helpers.DataUnit.*
-import com.smartsolutions.paquetes.helpers.DataValue
 import com.smartsolutions.paquetes.helpers.convertToBytes
 import com.smartsolutions.paquetes.helpers.createDataPackageId
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.DataPackage
-import com.smartsolutions.paquetes.repositories.models.DataPackage.Companion.NETWORK_3G_4G
-import com.smartsolutions.paquetes.repositories.models.DataPackage.Companion.NETWORK_4G
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import com.smartsolutions.paquetes.data.DataPackagesContract.DailyBag
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_1GbLte
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_2_5GbLte
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_14GbLte
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_400Mb
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_600Mb
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_1Gb
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_2_5Gb
+import com.smartsolutions.paquetes.data.DataPackagesContract.P_4Gb
 
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
@@ -56,120 +61,123 @@ abstract class DbContext: RoomDatabase() {
                 val dataPackages = listOf(
                     //Bolsas
                     DataPackage(
-                        createDataPackageId("Bolsa Diaria LTE", 25f),
-                        "Bolsa Diaria LTE",
-                        "Navega en la red LTE por 24 horas.",
-                        25f,
-                        0,
-                        convertToBytes(DataValue(200.0, MB)),
-                        0,
-                        0,
-                        NETWORK_4G,
-                        ""
+                        createDataPackageId(DailyBag.name, DailyBag.price),
+                        DailyBag.name,
+                        DailyBag.description,
+                        DailyBag.price,
+                        DailyBag.bytes,
+                        convertToBytes(DailyBag.bytesLte),
+                        DailyBag.bonusBytes,
+                        DailyBag.bonusCuBytes,
+                        DailyBag.network,
+                        "",
+                        DailyBag.index
                     ),
                     //Paquetes LTE
                     DataPackage(
-                        createDataPackageId("Paquete 1 GB LTE", 100f),
-                        "Paquete 1 GB LTE",
-                        "Este paquete consta de 1 GB que solo podrá utilizar bajo la red 4G(LTE). Tiene un vigencia de 30 dias.",
-                        100f,
-                        0,
-                        convertToBytes(DataValue(1.0, GB)),
-                        0,
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_4G,
-                        ""
+                        createDataPackageId(P_1GbLte.name, P_1GbLte.price),
+                        P_1GbLte.name,
+                        P_1GbLte.description,
+                        P_1GbLte.price,
+                        P_1GbLte.bytes,
+                        convertToBytes(P_1GbLte.bytesLte),
+                        P_1GbLte.bonusBytes,
+                        convertToBytes(P_1GbLte.bonusCuBytes),
+                        P_1GbLte.network,
+                        "",
+                        P_1GbLte.index
                     ),
                     DataPackage(
-                        createDataPackageId("Paquete 2.5 GB LTE", 200f),
-                        "Paquete 2.5 GB LTE",
-                        "Este paquete consta de 2.5 GB que solo podrá utilizar bajo la red 4G(LTE). Tiene un vigencia de 30 dias.",
-                        200f,
+                        createDataPackageId(P_2_5GbLte.name, P_2_5GbLte.price),
+                        P_2_5GbLte.name,
+                        P_2_5GbLte.description,
+                        P_2_5GbLte.price,
                         0,
-                        convertToBytes(DataValue(2.5, GB)),
-                        0,
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_4G,
-                        ""
+                        convertToBytes(P_2_5GbLte.bytesLte),
+                        P_2_5GbLte.bonusBytes,
+                        convertToBytes(P_2_5GbLte.bonusCuBytes),
+                        P_2_5GbLte.network,
+                        "",
+                        P_2_5GbLte.index
                     ),
                     DataPackage(
-                        createDataPackageId("Paquete 14 GB", 1125f),
-                        "Paquete 14 GB",
-                        "Este paquete consta de 10 GB que solo podrá utilizar bajo la red 4G(LTE) y " +
-                                "4 GB que podrá usar en todas las redes. Tiene un vigencia de 30 dias.",
-                        1125f,
-                        convertToBytes(DataValue(4.0, GB)),
-                        convertToBytes(DataValue(10.0, GB)),
-                        0,
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_4G,
-                        ""
+                        createDataPackageId(P_14GbLte.name, P_14GbLte.price),
+                        P_14GbLte.name,
+                        P_14GbLte.description,
+                        P_14GbLte.price,
+                        convertToBytes(P_14GbLte.bytes),
+                        convertToBytes(P_14GbLte.bytesLte),
+                        P_14GbLte.bonusBytes,
+                        convertToBytes(P_14GbLte.bonusCuBytes),
+                        P_14GbLte.network,
+                        "",
+                        P_14GbLte.index
                     ),
                     //Paquetes
                     DataPackage(
-                        createDataPackageId("Paquete 400 MB", 125f),
-                        "Paquete 400 MB",
-                        "Este paquete consta de 400 MB que podrá usar en todas las redes y" +
-                                " un bono de 500 MB que solo podrá utilizar en bajo la red 4G(LTE). Tiene una vigencia de 30 dias.",
-                        125f,
-                        convertToBytes(DataValue(400.0, MB)),
-                        0,
-                        convertToBytes(DataValue(500.0, MB)),
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_3G_4G,
-                        ""
+                        createDataPackageId(P_400Mb.name, P_400Mb.price),
+                        P_400Mb.name,
+                        P_400Mb.description,
+                        P_400Mb.price,
+                        convertToBytes(P_400Mb.bytes),
+                        P_400Mb.bytesLte,
+                        convertToBytes(P_400Mb.bonusBytes),
+                        convertToBytes(P_400Mb.bonusCuBytes),
+                        P_400Mb.network,
+                        "",
+                        P_400Mb.index
                     ),
                     DataPackage(
-                        createDataPackageId("Paquete 600 MB", 175f),
-                        "Paquete 600 MB",
-                        "Este paquete consta de 600 MB que podrá usar en todas las redes y" +
-                                " un bono de 800 MB que solo podrá utilizar en bajo la red 4G(LTE). Tiene una vigencia de 30 dias.",
-                        175f,
-                        convertToBytes(DataValue(600.0, MB)),
-                        0,
-                        convertToBytes(DataValue(800.0, MB)),
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_3G_4G,
-                        ""
+                        createDataPackageId(P_600Mb.name, P_600Mb.price),
+                        P_600Mb.name,
+                        P_600Mb.description,
+                        P_600Mb.price,
+                        convertToBytes(P_600Mb.bytes),
+                        P_600Mb.bytesLte,
+                        convertToBytes(P_600Mb.bonusBytes),
+                        convertToBytes(P_600Mb.bonusCuBytes),
+                        P_600Mb.network,
+                        "",
+                        P_600Mb.index
                     ),
                     DataPackage(
-                        createDataPackageId("Paquete 1 GB", 250f),
-                        "Paquete 1 GB",
-                        "Este paquete consta de 1 GB que podrá usar en todas las redes y" +
-                                " un bono de 1.5 GB que solo podrá utilizar en bajo la red 4G(LTE). Tiene una vigencia de 30 dias.",
-                        250f,
-                        convertToBytes(DataValue(1.0, GB)),
+                        createDataPackageId(P_1Gb.name, P_1Gb.price),
+                        P_1Gb.name,
+                        P_1Gb.description,
+                        P_1Gb.price,
+                        convertToBytes(P_1Gb.bytes),
                         0,
-                        convertToBytes(DataValue(1.5, GB)),
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_3G_4G,
-                        ""
+                        convertToBytes(P_1Gb.bonusBytes),
+                        convertToBytes(P_1Gb.bonusCuBytes),
+                        P_1Gb.network,
+                        "",
+                        P_1Gb.index
                     ),
                     DataPackage(
-                        createDataPackageId("Paquete 2.5 GB", 500f),
-                        "Paquete 2.5 GB",
-                        "Este paquete consta de 2.5 GB que podrá usar en todas las redes y" +
-                                " un bono de 3 GB que solo podrá utilizar en bajo la red 4G(LTE). Tiene una vigencia de 30 dias.",
-                        500f,
-                        convertToBytes(DataValue(2.5, GB)),
-                        0,
-                        convertToBytes(DataValue(3.0, GB)),
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_3G_4G,
-                        ""
+                        createDataPackageId(P_2_5Gb.name, P_2_5Gb.price),
+                        P_2_5Gb.name,
+                        P_2_5Gb.description,
+                        P_2_5Gb.price,
+                        convertToBytes(P_2_5Gb.bytes),
+                        P_2_5Gb.bytesLte,
+                        convertToBytes(P_2_5Gb.bonusBytes),
+                        convertToBytes(P_2_5Gb.bonusCuBytes),
+                        P_2_5Gb.network,
+                        "",
+                        P_2_5Gb.index
                     ),
                     DataPackage(
-                        createDataPackageId("Paquete 4 GB", 750f),
-                        "Paquete 4 GB",
-                        "Este paquete consta de 4 GB que podrá usar en todas las redes y" +
-                                " un bono de 5 GB que solo podrá utilizar en bajo la red 4G(LTE). Tiene una vigencia de 30 dias.",
-                        750f,
-                        convertToBytes(DataValue(4.0, GB)),
-                        0,
-                        convertToBytes(DataValue(5.0, GB)),
-                        convertToBytes(DataValue(300.0, MB)),
-                        NETWORK_3G_4G,
-                        ""
+                        createDataPackageId(P_4Gb.name, P_4Gb.price),
+                        P_4Gb.name,
+                        P_4Gb.description,
+                        P_4Gb.price,
+                        convertToBytes(P_4Gb.bytes),
+                        P_4Gb.bytesLte,
+                        convertToBytes(P_4Gb.bonusBytes),
+                        convertToBytes(P_4Gb.bonusCuBytes),
+                        P_4Gb.network,
+                        "",
+                        P_4Gb.index
                     ),
                 )
 

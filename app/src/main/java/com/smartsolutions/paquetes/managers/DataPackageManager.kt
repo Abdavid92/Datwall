@@ -13,6 +13,8 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.helpers.createDataPackageId
+import com.smartsolutions.paquetes.helpers.string
 import com.smartsolutions.paquetes.micubacel.models.Product
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
@@ -24,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -67,30 +70,52 @@ class DataPackageManager @Inject constructor(
     override fun configureDataPackages() {
         launch {
             ussdHelper.sendUSSDRequestLegacy("*133*1#")?.let { response ->
-                if (response.size > 1) {
-                    val text = response[0].split("\n")
+                val text = response.string().split("\n")
 
-                    if (text.size == 4) {
-                        print(text)
-                    } else if (text.size == 5) {
-                        print(text)
+                dataPackageRepository.getAll().firstOrNull()?.let { packages ->
+                    text.forEach { menu ->
+                        when {
+                            menu.contains("Bolsa Diaria", true) -> {
+                                packages.firstOrNull {
+                                    it.id == createDataPackageId("Bolsa Diaria LTE", 25f)
+                                }?.let { dataPackage ->
+
+                                }
+                            }
+                            menu.contains("Paquetes", true) && !menu.contains("Paquetes LTE", true) -> {
+
+                            }
+                            menu.contains("Paquetes LTE", true) -> {
+
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
+    private fun configureDataPackages(
+        index: Int,
+        @DataPackage.Networks
+        network: String,
+        packages: List<DataPackage>?) {
+
+    }
+
+
+
     override fun getPackages(): Flow<List<DataPackage>> {
         return dataPackageRepository.getAll()
     }
 
-    override suspend fun buyDataPackage(id: String) {
+    override suspend fun buyDataPackage(dataPackage: DataPackage) {
         when (buyMode) {
             IDataPackageManager.BuyMode.USSD -> {
-                buyDataPackageForUSSD(id)
+                buyDataPackageForUSSD(dataPackage)
             }
             IDataPackageManager.BuyMode.MiCubacel -> {
-                buyDataPackageForMiCubacel(id)
+                buyDataPackageForMiCubacel(dataPackage)
             }
         }
     }
@@ -146,21 +171,18 @@ class DataPackageManager @Inject constructor(
         return -1
     }
 
-    private suspend fun buyDataPackageForUSSD(id: String) {
-        dataPackageRepository.get(id)?.let {
+    private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {
+        if (dataPackage.ussd.isEmpty())
+            throw IllegalStateException("Package with name ${dataPackage.name} not configured")
 
-            if (it.ussd.isEmpty())
-                throw IllegalStateException("Packages not configured")
-
-            ussdHelper.sendUSSDRequestLegacy(it.ussd)
-        }
+        ussdHelper.sendUSSDRequestLegacy(dataPackage.ussd, false)
     }
 
-    private suspend fun buyDataPackageForMiCubacel(id: String) {
+    private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage) {
         val productGroups = miCubacelClientManager.getProducts()
 
         for (group in productGroups) {
-            val product = group.firstOrNull { it.id == id }
+            val product = group.firstOrNull { it.id == dataPackage.id }
 
             if (product != null) {
                 miCubacelClientManager.buyProduct(product.urlBuy)
