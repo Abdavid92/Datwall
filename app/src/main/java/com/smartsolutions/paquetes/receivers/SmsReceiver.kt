@@ -9,9 +9,18 @@ import com.smartsolutions.paquetes.managers.IDataPackageManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+/**
+ * Este broadcast va a recivir todos los mensajes de Cubacel.
+ * Va a llamar a IDataPackageManager para que registre un nuevo paquete
+ * si se encuentra.
+ * */
 @AndroidEntryPoint
 class SmsReceiver : BroadcastReceiver() {
 
+    /**
+     * IDataPackageManager encargado de registrar los nuevos
+     * paquetes comprados.
+     * */
     @Inject
     lateinit var dataPackageManager: IDataPackageManager
 

@@ -4,6 +4,7 @@ import com.smartsolutions.paquetes.data.IDataPackageDao
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DataPackageRepository @Inject constructor(
@@ -11,6 +12,19 @@ class DataPackageRepository @Inject constructor(
 ) : IDataPackageRepository {
 
     override fun getAll(): Flow<List<DataPackage>> = dataPackageDao.getAll()
+
+    override fun getActives(simIndex: Int): Flow<List<DataPackage>> {
+        return dataPackageDao.getAll().map {
+            val actives = mutableListOf<DataPackage>()
+            it.forEach { dataPackage ->
+                if (simIndex == 1 && dataPackage.activeInSim1)
+                    actives.add(dataPackage)
+                else if (simIndex == 2 && dataPackage.activeInSim2)
+                    actives.add(dataPackage)
+            }
+            actives
+        }
+    }
 
     override suspend fun get(id: String): DataPackage? = dataPackageDao.get(id)
 

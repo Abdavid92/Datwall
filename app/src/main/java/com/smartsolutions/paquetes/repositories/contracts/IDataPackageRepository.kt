@@ -7,6 +7,8 @@ interface IDataPackageRepository {
 
     fun getAll(): Flow<List<DataPackage>>
 
+    fun getActives(simIndex: Int): Flow<List<DataPackage>>
+
     suspend fun get(id: String): DataPackage?
 
     suspend fun create(dataPackage: DataPackage): Long

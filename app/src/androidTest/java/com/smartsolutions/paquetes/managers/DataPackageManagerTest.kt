@@ -22,11 +22,4 @@ class DataPackageManagerTest {
     fun setUp() {
         rule.inject()
     }
-
-    @Test
-    fun getActiveSimIndex() {
-        val index = (dataPackageManager as DataPackageManager).getActiveSimIndex()
-
-        print(index)
-    }
 }

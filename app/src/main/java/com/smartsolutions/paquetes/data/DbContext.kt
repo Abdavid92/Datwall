@@ -65,12 +65,11 @@ abstract class DbContext: RoomDatabase() {
                         DailyBag.name,
                         DailyBag.description,
                         DailyBag.price,
-                        DailyBag.bytes,
+                        DailyBag.bytes.value.toLong(),
                         convertToBytes(DailyBag.bytesLte),
-                        DailyBag.bonusBytes,
-                        DailyBag.bonusCuBytes,
+                        DailyBag.bonusBytes.value.toLong(),
+                        DailyBag.bonusCuBytes.value.toLong(),
                         DailyBag.network,
-                        "",
                         DailyBag.index
                     ),
                     //Paquetes LTE
@@ -79,12 +78,11 @@ abstract class DbContext: RoomDatabase() {
                         P_1GbLte.name,
                         P_1GbLte.description,
                         P_1GbLte.price,
-                        P_1GbLte.bytes,
+                        P_1GbLte.bytes.value.toLong(),
                         convertToBytes(P_1GbLte.bytesLte),
-                        P_1GbLte.bonusBytes,
+                        P_1GbLte.bonusBytes.value.toLong(),
                         convertToBytes(P_1GbLte.bonusCuBytes),
                         P_1GbLte.network,
-                        "",
                         P_1GbLte.index
                     ),
                     DataPackage(
@@ -94,10 +92,9 @@ abstract class DbContext: RoomDatabase() {
                         P_2_5GbLte.price,
                         0,
                         convertToBytes(P_2_5GbLte.bytesLte),
-                        P_2_5GbLte.bonusBytes,
+                        P_2_5GbLte.bonusBytes.value.toLong(),
                         convertToBytes(P_2_5GbLte.bonusCuBytes),
                         P_2_5GbLte.network,
-                        "",
                         P_2_5GbLte.index
                     ),
                     DataPackage(
@@ -107,10 +104,9 @@ abstract class DbContext: RoomDatabase() {
                         P_14GbLte.price,
                         convertToBytes(P_14GbLte.bytes),
                         convertToBytes(P_14GbLte.bytesLte),
-                        P_14GbLte.bonusBytes,
+                        P_14GbLte.bonusBytes.value.toLong(),
                         convertToBytes(P_14GbLte.bonusCuBytes),
                         P_14GbLte.network,
-                        "",
                         P_14GbLte.index
                     ),
                     //Paquetes
@@ -120,11 +116,10 @@ abstract class DbContext: RoomDatabase() {
                         P_400Mb.description,
                         P_400Mb.price,
                         convertToBytes(P_400Mb.bytes),
-                        P_400Mb.bytesLte,
+                        P_400Mb.bytesLte.value.toLong(),
                         convertToBytes(P_400Mb.bonusBytes),
                         convertToBytes(P_400Mb.bonusCuBytes),
                         P_400Mb.network,
-                        "",
                         P_400Mb.index
                     ),
                     DataPackage(
@@ -133,11 +128,10 @@ abstract class DbContext: RoomDatabase() {
                         P_600Mb.description,
                         P_600Mb.price,
                         convertToBytes(P_600Mb.bytes),
-                        P_600Mb.bytesLte,
+                        P_600Mb.bytesLte.value.toLong(),
                         convertToBytes(P_600Mb.bonusBytes),
                         convertToBytes(P_600Mb.bonusCuBytes),
                         P_600Mb.network,
-                        "",
                         P_600Mb.index
                     ),
                     DataPackage(
@@ -146,11 +140,10 @@ abstract class DbContext: RoomDatabase() {
                         P_1Gb.description,
                         P_1Gb.price,
                         convertToBytes(P_1Gb.bytes),
-                        0,
+                        P_1Gb.bytesLte.value.toLong(),
                         convertToBytes(P_1Gb.bonusBytes),
                         convertToBytes(P_1Gb.bonusCuBytes),
                         P_1Gb.network,
-                        "",
                         P_1Gb.index
                     ),
                     DataPackage(
@@ -159,11 +152,10 @@ abstract class DbContext: RoomDatabase() {
                         P_2_5Gb.description,
                         P_2_5Gb.price,
                         convertToBytes(P_2_5Gb.bytes),
-                        P_2_5Gb.bytesLte,
+                        P_2_5Gb.bytesLte.value.toLong(),
                         convertToBytes(P_2_5Gb.bonusBytes),
                         convertToBytes(P_2_5Gb.bonusCuBytes),
                         P_2_5Gb.network,
-                        "",
                         P_2_5Gb.index
                     ),
                     DataPackage(
@@ -172,11 +164,10 @@ abstract class DbContext: RoomDatabase() {
                         P_4Gb.description,
                         P_4Gb.price,
                         convertToBytes(P_4Gb.bytes),
-                        P_4Gb.bytesLte,
+                        P_4Gb.bytesLte.value.toLong(),
                         convertToBytes(P_4Gb.bonusBytes),
                         convertToBytes(P_4Gb.bonusCuBytes),
                         P_4Gb.network,
-                        "",
                         P_4Gb.index
                     ),
                 )

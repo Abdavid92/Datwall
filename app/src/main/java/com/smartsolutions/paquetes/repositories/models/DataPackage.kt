@@ -14,9 +14,6 @@ import kotlinx.parcelize.IgnoredOnParcel
  * */
 @Entity(tableName = "data_packages")
 data class DataPackage(
-    /**
-     *
-     * */
     @PrimaryKey
     val id: String,
     val name: String,
@@ -33,9 +30,11 @@ data class DataPackage(
     val bonusCuBytes: Long,
     @Networks
     val network: String,
-    var ussd: String,
     val index: Int,
-    var active: Boolean = false
+    @ColumnInfo(name = "active_in_sim_1")
+    var activeInSim1: Boolean = false,
+    @ColumnInfo(name = "active_in_sim_2")
+    var activeInSim2: Boolean = false
 ) {
 
     @Ignore

@@ -16,4 +16,6 @@
     <string name="ussd_return_failure">El código ussd falló.</string>
     <string name="accessibility_service_unavailable">Servicio de accesibilidad inactivo.</string>
     <string name="response_timeout">Se ha agotado el tiempo de espera.</string>
+    <string name="pkgs_not_configured">Los paquetes no están configurados. Debe ejecutar la configuracion de estos primero para comprar en paquete de manera segura.</string>
+    <string name="pkg_not_configured">Este paquete no está configurado o no está activo. No puede comprarlo en estos momentos.</string>
 </resources>

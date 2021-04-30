@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +14,9 @@ import kotlin.jvm.Throws
 interface IDataPackageManager {
 
     /**
-     * Modo de compra.
+     * Modo de compra que se va a usar en el
+     * momento de intentar comprar un paquete de datos.
+     * Puede se por ussd o por mi.cubacel.net.
      * */
     var buyMode: BuyMode
 
@@ -33,7 +36,14 @@ interface IDataPackageManager {
 
     /**
      * Compra un paquete de datos.
+     *
+     * @throws IllegalStateException Lanza una excepción si el paquete no se puede comprar
+     * porque no está configurado o no está activado para la linea actual.
+     * 
+     * @throws UnprocessableRequestException Lanza una excepción si la compra
+     * no tuvo éxito por alguna razón.
      * */
+    @Throws(IllegalStateException::class, UnprocessableRequestException::class)
     suspend fun buyDataPackage(dataPackage: DataPackage)
 
     /**
