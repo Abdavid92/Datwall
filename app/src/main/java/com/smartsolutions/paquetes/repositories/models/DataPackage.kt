@@ -31,6 +31,10 @@ data class DataPackage(
     @Networks
     val network: String,
     val index: Int,
+    @ColumnInfo(name = "ussd_sim_1")
+    var ussdSim1: String? = null,
+    @ColumnInfo(name = "ussd_sim_2")
+    var ussdSim2: String? = null,
     @ColumnInfo(name = "active_in_sim_1")
     var activeInSim1: Boolean = false,
     @ColumnInfo(name = "active_in_sim_2")

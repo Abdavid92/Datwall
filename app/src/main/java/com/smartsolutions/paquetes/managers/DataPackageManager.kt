@@ -34,6 +34,7 @@ class DataPackageManager @Inject constructor(
     private val purchasedPackageRepository: IPurchasedPackageRepository,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
+    private val simsHelper: SimsHelper,
     private val miCubacelClientManager: MiCubacelClientManager
 ): IDataPackageManager, CoroutineScope {
 
@@ -63,101 +64,79 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override fun configureDataPackages() {
-        launch {
-            ussdHelper.sendUSSDRequestLegacy("*133*1#")?.let { response ->
-                //Texto del mensaje dividido en saltos de linea
-                val text = response.string().split("\n")
+    override suspend fun configureDataPackages() {
+        ussdHelper.sendUSSDRequestLegacy("*133*1#")?.let { response ->
+            //Texto del mensaje dividido en saltos de linea
+            val text = response.string().split("\n")
 
-                //Índice basado en 1 de la linea activa
-                val simIndex = getActiveSimIndex(context)
-                /*Objeto SimsIndex que contendrá todos los indices
-                de los paquetes divididos en las respectivas lineas.*/
-                val simsIndex = getSimsIndex()
+            //Índice basado en 1 de la linea activa
+            val activeSimIndex = simsHelper.getActiveVoiceSimIndex()
 
-                //Obtengo todos los paquetes de la base de datos
-                dataPackageRepository.getAll().firstOrNull()?.let { packages ->
-                    //Por cada linea del texto
-                    text.forEach { menu ->
+            //Obtengo todos los paquetes de la base de datos
+            dataPackageRepository.getAll().firstOrNull()?.let { packages ->
+                //Por cada linea del texto
+                text.forEach { menu ->
 
-                        try {
-                            /* Intento obtener el primer número del texto. Este número
-                             * será el índice para ese conjunto de paquetes.*/
-                            val index = Integer.parseInt(menu.trimStart()[0].toString())
+                    try {
+                        /* Intento obtener el primer número del texto. Este número
+                         * será el índice para ese conjunto de paquetes.*/
+                        val index = Integer.parseInt(menu.trimStart()[0].toString())
 
-                            when {
-                                //Si es la bolsa diaria
-                                menu.contains("Bolsa Diaria", true) -> {
-                                    //Busco la bolsa diaria de entre los paquetes
-                                    packages.firstOrNull {
-                                        it.id == createDataPackageId(DataPackagesContract.DailyBag.name, DataPackagesContract.DailyBag.price)
-                                    }?.let { daily ->
-                                        //Si estoy en la linea 1
-                                        if (simIndex == 1) {
-                                            //Asigno el índice de la bolsa diaria a la linea 1
-                                            simsIndex.indexDailyBagSim1 = index
-                                            /*Activo la bolsa diaria para que pueda ser comprada
-                                            * en la linea 1.*/
-                                            daily.activeInSim1 = true
+                        when {
+                            //Si es la bolsa diaria
+                            menu.contains("Bolsa Diaria", true) -> {
+                                //Busco la bolsa diaria de entre los paquetes
+                                packages.firstOrNull {
+                                    it.id == createDataPackageId(DataPackagesContract.DailyBag.name, DataPackagesContract.DailyBag.price)
+                                }?.let { daily ->
+                                    //Si estoy en la linea 1
+                                    if (activeSimIndex == 1) {
+                                        //Asigno el índice de la bolsa diaria a la linea 1
+                                        daily.ussdSim1 = buildDataPackageUssdCode(index, daily.index)
+                                        /*Activo la bolsa diaria para que pueda ser comprada
+                                        * en la linea 1.*/
+                                        daily.activeInSim1 = true
                                         //Si estoy en la linea 2
-                                        } else if (simIndex == 2) {
-                                            //Asigno el índice de la bolsa diaria a la linea 2
-                                            simsIndex.indexDailyBagSim2 = index
-                                            /*Activo la bolsa diaria para que pueda ser comprada
-                                            * en la linea 2.*/
-                                            daily.activeInSim2 = true
-                                        }
+                                    } else if (activeSimIndex == 2) {
+                                        //Asigno el índice de la bolsa diaria a la linea 2
+                                        daily.ussdSim2 = buildDataPackageUssdCode(index, daily.index)
+                                        /*Activo la bolsa diaria para que pueda ser comprada
+                                        * en la linea 2.*/
+                                        daily.activeInSim2 = true
                                     }
-                                }
-                                //Si son los paquetes de 3G
-                                menu.contains("Paquetes", true) && !menu.contains("Paquetes LTE", true) -> {
-                                    //Si estoy en la linea 1
-                                    if (simIndex == 1) {
-                                        //Asigno el índice de los paquetes 3G a la linea 1
-                                        simsIndex.indexPackagesSim1 = index
-                                    //Si estoy en la linea 2
-                                    } else if (simIndex == 2) {
-                                        //Asigno el índice de los paquetes 3G a la linea 2
-                                        simsIndex.indexPackagesSim2 = index
-                                    }
-                                    //Activo los paquetes 3G para esta linea
-                                    activateDataPackages(
-                                        simIndex,
-                                        DataPackage.NETWORK_3G_4G,
-                                        packages)
-                                }
-                                //Si son los paquetes de LTE
-                                menu.contains("Paquetes LTE", true) -> {
-                                    //Si estoy en la linea 1
-                                    if (simIndex == 1) {
-                                        //Asigno el índice de los pequetes LTE a la linea 1
-                                        simsIndex.indexPackagesLteSim1 = index
-                                    //Si estoy en la linea 2
-                                    } else if (simIndex == 2) {
-                                        //Asigno el índice de los paquetes LTE a la linea 2
-                                        simsIndex.indexPackagesLteSim2 = index
-                                    }
-                                    //Activo los paquetes LTE para esta linea
-                                    activateDataPackages(
-                                        simIndex,
-                                        DataPackage.NETWORK_4G,
-                                        packages)
                                 }
                             }
-                        } catch (e: NumberFormatException) {
-
+                            //Si son los paquetes de 3G
+                            menu.contains("Paquetes", true) && !menu.contains("Paquetes LTE", true) -> {
+                                //Activo los paquetes 3G para esta linea
+                                activateDataPackages(
+                                    index,
+                                    activeSimIndex,
+                                    DataPackage.NETWORK_3G_4G,
+                                    packages)
+                            }
+                            //Si son los paquetes de LTE
+                            menu.contains("Paquetes LTE", true) -> {
+                                //Activo los paquetes LTE para esta linea
+                                activateDataPackages(
+                                    index,
+                                    activeSimIndex,
+                                    DataPackage.NETWORK_4G,
+                                    packages)
+                            }
                         }
+                    } catch (e: NumberFormatException) {
+
                     }
-                    //Por último actualizo los paquetes en base de datos y guardo los índices.
-                    dataPackageRepository.update(packages)
-                    setSimsIndex(simsIndex)
                 }
+                //Por último actualizo los paquetes en base de datos.
+                dataPackageRepository.update(packages)
             }
         }
     }
 
     override fun getPackages(): Flow<List<DataPackage>> = dataPackageRepository
-        .getActives(getActiveSimIndex(context))
+        .getActives(simsHelper.getActiveVoiceSimIndex())
 
     @Throws(IllegalStateException::class)
     override suspend fun buyDataPackage(dataPackage: DataPackage) {
@@ -207,7 +186,7 @@ class DataPackageManager @Inject constructor(
 
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {
 
-        val simIndex = getActiveSimIndex(context)
+        val simIndex = simsHelper.getActiveVoiceSimIndex()
         val simsIndex = getSimsIndex()
 
         val index = when (simIndex) {
@@ -237,21 +216,10 @@ class DataPackageManager @Inject constructor(
             .sendUSSDRequestLegacy(
                 buildDataPackageUssdCode(index, dataPackage.index),
                 false)
-
-        val purchasedPackage = PurchasedPackage(
-            0,
-            Date().time,
-            PurchasedPackage.Origin.USSD,
-            dataPackage.id
-        )
-        purchasedPackageRepository.create(purchasedPackage)
     }
 
     private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage) {
-        val simIndex = getActiveSimIndex(context)
-
-        if ((simIndex == 1 && !dataPackage.activeInSim1) || (simIndex == 2 && !dataPackage.activeInSim2))
-            throw IllegalStateException(context.getString(R.string.pkg_not_configured))
+        TODO("Este método está sujeto a cambios")
 
         val productGroups = miCubacelClientManager.getProducts()
 
@@ -260,32 +228,28 @@ class DataPackageManager @Inject constructor(
 
             if (product != null) {
                 miCubacelClientManager.buyProduct(product.urlBuy)
-
-                val purchasedPackage = PurchasedPackage(
-                    0,
-                    Date().time,
-                    PurchasedPackage.Origin.MICUBACEL,
-                    dataPackage.id
-                )
-
-                purchasedPackageRepository.create(purchasedPackage)
                 break
             }
         }
     }
 
     private fun activateDataPackages(
-        simIndex: Int,
+        index: Int,
+        activeSimIndex: Int,
         @DataPackage.Networks
         network: String,
         packages: List<DataPackage>) {
 
         packages.forEach {
             if (it.network == network) {
-                if (simIndex == 1)
+                if (activeSimIndex == 1) {
+                    it.ussdSim1 = buildDataPackageUssdCode(index, it.index)
                     it.activeInSim1 = true
-                else if (simIndex == 2)
+                }
+                else if (activeSimIndex == 2) {
+                    it.ussdSim2 = buildDataPackageUssdCode(index, it.index)
                     it.activeInSim2 = true
+                }
             }
         }
     }

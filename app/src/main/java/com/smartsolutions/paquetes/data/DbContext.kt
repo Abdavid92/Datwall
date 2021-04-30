@@ -22,6 +22,7 @@ import com.smartsolutions.paquetes.data.DataPackagesContract.P_600Mb
 import com.smartsolutions.paquetes.data.DataPackagesContract.P_1Gb
 import com.smartsolutions.paquetes.data.DataPackagesContract.P_2_5Gb
 import com.smartsolutions.paquetes.data.DataPackagesContract.P_4Gb
+import kotlinx.coroutines.runBlocking
 
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
@@ -172,7 +173,7 @@ abstract class DbContext: RoomDatabase() {
                     ),
                 )
 
-                GlobalScope.launch(Dispatchers.IO) {
+                GlobalScope.launch(Dispatchers.Main) {
                     dao.create(dataPackages)
                 }
             }

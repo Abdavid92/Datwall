@@ -14,6 +14,10 @@ interface IPurchasedPackageRepository {
 
     fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>>
 
+    fun getPending(): Flow<List<PurchasedPackage>>
+
+    fun getPending(dataPackageId: String): Flow<List<PurchasedPackage>>
+
     suspend fun create(purchasedPackage: PurchasedPackage): Long
 
     suspend fun create(purchasedPackages: List<PurchasedPackage>): List<Long>

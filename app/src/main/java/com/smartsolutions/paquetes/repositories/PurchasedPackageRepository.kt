@@ -36,6 +36,12 @@ class PurchasedPackageRepository @Inject constructor(
     override fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>> =
         onEach(purchasedPackageDao.getByDataPackageId(dataPackageId))
 
+    override fun getPending(): Flow<List<PurchasedPackage>> =
+        onEach(purchasedPackageDao.getPending())
+
+    override fun getPending(dataPackageId: String): Flow<List<PurchasedPackage>> =
+        onEach(purchasedPackageDao.getPending(dataPackageId))
+
     override suspend fun create(purchasedPackage: PurchasedPackage) = purchasedPackageDao.create(purchasedPackage)
 
     override suspend fun create(purchasedPackages: List<PurchasedPackage>) = purchasedPackageDao.create(purchasedPackages)

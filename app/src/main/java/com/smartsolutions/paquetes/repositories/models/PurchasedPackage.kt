@@ -1,18 +1,22 @@
 package com.smartsolutions.paquetes.repositories.models
 
 import androidx.room.*
+import com.smartsolutions.paquetes.managers.IDataPackageManager
 
 @Entity(tableName = "purchased_packages", foreignKeys = [ForeignKey(
     entity = DataPackage::class, parentColumns = ["id"], childColumns = ["data_package_id"]
 )], indices = [Index(
     "data_package_id"
 )])
-@TypeConverters(PurchasedPackage.OriginConverter::class)
+@TypeConverters(PurchasedPackage.BuyModeConverter::class)
 data class PurchasedPackage(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val date: Long,
-    val origin: Origin,
+    val origin: IDataPackageManager.BuyMode,
+    @ColumnInfo(name = "sim_index")
+    val simIndex: Int,
+    var pending: Boolean,
     @ColumnInfo(name = "data_package_id")
     val dataPackageId: String
 ) {
@@ -20,19 +24,14 @@ data class PurchasedPackage(
     @Ignore
     var dataPackage: DataPackage? = null
 
-    enum class Origin {
-        USSD,
-        MICUBACEL
-    }
-
-    class OriginConverter {
+    class BuyModeConverter {
 
         @TypeConverter
-        fun fromOrigin(origin: Origin): String =
+        fun fromOrigin(origin: IDataPackageManager.BuyMode): String =
             origin.name
 
         @TypeConverter
-        fun toOrigin(name: String): Origin =
-            Origin.valueOf(name)
+        fun toOrigin(name: String): IDataPackageManager.BuyMode =
+            IDataPackageManager.BuyMode.valueOf(name)
     }
 }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class DashboardFragment : ApplicationFragment() {
@@ -56,6 +57,8 @@ class DashboardFragment : ApplicationFragment() {
     
     private fun deleteOne(view: View) {
         //dashboardViewModel.deleteOne()
-        dataPackageManager.configureDataPackages()
+        GlobalScope.launch {
+            dataPackageManager.configureDataPackages()
+        }
     }
 }

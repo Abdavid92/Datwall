@@ -24,7 +24,7 @@ interface IDataPackageManager {
      * Configura los paquetes de datos en dependencia
      * de los que tenga disponible la tarjeta sim.
      * */
-    fun configureDataPackages()
+    suspend fun configureDataPackages()
 
     /**
      * Obtiene todos los paquetes disponibles para

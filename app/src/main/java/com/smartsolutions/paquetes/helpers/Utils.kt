@@ -30,50 +30,6 @@ fun buildDataPackageUssdCode(index: Int, dataPackageIndex: Int): String {
 }
 
 /**
- * Obtiene el índice de la tarjeta sim activa.
- *
- * @return 1 para la tarjeta sim del slot 1.
- * 2 para la tarjeta sim del slot 2.
- * -1 si no se pudo obtener el slot de la sim.
- * */
-fun getActiveSimIndex(context: Context): Int {
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return -1
-        }
-
-        val subscriptionManager = ContextCompat
-            .getSystemService(context, SubscriptionManager::class.java) ?: throw NullPointerException()
-
-        val info = subscriptionManager.getActiveSubscriptionInfo(
-            SubscriptionManager
-            .getDefaultDataSubscriptionId())
-
-        return info.simSlotIndex + 1
-    } else {
-        try {
-
-            val telephonyManager = ContextCompat
-                .getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException()
-
-            val method = telephonyManager.javaClass.getDeclaredMethod("getDefaultSim")
-
-            method.isAccessible = true
-
-            return method.invoke(telephonyManager) as Int
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-    return -1
-}
-
-/**
  * Crea un id para un DataPackage.
  * */
 fun createDataPackageId(name: String, price: Float): String {
