@@ -9,9 +9,9 @@ interface IUserDataBytesRepository {
 
     suspend fun all(): List<UserDataBytes>
 
-    fun getByType(dataType: UserDataBytes.DataType): LiveData<UserDataBytes>
+    fun getByType(dataType: UserDataBytes.DataType, simIndex: Int): LiveData<UserDataBytes>
 
-    suspend fun byType(dataType: UserDataBytes.DataType): UserDataBytes?
+    suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes?
 
     suspend fun create(userDataBytes: UserDataBytes): Boolean
 

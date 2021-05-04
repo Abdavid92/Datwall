@@ -41,11 +41,11 @@ class UserDataBytesRepository @Inject constructor(
 
     override suspend fun all(): List<UserDataBytes> = read()
 
-    override fun getByType(dataType: UserDataBytes.DataType): LiveData<UserDataBytes> {
+    override fun getByType(dataType: UserDataBytes.DataType, simIndex: Int): LiveData<UserDataBytes> {
         val live = MutableLiveData<UserDataBytes>()
 
         launch {
-            read().firstOrNull { it.type == dataType }?.let {
+            read().firstOrNull { it.type == dataType && it.simIndex == simIndex }?.let {
                 live.postValue(it)
             }
         }
@@ -53,8 +53,8 @@ class UserDataBytesRepository @Inject constructor(
         return live
     }
 
-    override suspend fun byType(dataType: UserDataBytes.DataType): UserDataBytes? =
-        read().firstOrNull { it.type == dataType }
+    override suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes? =
+        read().firstOrNull { it.type == dataType && it.simIndex == simIndex }
 
     override suspend fun create(userDataBytes: UserDataBytes): Boolean {
         val list = read()

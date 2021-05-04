@@ -185,6 +185,7 @@ class DataPackageManager @Inject constructor(
     }
 
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {
+        TODO("Este método está sujeto a cambios")
 
         val simIndex = simsHelper.getActiveVoiceSimIndex()
         val simsIndex = getSimsIndex()
@@ -241,7 +242,8 @@ class DataPackageManager @Inject constructor(
         packages: List<DataPackage>) {
 
         packages.forEach {
-            if (it.network == network) {
+            if (it.network == network && it.id !=
+                createDataPackageId(DataPackagesContract.DailyBag.name, DataPackagesContract.DailyBag.price)) {
                 if (activeSimIndex == 1) {
                     it.ussdSim1 = buildDataPackageUssdCode(index, it.index)
                     it.activeInSim1 = true

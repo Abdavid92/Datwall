@@ -9,8 +9,10 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Clase que estable la conexión vpn. Este vpn
@@ -22,7 +24,10 @@ import javax.inject.Singleton
 @Singleton
 class VpnConnection @Inject constructor(
     private val appRepository: IAppRepository
-) {
+): CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     /**
      * Servicio vpn que se usa para establecer la conexión
@@ -102,7 +107,7 @@ class VpnConnection @Inject constructor(
      * */
     fun restart() {
         if (connected) {
-            GlobalScope.launch(Dispatchers.IO) {
+            launch(Dispatchers.IO) {
                 val apps = appRepository.getAllByGroup()
 
                 withContext(Dispatchers.Main) {

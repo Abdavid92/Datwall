@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.watcher
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -124,6 +125,10 @@ class PackageMonitor @Inject constructor(
         //Obtengo las aplicaciones guardadas en base de datos
         val apps = appRepository.all
 
+        val appsToAdd = mutableListOf<App>()
+        val appsToUpdate = mutableListOf<App>()
+        val appsToDelete = mutableListOf<App>()
+
         installedPackages.forEach { info ->
             //Por cada aplicación instalada, busco en la aplicaciones guardadas.
             var app = apps.firstOrNull { it.packageName == info.packageName }
@@ -134,12 +139,12 @@ class PackageMonitor @Inject constructor(
                 app = App()
 
                 appRepository.fillNewApp(app, info)
-                appRepository.create(app)
+                appsToAdd.add(app)
             } else if (versionNotEquals(app.version, info)) {
                 /*Pero si la encuentro reviso que la version sea diferente.
                 * Si lo es, la actualizo.*/
                 appRepository.fillApp(app, info)
-                appRepository.update(app)
+                appsToUpdate.add(app)
             }
         }
 
@@ -147,9 +152,13 @@ class PackageMonitor @Inject constructor(
         apps.forEach { app ->
             //Si no esta dentro de las aplicaciones instaladas, la elimino de la base de datos.
             if (installedPackages.firstOrNull { app.packageName == it.packageName } == null) {
-                appRepository.delete(app)
+                appsToDelete.add(app)
             }
         }
+
+        appRepository.create(appsToAdd)
+        appRepository.update(appsToUpdate)
+        appRepository.delete(appsToDelete)
         //Por último ejecuto la tarea que se pasó como parámetro.
         task?.invoke()
     }

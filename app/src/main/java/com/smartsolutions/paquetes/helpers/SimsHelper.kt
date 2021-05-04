@@ -59,7 +59,7 @@ class SimsHelper @Inject constructor(
                 )
             }
 
-            return info?.simSlotIndex ?: -2 + 1
+            return (info?.simSlotIndex ?: -2) + 1
         }
         return 1
     }
@@ -78,7 +78,7 @@ class SimsHelper @Inject constructor(
 
     fun isDualSim(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            return getActiveSimsInfo()?.size ?: 0 > 1
+            return (getActiveSimsInfo()?.size ?: 0) > 1
         return false
     }
 }

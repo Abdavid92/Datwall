@@ -30,12 +30,16 @@ class PurchasedPackagesManager @Inject constructor(
 
         if (pending.isNotEmpty()) {
 
-            for (i in 0..pending.size) {
-                if (System.currentTimeMillis() - pending[i].date > 1/*DateUtils.MILLIS_PER_DAY*/) {
-                    purchasedPackageRepository.delete(pending[i])
-                    pending.removeAt(i)
+            val pendingToDelete = mutableListOf<PurchasedPackage>()
+
+            pending.forEach {
+                if (System.currentTimeMillis() - it.date > DateUtils.MILLIS_PER_DAY) {
+                    purchasedPackageRepository.delete(it)
+                    pendingToDelete.add(it)
                 }
             }
+
+            pending.removeAll(pendingToDelete)
 
             if (pending.isNotEmpty()) {
                 pending[0].pending = false

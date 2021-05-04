@@ -24,12 +24,14 @@ data class UserDataBytes(
     fun isExpired() = Date().after(Date(expiredTime))
 
     override fun equals(other: Any?): Boolean {
-        if (other is UserDataBytes && other.type == type)
+        if (other is UserDataBytes && other.type == type && other.simIndex == simIndex)
             return true
         return false
     }
 
     override fun hashCode(): Int {
-        return type.hashCode()
+        var result = type.hashCode()
+        result = 31 * result + simIndex
+        return result
     }
 }
