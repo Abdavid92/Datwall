@@ -113,7 +113,7 @@ public class PacketUtil {
 	 */
 	public static int getNetworkInt(@NonNull byte[] buffer, int start, int length){
 		int value = 0;
-		int end = start + (length > 4 ? 4 : length);
+		int end = start + Math.min(length, 4);
 
 		if(end > buffer.length)
 			end = buffer.length;

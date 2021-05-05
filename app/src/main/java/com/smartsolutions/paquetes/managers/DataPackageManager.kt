@@ -6,6 +6,8 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.data.DataPackagesContract
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
@@ -31,7 +33,7 @@ class DataPackageManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val dataPackageRepository: IDataPackageRepository,
-    private val purchasedPackageRepository: IPurchasedPackageRepository,
+    private val purchasedPackagesManager: PurchasedPackagesManager,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
     private val simsHelper: SimsHelper,
@@ -40,8 +42,6 @@ class DataPackageManager @Inject constructor(
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
-
-    private val simsIndexName = "sims_index.bin"
 
     private var _buyMode: IDataPackageManager.BuyMode = IDataPackageManager.BuyMode.USSD
     override var buyMode: IDataPackageManager.BuyMode
@@ -138,7 +138,7 @@ class DataPackageManager @Inject constructor(
     override fun getPackages(): Flow<List<DataPackage>> = dataPackageRepository
         .getActives(simsHelper.getActiveVoiceSimIndex())
 
-    @Throws(IllegalStateException::class)
+    @Throws(IllegalStateException::class, MissingPermissionException::class, UnprocessableRequestException::class)
     override suspend fun buyDataPackage(dataPackage: DataPackage) {
         when (buyMode) {
             IDataPackageManager.BuyMode.USSD -> {
@@ -151,7 +151,6 @@ class DataPackageManager @Inject constructor(
     }
 
     override fun registerDataPackage(smsBody: String) {
-
         val classes = DataPackagesContract.javaClass.declaredClasses
 
         classes.forEach {
@@ -165,6 +164,7 @@ class DataPackageManager @Inject constructor(
                 launch {
                     dataPackageRepository.get(createDataPackageId(name, price))?.let { dataPackage ->
                         userDataBytesManager.addDataBytes(dataPackage)
+                        purchasedPackagesManager.confirmPurchased(dataPackage.id)
                     }
                 }
 
@@ -173,55 +173,27 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override fun getHistory(): Flow<List<PurchasedPackage>> =
-        purchasedPackageRepository.getAll()
-
-    override fun clearHistory() {
-        launch {
-            purchasedPackageRepository.getAll().collect {
-                purchasedPackageRepository.delete(it)
-            }
-        }
-    }
-
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {
-        TODO("Este método está sujeto a cambios")
+        val sim = simsHelper.getActiveVoiceSimIndex()
 
-        val simIndex = simsHelper.getActiveVoiceSimIndex()
-        val simsIndex = getSimsIndex()
-
-        val index = when (simIndex) {
-            1 -> {
-                when (dataPackage.network) {
-                    DataPackage.NETWORK_4G -> simsIndex.indexPackagesLteSim1
-                    DataPackage.NETWORK_3G_4G -> simsIndex.indexPackagesSim1
-                    else -> -1
-                }
-            }
-            2 -> {
-                when (dataPackage.network) {
-                    DataPackage.NETWORK_4G -> simsIndex.indexPackagesLteSim2
-                    DataPackage.NETWORK_3G_4G -> simsIndex.indexPackagesSim2
-                    else -> -1
-                }
-            }
-            else -> -1
+        if ((sim == 1 && !dataPackage.activeInSim1) || (sim == 2 && !dataPackage.activeInSim2)) {
+            throw IllegalStateException(context.getString(R.string.pkg_not_configured))
         }
 
-        if (index == -1)
-            throw IllegalStateException(context.getString(R.string.pkgs_not_configured))
-        else if ((simIndex == 1 && !dataPackage.activeInSim1) || (simIndex == 2 && !dataPackage.activeInSim2))
-            throw IllegalStateException(context.getString(R.string.pkg_not_configured))
+        ussdHelper.sendUSSDRequestLegacy(if (sim == 1)
+            dataPackage.ussdSim1!!
+        else
+            dataPackage.ussdSim2!!,
+            false)
 
-        ussdHelper
-            .sendUSSDRequestLegacy(
-                buildDataPackageUssdCode(index, dataPackage.index),
-                false)
+        purchasedPackagesManager.newPurchased(
+            dataPackage.id,
+            sim,
+            IDataPackageManager.BuyMode.USSD
+        )
     }
 
     private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage) {
-        TODO("Este método está sujeto a cambios")
-
         val productGroups = miCubacelClientManager.getProducts()
 
         for (group in productGroups) {
@@ -229,6 +201,12 @@ class DataPackageManager @Inject constructor(
 
             if (product != null) {
                 miCubacelClientManager.buyProduct(product.urlBuy)
+
+                purchasedPackagesManager.newPurchased(
+                    dataPackage.id,
+                    simsHelper.getActiveDataSimIndex(),
+                    IDataPackageManager.BuyMode.MiCubacel
+                )
                 break
             }
         }
@@ -254,58 +232,5 @@ class DataPackageManager @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun setSimsIndex(simsIndex: SimsIndex) {
-        val file = File(context.filesDir, simsIndexName)
-
-        if (!file.exists() && !file.createNewFile())
-            throw IOException()
-
-        SerializationUtils.serialize(simsIndex, FileOutputStream(file))
-    }
-
-    private fun getSimsIndex(): SimsIndex {
-        val file = File(context.filesDir, simsIndexName)
-
-        if (!file.exists() && !file.createNewFile())
-            throw IOException()
-
-        try {
-            return SerializationUtils.deserialize(FileInputStream(file)) as SimsIndex
-        } catch (e: Exception) {
-
-        }
-        return SimsIndex()
-    }
-
-    /**
-     * Objeto que contiene los índices de los paquetes en sus respectivas lineas.
-     * */
-    internal class SimsIndex: Serializable {
-        /**
-         * Índice de la bolsa diaria para la linea 1.
-         * */
-        var indexDailyBagSim1 = -1
-        /**
-         * Índice de la bolsa diaria para la linea 2.
-         * */
-        var indexDailyBagSim2 = -1
-        /**
-         * Índice de los paquetes 3G para la linea 1.
-         * */
-        var indexPackagesSim1 = -1
-        /**
-         * Índice de los paquetes 3G para la linea 2.
-         * */
-        var indexPackagesSim2 = -1
-        /**
-         * Índice de los paquetes LTE para la linea 1.
-         * */
-        var indexPackagesLteSim1 = -1
-        /**
-         * Índice de los paquetes LTE para la linea 2.
-         * */
-        var indexPackagesLteSim2 = -1
     }
 }

@@ -9,8 +9,10 @@ import android.telephony.SubscriptionManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import kotlin.jvm.Throws
 
 class SimsHelper @Inject constructor(
     @ApplicationContext
@@ -38,13 +40,14 @@ class SimsHelper @Inject constructor(
     fun getActiveDataSimIndex(): Int = getActiveSimIndex(1)
 
 
+    @Throws(MissingPermissionException::class)
     private fun getActiveSimIndex(type: Int): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
             ) {
-                return -1
+                throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
             }
 
             val info = when (type) {
@@ -59,7 +62,7 @@ class SimsHelper @Inject constructor(
                 )
             }
 
-            return (info?.simSlotIndex ?: -2) + 1
+            return info?.simSlotIndex ?: 1
         }
         return 1
     }

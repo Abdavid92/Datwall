@@ -2,7 +2,9 @@ package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import org.apache.commons.lang.time.DateUtils
 import javax.inject.Inject
 
@@ -46,5 +48,16 @@ class PurchasedPackagesManager @Inject constructor(
                 purchasedPackageRepository.update(pending[0])
             }
         }
+    }
+
+    fun getHistory(): Flow<List<PurchasedPackage>> =
+        purchasedPackageRepository.getAll()
+
+    suspend fun clearHistory() {
+        purchasedPackageRepository
+            .getAll()
+            .firstOrNull()?.let {
+                purchasedPackageRepository.delete(it)
+            }
     }
 }

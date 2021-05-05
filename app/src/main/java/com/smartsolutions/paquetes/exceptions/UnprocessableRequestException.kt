@@ -21,6 +21,7 @@ class UnprocessableRequestException : Exception {
     enum class Reason {
         NO_LOGIN,
         BAG_CREDENTIALS,
-        WRONG_CODE
+        WRONG_CODE,
+        MISSING_PERMISSION
     }
 }

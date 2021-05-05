@@ -1,10 +1,7 @@
 package com.smartsolutions.paquetes.modules
 
 import com.smartsolutions.paquetes.repositories.*
-import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
-import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
-import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import com.smartsolutions.paquetes.repositories.contracts.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +22,7 @@ interface RepositoriesModule {
 
     @Binds
     fun bindIUserDataBytesRepository(impl: UserDataBytesRepository): IUserDataBytesRepository
+
+    @Binds
+    fun bindIMiCubacelAccountRepository(impl: MiCubacelAccountRepository): IMiCubacelAccountRepository
 }

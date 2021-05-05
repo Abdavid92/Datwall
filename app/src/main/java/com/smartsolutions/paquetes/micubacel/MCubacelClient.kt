@@ -4,28 +4,25 @@ import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.micubacel.models.DataType
 import com.smartsolutions.paquetes.micubacel.models.Product
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
+import com.smartsolutions.paquetes.repositories.contracts.IMiCubacelAccountRepository
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.jvm.Throws
 import kotlin.math.pow
 
 /**
  * Cliente de mi.cubacel.net
  * */
-class MCubacelClient {
+class MCubacelClient @Inject constructor() {
 
     /**
      * Url base de la página principal.
      * */
     private val baseHomeUrl = "https://mi.cubacel.net"
-
-    /**
-     * Indica si la sesión esta iniciada
-     * */
-    private var isLogged = false
 
     /**
      * Urls principales del sitio.
@@ -61,11 +58,9 @@ class MCubacelClient {
             return url
         }
 
-        val response = ConnectionFactory.newConnection(baseHomeUrl).execute()
+        val response = ConnectionFactory.newConnection(baseHomeUrl, cookies).execute()
 
-        if (!isLogged) {
-            updateCookies(response.cookies())
-        }
+        updateCookies(response.cookies())
 
         response.parse().select("a[class=\"link_msdp langChange\"]").forEach { url ->
             if (url.attr("id") == "spanishLanguage") {
@@ -87,9 +82,7 @@ class MCubacelClient {
     @Throws(Exception::class)
     fun loadPage(url: String) : Document {
         val response = ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
-        if (!isLogged){
-            updateCookies(response.cookies())
-        }
+        updateCookies(response.cookies())
         return response.parse()
     }
 
@@ -158,7 +151,7 @@ class MCubacelClient {
      * @param phone - Teléfono de usuario.
      * @param password - Contraseña.
      * */
-    fun signIn(phone: String, password: String)  {
+    fun signIn(phone: String, password: String): Map<String, String>  {
         val data = mapOf(
             Pair("language", "es_ES"),
             Pair("username", phone),
@@ -178,9 +171,7 @@ class MCubacelClient {
             throw UnprocessableRequestException(UnprocessableRequestException.Reason.BAG_CREDENTIALS, errorMessage(page))
         }
 
-        updateCookies(response.cookies())
-
-        isLogged = true
+        return updateCookies(response.cookies())
     }
 
     /**
@@ -190,7 +181,7 @@ class MCubacelClient {
      * @param lastName - Apellidos.
      * @param phone - Teléfono.
      * */
-    fun signUp(firstName: String, lastName: String, phone: String) {
+    fun signUp(firstName: String, lastName: String, phone: String): Map<String, String> {
         val data = mapOf(
             Pair("msisdn", phone),
             Pair("firstname", firstName),
@@ -208,13 +199,13 @@ class MCubacelClient {
             throw UnprocessableRequestException(errorMessage(page))
         }
 
-        updateCookies(response.cookies())
+        return updateCookies(response.cookies())
     }
 
     /**
      * Verifica el código recibido por sms en el proceso de creación de cuenta.
      * */
-    fun verifyCode(code: String) {
+    fun verifyCode(code: String): Map<String, String> {
         val data = mapOf(
             Pair("username", code)
         )
@@ -228,7 +219,7 @@ class MCubacelClient {
             throw UnprocessableRequestException(UnprocessableRequestException.Reason.WRONG_CODE, errorMessage(page))
         }
 
-        updateCookies(response.cookies())
+        return updateCookies(response.cookies())
     }
 
     /**
@@ -236,7 +227,7 @@ class MCubacelClient {
      *
      * @param password - Contraseña.
      * */
-    fun createPassword(password: String) {
+    fun createPassword(password: String): Map<String, String> {
         val data = mapOf(
             Pair("newPassword", password),
             Pair("cnewPassword", password)
@@ -254,7 +245,7 @@ class MCubacelClient {
         ) {
             throw UnprocessableRequestException(errorMessage(page))
         }
-        updateCookies(response.cookies())
+        return updateCookies(response.cookies())
     }
 
     /**
@@ -350,7 +341,7 @@ class MCubacelClient {
             .select("p")
             .forEach { p ->
                 if (p.text().contains("error", true)) {
-                    throw UnprocessableRequestException("No se pudo comprar el producto.")
+                    throw UnprocessableRequestException(p.text())
                 }
             }
     }
@@ -495,10 +486,11 @@ class MCubacelClient {
     /**
      * Actualiza las cookies.
      * */
-    private fun updateCookies(updateCookies: Map<String, String>) {
+    private fun updateCookies(updateCookies: Map<String, String>): Map<String, String> {
         updateCookies.forEach {
             cookies[it.key] = it.value
         }
+        return cookies
     }
 
     companion object {
@@ -506,7 +498,7 @@ class MCubacelClient {
         /**
          * Mapa de cookies que guardan las sesiones y otros datos.
          * */
-        private var cookies = mutableMapOf<String, String>()
+        var cookies = mutableMapOf<String, String>()
 
         /**
          * Nombre de usuario.

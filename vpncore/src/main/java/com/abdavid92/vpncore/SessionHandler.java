@@ -88,7 +88,7 @@ public class SessionHandler {
 		if (allowedUids != null) {
 			int[] uids = allowedUids.clone();
 
-			int temp = 0;
+			int temp;
 
 			for (int i = 0; i < uids.length; i++) {
 
@@ -99,7 +99,6 @@ public class SessionHandler {
 						uids[i] = uids[y];
 						uids[y] = temp;
 					}
-
 				}
 			}
 			this.allowedUids = uids;
@@ -530,7 +529,7 @@ public class SessionHandler {
 			packetData.addData(packet.getBuffer());
 			Log.d(TAG,"Send SYN-ACK to client");
 		} catch (IOException e) {
-			Log.e(TAG,"Error sending data to client: "+e.getMessage());
+			Log.e(TAG,"Error sending data to client: " + e.getMessage());
 		}
 	}
 

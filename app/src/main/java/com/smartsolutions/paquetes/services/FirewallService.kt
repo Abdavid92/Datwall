@@ -7,8 +7,13 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.abdavid92.vpncore.IObserverPacket
+import com.abdavid92.vpncore.IVpnConnection
+import com.abdavid92.vpncore.Packet
+import com.abdavid92.vpncore.TrackerVpnConnection
+import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
-import com.smartsolutions.paquetes.firewall.VpnConnection
+import com.smartsolutions.paquetes.helpers.where
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.MainActivity
@@ -17,8 +22,13 @@ import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.net.DatagramSocket
+import java.net.Socket
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -26,25 +36,30 @@ import kotlin.coroutines.CoroutineContext
  * Servicio del cortafuegos.
  * */
 @AndroidEntryPoint
-class FirewallService : VpnService() {
+class FirewallService : VpnService(), IProtectSocket, IObserverPacket, CoroutineScope {
 
     private val TAG = "FirewallService"
+
+    private val job = Job()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + job
 
     /**
      * Conexión del vpn
      * */
-    @Inject
-    lateinit var vpnConnection: VpnConnection
+    private lateinit var vpnConnection: IVpnConnection
+
+    /**
+     * Hilo de la conexión vpn
+     * */
+    private var vpnConnectionThread: Thread? = null
 
     /**
      * Repositorio de aplicaciones
      * */
     @Inject
     lateinit var appRepository: IAppRepository
-
-    /**
-     * Preferencias de la aplicación
-     * */
 
     /**
      * Receptor de radiodifución del observador
@@ -108,24 +123,43 @@ class FirewallService : VpnService() {
         super.onCreate()
 
         //Configuración extra del vpn
-        vpnConnection.service = this
-        vpnConnection.pendingIntent = PendingIntent.getActivity(
-            this,
-            FIREWALL_SERVICE_REQUEST_CODE,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        vpnConnection = TrackerVpnConnection(this)
+            .setSessionName(getString(R.string.app_name))
+            .setPendingIntent(PendingIntent.getActivity(
+                this,
+                FIREWALL_SERVICE_REQUEST_CODE,
+                Intent(this, MainActivity::class.java),
+                PendingIntent.FLAG_UPDATE_CURRENT
+            ))
+        vpnConnection.subscribe(this)
+
+        vpnConnectionThread = Thread(vpnConnection)
 
         launchNotification()
 
         //Si el modo dinámico está activado
-        dataStore.data.map {
-            if (it[PreferencesKeys.DYNAMIC_FIREWALL_ON] == true) {
-                val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
+        launch {
+            dataStore.data.collect {
+                if (it[PreferencesKeys.DYNAMIC_FIREWALL_ON] == true) {
+                    val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
 
-                //Registro del receptor
-                LocalBroadcastManager.getInstance(this)
-                    .registerReceiver(watcherReceiver, filter)
+                    //Registro del receptor
+                    LocalBroadcastManager.getInstance(this@FirewallService)
+                        .registerReceiver(watcherReceiver, filter)
+                } else {
+                    LocalBroadcastManager.getInstance(this@FirewallService)
+                        .unregisterReceiver(watcherReceiver)
+                }
+            }
+        }
+
+        launch {
+            appRepository.flow().collect {
+                vpnConnection.setAllowedPackageNames(it.where { app ->
+                    app.access || app.tempAccess
+                }.map { transformApp ->
+                    return@map transformApp.packageName
+                }.toTypedArray())
             }
         }
     }
@@ -145,9 +179,14 @@ class FirewallService : VpnService() {
         }
 
         //Inicio el vpn
-        vpnConnection.start()
+        if (!vpnConnection.isConnected)
+            vpnConnectionThread?.start()
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    override fun observe(packet: Packet) {
+        //TODO:Registrar los paquetes en el log
     }
 
     /**
@@ -156,7 +195,10 @@ class FirewallService : VpnService() {
     private fun stopService() {
 
         //Detengo el vpn
-        vpnConnection.stop()
+        vpnConnection.shutdown()
+        vpnConnection.unsubscribe(this)
+        vpnConnectionThread?.interrupt()
+        job.cancel()
 
         //Elimino el registro del receiver
         LocalBroadcastManager.getInstance(this)
@@ -183,6 +225,22 @@ class FirewallService : VpnService() {
             .setContentText(getString(R.string.firewall_service_running))
 
         startForeground(NotificationChannels.MAIN_NOTIFICATION_ID, builder.build())
+    }
+
+    override fun onRevoke() {
+        stopService()
+    }
+
+    override fun protectSocket(socket: Socket) {
+        this.protect(socket)
+    }
+
+    override fun protectSocket(socket: Int) {
+        this.protect(socket)
+    }
+
+    override fun protectSocket(socket: DatagramSocket) {
+        this.protect(socket)
     }
 
     companion object {

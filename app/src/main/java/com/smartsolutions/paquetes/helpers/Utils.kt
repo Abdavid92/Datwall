@@ -124,3 +124,13 @@ fun Array<CharSequence>.string(): String {
 
     return text
 }
+
+fun <T> List<T>.where(predicate: (T) -> Boolean): List<T> {
+    val result = mutableListOf<T>()
+
+    this.forEach {
+        if (predicate(it))
+            result.add(it)
+    }
+    return result
+}

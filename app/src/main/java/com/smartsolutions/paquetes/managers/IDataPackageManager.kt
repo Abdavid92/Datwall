@@ -56,16 +56,6 @@ interface IDataPackageManager {
     fun registerDataPackage(smsBody: String)
 
     /**
-     * Obtiene el historial de compras de paquetes.
-     * */
-    fun getHistory(): Flow<List<PurchasedPackage>>
-
-    /**
-     * Limpia el historial de compras.
-     * */
-    fun clearHistory()
-
-    /**
      * Modo de compra de paquetes.
      * */
     enum class BuyMode {

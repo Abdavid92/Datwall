@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.VpnService;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +51,7 @@ public class TrackerVpnConnection extends BaseVpnConnection {
     private String[] blockedAddress = new String[0];
     private final List<IObserverPacket> observers = new ArrayList<>();
     private SessionHandler handler = null;
+    private Handler observerHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Crea una instancia de {@link TrackerVpnConnection}.
@@ -104,10 +107,8 @@ public class TrackerVpnConnection extends BaseVpnConnection {
 
     @Override
     public IVpnConnection setBlockedAddress(@NonNull String[] address) {
-        if (address != null) {
-            this.blockedAddress = address;
-            handler.setBlockedAddress(this.blockedAddress);
-        }
+        this.blockedAddress = address;
+        handler.setBlockedAddress(this.blockedAddress);
         return this;
     }
 
@@ -202,9 +203,11 @@ public class TrackerVpnConnection extends BaseVpnConnection {
 
     private void observePackets(@Nullable Packet packet) {
         if (packet != null) {
-            for (IObserverPacket observer : observers) {
-                observer.observe(packet);
-            }
+            observerHandler.post(() -> {
+                for (IObserverPacket observer : observers) {
+                    observer.observe(packet);
+                }
+            });
         }
     }
 
