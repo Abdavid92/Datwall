@@ -24,7 +24,7 @@ class PurchasedPackagesManager @Inject constructor(
         purchasedPackageRepository.create(purchasedPackage)
     }
 
-    suspend fun confirmPurchased(dataPackageId: String) {
+    suspend fun confirmPurchased(dataPackageId: String, simIndex: Int) {
         val pending = purchasedPackageRepository
             .getPending(dataPackageId)
             .first()
@@ -45,6 +45,7 @@ class PurchasedPackagesManager @Inject constructor(
 
             if (pending.isNotEmpty()) {
                 pending[0].pending = false
+                pending[0].simIndex = simIndex
                 purchasedPackageRepository.update(pending[0])
             }
         }

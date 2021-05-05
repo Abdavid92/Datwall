@@ -15,7 +15,7 @@ data class PurchasedPackage(
     val date: Long,
     val origin: IDataPackageManager.BuyMode,
     @ColumnInfo(name = "sim_index")
-    val simIndex: Int,
+    var simIndex: Int,
     var pending: Boolean,
     @ColumnInfo(name = "data_package_id")
     val dataPackageId: String

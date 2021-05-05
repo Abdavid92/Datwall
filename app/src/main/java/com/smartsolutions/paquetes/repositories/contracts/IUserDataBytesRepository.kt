@@ -9,7 +9,7 @@ interface IUserDataBytesRepository {
 
     suspend fun all(): List<UserDataBytes>
 
-    fun getByType(dataType: UserDataBytes.DataType, simIndex: Int): LiveData<UserDataBytes>
+    suspend fun getBySimIndex(simIndex: Int): List<UserDataBytes>
 
     suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes?
 

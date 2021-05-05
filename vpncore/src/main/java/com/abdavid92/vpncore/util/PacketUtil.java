@@ -493,7 +493,7 @@ public class PacketUtil {
 			String destAddress,
 			int destPort
 	) {
-		File file;
+		File file = null;
 		switch (protocol) {
 			case PROTOCOL_ICMP:
 				file = new File("/proc/net/icmp");
@@ -506,8 +506,7 @@ public class PacketUtil {
 				break;
 			case PROTOCOL_UDP:
 				file = (version == 4) ? new File("/proc/net/udp") : new File("/proc/net/udp6");
-			default:
-				file = null;
+				break;
 		}
 
 		if (file != null) {

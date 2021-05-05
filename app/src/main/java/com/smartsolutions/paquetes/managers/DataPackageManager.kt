@@ -150,7 +150,7 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override fun registerDataPackage(smsBody: String) {
+    override fun registerDataPackage(smsBody: String, simIndex: Int) {
         val classes = DataPackagesContract.javaClass.declaredClasses
 
         classes.forEach {
@@ -162,14 +162,24 @@ class DataPackageManager @Inject constructor(
                 val price = it.getDeclaredField("price").getFloat(null)
 
                 launch {
-                    dataPackageRepository.get(createDataPackageId(name, price))?.let { dataPackage ->
-                        userDataBytesManager.addDataBytes(dataPackage)
-                        purchasedPackagesManager.confirmPurchased(dataPackage.id)
+                    val dataPackageId = createDataPackageId(name, price)
+
+                    checkSimIndex(dataPackageId, simIndex)
+
+                    dataPackageRepository.get(dataPackageId)?.let { dataPackage ->
+                        userDataBytesManager.addDataBytes(dataPackage, simIndex)
+                        purchasedPackagesManager.confirmPurchased(dataPackage.id, simIndex)
                     }
                 }
 
                 return
             }
+        }
+    }
+
+    private fun checkSimIndex(dataPackageId: String, simIndex: Int) {
+        if (simIndex == -1) {
+
         }
     }
 

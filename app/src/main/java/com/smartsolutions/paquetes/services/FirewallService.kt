@@ -13,7 +13,6 @@ import com.abdavid92.vpncore.Packet
 import com.abdavid92.vpncore.TrackerVpnConnection
 import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
-import com.smartsolutions.paquetes.helpers.where
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.MainActivity
@@ -155,7 +154,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
         launch {
             appRepository.flow().collect {
-                vpnConnection.setAllowedPackageNames(it.where { app ->
+                vpnConnection.setAllowedPackageNames(it.filter { app ->
                     app.access || app.tempAccess
                 }.map { transformApp ->
                     return@map transformApp.packageName
