@@ -19,4 +19,7 @@
     <string name="pkgs_not_configured">Los paquetes no están configurados. Debe ejecutar la configuracion de estos primero para comprar en paquete de manera segura.</string>
     <string name="pkg_not_configured">Este paquete no está configurado o no está activo. No puede comprarlo en estos momentos.</string>
     <string name="title_firewall">Cortafuegos</string>
+    <string name="src_ip_template"><![CDATA[<b>src</b>%s:%d]]></string>
+    <string name="dest_ip_template"><![CDATA[<b>dest:</b>%s:%d]]></string>
+    <string name="log_activity_title">Log</string>
 </resources>

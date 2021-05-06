@@ -52,6 +52,7 @@ public class TrackerVpnConnection extends BaseVpnConnection {
     private final List<IObserverPacket> observers = new ArrayList<>();
     private SessionHandler handler = null;
     private Handler observerHandler = new Handler(Looper.getMainLooper());
+    private boolean allowUnknownUid = false;
 
     /**
      * Crea una instancia de {@link TrackerVpnConnection}.
@@ -81,6 +82,12 @@ public class TrackerVpnConnection extends BaseVpnConnection {
     public IVpnConnection setPendingIntent(PendingIntent pendingIntent) {
         this.pendingIntent = pendingIntent;
         return this;
+    }
+
+    public void allowUnknownUid(boolean allow) {
+        this.allowUnknownUid = allow;
+        if (handler != null)
+            handler.allowUnknownUid(this.allowUnknownUid);
     }
 
     @NonNull
@@ -136,6 +143,7 @@ public class TrackerVpnConnection extends BaseVpnConnection {
             );
             handler.setAllowedUids(this.allowedUid);
             handler.setBlockedAddress(this.blockedAddress);
+            handler.allowUnknownUid(this.allowUnknownUid);
 
             SocketNIODataService dataService = new SocketNIODataService(clientPacketWriter);
             Thread dataServiceThread = new Thread(dataService);

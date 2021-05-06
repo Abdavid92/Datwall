@@ -69,12 +69,10 @@ class SmsReceiver : BroadcastReceiver() {
                     "slotId" -> slot = bundle.getInt("slotId", -1)
                     "slotIdx" -> slot = bundle.getInt("slotIdx", -1)
                     "android.telephony.extra.SLOT_INDEX" -> slot = bundle.getInt("android.telephony.extra.SLOT_INDEX", -1)
-                    else -> if (key.toLowerCase(Locale.ROOT).contains("slot") or key.toLowerCase(
-                            Locale.ROOT
-                        ).contains("sim")
+                    else -> if (key.contains("slot", true) || key.contains("sim", true)
                     ) {
                         val value = bundle.getString(key, "-1")
-                        if ((value == "0") or (value == "1") or (value == "2")) {
+                        if ((value == "0") || (value == "1") || (value == "2")) {
                             slot = bundle.getInt(key, -1)
                         }
                     }

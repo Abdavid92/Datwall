@@ -349,7 +349,7 @@ public class TCPPacketFactory {
 		int sendertimestamp = (int)currentdate.getTime();
 		tcpheader.setTimeStampSender(sendertimestamp);
 		
-		return new Packet(ipheader, tcpheader, createPacketData(ipheader, tcpheader, null));
+		return new Packet(ipheader, tcpheader, createPacketData(ipheader, tcpheader, null), false);
 	}
 
 	/**

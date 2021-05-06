@@ -98,9 +98,12 @@ class AppRepository @Inject constructor(
 
     override suspend fun get(packageName: String): App? = dao.get(packageName)
 
-    override suspend fun get(uid: Int): IApp {
+    override suspend fun get(uid: Int): IApp? {
         //Obtengo los datos
         val apps = dao.get(uid)
+
+        if (apps.isEmpty())
+            return null
 
         return if (apps.size == 1)
             //Si la lista de aplicaciones es de uno retorno una instancia de App

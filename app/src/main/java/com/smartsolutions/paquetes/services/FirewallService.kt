@@ -13,6 +13,7 @@ import com.abdavid92.vpncore.Packet
 import com.abdavid92.vpncore.TrackerVpnConnection
 import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
+import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.MainActivity
@@ -130,6 +131,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                 Intent(this, MainActivity::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT
             ))
+        (vpnConnection as TrackerVpnConnection).allowUnknownUid(true)
         vpnConnection.subscribe(this)
 
         vpnConnectionThread = Thread(vpnConnection)
@@ -185,7 +187,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     }
 
     override fun observe(packet: Packet) {
-        //TODO:Registrar los paquetes en el log
+        PacketManager.getInstance()
+            .sendPacket(packet)
     }
 
     /**

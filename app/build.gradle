@@ -22,6 +22,8 @@ android {
         testInstrumentationRunner "com.smartsolutions.paquetes.HiltTestRunner"
     }
 
+    buildFeatures.dataBinding = true
+
     buildTypes {
         release {
             minifyEnabled true

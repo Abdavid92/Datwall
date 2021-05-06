@@ -60,6 +60,7 @@ public class SessionHandler {
 	private final ExecutorService pingThreadpool;
 	private int[] allowedUids = new int[0];
 	private String[] blockedAddress = new String[0];
+	private boolean allowUnknownUid = false;
 
 	public static SessionHandler getInstance(IClientPacketWriter writer, ConnectivityManager connectivityManager) {
 		if (handler.writer == null)
@@ -110,14 +111,18 @@ public class SessionHandler {
 			this.blockedAddress = address;
 	}
 
-	private void handleUDPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, UDPHeader udpheader) {
+	public void allowUnknownUid(boolean allow) {
+		this.allowUnknownUid = allow;
+	}
+
+	private boolean handleUDPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, UDPHeader udpheader) {
 		SessionManager sessionManager = SessionManager.getInstance();
 
 		String srcAddress = intToIPAddress(ipHeader.getSourceIP());
 		String destAddress = intToIPAddress(ipHeader.getDestinationIP());
 
 		if (isBlockedUid(udpheader.getUid()) || isBlockedAddress(srcAddress) || isBlockedAddress(destAddress))
-			return;
+			return false;
 
 		Session session = sessionManager.getSession(ipHeader.getDestinationIP(), udpheader.getDestinationPort(),
 				ipHeader.getSourceIP(), udpheader.getSourcePort());
@@ -128,7 +133,7 @@ public class SessionHandler {
 		}
 
 		if(session == null) {
-			return;
+			return false;
 		}
 
 		session.setLastIpHeader(ipHeader);
@@ -137,9 +142,11 @@ public class SessionHandler {
 		session.setDataForSendingReady(true);
 		Log.d(TAG,"added UDP data for bg worker to send: "+len);
 		sessionManager.keepSessionAlive(session);
+
+		return true;
 	}
 
-	private void handleTCPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, TCPHeader tcpheader) {
+	private boolean handleTCPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, TCPHeader tcpheader) {
 		int dataLength = clientPacketData.limit() - clientPacketData.position();
 		int sourceIP = ipHeader.getSourceIP();
 		int destinationIP = ipHeader.getDestinationIP();
@@ -149,7 +156,7 @@ public class SessionHandler {
 		if (isBlockedUid(tcpheader.getUid()) ||
 				isBlockedAddress(intToIPAddress(sourceIP)) ||
 				isBlockedAddress(intToIPAddress(destinationIP))) {
-			return;
+			return false;
 		}
 
 		SessionManager sessionManager = SessionManager.getInstance();
@@ -171,7 +178,7 @@ public class SessionHandler {
 				else {
 					Log.e(TAG,"**** ==> Session not found: " + key);
 				}
-				return;
+				return false;
 			}
 
 			session.setLastIpHeader(ipHeader);
@@ -233,6 +240,7 @@ public class SessionHandler {
 			Log.d(TAG,str1);
 			Log.d(TAG,">>>>>>>>>>>>>>>>>>>end receiving from client>>>>>>>>>>>>>>>>>>>>>");
 		}
+		return true;
 	}
 
 	private void handleICMPPacket(ByteBuffer clientPacketData, final IPv4Header ipHeader) throws PacketHeaderException {
@@ -322,13 +330,14 @@ public class SessionHandler {
 				return null;
 		}
 
+		boolean handled;
 		if (transportHeader instanceof TCPHeader) {
-			handleTCPPacket(stream, ipHeader, (TCPHeader) transportHeader);
+			handled = handleTCPPacket(stream, ipHeader, (TCPHeader) transportHeader);
 		} else {
-			handleUDPPacket(stream, ipHeader, (UDPHeader) transportHeader);
+			handled = handleUDPPacket(stream, ipHeader, (UDPHeader) transportHeader);
 		}
 
-		return new Packet(ipHeader, transportHeader, stream.array());
+		return new Packet(ipHeader, transportHeader, stream.array(), handled);
 	}
 
 	private void sendRstPacket(IPv4Header ip, TCPHeader tcp, int dataLength){
@@ -534,6 +543,9 @@ public class SessionHandler {
 	}
 
 	private boolean isBlockedUid(int uid) {
+		if (allowUnknownUid && uid == 0 || uid == -1)
+			return false;
+
 		int begin = 0;
 		int end = allowedUids.length;
 

@@ -6,4 +6,5 @@ package com.abdavid92.vpncore.transport;
 public interface ITransportHeader {
     int getSourcePort();
     int getDestinationPort();
+    int getUid();
 }

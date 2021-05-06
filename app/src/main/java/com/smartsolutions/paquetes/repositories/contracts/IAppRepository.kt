@@ -73,7 +73,7 @@ interface IAppRepository {
     /**
      * Obtiene una aplicación o un grupo de ellas por el uid
      * */
-    suspend fun get(uid: Int): IApp
+    suspend fun get(uid: Int): IApp?
 
     /**
      * Obtiene todas la aplicaciones organizadas por grupo
