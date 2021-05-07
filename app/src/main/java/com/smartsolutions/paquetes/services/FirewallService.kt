@@ -7,12 +7,10 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.abdavid92.vpncore.IObserverPacket
-import com.abdavid92.vpncore.IVpnConnection
-import com.abdavid92.vpncore.Packet
-import com.abdavid92.vpncore.TrackerVpnConnection
+import com.abdavid92.vpncore.*
 import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -123,7 +121,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         super.onCreate()
 
         //Configuración extra del vpn
-        vpnConnection = TrackerVpnConnection(this)
+        vpnConnection = LiteVpnConnection(this)
             .setSessionName(getString(R.string.app_name))
             .setPendingIntent(PendingIntent.getActivity(
                 this,
@@ -131,8 +129,12 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                 Intent(this, MainActivity::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT
             ))
-        (vpnConnection as TrackerVpnConnection).allowUnknownUid(true)
+
         vpnConnection.subscribe(this)
+
+        if (vpnConnection is TrackerVpnConnection) {
+            (vpnConnection as TrackerVpnConnection).allowUnknownUid(true)
+        }
 
         vpnConnectionThread = Thread(vpnConnection)
 
@@ -198,7 +200,9 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
         //Detengo el vpn
         vpnConnection.shutdown()
-        vpnConnection.unsubscribe(this)
+        if (vpnConnection is TrackerVpnConnection) {
+            (vpnConnection as TrackerVpnConnection).unsubscribe(this)
+        }
         vpnConnectionThread?.interrupt()
         job.cancel()
 

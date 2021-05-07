@@ -82,7 +82,7 @@ public class SocketDataWriterWorker implements Runnable {
 		}
 		DatagramChannel channel = (DatagramChannel) session.getChannel();
 		String name = PacketUtil.intToIPAddress(session.getDestIp())+":"+session.getDestPort()+
-				"-"+PacketUtil.intToIPAddress(session.getSourceIp())+":"+session.getSourcePort();
+				"-"+ PacketUtil.intToIPAddress(session.getSourceIp())+":"+session.getSourcePort();
 		byte[] data = session.getSendingData();
 		ByteBuffer buffer = ByteBuffer.allocate(data.length);
 		buffer.put(data);
@@ -110,7 +110,7 @@ public class SocketDataWriterWorker implements Runnable {
 		SocketChannel channel = (SocketChannel) session.getChannel();
 
 		String name = PacketUtil.intToIPAddress(session.getDestIp())+":"+session.getDestPort()+
-				"-"+PacketUtil.intToIPAddress(session.getSourceIp())+":"+session.getSourcePort();
+				"-"+ PacketUtil.intToIPAddress(session.getSourceIp())+":"+session.getSourcePort();
 		
 		byte[] data = session.getSendingData();
 		ByteBuffer buffer = ByteBuffer.allocate(data.length);

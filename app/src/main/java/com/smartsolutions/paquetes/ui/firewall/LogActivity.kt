@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -13,19 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.abdavid92.vpncore.IObserverPacket
 import com.abdavid92.vpncore.Packet
 import com.abdavid92.vpncore.util.PacketUtil
-import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.databinding.ItemLogBinding
+import com.smartsolutions.paquetes.databinding.LogItemBinding
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -92,7 +88,7 @@ class LogActivity : AppCompatActivity(R.layout.activity_log), IObserverPacket {
             ViewHolder(
                 DataBindingUtil.inflate(
                     LayoutInflater.from(p0.context),
-                    R.layout.item_log,
+                    R.layout.log_item,
                     p0,
                     false),
                 apps
@@ -105,7 +101,7 @@ class LogActivity : AppCompatActivity(R.layout.activity_log), IObserverPacket {
         override fun getItemCount(): Int = _list.size
 
         class ViewHolder(
-            private val binding: ItemLogBinding,
+            private val binding: LogItemBinding,
             private val apps: List<IApp>?
             ): RecyclerView.ViewHolder(binding.root) {
 

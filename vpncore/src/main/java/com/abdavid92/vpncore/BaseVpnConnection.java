@@ -2,7 +2,14 @@ package com.abdavid92.vpncore;
 
 import android.app.PendingIntent;
 import android.net.VpnService;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
+
+import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.abdavid92.vpncore.DataConst.MAX_PACKET_LENGTH;
 
@@ -12,11 +19,24 @@ public abstract class BaseVpnConnection implements IVpnConnection {
     protected ParcelFileDescriptor mInterface = null;
     protected String sessionName = "FirewallService";
     protected PendingIntent pendingIntent = null;
+    protected final List<IObserverPacket> observers = new ArrayList<>();
+    protected final Handler observerHandler = new Handler(Looper.getMainLooper());
+    protected boolean running = false;
 
     @Override
     public boolean isConnected() {
         return mInterface != null && mInterface.getFileDescriptor() != null &&
                 mInterface.getFileDescriptor().valid();
+    }
+
+    protected void observePackets(@Nullable Packet packet) {
+        if (packet != null) {
+            observerHandler.post(() -> {
+                for (IObserverPacket observer : observers) {
+                    observer.observe(packet);
+                }
+            });
+        }
     }
 
     protected VpnService.Builder configure() {
@@ -31,10 +51,11 @@ public abstract class BaseVpnConnection implements IVpnConnection {
         if (pendingIntent != null)
             builder.setConfigureIntent(pendingIntent);
 
-        configureAllowApps(builder);
-
         return builder;
     }
 
-    protected abstract void configureAllowApps(VpnService.Builder builder);
+    protected void assertMainThread() {
+        if (Thread.currentThread().getName().equals("main"))
+            throw new IllegalThreadStateException("Vpn not running in main thread");
+    }
 }

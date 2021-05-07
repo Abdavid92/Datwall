@@ -32,10 +32,9 @@ public class Packet {
 	@NonNull private final IPv4Header ipHeader;
 	@NonNull private final ITransportHeader transportHeader;
 	@NonNull private final byte[] buffer;
-	private boolean handled = false;
 
 //	public Packet(IPv4Header ipHeader, ITransportHeader transportHeader, IApplication application, byte[] data) {
-	public Packet(@NonNull IPv4Header ipHeader, @NonNull ITransportHeader transportHeader, @NonNull byte[] data, boolean handled) {
+	public Packet(@NonNull IPv4Header ipHeader, @NonNull ITransportHeader transportHeader, @NonNull byte[] data) {
 		this.ipHeader = ipHeader;
 		this.transportHeader = transportHeader;
 		int transportLength;
@@ -45,7 +44,6 @@ public class Packet {
 			transportLength = 8;
 		}
 		buffer = data;
-		this.handled = handled;
 	}
 
 	public byte getProtocol() {
@@ -77,9 +75,5 @@ public class Packet {
 	@NonNull
 	public byte[] getBuffer() {
 		return buffer;
-	}
-
-	public boolean wasHandled() {
-		return handled;
 	}
 }

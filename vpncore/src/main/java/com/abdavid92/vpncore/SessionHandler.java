@@ -33,8 +33,6 @@ import com.abdavid92.vpncore.transport.tcp.TCPHeader;
 import com.abdavid92.vpncore.transport.tcp.TCPPacketFactory;
 import com.abdavid92.vpncore.transport.udp.UDPHeader;
 import com.abdavid92.vpncore.transport.udp.UDPPacketFactory;
-import static com.abdavid92.vpncore.util.PacketUtil.*;
-import static com.abdavid92.vpncore.DataConst.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -43,6 +41,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static com.abdavid92.vpncore.util.PacketUtil.PROTOCOL_ICMP;
+import static com.abdavid92.vpncore.util.PacketUtil.PROTOCOL_TCP;
+import static com.abdavid92.vpncore.util.PacketUtil.PROTOCOL_UDP;
+import static com.abdavid92.vpncore.util.PacketUtil.getConnectionOwnerUid;
+import static com.abdavid92.vpncore.util.PacketUtil.getOutput;
+import static com.abdavid92.vpncore.util.PacketUtil.intToIPAddress;
+import static com.abdavid92.vpncore.util.PacketUtil.isPacketCorrupted;
 
 /**
  * handle VPN client request and response. it create a new session for each VPN client.
@@ -59,7 +65,6 @@ public class SessionHandler {
 	private ConnectivityManager connectivityManager = null;
 	private final ExecutorService pingThreadpool;
 	private int[] allowedUids = new int[0];
-	private String[] blockedAddress = new String[0];
 	private boolean allowUnknownUid = false;
 
 	public static SessionHandler getInstance(IClientPacketWriter writer, ConnectivityManager connectivityManager) {
@@ -89,7 +94,7 @@ public class SessionHandler {
 		if (allowedUids != null) {
 			int[] uids = allowedUids.clone();
 
-			int temp;
+			int temp = 0;
 
 			for (int i = 0; i < uids.length; i++) {
 
@@ -100,29 +105,18 @@ public class SessionHandler {
 						uids[i] = uids[y];
 						uids[y] = temp;
 					}
+
 				}
 			}
 			this.allowedUids = uids;
 		}
 	}
 
-	public void setBlockedAddress(String[] address) {
-		if (address != null)
-			this.blockedAddress = address;
-	}
-
-	public void allowUnknownUid(boolean allow) {
-		this.allowUnknownUid = allow;
-	}
-
-	private boolean handleUDPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, UDPHeader udpheader) {
+	private void handleUDPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, UDPHeader udpheader) {
 		SessionManager sessionManager = SessionManager.getInstance();
 
-		String srcAddress = intToIPAddress(ipHeader.getSourceIP());
-		String destAddress = intToIPAddress(ipHeader.getDestinationIP());
-
-		if (isBlockedUid(udpheader.getUid()) || isBlockedAddress(srcAddress) || isBlockedAddress(destAddress))
-			return false;
+		if (isBlockedUid(udpheader.getUid()))
+			return;
 
 		Session session = sessionManager.getSession(ipHeader.getDestinationIP(), udpheader.getDestinationPort(),
 				ipHeader.getSourceIP(), udpheader.getSourcePort());
@@ -133,7 +127,7 @@ public class SessionHandler {
 		}
 
 		if(session == null) {
-			return false;
+			return;
 		}
 
 		session.setLastIpHeader(ipHeader);
@@ -142,21 +136,17 @@ public class SessionHandler {
 		session.setDataForSendingReady(true);
 		Log.d(TAG,"added UDP data for bg worker to send: "+len);
 		sessionManager.keepSessionAlive(session);
-
-		return true;
 	}
 
-	private boolean handleTCPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, TCPHeader tcpheader) {
+	private void handleTCPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, TCPHeader tcpheader) {
 		int dataLength = clientPacketData.limit() - clientPacketData.position();
 		int sourceIP = ipHeader.getSourceIP();
 		int destinationIP = ipHeader.getDestinationIP();
 		int sourcePort = tcpheader.getSourcePort();
 		int destinationPort = tcpheader.getDestinationPort();
 
-		if (isBlockedUid(tcpheader.getUid()) ||
-				isBlockedAddress(intToIPAddress(sourceIP)) ||
-				isBlockedAddress(intToIPAddress(destinationIP))) {
-			return false;
+		if (isBlockedUid(tcpheader.getUid())) {
+			return;
 		}
 
 		SessionManager sessionManager = SessionManager.getInstance();
@@ -178,7 +168,7 @@ public class SessionHandler {
 				else {
 					Log.e(TAG,"**** ==> Session not found: " + key);
 				}
-				return false;
+				return;
 			}
 
 			session.setLastIpHeader(ipHeader);
@@ -240,7 +230,6 @@ public class SessionHandler {
 			Log.d(TAG,str1);
 			Log.d(TAG,">>>>>>>>>>>>>>>>>>>end receiving from client>>>>>>>>>>>>>>>>>>>>>");
 		}
-		return true;
 	}
 
 	private void handleICMPPacket(ByteBuffer clientPacketData, final IPv4Header ipHeader) throws PacketHeaderException {
@@ -330,14 +319,13 @@ public class SessionHandler {
 				return null;
 		}
 
-		boolean handled;
 		if (transportHeader instanceof TCPHeader) {
-			handled = handleTCPPacket(stream, ipHeader, (TCPHeader) transportHeader);
+			handleTCPPacket(stream, ipHeader, (TCPHeader) transportHeader);
 		} else {
-			handled = handleUDPPacket(stream, ipHeader, (UDPHeader) transportHeader);
+			handleUDPPacket(stream, ipHeader, (UDPHeader) transportHeader);
 		}
 
-		return new Packet(ipHeader, transportHeader, stream.array(), handled);
+		return new Packet(ipHeader, transportHeader, stream.array());
 	}
 
 	private void sendRstPacket(IPv4Header ip, TCPHeader tcp, int dataLength){
@@ -538,36 +526,34 @@ public class SessionHandler {
 			packetData.addData(packet.getBuffer());
 			Log.d(TAG,"Send SYN-ACK to client");
 		} catch (IOException e) {
-			Log.e(TAG,"Error sending data to client: " + e.getMessage());
+			Log.e(TAG,"Error sending data to client: "+e.getMessage());
 		}
 	}
 
 	private boolean isBlockedUid(int uid) {
-		if (allowUnknownUid && uid == 0 || uid == -1)
+		if (this.allowUnknownUid && (uid == 0 || uid == -1))
 			return false;
 
 		int begin = 0;
 		int end = allowedUids.length;
 
-		while (begin < end) {
+		while (begin <= end) {
 			int middle = (begin + end) / 2;
 
-			if (allowedUids[middle] == uid)
-				return false;
-			if (allowedUids[middle] > uid)
-				end = middle - 1;
-			else if (allowedUids[middle] < uid)
-				begin = middle + 1;
+			if (middle < allowedUids.length) {
+				if (allowedUids[middle] == uid)
+					return false;
+				if (allowedUids[middle] > uid)
+					end = middle - 1;
+				else if (allowedUids[middle] < uid)
+					begin = middle + 1;
+			}
 		}
 
 		return true;
 	}
 
-	private boolean isBlockedAddress(String address) {
-		for (String ba : blockedAddress) {
-			if (ba.equals(address))
-				return true;
-		}
-		return false;
+	public void allowUnknownUid(boolean allowUnknownUid) {
+		this.allowUnknownUid = allowUnknownUid;
 	}
 }//end class

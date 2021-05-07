@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 
 package com.abdavid92.vpncore.util;
 
@@ -22,12 +22,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.abdavid92.vpncore.exceptions.PacketHeaderException;
 import com.abdavid92.vpncore.transport.ip.IPv4Header;
 import com.abdavid92.vpncore.transport.tcp.TCPHeader;
 import com.abdavid92.vpncore.transport.udp.UDPHeader;
-import static com.abdavid92.vpncore.DataConst.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,6 +54,11 @@ public class PacketUtil {
 	private static final String TAG = "PacketUtil";
 
 	private volatile static int packetId = 0;
+
+	public static final int PROTOCOL_TCP = 6;
+	public static final int PROTOCOL_UDP = 17;
+	public static final int PROTOCOL_ICMP = 1;
+	public static final int PROTOCOL_ICMP_V6 = 58;
 
 	public synchronized static int getPacketId(){
 		return packetId++;
@@ -113,7 +118,7 @@ public class PacketUtil {
 	 */
 	public static int getNetworkInt(@NonNull byte[] buffer, int start, int length){
 		int value = 0;
-		int end = start + Math.min(length, 4);
+		int end = start + (length > 4 ? 4 : length);
 
 		if(end > buffer.length)
 			end = buffer.length;
@@ -271,10 +276,10 @@ public class PacketUtil {
 		if (split.length > 4)
 			throw new PacketHeaderException("Unsupported ip version");
 
-		return (int) (((Integer.parseInt(split[0]) << 24)) +
-				((Integer.parseInt(split[1]) << 16)) +
-				((Integer.parseInt(split[2]) << 8)) +
-				(Integer.parseInt(split[3])));
+		return (int) (((Integer.parseInt(split[0]) >>> 24) & 0x000000FF) +
+				((Integer.parseInt(split[1]) >>> 16) & 0x000000FF) +
+				((Integer.parseInt(split[2]) >>> 8) & 0x000000FF) +
+				(Integer.parseInt(split[3]) & 0x000000FF));
 	}
 
 	/**
@@ -315,15 +320,15 @@ public class PacketUtil {
 				"\r\nFlag: " + ipheader.getFlag() +
 				"\r\nFragment Offset: " + ipheader.getFragmentOffset() +
 				"\r\nDest: " + intToIPAddress(ipheader.getDestinationIP()) +
-						":" + udp.getDestinationPort() +
+				":" + udp.getDestinationPort() +
 				"\r\nSrc: " + intToIPAddress(ipheader.getSourceIP()) +
-						":" + udp.getSourcePort() +
+				":" + udp.getSourcePort() +
 				"\r\nUDP Length: " + udp.getLength() +
 				"\r\nUDP Checksum: " + udp.getChecksum();
 	}
 
 	public static String getOutput(IPv4Header ipHeader, TCPHeader tcpheader,
-                                   byte[] packetData) {
+								   byte[] packetData) {
 		short tcpLength = (short)(packetData.length -
 				ipHeader.getIPHeaderLength());
 		boolean isValidChecksum = isValidTCPChecksum(
@@ -335,39 +340,39 @@ public class PacketUtil {
 				- tcpheader.getTCPHeaderLength();
 
 		StringBuilder str = new StringBuilder("\r\nIP Version: ")
-		.append(ipHeader.getIpVersion())
-		.append("\r\nProtocol: ").append(ipHeader.getProtocol())
-		.append("\r\nID# ").append(ipHeader.getIdentification())
-		.append("\r\nTotal Length: ").append(ipHeader.getTotalLength())
-		.append("\r\nData Length: ").append(packetBodyLength)
-		.append("\r\nDest: ").append(intToIPAddress(ipHeader.getDestinationIP()))
+				.append(ipHeader.getIpVersion())
+				.append("\r\nProtocol: ").append(ipHeader.getProtocol())
+				.append("\r\nID# ").append(ipHeader.getIdentification())
+				.append("\r\nTotal Length: ").append(ipHeader.getTotalLength())
+				.append("\r\nData Length: ").append(packetBodyLength)
+				.append("\r\nDest: ").append(intToIPAddress(ipHeader.getDestinationIP()))
 				.append(":").append(tcpheader.getDestinationPort())
-		.append("\r\nSrc: ").append(intToIPAddress(ipHeader.getSourceIP()))
+				.append("\r\nSrc: ").append(intToIPAddress(ipHeader.getSourceIP()))
 				.append(":").append(tcpheader.getSourcePort())
-		.append("\r\nACK: ").append(tcpheader.getAckNumber())
-		.append("\r\nSeq: ").append(tcpheader.getSequenceNumber())
-		.append("\r\nIP Header length: ").append(ipHeader.getIPHeaderLength())
-		.append("\r\nTCP Header length: ").append(tcpheader.getTCPHeaderLength())
-		.append("\r\nACK: ").append(tcpheader.isACK())
-		.append("\r\nSYN: ").append(tcpheader.isSYN())
-		.append("\r\nCWR: ").append(tcpheader.isCWR())
-		.append("\r\nECE: ").append(tcpheader.isECE())
-		.append("\r\nFIN: ").append(tcpheader.isFIN())
-		.append("\r\nNS: ").append(tcpheader.isNS())
-		.append("\r\nPSH: ").append(tcpheader.isPSH())
-		.append("\r\nRST: ").append(tcpheader.isRST())
-		.append("\r\nURG: ").append(tcpheader.isURG())
-		.append("\r\nIP checksum: ").append(ipHeader.getHeaderChecksum())
-		.append("\r\nIs Valid IP Checksum: ").append(isValidIPChecksum)
-		.append("\r\nTCP Checksum: ").append(tcpheader.getChecksum())
-		.append("\r\nIs Valid TCP checksum: ").append(isValidChecksum)
-		.append("\r\nMay fragement? ").append(ipHeader.isMayFragment())
-		.append("\r\nLast fragment? ").append(ipHeader.isLastFragment())
-		.append("\r\nFlag: ").append(ipHeader.getFlag())
-		.append("\r\nFragment Offset: ").append(ipHeader.getFragmentOffset())
-		.append("\r\nWindow: ").append(tcpheader.getWindowSize())
-		.append("\r\nWindow scale: ").append(tcpheader.getWindowScale())
-		.append("\r\nData Offset: ").append(tcpheader.getDataOffset());
+				.append("\r\nACK: ").append(tcpheader.getAckNumber())
+				.append("\r\nSeq: ").append(tcpheader.getSequenceNumber())
+				.append("\r\nIP Header length: ").append(ipHeader.getIPHeaderLength())
+				.append("\r\nTCP Header length: ").append(tcpheader.getTCPHeaderLength())
+				.append("\r\nACK: ").append(tcpheader.isACK())
+				.append("\r\nSYN: ").append(tcpheader.isSYN())
+				.append("\r\nCWR: ").append(tcpheader.isCWR())
+				.append("\r\nECE: ").append(tcpheader.isECE())
+				.append("\r\nFIN: ").append(tcpheader.isFIN())
+				.append("\r\nNS: ").append(tcpheader.isNS())
+				.append("\r\nPSH: ").append(tcpheader.isPSH())
+				.append("\r\nRST: ").append(tcpheader.isRST())
+				.append("\r\nURG: ").append(tcpheader.isURG())
+				.append("\r\nIP checksum: ").append(ipHeader.getHeaderChecksum())
+				.append("\r\nIs Valid IP Checksum: ").append(isValidIPChecksum)
+				.append("\r\nTCP Checksum: ").append(tcpheader.getChecksum())
+				.append("\r\nIs Valid TCP checksum: ").append(isValidChecksum)
+				.append("\r\nMay fragement? ").append(ipHeader.isMayFragment())
+				.append("\r\nLast fragment? ").append(ipHeader.isLastFragment())
+				.append("\r\nFlag: ").append(ipHeader.getFlag())
+				.append("\r\nFragment Offset: ").append(ipHeader.getFragmentOffset())
+				.append("\r\nWindow: ").append(tcpheader.getWindowSize())
+				.append("\r\nWindow scale: ").append(tcpheader.getWindowScale())
+				.append("\r\nData Offset: ").append(tcpheader.getDataOffset());
 
 		final byte[] options =  tcpheader.getOptions();
 		if (options != null){
@@ -493,7 +498,7 @@ public class PacketUtil {
 			String destAddress,
 			int destPort
 	) {
-		File file = null;
+		File file;
 		switch (protocol) {
 			case PROTOCOL_ICMP:
 				file = new File("/proc/net/icmp");
@@ -506,7 +511,8 @@ public class PacketUtil {
 				break;
 			case PROTOCOL_UDP:
 				file = (version == 4) ? new File("/proc/net/udp") : new File("/proc/net/udp6");
-				break;
+			default:
+				file = null;
 		}
 
 		if (file != null) {

@@ -395,11 +395,11 @@ class MCubacelClient @Inject constructor() {
 
             return if (dateText.endsWith("AM", true) || dateText.endsWith("PM", true)) {
                 SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.US)
-                    .parse(dateText)
+                    .parse(dateText)!!
                     .time
             } else {
                 SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US)
-                    .parse(dateText)
+                    .parse(dateText)!!
                     .time
             }
         } catch (e: Exception) {

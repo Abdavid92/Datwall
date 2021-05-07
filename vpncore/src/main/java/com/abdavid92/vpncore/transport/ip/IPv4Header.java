@@ -84,11 +84,11 @@ public class IPv4Header {
 	 * @param destinationIP IPv4 address of receiver.
 	 */
 	public IPv4Header(byte ipVersion, byte internetHeaderLength,
-					  byte dscpOrTypeOfService, byte ecn, int totalLength,
-					  int identification, boolean mayFragment,
-					  boolean lastFragment, short fragmentOffset,
-					  byte timeToLive, byte protocol, int headerChecksum,
-					  int sourceIP, int destinationIP) {
+                      byte dscpOrTypeOfService, byte ecn, int totalLength,
+                      int identification, boolean mayFragment,
+                      boolean lastFragment, short fragmentOffset,
+                      byte timeToLive, byte protocol, int headerChecksum,
+                      int sourceIP, int destinationIP) {
 		this.ipVersion = ipVersion;
 		this.internetHeaderLength = internetHeaderLength;
 		this.dscpOrTypeOfService = dscpOrTypeOfService;

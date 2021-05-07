@@ -33,16 +33,6 @@ public interface IVpnConnection extends Runnable {
     IVpnConnection setAllowedPackageNames(@NonNull String[] packageNames);
 
     /**
-     * Establece las direcciones ip que no están permitidas.
-     * */
-    IVpnConnection setBlockedAddress(@NonNull String[] address);
-
-    /**
-     * Indica si el vpn está conectado.
-     * */
-    boolean isConnected();
-
-    /**
      * Subscribe un observador que recibirá todos los paquetes
      * entarntes y salientes.
      * */
@@ -52,6 +42,11 @@ public interface IVpnConnection extends Runnable {
      * Elimina una subscripción.
      * */
     void unsubscribe(IObserverPacket observer);
+
+    /**
+     * Indica si el vpn está conectado.
+     * */
+    boolean isConnected();
 
     /**
      * Apaga y cierra la conexión.

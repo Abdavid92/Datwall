@@ -54,8 +54,8 @@ public class TCPHeader implements ITransportHeader {
 	private int timeStampReplyTo = 0;
 
 	TCPHeader(int sourcePort, int destinationPort, long sequenceNumber, long ackNumber,
-			  int dataOffset, boolean isns, int tcpFlags,
-			  int windowSize, int checksum, int urgentPointer) {
+              int dataOffset, boolean isns, int tcpFlags,
+              int windowSize, int checksum, int urgentPointer) {
 		this.sourcePort = sourcePort;
 		this.destinationPort = destinationPort;
 		this.sequenceNumber = sequenceNumber;
@@ -271,7 +271,6 @@ public class TCPHeader implements ITransportHeader {
 		this.timeStampReplyTo = timeStampReplyTo;
 	}
 
-	@Override
 	public int getUid() {
 		return uid;
 	}

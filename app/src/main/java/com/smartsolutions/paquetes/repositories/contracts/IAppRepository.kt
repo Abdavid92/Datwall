@@ -39,6 +39,8 @@ interface IAppRepository {
      * */
     fun flow(): Flow<List<App>>
 
+    fun flowByGroup(): Flow<List<IApp>>
+
     /**
      * Registra un observador que estará a la espera de cambios en base de datos
      *

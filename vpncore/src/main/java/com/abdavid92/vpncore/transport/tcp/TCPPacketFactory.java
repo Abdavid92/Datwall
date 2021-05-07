@@ -64,8 +64,8 @@ public class TCPPacketFactory {
 	 * @return byte[]
 	 */
 	public static byte[] createFinAckData(IPv4Header iPv4Header, TCPHeader tcpHeader,
-										  long ackToClient, long seqToClient,
-										  boolean isFin, boolean isAck){
+                                          long ackToClient, long seqToClient,
+                                          boolean isFin, boolean isAck){
 		IPv4Header ip = IPPacketFactory.copyIPv4Header(iPv4Header);
 		TCPHeader tcp = copyTCPHeader(tcpHeader);
 		
@@ -349,7 +349,7 @@ public class TCPPacketFactory {
 		int sendertimestamp = (int)currentdate.getTime();
 		tcpheader.setTimeStampSender(sendertimestamp);
 		
-		return new Packet(ipheader, tcpheader, createPacketData(ipheader, tcpheader, null), false);
+		return new Packet(ipheader, tcpheader, createPacketData(ipheader, tcpheader, null));
 	}
 
 	/**

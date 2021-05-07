@@ -32,7 +32,7 @@ import static com.abdavid92.vpncore.DataConst.MAX_PACKET_LENGTH;
  * manejo de todas las conexiones de red del dispositivo y decide bloquearlas o no
  * basado en la lista de aplicaciones permitidas que se le configura.
  *
- * Realiza un rastreo de los paquetes tcp y udp entrantes y salientes y se los provee
+ * Realiza un rastreo de los paquetes tcp y udp salientes y se los provee
  * a los observadores subscritos.
  *
  * La conexión no se reinicia para aplicar los cambios en las reglas de acceso.
@@ -42,16 +42,12 @@ import static com.abdavid92.vpncore.DataConst.MAX_PACKET_LENGTH;
  *
  * Esta implementación no debe iniciarse en el hilo principal porque se lanzará una
  * {@link IllegalThreadStateException}. Esto es debido a que la conexión vpn debe trabajar
- * en un hilo de fondo para poder capturar todos los paquetes de red si bloquear el hilo de la ui.
+ * en un hilo de fondo para poder capturar todos los paquetes de red sin bloquear el hilo de la ui.
  * */
 public class TrackerVpnConnection extends BaseVpnConnection {
 
-    private boolean running = false;
     private int[] allowedUid = new int[0];
-    private String[] blockedAddress = new String[0];
-    private final List<IObserverPacket> observers = new ArrayList<>();
     private SessionHandler handler = null;
-    private Handler observerHandler = new Handler(Looper.getMainLooper());
     private boolean allowUnknownUid = false;
 
     /**
@@ -113,13 +109,6 @@ public class TrackerVpnConnection extends BaseVpnConnection {
     }
 
     @Override
-    public IVpnConnection setBlockedAddress(@NonNull String[] address) {
-        this.blockedAddress = address;
-        handler.setBlockedAddress(this.blockedAddress);
-        return this;
-    }
-
-    @Override
     public void run() {
         assertMainThread();
         if (isConnected())
@@ -142,7 +131,6 @@ public class TrackerVpnConnection extends BaseVpnConnection {
                     (ConnectivityManager) vpnService.getSystemService(Context.CONNECTIVITY_SERVICE)
             );
             handler.setAllowedUids(this.allowedUid);
-            handler.setBlockedAddress(this.blockedAddress);
             handler.allowUnknownUid(this.allowUnknownUid);
 
             SocketNIODataService dataService = new SocketNIODataService(clientPacketWriter);
@@ -199,6 +187,7 @@ public class TrackerVpnConnection extends BaseVpnConnection {
             observers.add(observer);
     }
 
+
     @Override
     public void unsubscribe(IObserverPacket observer) {
         observers.remove(observer);
@@ -207,25 +196,5 @@ public class TrackerVpnConnection extends BaseVpnConnection {
     @Override
     public void shutdown() {
         this.running = false;
-    }
-
-    private void observePackets(@Nullable Packet packet) {
-        if (packet != null) {
-            observerHandler.post(() -> {
-                for (IObserverPacket observer : observers) {
-                    observer.observe(packet);
-                }
-            });
-        }
-    }
-
-    private void assertMainThread() {
-        if (Thread.currentThread().getName().equals("main"))
-            throw new IllegalThreadStateException("Vpn not running in main thread");
-    }
-
-    @Override
-    protected void configureAllowApps(VpnService.Builder builder) {
-        //Empty
     }
 }

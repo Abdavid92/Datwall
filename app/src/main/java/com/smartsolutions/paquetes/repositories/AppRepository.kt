@@ -13,6 +13,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -55,6 +56,11 @@ class AppRepository @Inject constructor(
         get() = dao.apps
 
     override fun flow(): Flow<List<App>> = dao.flow()
+
+    override fun flowByGroup(): Flow<List<IApp>> =
+        dao.flow().map {
+            return@map convertToListIApp(it)
+        }
 
     override fun registerObserver(observer: Observer) {
         if (!observerExist(observer))
