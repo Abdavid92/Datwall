@@ -40,7 +40,16 @@ class UserDataBytesRepositoryTest {
     }
 
     @Test
-    fun create() {
+    fun getAll() {
+        runBlocking {
+            val list = repository.all()
+
+            assertTrue(list.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun update() {
 
         val userDataBytes = UserDataBytes(
             UserDataBytes.DataType.International,
@@ -61,40 +70,8 @@ class UserDataBytesRepositoryTest {
         )
 
         runBlocking {
-            assertTrue(repository.create(userDataBytes))
-            assertTrue(repository.create(bagDaily))
-        }
-    }
-
-    @Test
-    fun update() {
-        val userDataBytes = UserDataBytes(
-            UserDataBytes.DataType.International,
-            600,
-            800,
-            Date().time,
-            Date().time + 100000,
-            1
-        )
-
-        runBlocking {
             assertTrue(repository.update(userDataBytes))
-        }
-    }
-
-    @Test
-    fun delete() {
-        val userDataBytes = UserDataBytes(
-            UserDataBytes.DataType.International,
-            600,
-            800,
-            Date().time,
-            Date().time + 100000,
-            1
-        )
-
-        runBlocking {
-            assertTrue(repository.delete(userDataBytes))
+            assertTrue(repository.update(bagDaily))
         }
     }
 }

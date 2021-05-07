@@ -21,7 +21,7 @@ data class UserDataBytes(
 
     fun isEmpty() = bytes == 0L && bytesLte == 0L
 
-    fun isExpired() = Date().after(Date(expiredTime))
+    fun isExpired() = expiredTime != 0L && Date().after(Date(expiredTime))
 
     override fun equals(other: Any?): Boolean {
         if (other is UserDataBytes && other.type == type && other.simIndex == simIndex)

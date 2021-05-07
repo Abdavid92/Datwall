@@ -1,8 +1,7 @@
 package com.smartsolutions.paquetes.data
 
-import com.smartsolutions.paquetes.helpers.DataUnit
-import com.smartsolutions.paquetes.helpers.DataValue
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import com.smartsolutions.paquetes.managers.models.DataBytes.*
 
 object DataPackagesContract {
 

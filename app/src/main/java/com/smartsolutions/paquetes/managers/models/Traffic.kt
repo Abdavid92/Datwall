@@ -8,9 +8,6 @@ import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.smartsolutions.paquetes.helpers.DataUnit
-import com.smartsolutions.paquetes.helpers.DataValue
-import com.smartsolutions.paquetes.helpers.processValue
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
 
@@ -23,7 +20,8 @@ import java.util.*
 open class Traffic(
     /**
      * Uid de la aplicación que pertenece el tráfico de datos.
-     * Cero si no pertenece a ninguna.*/
+     * Cero si no pertenece a ninguna.
+     * */
     val uid: Int,
     /**
      * Tráfico de descarga en bytes
@@ -58,20 +56,20 @@ open class Traffic(
     /**
      * Bytes de bajada optimizados a la unidad más conveniente
      * */
-    val rxBytes : DataValue
-        get() = processValue(_rxBytes)
+    val rxBytes : DataBytes
+        get() = DataBytes(_rxBytes)
 
     /**
      * Bytes de subida optimizados a la unidad más conveniente
      * */
-    val txBytes : DataValue
-        get() = processValue(_txBytes)
+    val txBytes : DataBytes
+        get() = DataBytes(_txBytes)
 
     /**
      * Suma de todos los bytes optimizados a la unidad más conveniente
      * */
-    val totalBytes : DataValue
-        get() = processValue(_rxBytes + _txBytes)
+    val totalBytes : DataBytes
+        get() = DataBytes(_rxBytes + _txBytes)
 
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -85,35 +83,6 @@ open class Traffic(
         0, 0L, 0L
             )
 
-
-    /**
-     * @return Bytes de bajada optimizados a la unidad dada como parámetro.
-     *
-     * @param unit - Unidad de medida
-     * */
-    fun rxBytes (unit: DataUnit) = processValue(_rxBytes, unit)
-
-    /**
-     * @return Bytes de subida optimizados a la unidad dada como parámetro.
-     *
-     * @param unit - Unidad de medida
-     * */
-    fun txBytes (unit: DataUnit) = processValue(_txBytes, unit)
-
-    /**
-     * @return Suma de todos los bytes optimizados a la unidad dada como parámetro.
-     *
-     * @param unit - Unidad de medida
-     * */
-    fun totalBytes (unit: DataUnit) = processValue(_txBytes + _rxBytes, unit)
-
-    /**
-     * @return Suma de bytes
-     * */
-    fun getAllBytes () : Long {
-        return _rxBytes + _txBytes
-    }
-
     @RequiresApi(Build.VERSION_CODES.M)
     open operator fun plusAssign(bucket: NetworkStats.Bucket){
         if (isInDiscountHour(bucket)){
@@ -126,13 +95,13 @@ open class Traffic(
     }
 
 
-    operator fun plusAssign(traffic: Traffic){
+    operator fun plusAssign(traffic: Traffic) {
         this._rxBytes += traffic._rxBytes
         this._txBytes += traffic._txBytes
     }
 
 
-    operator fun compareTo (traffic: Traffic) : Int{
+    operator fun compareTo (traffic: Traffic): Int {
         val selfTotal = this._rxBytes + this._txBytes
         val otherTotal = traffic._rxBytes + traffic._txBytes
 
@@ -177,6 +146,4 @@ open class Traffic(
             return arrayOfNulls(size)
         }
     }
-
-
 }

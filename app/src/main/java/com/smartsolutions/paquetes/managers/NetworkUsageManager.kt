@@ -67,7 +67,7 @@ abstract class NetworkUsageManager {
      *
      * @return La aplicación resultante de la búsqueda.
      * */
-    suspend fun getAppPerConsumed(apps: List<App>, start: Long, finish: Long, moreConsumed : Boolean) : App?{
+    suspend fun getAppPerConsumed(apps: List<App>, start: Long, finish: Long, moreConsumed : Boolean) : App? {
         if (apps.isEmpty()){
             return null
         }

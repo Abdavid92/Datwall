@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -44,10 +45,10 @@ class UserDataBytesRepository @Inject constructor(
     override suspend fun getBySimIndex(simIndex: Int): List<UserDataBytes> =
         read().filter { it.simIndex == simIndex }
 
-    override suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes? =
-        read().firstOrNull { it.type == dataType && it.simIndex == simIndex }
+    override suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes =
+        read().first { it.type == dataType && it.simIndex == simIndex }
 
-    override suspend fun create(userDataBytes: UserDataBytes): Boolean {
+    /*private suspend fun create(userDataBytes: UserDataBytes): Boolean {
         val list = read()
 
         if (list.contains(userDataBytes))
@@ -58,7 +59,7 @@ class UserDataBytesRepository @Inject constructor(
         return write(list)
     }
 
-    override suspend fun create(userDataBytesList: List<UserDataBytes>): Boolean {
+    private suspend fun create(userDataBytesList: List<UserDataBytes>): Boolean {
         val list = read()
 
         var canWrite = false
@@ -73,7 +74,7 @@ class UserDataBytesRepository @Inject constructor(
         if (canWrite)
             return write(list)
         return false
-    }
+    }*/
 
     override suspend fun update(userDataBytes: UserDataBytes): Boolean {
         val list = read()
@@ -103,14 +104,6 @@ class UserDataBytesRepository @Inject constructor(
         }
 
         if (canWrite)
-            return write(list)
-        return false
-    }
-
-    override suspend fun delete(userDataBytes: UserDataBytes): Boolean {
-        val list = read()
-
-        if (list.remove(userDataBytes))
             return write(list)
         return false
     }
@@ -150,7 +143,7 @@ class UserDataBytesRepository @Inject constructor(
             val file = File(context.filesDir, store)
 
             if (!file.exists())
-                return mutableListOf()
+                return seederData()
 
             return try {
                 val input = FileInputStream(file)
@@ -164,9 +157,25 @@ class UserDataBytesRepository @Inject constructor(
 
                 gson.fromJson(content, typeToken)
             } catch (e: Exception) {
-                mutableListOf()
+                file.delete()
+                seederData()
             }
         }
+    }
+
+    private fun seederData(): MutableList<UserDataBytes> {
+        val list = mutableListOf<UserDataBytes>()
+
+        UserDataBytes.DataType.values().forEach {
+            list.addAll(
+                arrayOf(
+                    UserDataBytes(it, 0L, 0L, 0L, 0L, 1),
+                    UserDataBytes(it, 0L, 0L, 0L, 0L, 2)
+                )
+            )
+        }
+        write(list)
+        return list
     }
 
     companion object {
