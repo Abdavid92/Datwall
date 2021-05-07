@@ -5,15 +5,13 @@ import com.smartsolutions.paquetes.helpers.MB
 
 class DataBytes(val bytes: Long) {
 
-    fun getDataValue(dataUnit: DataUnit? = null) = processValue(bytes, dataUnit)
-
     /**
      * Procesa y obtiene la unidad más optima para los bytes dados.
      *
      * @param bytes - Bytes que se van a procesar
      * @param dataUnit - Parametro opcional en caso de que se quiera especificar la unidad de medida.
      * */
-    private fun processValue(bytes: Long, dataUnit: DataUnit? = null) : DataValue {
+    fun getValue(bytes: Long, dataUnit: DataUnit? = null) : DataValue {
 
         var unit = dataUnit
 
