@@ -17,15 +17,26 @@ class FirewallViewModel @Inject constructor(
     private val appRepository: IAppRepository
 ) : ViewModel() {
 
+    private val appsToUpdate = mutableListOf<IApp>()
+
     fun getApps() = appRepository.flowByGroup()
         .asLiveData(viewModelScope.coroutineContext)
 
     fun updateApp(app: IApp) {
+        if (!appsToUpdate.contains(app)) {
+            appsToUpdate.add(app)
+        } else {
+            val index = appsToUpdate.indexOf(app)
+
+            if (index != -1) {
+                appsToUpdate[index] = app
+            }
+        }
+    }
+
+    fun confirmUpdates() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (app is App)
-                appRepository.update(app)
-            else if (app is AppGroup)
-                appRepository.update(app)
+            appRepository.update(appsToUpdate)
         }
     }
 }

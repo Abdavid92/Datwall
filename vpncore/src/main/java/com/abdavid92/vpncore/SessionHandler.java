@@ -89,27 +89,28 @@ public class SessionHandler {
 		);
 	}
 
+	public void allowUnknownUid(boolean allowUnknownUid) {
+		this.allowUnknownUid = allowUnknownUid;
+	}
 
 	public void setAllowedUids(@NonNull int[] allowedUids) {
-		if (allowedUids != null) {
-			int[] uids = allowedUids.clone();
+		int[] uids = allowedUids.clone();
 
-			int temp = 0;
+		int temp = 0;
 
-			for (int i = 0; i < uids.length; i++) {
+		for (int i = 0; i < uids.length; i++) {
 
-				for (int y = i; y < uids.length; y++) {
+			for (int y = i; y < uids.length; y++) {
 
-					if (uids[i] > uids[y]) {
-						temp = uids[i];
-						uids[i] = uids[y];
-						uids[y] = temp;
-					}
-
+				if (uids[i] > uids[y]) {
+					temp = uids[i];
+					uids[i] = uids[y];
+					uids[y] = temp;
 				}
+
 			}
-			this.allowedUids = uids;
 		}
+		this.allowedUids = uids;
 	}
 
 	private void handleUDPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, UDPHeader udpheader) {
@@ -547,13 +548,10 @@ public class SessionHandler {
 					end = middle - 1;
 				else if (allowedUids[middle] < uid)
 					begin = middle + 1;
-			}
+			} else
+				break;
 		}
 
 		return true;
-	}
-
-	public void allowUnknownUid(boolean allowUnknownUid) {
-		this.allowUnknownUid = allowUnknownUid;
 	}
 }//end class

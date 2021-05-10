@@ -23,7 +23,7 @@ class AppsListAdapter(
             R.layout.app_item,
             p0,
             false
-        ), this)
+        ))
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         p0.bind(list[p1])
@@ -31,21 +31,20 @@ class AppsListAdapter(
 
     override fun getItemCount() = list.size
 
-    class ViewHolder(
+    inner class ViewHolder(
         private val binding: AppItemBinding,
-        private val parent: AppsListAdapter
         ): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: IApp) {
             binding.name.text = app.name
             if (app is App)
-                binding.icon.setImageBitmap(parent.iconManager.get(app.packageName, app.version.toString()))
+                binding.icon.setImageBitmap(iconManager.get(app.packageName, app.version.toString()))
 
             binding.access.setOnCheckedChangeListener(null)
             binding.access.isChecked = app.access
-            binding.access.setOnCheckedChangeListener { buttonView, isChecked ->
+            binding.access.setOnCheckedChangeListener { _, isChecked ->
                 app.access = isChecked
-                parent.onAccessChange?.invoke(app)
+                onAccessChange?.invoke(app)
             }
         }
 

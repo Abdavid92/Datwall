@@ -121,7 +121,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         super.onCreate()
 
         //Configuración extra del vpn
-        vpnConnection = LiteVpnConnection(this)
+        vpnConnection = TrackerVpnConnection(this)
             .setSessionName(getString(R.string.app_name))
             .setPendingIntent(PendingIntent.getActivity(
                 this,
@@ -200,9 +200,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
         //Detengo el vpn
         vpnConnection.shutdown()
-        if (vpnConnection is TrackerVpnConnection) {
-            (vpnConnection as TrackerVpnConnection).unsubscribe(this)
-        }
+        vpnConnection.unsubscribe(this)
         vpnConnectionThread?.interrupt()
         job.cancel()
 

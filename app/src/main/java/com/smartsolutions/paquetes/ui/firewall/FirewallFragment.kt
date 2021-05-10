@@ -49,4 +49,9 @@ class FirewallFragment : ApplicationFragment() {
     private fun onAccessChange(app: IApp) {
         viewModel.updateApp(app)
     }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.confirmUpdates()
+    }
 }

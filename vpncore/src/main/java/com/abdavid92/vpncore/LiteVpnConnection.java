@@ -114,8 +114,22 @@ public class LiteVpnConnection extends BaseVpnConnection {
                         packet.clear();
                     }
                 } catch (Exception ignored) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    clientRead = new FileInputStream(mInterface.getFileDescriptor());
                 }
             }
+
+            try {
+                clientRead.close();
+                mInterface.close();
+            } catch (IOException ignored) {
+
+            }
+            mInterface = null;
         }
     }
 
