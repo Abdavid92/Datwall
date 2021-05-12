@@ -34,4 +34,7 @@ object PreferencesKeys {
      * Modo de compra de los paquertes de datos.
      * */
     val BUY_MODE = stringPreferencesKey("buy_mode")
+
+
+    val ENABLED_NETWORK_LTE = booleanPreferencesKey("enabled_network_lte")
 }

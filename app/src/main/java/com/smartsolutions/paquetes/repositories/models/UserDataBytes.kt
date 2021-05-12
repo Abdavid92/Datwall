@@ -19,7 +19,7 @@ data class UserDataBytes(
         BagDaily
     }
 
-    fun isEmpty() = bytes == 0L && bytesLte == 0L
+    fun exists() = bytes != 0L || bytesLte != 0L
 
     fun isExpired() = expiredTime != 0L && Date().after(Date(expiredTime))
 
