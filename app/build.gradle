@@ -6,6 +6,10 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
+def tokenDuration = "5"
+def secretKey = "\"Nk5pV3RhMFZwMFVaZGhSRDZDSkxkd3VYcnBPZE9HZW1zWGhOY3RwNVdnVW1MVG0xQldGVktDZWVPSDU2MlVaSg==\""
+def content0 = "\"TWlzIERhdG9zO2h0dHBzOi8vc21hcnRzb2x1dGlvbnMtYXBwcy5pbmZpbml0eWZyZWVhcHAuY29tO1dJd3pmbDJtRmJaYTNmUkNFUVVjTGVTQVN4ckVSeHQxQzIzb1BwV2N1NTNuNDN0WjN0Y1k0WkFBcE5sN3VKcm0xQWhWOURMQXQyOWxpR3E4\""
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -28,10 +32,19 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "SECRET_KEY", secretKey
+            buildConfigField "int", "TOKEN_DURATION", tokenDuration
+            buildConfigField "String", "CONTENT_0", content0
+            buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfreeapp.com/api/\""
         }
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "SECRET_KEY", secretKey
+            buildConfigField "int", "TOKEN_DURATION", tokenDuration
+            buildConfigField "String", "CONTENT_0", content0
+            buildConfigField "String", "REGISTRATION_SERVER_URL", "\"http://10.0.2.2/SmartSolutionsApps/api/\""
+            //buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfree.com/api/\""
         }
     }
     compileOptions {
@@ -89,6 +102,13 @@ dependencies {
 
     //Duktape
     implementation 'com.squareup.duktape:duktape-android:1.3.0'
+
+    //Jsonwebtoken
+    api 'io.jsonwebtoken:jjwt-api:0.11.2'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    runtimeOnly('io.jsonwebtoken:jjwt-orgjson:0.11.2') {
+        exclude group: 'org.json', module: 'json'
+    }
 
     //LeakCanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'

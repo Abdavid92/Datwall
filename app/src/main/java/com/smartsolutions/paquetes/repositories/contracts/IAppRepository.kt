@@ -44,7 +44,7 @@ interface IAppRepository {
      *
      * @param observer - Observador a registrar
      * */
-    fun registerObserver(observer: Observer)
+    //fun registerObserver(observer: Observer)
 
     /**
      * Registra un observador atado a un ciclo de vida que estará pendiente de los cambios en base de datos.
@@ -52,14 +52,14 @@ interface IAppRepository {
      * @param lifecycleOwner - Ciclo de vida
      * @param observer - Observador a registrar
      * */
-    fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer)
+    //fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer)
 
     /**
      * Elimina un observador del registro
      *
      * @param observer - Observador a eliminar
      * */
-    fun unregisterObserver(observer: Observer)
+    //fun unregisterObserver(observer: Observer)
 
     /**
      * Obtiene una aplicación por el nombre de paquete

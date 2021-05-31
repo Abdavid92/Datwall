@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.util.Log
 import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.repositories.models.App
@@ -53,27 +54,26 @@ object VpnConnectionUtils {
      * @return Intent si el vpn no tiene permiso para encender.
      * */
     fun startVpn(context: Context): Intent? {
-        val intent = VpnService.prepare(context)
-
         GlobalScope.launch {
             context.dataStore.edit {
                 it[PreferencesKeys.FIREWALL_ON] = true
             }
+        }
 
-            context.dataStore.data.firstOrNull()?.let {
-                if (it[PreferencesKeys.DATA_MOBILE_ON] == true) {
+        val intent = VpnService.prepare(context)
 
-                    Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
+        val application = context.applicationContext as DatwallApplication
 
-                    if (intent == null) {
-                        context.startService(Intent(context, FirewallService::class.java))
-                    } else {
-                        Log.i(TAG, "startVpn: Can not have permission by start the firewall.")
-                    }
-                } else {
-                    Log.i(TAG, "startVpn: Data mobile is off. For now the firewall will off.")
-                }
+        if (application.dataMobileOn) {
+            Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
+
+            if (intent == null) {
+                context.startService(Intent(context, FirewallService::class.java))
+            } else {
+                Log.i(TAG, "startVpn: Can not have permission by start the firewall.")
             }
+        } else {
+            Log.i(TAG, "startVpn: Data mobile is off. For now the firewall will off.")
         }
         return intent
     }
@@ -87,17 +87,16 @@ object VpnConnectionUtils {
             context.dataStore.edit {
                 it[PreferencesKeys.FIREWALL_ON] = false
             }
+        }
 
-            context.dataStore.data.firstOrNull()?.let {
-                if (it[PreferencesKeys.DATA_MOBILE_ON] == true) {
+        val application = context.applicationContext as DatwallApplication
 
-                    val intent = Intent(context, FirewallService::class.java).apply {
-                        action = FirewallService.ACTION_STOP_FIREWALL_SERVICE
-                    }
-
-                    context.startService(intent)
-                }
+        if (application.dataMobileOn) {
+            val intent = Intent(context, FirewallService::class.java).apply {
+                action = FirewallService.ACTION_STOP_FIREWALL_SERVICE
             }
+
+            context.startService(intent)
         }
     }
 }

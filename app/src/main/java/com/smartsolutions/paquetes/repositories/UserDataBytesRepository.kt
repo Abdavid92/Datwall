@@ -42,39 +42,14 @@ class UserDataBytesRepository @Inject constructor(
 
     override suspend fun all(): List<UserDataBytes> = read()
 
+    override suspend fun getAllByPriority(simIndex: Int) = read()
+        .sortedBy { it.priority }
+
     override suspend fun getBySimIndex(simIndex: Int): List<UserDataBytes> =
         read().filter { it.simIndex == simIndex }
 
     override suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes =
         read().first { it.type == dataType && it.simIndex == simIndex }
-
-    /*private suspend fun create(userDataBytes: UserDataBytes): Boolean {
-        val list = read()
-
-        if (list.contains(userDataBytes))
-            return false
-
-        list.add(userDataBytes)
-
-        return write(list)
-    }
-
-    private suspend fun create(userDataBytesList: List<UserDataBytes>): Boolean {
-        val list = read()
-
-        var canWrite = false
-
-        userDataBytesList.forEach {
-            if (!list.contains(it)) {
-                list.add(it)
-                canWrite = true
-            }
-        }
-
-        if (canWrite)
-            return write(list)
-        return false
-    }*/
 
     override suspend fun update(userDataBytes: UserDataBytes): Boolean {
         val list = read()
@@ -169,8 +144,8 @@ class UserDataBytesRepository @Inject constructor(
         UserDataBytes.DataType.values().forEach {
             list.addAll(
                 arrayOf(
-                    UserDataBytes(it, 0L, 0L, 0L, 0L, 1),
-                    UserDataBytes(it, 0L, 0L, 0L, 0L, 2)
+                    UserDataBytes(it, 0L, 0L, 0L, 0L, 0, 1),
+                    UserDataBytes(it, 0L, 0L, 0L, 0L, 0, 2)
                 )
             )
         }

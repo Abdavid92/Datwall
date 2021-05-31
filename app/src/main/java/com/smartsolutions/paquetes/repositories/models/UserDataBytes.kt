@@ -4,12 +4,22 @@ import java.util.*
 
 data class UserDataBytes(
     val type: DataType,
+    var initialBytes: Long,
     var bytes: Long,
     var bytesLte: Long,
     var startTime: Long,
     var expiredTime: Long,
     var simIndex: Int
 ) {
+
+    val priority: Int
+        get() = when (type) {
+            DataType.National -> 0
+            DataType.BagDaily -> 1
+            DataType.Bonus -> 2
+            DataType.PromoBonus -> 3
+            DataType.International -> 4
+        }
 
     enum class DataType {
         International,

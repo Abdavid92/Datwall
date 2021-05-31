@@ -92,6 +92,16 @@
       <option name="url" value="file:/$PROJECT_DIR$/../../../Elier%20y%20Gretshen/.android/manual-offline-m2/m2repository/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="injected_offline_m2repository" />
+      <option name="name" value="injected_offline_m2repository" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../../Elier%20y%20Gretshen/.android/manual-offline-m2/m2repository/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
+      <option name="name" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../../Elier%20y%20Gretshen/.android/manual-offline-m2/kotlin-gradle-plugin-1.3.72/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
       <option name="name" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
       <option name="url" value="file:/$PROJECT_DIR$/../../../Elier%20y%20Gretshen/.android/manual-offline-m2/kotlin-gradle-plugin-1.3.72/" />
@@ -124,17 +134,32 @@
     <remote-repository>
       <option name="id" value="injected_offline_android-gradle-plugin-4.0.2" />
       <option name="name" value="injected_offline_android-gradle-plugin-4.0.2" />
-      <option name="url" value="file:/C:/Users/Elier%20y%20Gretshen/.android/manual-offline-m2/android-gradle-plugin-4.0.2/" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../../Elier%20y%20Gretshen/.android/manual-offline-m2/android-gradle-plugin-4.0.2/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="injected_offline_m2repository" />
       <option name="name" value="injected_offline_m2repository" />
-      <option name="url" value="file:/C:/Users/Elier%20y%20Gretshen/.android/manual-offline-m2/m2repository/" />
+      <option name="url" value="file:/$ANDROID_SDK_ROOT$/manual-offline-m2/m2repository/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_android-gradle-plugin-4.0.2" />
+      <option name="name" value="injected_offline_android-gradle-plugin-4.0.2" />
+      <option name="url" value="file:/$ANDROID_SDK_ROOT$/manual-offline-m2/android-gradle-plugin-4.0.2/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_kotlin-gradle-plugin-1.5.0" />
+      <option name="name" value="injected_offline_kotlin-gradle-plugin-1.5.0" />
+      <option name="url" value="file:/$ANDROID_SDK_ROOT$/manual-offline-m2/kotlin-gradle-plugin-1.5.0/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
       <option name="name" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
-      <option name="url" value="file:/C:/Users/Elier%20y%20Gretshen/.android/manual-offline-m2/kotlin-gradle-plugin-1.3.72/" />
+      <option name="url" value="file:/$ANDROID_SDK_ROOT$/manual-offline-m2/kotlin-gradle-plugin-1.3.72/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_android-gradle-plugin-3.2.1" />
+      <option name="name" value="injected_offline_android-gradle-plugin-3.2.1" />
+      <option name="url" value="file:/$ANDROID_SDK_ROOT$/manual-offline-m2/android-gradle-plugin-3.2.1/" />
     </remote-repository>
   </component>
 </project>

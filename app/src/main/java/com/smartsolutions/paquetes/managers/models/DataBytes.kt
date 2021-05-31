@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.managers.models
 
-import com.smartsolutions.paquetes.helpers.GB
-import com.smartsolutions.paquetes.helpers.MB
+import kotlin.math.pow
 
 class DataBytes(val bytes: Long) {
 
@@ -42,6 +41,13 @@ class DataBytes(val bytes: Long) {
         }
 
         return DataValue(value, unit)
+    }
+
+    companion object {
+
+        val GB = 1024.0.pow(3.0)
+        val MB = 1024.0.pow(2.0)
+
     }
 
     /**

@@ -1,10 +1,9 @@
 package com.smartsolutions.paquetes.helpers
 
 import com.smartsolutions.paquetes.managers.models.DataBytes
+import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.GB
+import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.MB
 import kotlin.math.pow
-
-val GB = 1024.0.pow(3.0)
-val MB = 1024.0.pow(2.0)
 
 /**
  * Contruye el código ussd para comprar un

@@ -35,12 +35,12 @@ class AppRepository @Inject constructor(
         get() = Dispatchers.IO
 
     //Lista de observadores
-    private val listObserver = mutableListOf<Pair<LifecycleOwner?, Observer>>()
+    //private val listObserver = mutableListOf<Pair<LifecycleOwner?, Observer>>()
 
     /**
      * Indica si se está en una transacción donde no se lanzara ningún evento.
      * */
-    private val inTransaction = false
+    //private val inTransaction = false
 
     override val appsCount: Int
         get() = dao.appsCount
@@ -56,7 +56,7 @@ class AppRepository @Inject constructor(
 
     override fun flow(): Flow<List<App>> = dao.flow()
 
-    override fun registerObserver(observer: Observer) {
+    /*override fun registerObserver(observer: Observer) {
         if (!observerExist(observer))
             this.listObserver.add(Pair(null, observer))
 
@@ -94,7 +94,7 @@ class AppRepository @Inject constructor(
         this.listObserver.firstOrNull { it.second == observer }?.let {
             this.listObserver.remove(it)
         }
-    }
+    }*/
 
     override suspend fun get(packageName: String): App? = dao.get(packageName)
 
@@ -125,38 +125,43 @@ class AppRepository @Inject constructor(
 
     override suspend fun create(app: App) {
         dao.create(app)
-        observersOnChangeType(listOf(app), ChangeType.Created)
+        //observersOnChangeType(listOf(app), ChangeType.Created)
     }
 
     override suspend fun create(apps: List<IApp>) {
         val list = convertToListApp(apps)
 
         dao.create(list)
-        observersOnChangeType(list, ChangeType.Created)
+        //observersOnChangeType(list, ChangeType.Created)
     }
 
     override suspend fun update(app: App) {
-        if (dao.update(app) > 0)
-            observersOnChangeType(listOf(app), ChangeType.Updated)
+        dao.update(app)
+        /*if (dao.update(app) > 0)
+            observersOnChangeType(listOf(app), ChangeType.Updated)*/
     }
 
     override suspend fun update(apps: List<IApp>) {
         val list = convertToListApp(apps)
 
-        if (dao.update(list) > 0)
-            observersOnChangeType(list, ChangeType.Updated)
+        dao.update(list)
+        /*if (dao.update(list) > 0)
+            observersOnChangeType(list, ChangeType.Updated)*/
     }
 
     override suspend fun delete(app: App) {
-        if (dao.delete(app) > 0)
-            observersOnChangeType(listOf(app), ChangeType.Deleted)
+        dao.delete(app)
+        /*if (dao.delete(app) > 0)
+            observersOnChangeType(listOf(app), ChangeType.Deleted)*/
     }
 
     override suspend fun delete(apps: List<IApp>) {
         val list = convertToListApp(apps)
 
-        if (dao.delete(list) > 0)
-            observersOnChangeType(list, ChangeType.Deleted)
+        dao.delete(list)
+
+        /*if (dao.delete(list) > 0)
+            observersOnChangeType(list, ChangeType.Deleted)*/
     }
 
     /**
@@ -212,7 +217,7 @@ class AppRepository @Inject constructor(
     /**
      * Lanza los eventos de los observadores
      * */
-    private suspend fun observersOnChangeType(apps: List<App>, type: ChangeType) {
+    /*private suspend fun observersOnChangeType(apps: List<App>, type: ChangeType) {
 
         //Lista de todas las aplcaciones que se usará para lanzar el evento onChange
         val all = convertToListIApp(dao.apps)
@@ -257,5 +262,5 @@ class AppRepository @Inject constructor(
                 unregisterObserver(it)
             }
         }
-    }
+    }*/
 }
