@@ -6,8 +6,13 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
+//Duración de los json web tokens
 def tokenDuration = "5"
+//Clave secreta con encriptación que se usa para firmar los tokens
 def secretKey = "\"Nk5pV3RhMFZwMFVaZGhSRDZDSkxkd3VYcnBPZE9HZW1zWGhOY3RwNVdnVW1MVG0xQldGVktDZWVPSDU2MlVaSg==\""
+/*Contenido encriptado que contiene
+* el nombre de la aplicación, la audiencia y la clave
+* de la aplicación.*/
 def content0 = "\"TWlzIERhdG9zO2h0dHBzOi8vc21hcnRzb2x1dGlvbnMtYXBwcy5pbmZpbml0eWZyZWVhcHAuY29tO1dJd3pmbDJtRmJaYTNmUkNFUVVjTGVTQVN4ckVSeHQxQzIzb1BwV2N1NTNuNDN0WjN0Y1k0WkFBcE5sN3VKcm0xQWhWOURMQXQyOWxpR3E4\""
 
 android {
@@ -44,7 +49,7 @@ android {
             buildConfigField "int", "TOKEN_DURATION", tokenDuration
             buildConfigField "String", "CONTENT_0", content0
             buildConfigField "String", "REGISTRATION_SERVER_URL", "\"http://10.0.2.2/SmartSolutionsApps/api/\""
-            //buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfree.com/api/\""
+            //buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfreeapp.com/api/\""
         }
     }
     compileOptions {
@@ -91,6 +96,7 @@ dependencies {
 
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     //Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'

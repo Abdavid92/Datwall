@@ -52,7 +52,11 @@ class HttpClient @Inject constructor(
                                     completed = true
                                 }
                             } else {
-                                it.resumeWithException(UnprocessableRequestException(UnprocessableRequestException.Reason.NO_RESPONSE))
+                                it.resumeWithException(
+                                    UnprocessableRequestException(
+                                        UnprocessableRequestException.Reason.NO_RESPONSE
+                                    )
+                                )
                                 completed = true
                             }
                         } else {
@@ -70,7 +74,11 @@ class HttpClient @Inject constructor(
             }
 
             if (!completed) {
-                it.resumeWithException(UnprocessableRequestException(UnprocessableRequestException.Reason.NO_RESPONSE))
+                it.resumeWithException(
+                    UnprocessableRequestException(
+                        UnprocessableRequestException.Reason.NO_RESPONSE
+                    )
+                )
             }
         }
     }

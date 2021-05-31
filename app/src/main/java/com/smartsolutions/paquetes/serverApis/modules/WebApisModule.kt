@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.serverApis.modules
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Base64
+import com.google.gson.Gson
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.serverApis.contracts.ISmartSolutionsApps
 import com.smartsolutions.paquetes.serverApis.middlewares.CookieJarProcessor
@@ -15,6 +16,7 @@ import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
@@ -38,10 +40,11 @@ class WebApisModule {
     }
 
     @Provides
-    fun provideISmartSolutionsApps(client: OkHttpClient): ISmartSolutionsApps =
+    fun provideISmartSolutionsApps(client: OkHttpClient, gson: Gson): ISmartSolutionsApps =
         Retrofit.Builder()
             .baseUrl(BuildConfig.REGISTRATION_SERVER_URL)
             .client(client)
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ISmartSolutionsApps::class.java)
 

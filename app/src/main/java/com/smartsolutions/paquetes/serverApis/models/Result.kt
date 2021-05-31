@@ -25,7 +25,7 @@ abstract class Result<T> {
 
     class Failure<T>(
         val throwable: Throwable
-    ) {
+    ) : Result<T>() {
         override fun equals(other: Any?): Boolean = other is Failure<*> && throwable == other.throwable
         override fun hashCode(): Int = throwable.hashCode()
         override fun toString(): String = "Failure($throwable)"
