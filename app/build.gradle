@@ -77,7 +77,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.4'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha08"
+    implementation "androidx.datastore:datastore-preferences:1.0.0-beta01"
 
     //Three party libraries
     implementation 'moe.feng.common:material-stepper-view:0.2.5'
