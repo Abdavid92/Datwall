@@ -9,9 +9,7 @@ interface IUserDataBytesRepository {
 
     suspend fun all(): List<UserDataBytes>
 
-    suspend fun getAllByPriority(simIndex: Int): List<UserDataBytes>
-
-    suspend fun getBySimIndex(simIndex: Int): List<UserDataBytes>
+    suspend fun all(simIndex: Int) : List<UserDataBytes>
 
     suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes
 

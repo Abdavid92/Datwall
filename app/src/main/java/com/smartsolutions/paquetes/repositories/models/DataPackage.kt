@@ -27,7 +27,7 @@ data class DataPackage(
     val bonusBytes: Long,
     @ColumnInfo(name = "bonus_cu_bytes")
     @SerializedName("bonus_cu_bytes")
-    val bonusCuBytes: Long,
+    val nationalBytes: Long,
     @Networks
     val network: String,
     val index: Int,
@@ -38,7 +38,8 @@ data class DataPackage(
     @ColumnInfo(name = "active_in_sim_1")
     var activeInSim1: Boolean = false,
     @ColumnInfo(name = "active_in_sim_2")
-    var activeInSim2: Boolean = false
+    var activeInSim2: Boolean = false,
+    var deprecated: Boolean = false
 ) {
 
     @Ignore

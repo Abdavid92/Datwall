@@ -15,7 +15,7 @@ data class UserDataBytes(
     val priority: Int
         get() = when (type) {
             DataType.National -> 0
-            DataType.BagDaily -> 1
+            DataType.DailyBag -> 1
             DataType.Bonus -> 2
             DataType.PromoBonus -> 3
             DataType.International -> 4
@@ -26,7 +26,7 @@ data class UserDataBytes(
         Bonus,
         PromoBonus,
         National,
-        BagDaily
+        DailyBag
     }
 
     fun exists() = bytes != 0L || bytesLte != 0L

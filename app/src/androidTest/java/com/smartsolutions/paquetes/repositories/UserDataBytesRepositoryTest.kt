@@ -61,7 +61,7 @@ class UserDataBytesRepositoryTest {
         )
 
         val bagDaily = UserDataBytes(
-            UserDataBytes.DataType.BagDaily,
+            UserDataBytes.DataType.DailyBag,
             0,
             200,
             Date().time,

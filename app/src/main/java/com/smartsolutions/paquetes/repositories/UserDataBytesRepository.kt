@@ -42,11 +42,8 @@ class UserDataBytesRepository @Inject constructor(
 
     override suspend fun all(): List<UserDataBytes> = read()
 
-    override suspend fun getAllByPriority(simIndex: Int) = read()
-        .sortedBy { it.priority }
-
-    override suspend fun getBySimIndex(simIndex: Int): List<UserDataBytes> =
-        read().filter { it.simIndex == simIndex }
+    override suspend fun all(simIndex: Int): List<UserDataBytes> =
+        all().filter { it.simIndex == simIndex }
 
     override suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes =
         read().first { it.type == dataType && it.simIndex == simIndex }
