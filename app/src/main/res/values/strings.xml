@@ -22,4 +22,11 @@
     <string name="src_ip_template"><![CDATA[<b>src</b>%s:%d]]></string>
     <string name="dest_ip_template"><![CDATA[<b>dest:</b>%s:%d]]></string>
     <string name="log_activity_title">Log</string>
+    <string name="c_1">iat</string>
+    <string name="c_2">exp</string>
+    <string name="c_3">aud</string>
+    <string name="c_4">name</string>
+    <string name="c_5">package_name</string>
+    <string name="c_6">version</string>
+    <string name="c_7">key</string>
 </resources>

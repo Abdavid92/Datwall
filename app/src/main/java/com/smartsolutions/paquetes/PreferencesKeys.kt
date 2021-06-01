@@ -25,12 +25,6 @@ object PreferencesKeys {
     val DYNAMIC_FIREWALL_ON = booleanPreferencesKey("dynamic_firewall_on")
 
     /**
-     * Indica si los datos móbiles están encendidos o no.
-     * Esta clave es de tipo Boolean.
-     * */
-    val DATA_MOBILE_ON = booleanPreferencesKey("data_mobile_on")
-
-    /**
      * Modo de compra de los paquertes de datos.
      * */
     val BUY_MODE = stringPreferencesKey("buy_mode")

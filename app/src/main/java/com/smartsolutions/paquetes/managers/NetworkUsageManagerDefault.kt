@@ -6,6 +6,7 @@ import android.os.Build
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.smartsolutions.paquetes.helpers.SimsHelper
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -16,10 +17,12 @@ import javax.inject.Inject
 @RequiresApi(Build.VERSION_CODES.M)
 class NetworkUsageManagerDefault @Inject constructor(
     @ApplicationContext
-    context: Context
+    context: Context,
+    simsHelper : SimsHelper
 ): NetworkUsageDigger(
     ContextCompat.getSystemService(context, NetworkStatsManager::class.java) ?: throw NullPointerException(),
-    ContextCompat.getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException()
+    ContextCompat.getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException(),
+    simsHelper
 ) {
 
     override suspend fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic {

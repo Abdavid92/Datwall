@@ -4,6 +4,7 @@ import java.util.*
 
 data class UserDataBytes(
     val type: DataType,
+    var initialBytes: Long,
     var bytes: Long,
     var bytesLte: Long,
     var startTime: Long,
@@ -11,17 +12,26 @@ data class UserDataBytes(
     var simIndex: Int
 ) {
 
+    val priority: Int
+        get() = when (type) {
+            DataType.National -> 0
+            DataType.DailyBag -> 1
+            DataType.Bonus -> 2
+            DataType.PromoBonus -> 3
+            DataType.International -> 4
+        }
+
     enum class DataType {
         International,
         Bonus,
         PromoBonus,
         National,
-        BagDaily
+        DailyBag
     }
 
-    fun isEmpty() = bytes == 0L && bytesLte == 0L
+    fun exists() = bytes != 0L || bytesLte != 0L
 
-    fun isExpired() = Date().after(Date(expiredTime))
+    fun isExpired() = expiredTime != 0L && Date().after(Date(expiredTime))
 
     override fun equals(other: Any?): Boolean {
         if (other is UserDataBytes && other.type == type && other.simIndex == simIndex)

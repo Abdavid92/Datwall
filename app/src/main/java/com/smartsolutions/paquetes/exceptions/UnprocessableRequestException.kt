@@ -22,6 +22,6 @@ class UnprocessableRequestException : Exception {
         NO_LOGIN,
         BAG_CREDENTIALS,
         WRONG_CODE,
-        MISSING_PERMISSION
+        NO_RESPONSE
     }
 }

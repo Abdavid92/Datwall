@@ -62,7 +62,7 @@ abstract class DbContext: RoomDatabase() {
                 val dataPackages = listOf(
                     //Bolsas
                     DataPackage(
-                        createDataPackageId(DailyBag.name, DailyBag.price),
+                        DailyBag.id,
                         DailyBag.name,
                         DailyBag.description,
                         DailyBag.price,
@@ -75,7 +75,7 @@ abstract class DbContext: RoomDatabase() {
                     ),
                     //Paquetes LTE
                     DataPackage(
-                        createDataPackageId(P_1GbLte.name, P_1GbLte.price),
+                        P_1GbLte.id,
                         P_1GbLte.name,
                         P_1GbLte.description,
                         P_1GbLte.price,
@@ -87,7 +87,7 @@ abstract class DbContext: RoomDatabase() {
                         P_1GbLte.index
                     ),
                     DataPackage(
-                        createDataPackageId(P_2_5GbLte.name, P_2_5GbLte.price),
+                        P_2_5GbLte.id,
                         P_2_5GbLte.name,
                         P_2_5GbLte.description,
                         P_2_5GbLte.price,
@@ -99,7 +99,7 @@ abstract class DbContext: RoomDatabase() {
                         P_2_5GbLte.index
                     ),
                     DataPackage(
-                        createDataPackageId(P_14GbLte.name, P_14GbLte.price),
+                        P_14GbLte.id,
                         P_14GbLte.name,
                         P_14GbLte.description,
                         P_14GbLte.price,
@@ -112,7 +112,7 @@ abstract class DbContext: RoomDatabase() {
                     ),
                     //Paquetes
                     DataPackage(
-                        createDataPackageId(P_400Mb.name, P_400Mb.price),
+                        P_400Mb.id,
                         P_400Mb.name,
                         P_400Mb.description,
                         P_400Mb.price,
@@ -124,7 +124,7 @@ abstract class DbContext: RoomDatabase() {
                         P_400Mb.index
                     ),
                     DataPackage(
-                        createDataPackageId(P_600Mb.name, P_600Mb.price),
+                        P_600Mb.id,
                         P_600Mb.name,
                         P_600Mb.description,
                         P_600Mb.price,
@@ -136,7 +136,7 @@ abstract class DbContext: RoomDatabase() {
                         P_600Mb.index
                     ),
                     DataPackage(
-                        createDataPackageId(P_1Gb.name, P_1Gb.price),
+                        P_1Gb.id,
                         P_1Gb.name,
                         P_1Gb.description,
                         P_1Gb.price,
@@ -148,7 +148,7 @@ abstract class DbContext: RoomDatabase() {
                         P_1Gb.index
                     ),
                     DataPackage(
-                        createDataPackageId(P_2_5Gb.name, P_2_5Gb.price),
+                        P_2_5Gb.id,
                         P_2_5Gb.name,
                         P_2_5Gb.description,
                         P_2_5Gb.price,
@@ -160,7 +160,7 @@ abstract class DbContext: RoomDatabase() {
                         P_2_5Gb.index
                     ),
                     DataPackage(
-                        createDataPackageId(P_4Gb.name, P_4Gb.price),
+                        P_4Gb.id,
                         P_4Gb.name,
                         P_4Gb.description,
                         P_4Gb.price,
@@ -170,7 +170,7 @@ abstract class DbContext: RoomDatabase() {
                         convertToBytes(P_4Gb.bonusCuBytes),
                         P_4Gb.network,
                         P_4Gb.index
-                    ),
+                    )
                 )
 
                 GlobalScope.launch(Dispatchers.Main) {

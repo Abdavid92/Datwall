@@ -9,9 +9,16 @@ buildscript {
     ext.lifecycle_version = "2.3.0"
 
     repositories {
-        google()
-        jcenter()
-        mavenCentral()
+        //google()
+        //jcenter()
+        //mavenCentral()
+        maven {url "https://maven.aliyun.com/repository/google"}
+        maven {url "https://maven.aliyun.com/repository/jcenter"}
+        maven {url "https://maven.aliyun.com/repository/central"}
+
+        maven { url "https://maven.aliyun.com/repository/google" }
+        maven { url "https://maven.aliyun.com/repository/central" }
+        maven { url "https://maven.aliyun.com/repository/jcenter" }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:4.0.2"
@@ -25,9 +32,16 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
-        jcenter()
-        mavenCentral()
+        //google()
+        //jcenter()
+        //mavenCentral()
+        maven {url "https://maven.aliyun.com/repository/google"}
+        maven {url "https://maven.aliyun.com/repository/jcenter"}
+        maven {url "https://maven.aliyun.com/repository/central"}
+
+        maven { url "https://maven.aliyun.com/repository/google" }
+        maven { url "https://maven.aliyun.com/repository/central" }
+        maven { url "https://maven.aliyun.com/repository/jcenter" }
     }
 }
 

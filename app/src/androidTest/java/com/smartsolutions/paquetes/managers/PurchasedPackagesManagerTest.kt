@@ -79,7 +79,7 @@ class PurchasedPackagesManagerTest {
     @Test
     fun confirmPurchased() {
         runBlocking {
-            purchasedPackagesManager.confirmPurchased(id)
+            purchasedPackagesManager.confirmPurchased(id, 1)
         }
     }
 }

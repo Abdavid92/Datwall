@@ -94,7 +94,7 @@ class VpnConnection @Inject constructor(
             * en el repositorio, se lanza el método onChange si la base de datos
             * ya está sembrada. Este método establece la conexión llamando al
             * método establishConnection.*/
-            appRepository.registerObserver(this.observer)
+            //appRepository.registerObserver(this.observer)
         }
     }
 
@@ -125,7 +125,7 @@ class VpnConnection @Inject constructor(
      * */
     fun stop() {
         //Elimino el observer del registro del repsitorio
-        appRepository.unregisterObserver(this.observer)
+        //appRepository.unregisterObserver(this.observer)
 
         /*Limpio las marcas de acceso para poder iniciar el vpn nuevamente.
         * De lo contrario el vpn no inicia porque no encuentra diferencia

@@ -2,7 +2,7 @@ package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
 import android.content.Intent
-import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.services.FirewallService
@@ -10,8 +10,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -42,11 +40,7 @@ class ChangeNetworkHelper @Inject constructor(
     }
 
     override fun setDataMobileStateOn() {
-        launch {
-            context.dataStore.edit {
-                it[PreferencesKeys.DATA_MOBILE_ON] = true
-            }
-        }
+        (context as DatwallApplication).dataMobileOn = true
 
         if (firewallOn) {
             val intent = Intent(context, FirewallService::class.java)
@@ -56,11 +50,7 @@ class ChangeNetworkHelper @Inject constructor(
     }
 
     override fun setDataMobileStateOff() {
-        launch {
-            context.dataStore.edit {
-                it[PreferencesKeys.DATA_MOBILE_ON] = false
-            }
-        }
+        (context as DatwallApplication).dataMobileOn = false
 
         if (firewallOn) {
             val intent = Intent(context, FirewallService::class.java)

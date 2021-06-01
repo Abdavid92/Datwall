@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import android.app.usage.NetworkStats
 import androidx.annotation.IntDef
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
@@ -92,6 +93,18 @@ object NetworkUtils {
                 throw IllegalArgumentException("Unknown period")
             }
         }
+    }
+
+    fun isInDiscountHour (start: Long, finish: Long) : Boolean{
+        var startTime = DateUtils.setHours(Date(start), 1)
+        startTime = DateUtils.setMinutes(startTime, 0)
+        startTime = DateUtils.setSeconds(startTime, 1)
+
+        var finishTime = DateUtils.setHours(Date(start), 6)
+        finishTime = DateUtils.setMinutes(finishTime, 0)
+        finishTime = DateUtils.setSeconds(finishTime, 1)
+
+        return Date(start).after(startTime) && Date(finish).before(finishTime)
     }
 
     /**

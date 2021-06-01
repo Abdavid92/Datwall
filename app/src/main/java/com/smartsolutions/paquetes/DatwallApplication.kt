@@ -47,6 +47,11 @@ class DatwallApplication : Application() {
     @Inject
     lateinit var changeNetworkCallback: Lazy<ChangeNetworkCallback>
 
+    /**
+     * Indica si los datos móbiles están encendidos.
+     * */
+    var dataMobileOn = false
+
     override fun onCreate() {
         super.onCreate()
 
