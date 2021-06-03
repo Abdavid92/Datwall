@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.managers
 import com.smartsolutions.paquetes.data.DataPackagesContract.DailyBag
 import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.helpers.SimsHelper
+import com.smartsolutions.paquetes.managers.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -47,6 +48,16 @@ class UserDataBytesManager @Inject constructor(
                 national.expiredTime = 0L
             })
         }
+    }
+
+    override suspend fun addPromoBonus(simIndex: Int) {
+        val promoBonus = userDataBytesRepository.byType(UserDataBytes.DataType.PromoBonus, simIndex)
+        promoBonus.bytes += DataBytes.GB.toLong()
+        promoBonus.initialBytes = promoBonus.bytes
+        promoBonus.startTime = System.currentTimeMillis()
+        promoBonus.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
+
+        userDataBytesRepository.update(promoBonus)
     }
 
     override suspend fun registerTraffic(rxBytes: Long, txBytes: Long) {

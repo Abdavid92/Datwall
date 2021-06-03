@@ -10,23 +10,16 @@ import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
-import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
-import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import org.apache.commons.lang.SerializationUtils
-import java.io.*
 import java.lang.NumberFormatException
-import java.util.*
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
 
@@ -151,6 +144,11 @@ class DataPackageManager @Inject constructor(
 
     override suspend fun registerDataPackage(smsBody: String, simIndex: Int) {
 
+        if (smsBody.contains(DataPackagesContract.PROMO_BONUS_KEY)) {
+            userDataBytesManager.addPromoBonus(simIndex)
+            return
+        }
+
         DataPackagesContract.PackagesList.firstOrNull { smsBody.contains(it.smsKey) }?.let {
             checkSimIndex(it.id, simIndex)
 
@@ -161,10 +159,14 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    private fun checkSimIndex(dataPackageId: String, simIndex: Int) {
+    /**
+     * Checkea si se pudo obtener el índice de la linea por la que entró el mensaje.
+     * */
+    private fun checkSimIndex(dataPackageId: String, simIndex: Int): Boolean {
         if (simIndex == -1) {
 
         }
+        return true
     }
 
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {

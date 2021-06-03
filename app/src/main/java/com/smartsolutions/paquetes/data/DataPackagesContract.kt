@@ -6,6 +6,8 @@ import com.smartsolutions.paquetes.managers.models.DataBytes.*
 
 object DataPackagesContract {
 
+    const val PROMO_BONUS_KEY = "Bonos: 1024 MB"
+
     val DailyBag = PackageModel (
         "Bolsa Diaria LTE",
         "Navega en la red LTE por 24 horas.",

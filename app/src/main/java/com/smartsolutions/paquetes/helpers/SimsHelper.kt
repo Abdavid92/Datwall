@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -14,57 +15,97 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlin.jvm.Throws
 
+/**
+ * Ayudante para obtener datos de las lineas instaladas en el dispositivo.
+ * */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
 class SimsHelper @Inject constructor(
     @ApplicationContext
     private val context: Context
 ) {
 
-
-    private var subscriptionManager: SubscriptionManager? = null
-
-    init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            subscriptionManager = ContextCompat
-                .getSystemService(context, SubscriptionManager::class.java)
-    }
-
-    fun getActiveVoiceSimIndex(): Int = getActiveSimIndex(2)
+    private val subscriptionManager = ContextCompat.getSystemService(context, SubscriptionManager::class.java)
+        ?: throw NullPointerException()
 
     /**
-     * Obtiene el índice de la tarjeta sim activa.
+     * Obtiene el índice de la tarjeta sim activa para las llamadas.
      *
      * @return 1 para la tarjeta sim del slot 1.
      * 2 para la tarjeta sim del slot 2.
      * -1 si no se pudo obtener el slot de la sim.
      * */
-    fun getActiveDataSimIndex(): Int = getActiveSimIndex(1)
-
+    @Throws(MissingPermissionException::class)
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun getActiveVoiceSimIndex() = getActiveSim(2).simSlotIndex
 
     @Throws(MissingPermissionException::class)
-    private fun getActiveSimIndex(type: Int): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
-            ) {
-                throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
-            }
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun getActiveVoiceSimId(): String {
 
-            val info = when (type) {
-                1 -> subscriptionManager?.getActiveSubscriptionInfo(
-                    SubscriptionManager.getDefaultDataSubscriptionId()
-                )
-                2 -> subscriptionManager?.getActiveSubscriptionInfo(
-                    SubscriptionManager.getDefaultVoiceSubscriptionId()
-                )
-                else -> subscriptionManager?.getActiveSubscriptionInfo(
-                    SubscriptionManager.getDefaultVoiceSubscriptionId()
-                )
-            }
-
-            return info?.simSlotIndex ?: 1
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return getActiveSim(2).cardId.toString()
         }
-        return 1
+
+        return getActiveSim(2).iccId
+    }
+
+    /**
+     * Obtiene el índice de la tarjeta sim activa para los datos móviles.
+     *
+     * @return 1 para la tarjeta sim del slot 1.
+     * 2 para la tarjeta sim del slot 2.
+     * -1 si no se pudo obtener el slot de la sim.
+     * */
+    @Throws(MissingPermissionException::class)
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun getActiveDataSimIndex() = getActiveSim(1).simSlotIndex
+
+    @Throws(MissingPermissionException::class)
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun getActiveDataSimId(): String {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return getActiveSim(2).cardId.toString()
+        }
+
+        return getActiveSim(2).iccId
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun getCardId(): List<Pair<Int, Int>> {
+        val list = mutableListOf<Pair<Int, Int>>()
+
+        getActiveSimsInfo()?.forEach {
+            list.add(
+                Pair(
+                    it.simSlotIndex,
+                    it.cardId
+                )
+            )
+        }
+        return list
+    }
+
+    @Throws(MissingPermissionException::class)
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun getActiveSim(type: Int): SubscriptionInfo {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+        ) {
+            throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
+        }
+
+        return when (type) {
+            1 -> subscriptionManager.getActiveSubscriptionInfo(
+                SubscriptionManager.getDefaultDataSubscriptionId()
+            )
+            2 -> subscriptionManager.getActiveSubscriptionInfo(
+                SubscriptionManager.getDefaultVoiceSubscriptionId()
+            )
+            else -> subscriptionManager.getActiveSubscriptionInfo(
+                SubscriptionManager.getDefaultVoiceSubscriptionId()
+            )
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)

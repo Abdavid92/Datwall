@@ -51,7 +51,7 @@ class UserDataBytesRepositoryTest {
     @Test
     fun update() {
 
-        val userDataBytes = UserDataBytes(
+        /*val userDataBytes = UserDataBytes(
             UserDataBytes.DataType.International,
             400,
             500,
@@ -72,6 +72,6 @@ class UserDataBytesRepositoryTest {
         runBlocking {
             assertTrue(repository.update(userDataBytes))
             assertTrue(repository.update(bagDaily))
-        }
+        }*/
     }
 }
