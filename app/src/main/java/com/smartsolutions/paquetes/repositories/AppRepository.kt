@@ -56,7 +56,11 @@ class AppRepository @Inject constructor(
 
     override fun flow(): Flow<List<App>> = dao.flow()
 
-    override fun registerObserver(observer: Observer) {
+    override fun flowByGroup(): Flow<List<IApp>> {
+        TODO("Not yet implemented")
+    }
+
+    fun registerObserver(observer: Observer) {
         if (!observerExist(observer))
             this.listObserver.add(Pair(null, observer))
 
@@ -71,7 +75,7 @@ class AppRepository @Inject constructor(
         }
     }
 
-    override fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer) {
+    fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer) {
         if (!observerExist(observer))
             this.listObserver.add(Pair(lifecycleOwner, observer))
 
@@ -90,7 +94,7 @@ class AppRepository @Inject constructor(
         return this.listObserver.firstOrNull { it.second == observer } != null
     }
 
-    override fun unregisterObserver(observer: Observer) {
+    fun unregisterObserver(observer: Observer) {
         this.listObserver.firstOrNull { it.second == observer }?.let {
             this.listObserver.remove(it)
         }

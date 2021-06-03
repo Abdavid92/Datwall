@@ -16,6 +16,7 @@ import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
@@ -38,16 +39,14 @@ class DataPackageManager @Inject constructor(
     private val ussdHelper: USSDHelper,
     private val simsHelper: SimsHelper,
     private val miCubacelClientManager: MiCubacelClientManager
-): IDataPackageManager, CoroutineScope {
+): IDataPackageManager {
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
 
     private var _buyMode: IDataPackageManager.BuyMode = IDataPackageManager.BuyMode.USSD
     override var buyMode: IDataPackageManager.BuyMode
         get() = _buyMode
         set(value) {
-            launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 context.dataStore.edit {
                     it[PreferencesKeys.BUY_MODE] = value.name
                 }
@@ -56,7 +55,7 @@ class DataPackageManager @Inject constructor(
         }
 
     init {
-        launch {
+        GlobalScope.launch(Dispatchers.IO) {
             context.dataStore.data.collect {
                 _buyMode = IDataPackageManager.BuyMode
                     .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.BuyMode.USSD.name)
@@ -150,29 +149,14 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override fun registerDataPackage(smsBody: String, simIndex: Int) {
-        val classes = DataPackagesContract.javaClass.declaredClasses
+    override suspend fun registerDataPackage(smsBody: String, simIndex: Int) {
 
-        classes.forEach {
-            val smsKey = it.getDeclaredField("smsKey").get(null) as String
+        DataPackagesContract.PackagesList.firstOrNull { smsBody.contains(it.smsKey) }?.let {
+            checkSimIndex(it.id, simIndex)
 
-            if (smsBody.contains(smsKey)) {
-
-                val name = it.getDeclaredField("name").get(null) as String
-                val price = it.getDeclaredField("price").getFloat(null)
-
-                launch {
-                    val dataPackageId = createDataPackageId(name, price)
-
-                    checkSimIndex(dataPackageId, simIndex)
-
-                    dataPackageRepository.get(dataPackageId)?.let { dataPackage ->
-                        userDataBytesManager.addDataBytes(dataPackage, simIndex)
-                        purchasedPackagesManager.confirmPurchased(dataPackage.id, simIndex)
-                    }
-                }
-
-                return
+            dataPackageRepository.get(it.id)?.let { dataPackage ->
+                userDataBytesManager.addDataBytes(dataPackage, simIndex)
+                purchasedPackagesManager.confirmPurchased(dataPackage.id, simIndex)
             }
         }
     }

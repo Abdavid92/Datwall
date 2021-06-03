@@ -53,7 +53,7 @@ interface IDataPackageManager {
      * @param smsBody - Cuerpo del mensage rrecibido como confirmación
      * del paquete comprado.
      * */
-    fun registerDataPackage(smsBody: String, simIndex: Int)
+    suspend fun registerDataPackage(smsBody: String, simIndex: Int)
 
     /**
      * Modo de compra de paquetes.

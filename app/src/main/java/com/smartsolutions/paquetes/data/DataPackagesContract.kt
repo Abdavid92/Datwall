@@ -124,7 +124,7 @@ object DataPackagesContract {
         5,
         "4GB + Bono LTE")
 
-    val PackagesList = mutableListOf<PackageModel>(
+    val PackagesList = listOf(
         DailyBag,
         P_1GbLte,
         P_2_5GbLte,
