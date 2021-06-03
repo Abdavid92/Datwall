@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.helpers
 
+import android.util.Log
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test
@@ -35,6 +36,6 @@ class SimsHelperTest {
     fun getCardId() {
         val list = simHelper.getCardId()
 
-        print(list)
+        Log.i("EJV", list.toString())
     }
 }

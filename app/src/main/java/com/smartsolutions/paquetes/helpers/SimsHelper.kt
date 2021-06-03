@@ -70,20 +70,6 @@ class SimsHelper @Inject constructor(
         return getActiveSim(2).iccId
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    fun getCardId(): List<Pair<Int, Int>> {
-        val list = mutableListOf<Pair<Int, Int>>()
-
-        getActiveSimsInfo()?.forEach {
-            list.add(
-                Pair(
-                    it.simSlotIndex,
-                    it.cardId
-                )
-            )
-        }
-        return list
-    }
 
     @Throws(MissingPermissionException::class)
     @RequiresApi(Build.VERSION_CODES.N)
@@ -108,8 +94,8 @@ class SimsHelper @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    fun getActiveSimsInfo(): List<SubscriptionInfo>? {
+
+    private fun getActiveSimsInfo(): List<SubscriptionInfo>? {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
@@ -117,12 +103,25 @@ class SimsHelper @Inject constructor(
             return null
         }
 
-        return subscriptionManager?.activeSubscriptionInfoList
+        return subscriptionManager.activeSubscriptionInfoList
     }
 
     fun isDualSim(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            return (getActiveSimsInfo()?.size ?: 0) > 1
-        return false
+        return (getActiveSimsInfo()?.size ?: 0) > 1
+    }
+
+    @Throws(MissingPermissionException::class)
+    fun getSimIDByIndex(simIndex: Int): String {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return subscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(simIndex).cardId.toString()
+        }
+        return subscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(simIndex).iccId
     }
 }
