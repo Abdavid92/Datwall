@@ -15,7 +15,7 @@ interface IDataPackageDao {
     suspend fun get(id: String): DataPackage?
 
     @Query("SELECT * FROM data_packages WHERE network = :network")
-    suspend fun getByNetwork(network: String) : List<DataPackage>
+    suspend fun getByNetwork(@Networks network: String) : List<DataPackage>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun create(dataPackage: DataPackage): Long

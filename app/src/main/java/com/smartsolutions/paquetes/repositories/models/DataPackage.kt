@@ -1,11 +1,14 @@
 package com.smartsolutions.paquetes.repositories.models
 
+import androidx.annotation.StringDef
+import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import com.smartsolutions.paquetes.annotations.Networks
+import kotlinx.parcelize.IgnoredOnParcel
 
 /**
  * Entidad correspondiente a la tabla data_packages
@@ -47,5 +50,4 @@ data class DataPackage(
 
     @Ignore
     var sims = emptyList<Sim>()
-
 }

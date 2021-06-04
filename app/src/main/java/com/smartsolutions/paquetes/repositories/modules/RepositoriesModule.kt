@@ -15,7 +15,7 @@ interface RepositoriesModule {
     fun bindIAppRepository(impl: AppRepository): IAppRepository
 
     @Binds
-    fun bindIDataPackageRepository(impl: ForeignDataPackageRepository): IDataPackageRepository
+    fun bindIDataPackageRepository(impl: DataPackageRepository): IDataPackageRepository
 
     @Binds
     fun bindIPurchasedPackageRepository(impl: PurchasedPackageRepository): IPurchasedPackageRepository

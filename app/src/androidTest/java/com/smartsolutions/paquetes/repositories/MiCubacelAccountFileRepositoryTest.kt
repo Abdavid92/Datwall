@@ -16,7 +16,7 @@ import org.junit.Rule
 import javax.inject.Inject
 
 @HiltAndroidTest
-class MiCubacelAccountRepositoryTest {
+class MiCubacelAccountFileRepositoryTest {
 
     @get:Rule
     val rule = HiltAndroidRule(this)

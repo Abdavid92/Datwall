@@ -1,19 +1,23 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
-import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import kotlinx.coroutines.flow.Flow
 
 interface IUserDataBytesRepository {
 
-    fun getAll(): LiveData<List<UserDataBytes>>
-
     suspend fun all(): List<UserDataBytes>
 
-    suspend fun all(simIndex: Int) : List<UserDataBytes>
+    fun flow(): Flow<List<UserDataBytes>>
 
-    suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes
+    suspend fun bySimId(simId: String): List<UserDataBytes>
 
-    suspend fun update(userDataBytes: UserDataBytes): Boolean
+    fun flowBySimId(simId: String): Flow<List<UserDataBytes>>
 
-    suspend fun update(userDataBytesList: List<UserDataBytes>): Boolean
+    suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes?
+
+    suspend fun update(userDataBytes: UserDataBytes)
+
+    suspend fun update(userDataBytesList: List<UserDataBytes>)
+
+    suspend fun delete(userDataBytes: UserDataBytes)
 }

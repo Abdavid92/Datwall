@@ -18,7 +18,7 @@ import com.smartsolutions.paquetes.repositories.models.*
     DataPackage::class,
     PurchasedPackage::class,
     Sim::class,
-    SimDataPackage::class], version = 1, exportSchema = false)
+    MiCubacelAccount::class], version = 1, exportSchema = false)
 abstract class DbContext: RoomDatabase() {
 
     /**
@@ -41,10 +41,7 @@ abstract class DbContext: RoomDatabase() {
      * */
     abstract fun getSimDao(): ISimDao
 
-    /**
-     * @return Data Access Object para consultar la tabla pivote sims_data_packages.
-     * */
-    abstract fun getSimDataPackageDao(): ISimDataPackageDao
+    abstract fun getMiCubacelAccountDao(): IMiCubacelAccountDao
 
     /**
      * Seeder de la tabla data_packages

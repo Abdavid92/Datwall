@@ -1,158 +1,109 @@
 package com.smartsolutions.paquetes.repositories
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.smartsolutions.paquetes.data.ISimDao
+import com.smartsolutions.paquetes.data.IUserDataBytesDao
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
-import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 class UserDataBytesRepository @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
-    private val gson: Gson
-): IUserDataBytesRepository, CoroutineScope {
+    private val userDataBytesDao: IUserDataBytesDao,
+    private val simDao: ISimDao
+): IUserDataBytesRepository {
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
-
-    private val store = "user_data_bytes.json"
-
-    override fun getAll(): LiveData<List<UserDataBytes>> {
-        launch {
-            val list = read()
-
-            if (list.isNotEmpty())
-                liveData.postValue(list)
+    override suspend fun all(): List<UserDataBytes> =
+        userDataBytesDao.all().map {
+            transform(it)
         }
 
-        return liveData
-    }
-
-    override suspend fun all(): List<UserDataBytes> = read()
-
-    override suspend fun all(simIndex: Int): List<UserDataBytes> =
-        all().filter { it.simIndex == simIndex }
-
-    override suspend fun byType(dataType: UserDataBytes.DataType, simIndex: Int): UserDataBytes =
-        read().first { it.type == dataType && it.simIndex == simIndex }
-
-    override suspend fun update(userDataBytes: UserDataBytes): Boolean {
-        val list = read()
-
-        val index = list.indexOf(userDataBytes)
-
-        if (index != -1) {
-            list[index] = userDataBytes
-
-            return write(list)
-        }
-        return false
-    }
-
-    override suspend fun update(userDataBytesList: List<UserDataBytes>): Boolean {
-        val list = read()
-
-        var canWrite = false
-
-        userDataBytesList.forEach {
-            val index = list.indexOf(it)
-
-            if (index != -1) {
-                list[index] = it
-                canWrite = true
+    override fun flow(): Flow<List<UserDataBytes>> =
+        userDataBytesDao.flow().map { list ->
+            list.forEach {
+                transform(it)
             }
+            return@map list
         }
 
-        if (canWrite)
-            return write(list)
-        return false
+    override suspend fun bySimId(simId: String): List<UserDataBytes> {
+        val userDataBytesList: MutableList<UserDataBytes> = userDataBytesDao
+            .bySimId(simId).toMutableList()
+
+        if (userDataBytesList.size < 5) {
+            seedUserDataBytes(simId, userDataBytesList)
+        }
+
+        return userDataBytesList.map {
+            transform(it)
+        }
     }
 
-    private fun write(list: List<UserDataBytes>): Boolean {
-        synchronized(this) {
-            liveData.postValue(list)
-
-            val file = File(context.filesDir, store)
-
-            if (!file.exists() && !file.createNewFile())
-                return false
-
-            try {
-
-                val content = gson.toJson(list)
-
-                val output = FileOutputStream(file)
-
-                output.write(content.toByteArray())
-
-                output.flush()
-
-                output.close()
-
-                return true
-
-            } catch (e: Exception) {
-
+    override fun flowBySimId(simId: String): Flow<List<UserDataBytes>> =
+        userDataBytesDao.flowBySimId(simId).map { list ->
+            if (list.size < 5) {
+                return@map seedUserDataBytes(simId, list.toMutableList()).map {
+                    transform(it)
+                }
             }
-            return false
+            return@map list
         }
-    }
 
-    private fun read(): MutableList<UserDataBytes> {
-        synchronized(this) {
-            val file = File(context.filesDir, store)
+    override suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes? {
+        var userDataBytes = userDataBytesDao.get(simId, type.name)
 
-            if (!file.exists())
-                return seederData()
-
-            return try {
-                val input = FileInputStream(file)
-
-                val content = input.bufferedReader()
-                    .readText()
-
-                input.close()
-
-                val typeToken = object : TypeToken<MutableList<UserDataBytes>>() {}.type
-
-                gson.fromJson(content, typeToken)
-            } catch (e: Exception) {
-                file.delete()
-                seederData()
-            }
-        }
-    }
-
-    private fun seederData(): MutableList<UserDataBytes> {
-        val list = mutableListOf<UserDataBytes>()
-
-        UserDataBytes.DataType.values().forEach {
-            list.addAll(
-                arrayOf(
-                    UserDataBytes(it, 0L, 0L, 0L, 0L, 0, 1),
-                    UserDataBytes(it, 0L, 0L, 0L, 0L, 0, 2)
-                )
+        if (userDataBytes == null) {
+            userDataBytes = UserDataBytes(
+                simId,
+                type,
+                0,
+                0,
+                0,
+                0,
+                0
             )
+
+            userDataBytesDao.create(userDataBytes)
         }
-        write(list)
-        return list
+
+        return transform(userDataBytes)
     }
 
-    companion object {
+    override suspend fun update(userDataBytes: UserDataBytes) =
+        userDataBytesDao.update(userDataBytes)
 
-        private val liveData: MutableLiveData<List<UserDataBytes>> = MutableLiveData()
+    override suspend fun update(userDataBytesList: List<UserDataBytes>) =
+        userDataBytesDao.update(userDataBytesList)
 
+    override suspend fun delete(userDataBytes: UserDataBytes) =
+        userDataBytesDao.delete(userDataBytes)
+
+    private suspend fun transform(userDataBytes: UserDataBytes): UserDataBytes {
+        simDao.get(userDataBytes.simId)?.let {
+            userDataBytes.sim = it
+        }
+        return userDataBytes
+    }
+
+    private suspend fun seedUserDataBytes(simId: String, userDataBytesList: MutableList<UserDataBytes>): List<UserDataBytes> {
+        UserDataBytes.DataType.values().forEach { dataType ->
+            if (userDataBytesList.firstOrNull { it.type == dataType} == null) {
+
+                val userDataBytes = UserDataBytes(
+                    simId,
+                    dataType,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                )
+
+                userDataBytesDao.create(userDataBytes)
+                userDataBytesList.add(userDataBytes)
+            }
+        }
+        return userDataBytesList
     }
 }

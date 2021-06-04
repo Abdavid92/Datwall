@@ -1,22 +1,28 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
+import androidx.room.Query
 import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
 import kotlinx.coroutines.flow.Flow
 
 interface IMiCubacelAccountRepository {
 
-    suspend fun create(account: MiCubacelAccount): Boolean
+    suspend fun create(account: MiCubacelAccount)
 
-    suspend fun update(account: MiCubacelAccount): Boolean
+    suspend fun create(accounts: List<MiCubacelAccount>)
 
-    suspend fun createOrUpdate(account: MiCubacelAccount): Boolean
+    suspend fun createOrUpdate(account: MiCubacelAccount)
 
-    suspend fun delete(account: MiCubacelAccount): Boolean
+    suspend fun all(): List<MiCubacelAccount>
 
-    fun get(phone: String): Flow<MiCubacelAccount>
+    fun flow(): Flow<List<MiCubacelAccount>>
 
-    //fun get(simId: String): Flow<MiCubacelAccount>
+    suspend fun get(id: String): MiCubacelAccount?
 
-    fun getAll(): Flow<List<MiCubacelAccount>>
+    suspend fun getByPhone(phone: String): MiCubacelAccount?
 
+    suspend fun update(account: MiCubacelAccount)
+
+    suspend fun update(accounts: List<MiCubacelAccount>)
+
+    suspend fun delete(account: MiCubacelAccount)
 }

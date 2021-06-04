@@ -14,14 +14,8 @@ data class Sim(
     @ColumnInfo(name = "setup_date")
     val setupDate: Long,
     @Networks
-    val networks: Networks
+    var network: String
 ) {
-
-    @ColumnInfo(name = "index_3g")
-    var index3G: Int = -1
-
-    @ColumnInfo(name = "index_4g")
-    var index4G: Int = -1
 
     @Ignore
     var packages = emptyList<DataPackage>()

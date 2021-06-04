@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.data
 
 import androidx.room.*
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.repositories.models.Sim
 import kotlinx.coroutines.flow.Flow
 
@@ -21,6 +22,9 @@ interface ISimDao {
 
     @Query("SELECT * FROM sims WHERE id = :id")
     suspend fun get(id: String): Sim?
+
+    @Query("SELECT * FROM sims WHERE network = :network")
+    suspend fun getByNetwork(@Networks network: String): List<Sim>
 
     @Update
     suspend fun update(sim: Sim): Int

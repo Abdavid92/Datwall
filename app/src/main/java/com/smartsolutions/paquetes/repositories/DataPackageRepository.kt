@@ -2,43 +2,37 @@ package com.smartsolutions.paquetes.repositories
 
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.IDataPackageDao
+import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import com.smartsolutions.paquetes.repositories.models.Sim
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DataPackageRepository @Inject constructor(
     private val dataPackageDao: IDataPackageDao,
+    private val simDao: ISimDao
 ) : IDataPackageRepository {
 
-    override fun getAll(): Flow<List<DataPackage>> = dataPackageDao.getAll()
-
-    /*override fun getActives(simId: String): Flow<List<DataPackage>> {
-        return dataPackageDao.getAll().map {
-            val actives = mutableListOf<DataPackage>()
-            it.forEach { dataPackage ->
-                if (simId == 1 && dataPackage.activeInSim1)
-                    actives.add(dataPackage)
-                else if (simId == 2 && dataPackage.activeInSim2)
-                    actives.add(dataPackage)
+    override fun getAll(): Flow<List<DataPackage>> =
+        dataPackageDao.getAll().map { list ->
+            list.forEach {
+                transform(it)
             }
-            actives
+
+            return@map list
         }
-    }*/
 
-    override fun getBySimId(simId: String): Flow<List<DataPackage>> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun get(id: String): DataPackage? = dataPackageDao.get(id)
-
-    override suspend fun get(id: String, simId: String): DataPackage? {
-        TODO("Not yet implemented")
-    }
+    override suspend fun get(id: String): DataPackage? =
+        dataPackageDao.get(id)?.apply {
+            transform(this)
+        }
 
     override suspend fun getByNetwork(network: String): List<DataPackage> {
-       return dataPackageDao.getByNetwork(network)
+       return dataPackageDao.getByNetwork(network).map {
+           transform(it)
+       }
     }
 
     override suspend fun create(dataPackage: DataPackage): Long = dataPackageDao.create(dataPackage)
@@ -52,4 +46,24 @@ class DataPackageRepository @Inject constructor(
     override suspend fun delete(dataPackage: DataPackage): Int = dataPackageDao.delete(dataPackage)
 
     override suspend fun delete(dataPackages: List<DataPackage>): Int = dataPackageDao.delete(dataPackages)
+
+    private suspend fun transform(dataPackage: DataPackage): DataPackage {
+        val sims = mutableListOf<Sim>()
+
+        sims.addAll(simDao.getByNetwork(Networks.NETWORK_3G_4G))
+
+        when (dataPackage.network) {
+            Networks.NETWORK_3G,
+            Networks.NETWORK_3G_4G -> {
+                sims.addAll(simDao.getByNetwork(Networks.NETWORK_3G))
+            }
+            Networks.NETWORK_4G -> {
+                sims.addAll(simDao.getByNetwork(Networks.NETWORK_4G))
+            }
+        }
+
+        dataPackage.sims = sims
+
+        return dataPackage
+    }
 }
