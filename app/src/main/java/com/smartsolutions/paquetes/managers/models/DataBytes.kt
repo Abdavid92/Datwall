@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers.models
 
+import com.smartsolutions.paquetes.helpers.convertToBytes
 import kotlin.math.pow
 
 class DataBytes(val bytes: Long) {
@@ -16,14 +17,17 @@ class DataBytes(val bytes: Long) {
 
         if (unit == null) {
             unit = when {
-                GB <= bytes -> {
+                bytes >= GB -> {
                     DataUnit.GB
                 }
-                MB <= bytes -> {
+                bytes >= MB -> {
                     DataUnit.MB
                 }
-                else -> {
+                bytes >= KB -> {
                     DataUnit.KB
+                }
+                else -> {
+                    DataUnit.B
                 }
             }
         }
@@ -35,8 +39,11 @@ class DataBytes(val bytes: Long) {
             DataUnit.MB -> {
                 bytes / MB
             }
+            DataUnit.KB -> {
+                bytes / KB
+            }
             else -> {
-                bytes / 1024.0
+                bytes.toDouble()
             }
         }
 
@@ -45,20 +52,39 @@ class DataBytes(val bytes: Long) {
 
     companion object {
 
-        val GB = 1024.0.pow(3.0)
-        val MB = 1024.0.pow(2.0)
-
+        const val GB = 1073741824.0 //1024.0.pow(3.0)
+        const val MB = 1048576.0 //1024.0.pow(2.0)
+        const val KB = 1024.0
     }
 
     /**
      * Unidad que contiene los bytes y la unidad de medida.
+     *
+     * @constructor
+     * @param value - Bytes relativos a la unidad de medida.
+     * Por ejemplo: 2.5 GB que serían 2684354560 bytes.
+     *
+     * @param dataUnit - Unidad de medida en la que están expresadas los bytes.
      * */
-    data class DataValue(val value : Double, val dataUnit: DataUnit)
+    data class DataValue(val value: Double, val dataUnit: DataUnit) {
+
+        /**
+         * Retorna el valor de este [DataValue] llevado a bytes,
+         * la unidad de medida más pequeña.
+         * */
+        fun toBytes(): Long {
+            return convertToBytes(this)
+        }
+    }
 
     /**
      * Unidades de medidas.
      * */
     enum class DataUnit {
+        /**
+         * Bytes
+         * */
+        B,
         /**
          * Kilobytes
          * */

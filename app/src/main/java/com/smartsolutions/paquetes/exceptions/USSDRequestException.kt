@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.exceptions
 
 /**
- * Exceción que se lanza cuando hubo un error al ejecutar
+ * Excepción que se lanza cuando hubo un error al ejecutar
  * un código ussd.
  * */
 class USSDRequestException(

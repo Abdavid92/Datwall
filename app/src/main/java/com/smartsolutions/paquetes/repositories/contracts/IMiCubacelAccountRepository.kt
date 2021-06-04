@@ -15,7 +15,7 @@ interface IMiCubacelAccountRepository {
 
     fun get(phone: String): Flow<MiCubacelAccount>
 
-    fun get(simIndex: Int): Flow<MiCubacelAccount>
+    //fun get(simId: String): Flow<MiCubacelAccount>
 
     fun getAll(): Flow<List<MiCubacelAccount>>
 

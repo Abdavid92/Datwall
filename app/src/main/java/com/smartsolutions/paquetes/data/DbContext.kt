@@ -5,24 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.smartsolutions.paquetes.helpers.convertToBytes
-import com.smartsolutions.paquetes.helpers.createDataPackageId
-import com.smartsolutions.paquetes.repositories.models.App
-import com.smartsolutions.paquetes.repositories.models.DataPackage
-import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import com.smartsolutions.paquetes.data.DataPackagesContract.DailyBag
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_1GbLte
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_2_5GbLte
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_14GbLte
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_400Mb
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_600Mb
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_1Gb
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_2_5Gb
-import com.smartsolutions.paquetes.data.DataPackagesContract.P_4Gb
-import kotlinx.coroutines.runBlocking
+import com.smartsolutions.paquetes.repositories.models.*
 
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
@@ -30,7 +16,9 @@ import kotlinx.coroutines.runBlocking
 @Database(entities = [
     App::class,
     DataPackage::class,
-    PurchasedPackage::class], version = 1, exportSchema = false)
+    PurchasedPackage::class,
+    Sim::class,
+    SimDataPackage::class], version = 1, exportSchema = false)
 abstract class DbContext: RoomDatabase() {
 
     /**
@@ -49,6 +37,16 @@ abstract class DbContext: RoomDatabase() {
     abstract fun getPurchasedPackageDao(): IPurchasedPackageDao
 
     /**
+     * @return Data Access Object para consultar la tabla sims.
+     * */
+    abstract fun getSimDao(): ISimDao
+
+    /**
+     * @return Data Access Object para consultar la tabla pivote sims_data_packages.
+     * */
+    abstract fun getSimDataPackageDao(): ISimDataPackageDao
+
+    /**
      * Seeder de la tabla data_packages
      * */
     internal class DataPackageDbSeeder: RoomDatabase.Callback() {
@@ -56,10 +54,10 @@ abstract class DbContext: RoomDatabase() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
 
-            INSTANCE?.let {
-                val dao = it.getDataPackageDao()
+            INSTANCE?.let { dbContext ->
+                val dao = dbContext.getDataPackageDao()
 
-                val dataPackages = listOf(
+                /*val dataPackages = listOf(
                     //Bolsas
                     DataPackage(
                         DailyBag.id,
@@ -175,6 +173,26 @@ abstract class DbContext: RoomDatabase() {
 
                 GlobalScope.launch(Dispatchers.Main) {
                     dao.create(dataPackages)
+                }*/
+
+                GlobalScope.launch(Dispatchers.Main) {
+                    DataPackagesContract.PackagesList.forEach { packageModel ->
+
+                        val dataPackage = DataPackage(
+                            packageModel.id,
+                            packageModel.name,
+                            packageModel.description,
+                            packageModel.price,
+                            packageModel.bytes.toBytes(),
+                            packageModel.bytesLte.toBytes(),
+                            packageModel.bonusBytes.toBytes(),
+                            packageModel.bonusCuBytes.toBytes(),
+                            packageModel.network,
+                            packageModel.index
+                        )
+
+                        dao.create(dataPackage)
+                    }
                 }
             }
         }

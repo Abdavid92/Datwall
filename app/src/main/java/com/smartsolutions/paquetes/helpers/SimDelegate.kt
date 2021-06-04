@@ -19,7 +19,7 @@ import kotlin.jvm.Throws
  * Ayudante para obtener datos de las lineas instaladas en el dispositivo.
  * */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-class SimsHelper @Inject constructor(
+class SimDelegate @Inject constructor(
     @ApplicationContext
     private val context: Context
 ) {
@@ -38,6 +38,9 @@ class SimsHelper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N)
     fun getActiveVoiceSimIndex() = getActiveSim(2).simSlotIndex
 
+    /**
+     * Obtiene el id de la tarjeta sim activa para las llamadas.
+     * */
     @Throws(MissingPermissionException::class)
     @RequiresApi(Build.VERSION_CODES.N)
     fun getActiveVoiceSimId(): String {
@@ -60,6 +63,9 @@ class SimsHelper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N)
     fun getActiveDataSimIndex() = getActiveSim(1).simSlotIndex
 
+    /**
+     * Obtiene el id de la tarjeta sim activa para los datos móviles.
+     * */
     @Throws(MissingPermissionException::class)
     @RequiresApi(Build.VERSION_CODES.N)
     fun getActiveDataSimId(): String {
@@ -94,24 +100,35 @@ class SimsHelper @Inject constructor(
         }
     }
 
-
-    private fun getActiveSimsInfo(): List<SubscriptionInfo>? {
+    /**
+     * Obtiene todas las lineas activas.
+     * */
+    @Throws(MissingPermissionException::class)
+    fun getActiveSimsInfo(): List<SubscriptionInfo> {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
         ) {
-            return null
+            throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
         }
 
         return subscriptionManager.activeSubscriptionInfoList
     }
 
-    fun isDualSim(): Boolean {
-        return (getActiveSimsInfo()?.size ?: 0) > 1
+    /**
+     * Indica si están instaladas dos o más lineas.
+     * */
+    fun isInstalledSeveralSim(): Boolean {
+        return getActiveSimsInfo().size > 1
     }
 
+    /**
+     * Obtiene el id de la linea instalada en el slot dado.
+     *
+     * @param simIndex - Slot de la linea.
+     * */
     @Throws(MissingPermissionException::class)
-    fun getSimIDByIndex(simIndex: Int): String {
+    fun getSimIdByIndex(simIndex: Int): String {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE

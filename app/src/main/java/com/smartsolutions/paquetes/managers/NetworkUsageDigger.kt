@@ -8,7 +8,7 @@ import android.os.Build
 import android.os.RemoteException
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
-import com.smartsolutions.paquetes.helpers.SimsHelper
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import org.apache.commons.lang.time.DateUtils
 import java.util.ArrayList
 
@@ -17,7 +17,7 @@ import java.util.ArrayList
 abstract class NetworkUsageDigger(
     private val networkStatsManager: NetworkStatsManager,
     telephonyManager: TelephonyManager,
-    private val simsHelper: SimsHelper
+    private val simDelegate: SimDelegate
 ) : NetworkUsageManager() {
     private var ID: String? = null
 
@@ -39,7 +39,7 @@ abstract class NetworkUsageDigger(
 
         clearCache()
 
-        val simIndex = simsHelper.getActiveDataSimIndex()
+        val simIndex = simDelegate.getActiveDataSimIndex()
 
         if (simIndex == 1) {
             cacheSim1.firstOrNull { it.start == start && it.finish == finish }?.let {
@@ -77,7 +77,7 @@ abstract class NetworkUsageDigger(
     fun getUsageGeneral(start: Long, finish: Long): NetworkStats.Bucket? {
         clearGeneralCache()
 
-        val simIndex = simsHelper.getActiveDataSimIndex()
+        val simIndex = simDelegate.getActiveDataSimIndex()
 
         if (simIndex == 1) {
             generalCacheSim1.firstOrNull { it.start == start && it.finish == finish }?.let {

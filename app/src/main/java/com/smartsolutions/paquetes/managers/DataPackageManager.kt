@@ -30,7 +30,7 @@ class DataPackageManager @Inject constructor(
     private val purchasedPackagesManager: PurchasedPackagesManager,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simsHelper: SimsHelper,
+    private val simDelegate: SimDelegate,
     private val miCubacelClientManager: MiCubacelClientManager
 ): IDataPackageManager {
 
@@ -62,7 +62,7 @@ class DataPackageManager @Inject constructor(
             val text = response.string().split("\n")
 
             //Índice basado en 1 de la linea activa
-            val activeSimIndex = simsHelper.getActiveVoiceSimIndex()
+            val activeSimIndex = simDelegate.getActiveVoiceSimIndex()
 
             //Obtengo todos los paquetes de la base de datos
             dataPackageRepository.getAll().firstOrNull()?.let { packages ->
@@ -128,7 +128,7 @@ class DataPackageManager @Inject constructor(
     }
 
     override fun getPackages(): Flow<List<DataPackage>> = dataPackageRepository
-        .getActives(simsHelper.getActiveVoiceSimIndex())
+        .getBySimId(simDelegate.getActiveVoiceSimIndex())
 
     @Throws(IllegalStateException::class, MissingPermissionException::class, UnprocessableRequestException::class)
     override suspend fun buyDataPackage(dataPackage: DataPackage) {
@@ -170,7 +170,7 @@ class DataPackageManager @Inject constructor(
     }
 
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {
-        val sim = simsHelper.getActiveVoiceSimIndex()
+        val sim = simDelegate.getActiveVoiceSimIndex()
 
         if ((sim == 1 && !dataPackage.activeInSim1) || (sim == 2 && !dataPackage.activeInSim2)) {
             throw IllegalStateException(context.getString(R.string.pkg_not_configured))
@@ -200,7 +200,7 @@ class DataPackageManager @Inject constructor(
 
                 purchasedPackagesManager.newPurchased(
                     dataPackage.id,
-                    simsHelper.getActiveDataSimIndex(),
+                    simDelegate.getActiveDataSimIndex(),
                     IDataPackageManager.BuyMode.MiCubacel
                 )
                 break

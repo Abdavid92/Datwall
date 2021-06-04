@@ -11,13 +11,13 @@ import org.junit.Rule
 import javax.inject.Inject
 
 @HiltAndroidTest
-class SimsHelperTest {
+class SimDelegateTest {
 
     @get:Rule
     val rule = HiltAndroidRule(this)
 
     @Inject
-    lateinit var simHelper: SimsHelper
+    lateinit var simDelegate: SimDelegate
 
     @Before
     fun setUp() {
@@ -27,14 +27,14 @@ class SimsHelperTest {
     @Test
     fun isDualSim() {
 
-        val result = simHelper.isDualSim()
+        val result = simDelegate.isInstalledSeveralSim()
 
         assertTrue(result)
     }
 
     @Test
     fun getCardId() {
-        val list = simHelper.getCardId()
+        val list = simDelegate.getActiveDataSimId()
 
         Log.i("EJV", list.toString())
     }

@@ -60,9 +60,9 @@ class MiCubacelAccountRepository @Inject constructor(
             }
         }
 
-    override fun get(simIndex: Int): Flow<MiCubacelAccount> =
+    override fun get(simId: Int): Flow<MiCubacelAccount> =
         flow {
-            read().firstOrNull { it.simIndex == simIndex }?.let {
+            read().firstOrNull { it.simIndex == simId }?.let {
                 emit(it)
             }
         }

@@ -25,11 +25,11 @@ class PacketManager private constructor() {
     companion object {
 
         fun getInstance(): PacketManager {
-            if (packetManager == null)
-                packetManager = PacketManager()
-            return packetManager!!
+            if (INSTANCE == null)
+                INSTANCE = PacketManager()
+            return INSTANCE!!
         }
 
-        private var packetManager: PacketManager? = null
+        private var INSTANCE: PacketManager? = null
     }
 }

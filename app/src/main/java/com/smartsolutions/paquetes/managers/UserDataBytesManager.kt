@@ -2,7 +2,7 @@ package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.data.DataPackagesContract.DailyBag
 import com.smartsolutions.paquetes.helpers.NetworkUtil
-import com.smartsolutions.paquetes.helpers.SimsHelper
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -14,7 +14,7 @@ import kotlin.math.abs
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val networkUtil: NetworkUtil,
-    private val simsHelper: SimsHelper
+    private val simDelegate: SimDelegate
 ): IUserDataBytesManager {
 
     override suspend fun addDataBytes(dataPackage: DataPackage, simIndex: Int) {
@@ -63,7 +63,7 @@ class UserDataBytesManager @Inject constructor(
     override suspend fun registerTraffic(rxBytes: Long, txBytes: Long) {
         val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
 
-        val simIndex = simsHelper.getActiveDataSimIndex()
+        val simIndex = simDelegate.getActiveDataSimIndex()
 
         if (isLte) {
             registerLteTraffic(fixTrafficByTime(rxBytes + txBytes), simIndex)

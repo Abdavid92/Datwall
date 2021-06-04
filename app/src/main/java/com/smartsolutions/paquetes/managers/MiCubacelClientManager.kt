@@ -1,13 +1,12 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
-import com.smartsolutions.paquetes.helpers.SimsHelper
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.micubacel.MCubacelClient
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.contracts.IMiCubacelAccountRepository
 import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import kotlin.Exception
@@ -25,7 +24,7 @@ import kotlin.jvm.Throws
 class MiCubacelClientManager @Inject constructor(
     private val miCubacelAccountRepository: IMiCubacelAccountRepository,
     private val client: MCubacelClient,
-    private val simsHelper: SimsHelper,
+    private val simDelegate: SimDelegate,
 ): CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -56,7 +55,7 @@ class MiCubacelClientManager @Inject constructor(
     suspend fun signIn(phone: String, password: String) {
         val cookies = sendRequests(9) { client.signIn(phone, password) }
         miCubacelAccountRepository.createOrUpdate(MiCubacelAccount(
-            simsHelper.getActiveDataSimIndex(),
+            simDelegate.getActiveDataSimIndex(),
             phone, password, cookies
         ))
     }
@@ -118,7 +117,7 @@ class MiCubacelClientManager @Inject constructor(
     }
 
     private suspend fun setCookiesForAccount() {
-        val sim = simsHelper.getActiveDataSimIndex()
+        val sim = simDelegate.getActiveDataSimIndex()
 
         miCubacelAccountRepository.get(sim).firstOrNull()?.let {
             MCubacelClient.cookies = it.cookies.toMutableMap()

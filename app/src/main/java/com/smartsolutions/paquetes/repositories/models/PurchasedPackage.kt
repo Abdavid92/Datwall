@@ -3,11 +3,17 @@ package com.smartsolutions.paquetes.repositories.models
 import androidx.room.*
 import com.smartsolutions.paquetes.managers.IDataPackageManager
 
-@Entity(tableName = "purchased_packages", foreignKeys = [ForeignKey(
-    entity = DataPackage::class, parentColumns = ["id"], childColumns = ["data_package_id"]
-)], indices = [Index(
-    "data_package_id"
-)])
+@Entity(tableName = "purchased_packages",
+    foreignKeys = [
+        ForeignKey(
+            entity = DataPackage::class,
+            parentColumns = ["id"],
+            childColumns = ["data_package_id"]
+)], indices = [
+        Index(
+            "data_package_id"
+        )
+])
 @TypeConverters(PurchasedPackage.BuyModeConverter::class)
 data class PurchasedPackage(
     @PrimaryKey(autoGenerate = true)

@@ -106,10 +106,10 @@ object DataPackagesContract {
                 " un bono de 3 GB que solo podrá utilizar en bajo la red 4G(LTE). Tiene una vigencia de 30 dias.",
         500f,
        DataValue(2.5, DataUnit.GB),
-        DataValue(0.0, DataUnit.KB),
-        DataValue(3.0, DataUnit.GB),
-        DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_3G_4G,
+       DataValue(0.0, DataUnit.KB),
+       DataValue(3.0, DataUnit.GB),
+       DataValue(300.0, DataUnit.MB),
+       DataPackage.NETWORK_3G_4G,
        4,
        "2.5GB + Bono LTE")
 

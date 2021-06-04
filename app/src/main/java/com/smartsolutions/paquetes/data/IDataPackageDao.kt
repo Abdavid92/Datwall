@@ -13,7 +13,7 @@ interface IDataPackageDao {
     @Query("SELECT * FROM data_packages WHERE id = :id")
     suspend fun get(id: String): DataPackage?
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun create(dataPackage: DataPackage): Long
 
     @Insert

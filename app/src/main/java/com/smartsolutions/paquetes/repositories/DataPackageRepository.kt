@@ -13,20 +13,28 @@ class DataPackageRepository @Inject constructor(
 
     override fun getAll(): Flow<List<DataPackage>> = dataPackageDao.getAll()
 
-    override fun getActives(simIndex: Int): Flow<List<DataPackage>> {
+    /*override fun getActives(simId: String): Flow<List<DataPackage>> {
         return dataPackageDao.getAll().map {
             val actives = mutableListOf<DataPackage>()
             it.forEach { dataPackage ->
-                if (simIndex == 1 && dataPackage.activeInSim1)
+                if (simId == 1 && dataPackage.activeInSim1)
                     actives.add(dataPackage)
-                else if (simIndex == 2 && dataPackage.activeInSim2)
+                else if (simId == 2 && dataPackage.activeInSim2)
                     actives.add(dataPackage)
             }
             actives
         }
+    }*/
+
+    override fun getBySimId(simId: String): Flow<List<DataPackage>> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun get(id: String): DataPackage? = dataPackageDao.get(id)
+
+    override suspend fun get(id: String, simId: String): DataPackage? {
+        TODO("Not yet implemented")
+    }
 
     override suspend fun create(dataPackage: DataPackage): Long = dataPackageDao.create(dataPackage)
 

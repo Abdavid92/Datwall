@@ -31,19 +31,24 @@ data class DataPackage(
     @Networks
     val network: String,
     val index: Int,
-    @ColumnInfo(name = "ussd_sim_1")
+    /*@ColumnInfo(name = "ussd_sim_1")
     var ussdSim1: String? = null,
     @ColumnInfo(name = "ussd_sim_2")
     var ussdSim2: String? = null,
     @ColumnInfo(name = "active_in_sim_1")
     var activeInSim1: Boolean = false,
     @ColumnInfo(name = "active_in_sim_2")
-    var activeInSim2: Boolean = false,
+    var activeInSim2: Boolean = false,*/
     var deprecated: Boolean = false
 ) {
+    @Ignore
+    var ussd: String? = null
 
     @Ignore
     var url: String? = null
+
+    @Ignore
+    var sims = emptyList<Sim>()
 
     companion object {
         const val NETWORK_3G_4G = "3G_4G"

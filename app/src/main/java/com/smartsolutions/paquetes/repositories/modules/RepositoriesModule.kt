@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.modules
+package com.smartsolutions.paquetes.repositories.modules
 
 import com.smartsolutions.paquetes.repositories.*
 import com.smartsolutions.paquetes.repositories.contracts.*
@@ -15,7 +15,7 @@ interface RepositoriesModule {
     fun bindIAppRepository(impl: AppRepository): IAppRepository
 
     @Binds
-    fun bindIDataPackageRepository(impl: DataPackageRepository): IDataPackageRepository
+    fun bindIDataPackageRepository(impl: ForeignDataPackageRepository): IDataPackageRepository
 
     @Binds
     fun bindIPurchasedPackageRepository(impl: PurchasedPackageRepository): IPurchasedPackageRepository
@@ -25,4 +25,7 @@ interface RepositoriesModule {
 
     @Binds
     fun bindIMiCubacelAccountRepository(impl: MiCubacelAccountRepository): IMiCubacelAccountRepository
+
+    @Binds
+    fun bindISimRepository(impl: SimRepository): ISimRepository
 }

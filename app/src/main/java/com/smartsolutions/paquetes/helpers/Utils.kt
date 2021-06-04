@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.helpers
 
 import com.smartsolutions.paquetes.managers.models.DataBytes
 import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.GB
+import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.KB
 import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.MB
 import kotlin.math.pow
 
@@ -37,7 +38,8 @@ fun convertToBytes(dataValue: DataBytes.DataValue): Long {
     return when (dataValue.dataUnit) {
         DataBytes.DataUnit.GB -> (dataValue.value * GB).toLong()
         DataBytes.DataUnit.MB -> (dataValue.value * MB).toLong()
-        DataBytes.DataUnit.KB -> (dataValue.value * 1024).toLong()
+        DataBytes.DataUnit.KB -> (dataValue.value * KB).toLong()
+        DataBytes.DataUnit.B -> dataValue.value.toLong()
     }
 }
 
