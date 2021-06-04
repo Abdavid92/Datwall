@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.repositories
 
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.IDataPackageDao
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -34,6 +35,10 @@ class DataPackageRepository @Inject constructor(
 
     override suspend fun get(id: String, simId: String): DataPackage? {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun getByNetwork(network: String): List<DataPackage> {
+       return dataPackageDao.getByNetwork(network)
     }
 
     override suspend fun create(dataPackage: DataPackage): Long = dataPackageDao.create(dataPackage)

@@ -1,13 +1,11 @@
 package com.smartsolutions.paquetes.repositories.models
 
-import androidx.annotation.StringDef
-import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import kotlinx.parcelize.IgnoredOnParcel
+import com.smartsolutions.paquetes.annotations.Networks
 
 /**
  * Entidad correspondiente a la tabla data_packages
@@ -50,13 +48,4 @@ data class DataPackage(
     @Ignore
     var sims = emptyList<Sim>()
 
-    companion object {
-        const val NETWORK_3G_4G = "3G_4G"
-        const val NETWORK_4G = "4G"
-    }
-
-    @Target(AnnotationTarget.VALUE_PARAMETER)
-    @Retention(AnnotationRetention.SOURCE)
-    @StringDef(NETWORK_3G_4G, NETWORK_4G)
-    annotation class Networks
 }

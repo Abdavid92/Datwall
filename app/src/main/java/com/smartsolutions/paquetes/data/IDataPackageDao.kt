@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.data
 
 import androidx.room.*
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import kotlinx.coroutines.flow.Flow
 
@@ -12,6 +13,9 @@ interface IDataPackageDao {
 
     @Query("SELECT * FROM data_packages WHERE id = :id")
     suspend fun get(id: String): DataPackage?
+
+    @Query("SELECT * FROM data_packages WHERE network = :network")
+    suspend fun getByNetwork(network: String) : List<DataPackage>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun create(dataPackage: DataPackage): Long

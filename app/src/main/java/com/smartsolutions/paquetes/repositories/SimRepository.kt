@@ -1,5 +1,9 @@
 package com.smartsolutions.paquetes.repositories
 
+import com.smartsolutions.paquetes.annotations.Networks
+import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G
+import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G_4G
+import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
 import com.smartsolutions.paquetes.data.IDataPackageDao
 import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.data.ISimDataPackageDao
@@ -13,21 +17,15 @@ import javax.inject.Inject
 
 class SimRepository @Inject constructor(
     private val simDao: ISimDao,
-    private val simDataPackageDao: ISimDataPackageDao,
     private val dataPackageDao: IDataPackageDao
 ) : ISimRepository {
 
     override suspend fun create(sim: Sim) {
         simDao.create(sim)
-        createForeignRelations(sim)
     }
 
     override suspend fun create(sims: List<Sim>) {
         simDao.create(sims)
-
-        sims.forEach {
-            createForeignRelations(it)
-        }
     }
 
     override suspend fun all(): List<Sim> =
@@ -49,68 +47,36 @@ class SimRepository @Inject constructor(
         }
 
     override suspend fun update(sim: Sim): Int {
-        val result = simDao.update(sim)
-
-        updateForeignRelations(sim)
-
-        return result
+        return simDao.update(sim)
     }
 
     override suspend fun update(sims: List<Sim>): Int {
-        val result = simDao.update(sims)
-
-        sims.forEach {
-            updateForeignRelations(it)
-        }
-
-        return result
+      return simDao.update(sims)
     }
 
     override suspend fun delete(sim: Sim) = simDao.delete(sim)
 
-    private suspend fun createForeignRelations(sim: Sim) {
-        sim.packages.forEach { dataPackage ->
-            dataPackage.ussd?.let { ussd ->
-                dataPackageDao.create(dataPackage)
-
-                val simData = SimDataPackage(0, ussd, sim.id, dataPackage.id)
-                simDataPackageDao.create(simData)
-            }
-        }
-    }
-
-    private suspend fun updateForeignRelations(sim: Sim) {
-        sim.packages.forEach { dataPackage ->
-            dataPackage.ussd?.let { ussd ->
-                if (dataPackageDao.get(dataPackage.id) == null) {
-                    dataPackageDao.create(dataPackage)
-                } else {
-                    dataPackageDao.update(dataPackage)
-                }
-
-                var simData = simDataPackageDao.get(sim.id, dataPackage.id)
-
-                if (simData != null) {
-                    simData.ussd = ussd
-                    simDataPackageDao.update(simData)
-                } else {
-                    simData = SimDataPackage(0, ussd, sim.id, dataPackage.id)
-                    simDataPackageDao.create(simData)
-                }
-            }
-        }
-    }
-
     private suspend inline fun transform(sim: Sim): Sim {
-        val simDataPackages = simDataPackageDao.bySimId(sim.id)
         val packages = mutableListOf<DataPackage>()
 
-        simDataPackages.forEach { simDataPackage ->
-            val dataPackage = dataPackageDao.get(simDataPackage.dataPackageId)
-
-            if (dataPackage != null) {
-                dataPackage.ussd = simDataPackage.ussd
-                packages.add(dataPackage)
+        when (sim.networks.toString()) {
+            NETWORK_4G -> {
+                dataPackageDao.getByNetwork(NETWORK_4G).forEach {
+                    packages.add(it)
+                }
+            }
+            NETWORK_3G_4G -> {
+                dataPackageDao.getByNetwork(NETWORK_3G_4G).forEach {
+                    packages.add(it)
+                }
+                dataPackageDao.getByNetwork(NETWORK_4G).forEach {
+                    packages.add(it)
+                }
+            }
+            else -> {
+                dataPackageDao.getByNetwork(NETWORK_3G_4G).forEach {
+                    packages.add(it)
+                }
             }
         }
 
