@@ -27,59 +27,13 @@ class SimDelegate @Inject constructor(
     private val subscriptionManager = ContextCompat.getSystemService(context, SubscriptionManager::class.java)
         ?: throw NullPointerException()
 
+
     /**
-     * Obtiene el índice de la tarjeta sim activa para las llamadas.
      *
-     * @return 1 para la tarjeta sim del slot 1.
-     * 2 para la tarjeta sim del slot 2.
-     * -1 si no se pudo obtener el slot de la sim.
      * */
     @Throws(MissingPermissionException::class)
     @RequiresApi(Build.VERSION_CODES.N)
-    fun getActiveVoiceSimIndex() = getActiveSim(2).simSlotIndex
-
-    /**
-     * Obtiene el id de la tarjeta sim activa para las llamadas.
-     * */
-    @Throws(MissingPermissionException::class)
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun getActiveVoiceSimId(): String {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return getActiveSim(2).cardId.toString()
-        }
-
-        return getActiveSim(2).iccId
-    }
-
-    /**
-     * Obtiene el índice de la tarjeta sim activa para los datos móviles.
-     *
-     * @return 1 para la tarjeta sim del slot 1.
-     * 2 para la tarjeta sim del slot 2.
-     * -1 si no se pudo obtener el slot de la sim.
-     * */
-    @Throws(MissingPermissionException::class)
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun getActiveDataSimIndex() = getActiveSim(1).simSlotIndex
-
-    /**
-     * Obtiene el id de la tarjeta sim activa para los datos móviles.
-     * */
-    @Throws(MissingPermissionException::class)
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun getActiveDataSimId(): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return getActiveSim(2).cardId.toString()
-        }
-
-        return getActiveSim(2).iccId
-    }
-
-
-    @Throws(MissingPermissionException::class)
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun getActiveSim(type: Int): SubscriptionInfo {
+    fun getActiveSim(type: SimType): SubscriptionInfo {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
@@ -88,13 +42,10 @@ class SimDelegate @Inject constructor(
         }
 
         return when (type) {
-            1 -> subscriptionManager.getActiveSubscriptionInfo(
+            SimType.DATA -> subscriptionManager.getActiveSubscriptionInfo(
                 SubscriptionManager.getDefaultDataSubscriptionId()
             )
-            2 -> subscriptionManager.getActiveSubscriptionInfo(
-                SubscriptionManager.getDefaultVoiceSubscriptionId()
-            )
-            else -> subscriptionManager.getActiveSubscriptionInfo(
+            SimType.VOICE -> subscriptionManager.getActiveSubscriptionInfo(
                 SubscriptionManager.getDefaultVoiceSubscriptionId()
             )
         }
@@ -116,19 +67,12 @@ class SimDelegate @Inject constructor(
     }
 
     /**
-     * Indica si están instaladas dos o más lineas.
-     * */
-    fun isInstalledSeveralSim(): Boolean {
-        return getActiveSimsInfo().size > 1
-    }
-
-    /**
      * Obtiene el id de la linea instalada en el slot dado.
      *
      * @param simIndex - Slot de la linea.
      * */
     @Throws(MissingPermissionException::class)
-    fun getSimIdByIndex(simIndex: Int): String {
+    fun getSimByIndex(simIndex: Int): SubscriptionInfo {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE
@@ -136,9 +80,18 @@ class SimDelegate @Inject constructor(
         ) {
             throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return subscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(simIndex).cardId.toString()
-        }
-        return subscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(simIndex).iccId
+        return subscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(simIndex)
+    }
+
+    fun getSimId(subscriptionInfo: SubscriptionInfo): String =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            subscriptionInfo.cardId.toString()
+        else
+            subscriptionInfo.iccId
+
+    enum class SimType {
+
+        VOICE,
+        DATA
     }
 }

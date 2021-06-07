@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface IDataPackageRepository {
 
-    fun getAll(): Flow<List<DataPackage>>
+    suspend fun all(): List<DataPackage>
+
+    fun flow(): Flow<List<DataPackage>>
 
     suspend fun get(id: String): DataPackage?
 

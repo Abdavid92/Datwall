@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.repositories
 
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G_4G
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
@@ -28,17 +29,10 @@ class SimRepository @Inject constructor(
     }
 
     override suspend fun all(): List<Sim> =
-        simDao.all().map { sim ->
-            return@map transform(sim)
-        }
+        simDao.all()
 
     override fun flow(): Flow<List<Sim>> =
-        simDao.flow().map { list ->
-            list.forEach {
-                transform(it)
-            }
-            return@map list
-        }
+        simDao.flow()
 
     override suspend fun get(id: String): Sim? =
         simDao.get(id)?.apply {

@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackagesContract
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
+import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.lang.NumberFormatException
 import javax.inject.Inject
@@ -30,7 +33,8 @@ class DataPackageManager @Inject constructor(
     private val purchasedPackagesManager: PurchasedPackagesManager,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simDelegate: SimDelegate,
+    private val simManager: SimManager,
+    private val simRepository: ISimRepository,
     private val miCubacelClientManager: MiCubacelClientManager
 ): IDataPackageManager {
 
@@ -58,77 +62,42 @@ class DataPackageManager @Inject constructor(
 
     override suspend fun configureDataPackages() {
         ussdHelper.sendUSSDRequestLegacy("*133*1#")?.let { response ->
-            //Texto del mensaje dividido en saltos de linea
-            val text = response.string().split("\n")
+            //Texto del mensaje
+            var text = response.string()
 
-            //Índice basado en 1 de la linea activa
-            val activeSimIndex = simDelegate.getActiveVoiceSimIndex()
+            //Linea predeterminada para llamadas
+            val defaultSim = simManager.getDefaultVoiceSim()
 
-            //Obtengo todos los paquetes de la base de datos
-            dataPackageRepository.getAll().firstOrNull()?.let { packages ->
-                //Por cada linea del texto
-                text.forEach { menu ->
+            //Lte abilitada
+            var enabledLte = false
+            //3G abilitada
+            var enabled3G = false
 
-                    try {
-                        /* Intento obtener el primer número del texto. Este número
-                         * será el índice para ese conjunto de paquetes.*/
-                        val index = Integer.parseInt(menu.trimStart()[0].toString())
-
-                        when {
-                            //Si es la bolsa diaria
-                            menu.contains("Bolsa Diaria", true) -> {
-                                //Busco la bolsa diaria de entre los paquetes
-                                packages.firstOrNull {
-                                    it.id == createDataPackageId(DataPackagesContract.DailyBag.name, DataPackagesContract.DailyBag.price)
-                                }?.let { daily ->
-                                    //Si estoy en la linea 1
-                                    if (activeSimIndex == 1) {
-                                        //Asigno el índice de la bolsa diaria a la linea 1
-                                        daily.ussdSim1 = buildDataPackageUssdCode(index, daily.index)
-                                        /*Activo la bolsa diaria para que pueda ser comprada
-                                        * en la linea 1.*/
-                                        daily.activeInSim1 = true
-                                        //Si estoy en la linea 2
-                                    } else if (activeSimIndex == 2) {
-                                        //Asigno el índice de la bolsa diaria a la linea 2
-                                        daily.ussdSim2 = buildDataPackageUssdCode(index, daily.index)
-                                        /*Activo la bolsa diaria para que pueda ser comprada
-                                        * en la linea 2.*/
-                                        daily.activeInSim2 = true
-                                    }
-                                }
-                            }
-                            //Si son los paquetes de 3G
-                            menu.contains("Paquetes", true) && !menu.contains("Paquetes LTE", true) -> {
-                                //Activo los paquetes 3G para esta linea
-                                activateDataPackages(
-                                    index,
-                                    activeSimIndex,
-                                    DataPackage.NETWORK_3G_4G,
-                                    packages)
-                            }
-                            //Si son los paquetes de LTE
-                            menu.contains("Paquetes LTE", true) -> {
-                                //Activo los paquetes LTE para esta linea
-                                activateDataPackages(
-                                    index,
-                                    activeSimIndex,
-                                    DataPackage.NETWORK_4G,
-                                    packages)
-                            }
-                        }
-                    } catch (e: NumberFormatException) {
-
-                    }
-                }
-                //Por último actualizo los paquetes en base de datos.
-                dataPackageRepository.update(packages)
+            if (text.contains("Paquetes LTE", true)) {
+                enabledLte = true
+                text = text.replace("Paquetes LTE", "", true)
             }
+
+            if (text.contains("Paquetes", true)) {
+                enabled3G = true
+            }
+
+            when {
+                enabledLte && enabled3G -> defaultSim.network = Networks.NETWORK_3G_4G
+                enabledLte && !enabled3G -> defaultSim.network = Networks.NETWORK_4G
+                !enabledLte && enabled3G -> defaultSim.network = Networks.NETWORK_3G
+                !enabledLte && !enabled3G -> defaultSim.network = Networks.NETWORK_NONE
+            }
+
+            defaultSim.setupDate = System.currentTimeMillis()
+
+            simRepository.update(defaultSim)
         }
     }
 
-    override fun getPackages(): Flow<List<DataPackage>> = dataPackageRepository
-        .getBySimId(simDelegate.getActiveVoiceSimIndex())
+    override fun getPackages(): Flow<List<DataPackage>> {
+        TODO()
+    }
 
     @Throws(IllegalStateException::class, MissingPermissionException::class, UnprocessableRequestException::class)
     override suspend fun buyDataPackage(dataPackage: DataPackage) {
@@ -204,28 +173,6 @@ class DataPackageManager @Inject constructor(
                     IDataPackageManager.BuyMode.MiCubacel
                 )
                 break
-            }
-        }
-    }
-
-    private fun activateDataPackages(
-        index: Int,
-        activeSimIndex: Int,
-        @DataPackage.Networks
-        network: String,
-        packages: List<DataPackage>) {
-
-        packages.forEach {
-            if (it.network == network && it.id !=
-                createDataPackageId(DataPackagesContract.DailyBag.name, DataPackagesContract.DailyBag.price)) {
-                if (activeSimIndex == 1) {
-                    it.ussdSim1 = buildDataPackageUssdCode(index, it.index)
-                    it.activeInSim1 = true
-                }
-                else if (activeSimIndex == 2) {
-                    it.ussdSim2 = buildDataPackageUssdCode(index, it.index)
-                    it.activeInSim2 = true
-                }
             }
         }
     }

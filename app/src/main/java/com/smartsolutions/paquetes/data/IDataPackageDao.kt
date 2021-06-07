@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.Flow
 interface IDataPackageDao {
 
     @Query("SELECT * FROM data_packages")
-    fun getAll(): Flow<List<DataPackage>>
+    suspend fun all(): List<DataPackage>
+
+    @Query("SELECT * FROM data_packages")
+    fun flow(): Flow<List<DataPackage>>
 
     @Query("SELECT * FROM data_packages WHERE id = :id")
     suspend fun get(id: String): DataPackage?

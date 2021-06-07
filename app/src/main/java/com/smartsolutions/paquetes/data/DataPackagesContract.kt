@@ -1,5 +1,7 @@
 package com.smartsolutions.paquetes.data
 
+import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G_4G
+import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
 import com.smartsolutions.paquetes.helpers.createDataPackageId
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.managers.models.DataBytes.*
@@ -16,7 +18,7 @@ object DataPackagesContract {
         DataValue(200.0, DataUnit.MB),
         DataValue(0.0, DataUnit.KB),
         DataValue(0.0, DataUnit.KB),
-        DataPackage.NETWORK_4G,
+        NETWORK_4G,
         -1,
         "bolsa Diaria de 200MB")
 
@@ -28,7 +30,7 @@ object DataPackagesContract {
         DataValue(1.0, DataUnit.GB),
         DataValue(0.0, DataUnit.KB),
         DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_4G,
+        NETWORK_4G,
         1,
         "1GB solo LTE")
 
@@ -40,7 +42,7 @@ object DataPackagesContract {
         DataValue(2.5, DataUnit.GB),
         DataValue(0.0, DataUnit.KB),
         DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_4G,
+        NETWORK_4G,
         2,
        "2.5GB solo LTE")
 
@@ -53,7 +55,7 @@ object DataPackagesContract {
         DataValue(10.0, DataUnit.GB),
         DataValue(0.0, DataUnit.KB),
         DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_4G,
+        NETWORK_4G,
        3,
         "14GB solo LTE")
 
@@ -67,7 +69,7 @@ object DataPackagesContract {
         DataValue(0.0, DataUnit.KB),
         DataValue(500.0, DataUnit.MB),
         DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_3G_4G,
+        NETWORK_3G_4G,
         1,
         "400MB + Bono LTE")
 
@@ -81,7 +83,7 @@ object DataPackagesContract {
         DataValue(0.0, DataUnit.KB),
         DataValue(800.0, DataUnit.MB),
         DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_3G_4G,
+        NETWORK_3G_4G,
         2,
         "600MB + Bono LTE")
 
@@ -95,7 +97,7 @@ object DataPackagesContract {
         DataValue(0.0, DataUnit.KB),
         DataValue(1.5, DataUnit.GB),
         DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_3G_4G,
+        NETWORK_3G_4G,
         3,
         "1GB + Bono LTE")
 
@@ -109,7 +111,7 @@ object DataPackagesContract {
        DataValue(0.0, DataUnit.KB),
        DataValue(3.0, DataUnit.GB),
        DataValue(300.0, DataUnit.MB),
-       DataPackage.NETWORK_3G_4G,
+       NETWORK_3G_4G,
        4,
        "2.5GB + Bono LTE")
 
@@ -122,7 +124,7 @@ object DataPackagesContract {
         DataValue(0.0, DataUnit.KB),
         DataValue(5.0, DataUnit.GB),
         DataValue(300.0, DataUnit.MB),
-        DataPackage.NETWORK_3G_4G,
+        NETWORK_3G_4G,
         5,
         "4GB + Bono LTE")
 

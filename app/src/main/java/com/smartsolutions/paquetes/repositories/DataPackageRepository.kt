@@ -15,8 +15,12 @@ class DataPackageRepository @Inject constructor(
     private val simDao: ISimDao
 ) : IDataPackageRepository {
 
-    override fun getAll(): Flow<List<DataPackage>> =
-        dataPackageDao.getAll().map { list ->
+    override suspend fun all(): List<DataPackage> =
+        dataPackageDao.all()
+
+
+    override fun flow(): Flow<List<DataPackage>> =
+        dataPackageDao.flow().map { list ->
             list.forEach {
                 transform(it)
             }
