@@ -4,12 +4,10 @@ import android.app.PendingIntent
 import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.repositories.Observer
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -61,21 +59,6 @@ class VpnConnection @Inject constructor(
      * en los lotes de aplicaciones que provee el observador.
      * */
     private var marksOfAccess: MutableList<Long> = mutableListOf()
-
-    /**
-     * Observador que se registra en el repositorio.
-     * */
-    private val observer = object : Observer() {
-
-        override fun onChange(apps: List<IApp>) {
-            //Si hay diferencias en las marcas de acceso
-            if (hasUpdate(apps)) {
-
-                //Establezco la conexión
-                establishConnection(apps)
-            }
-        }
-    }
 
     /**
      * Inicia la conexión

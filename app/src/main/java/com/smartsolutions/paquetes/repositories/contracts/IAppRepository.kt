@@ -1,8 +1,6 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
 import android.content.pm.PackageInfo
-import androidx.lifecycle.LifecycleOwner
-import com.smartsolutions.paquetes.repositories.Observer
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
 import kotlinx.coroutines.flow.Flow
@@ -42,28 +40,6 @@ interface IAppRepository {
     fun flowByGroup(): Flow<List<IApp>>
 
     /**
-     * Registra un observador que estará a la espera de cambios en base de datos
-     *
-     * @param observer - Observador a registrar
-     * */
-    //fun registerObserver(observer: Observer)
-
-    /**
-     * Registra un observador atado a un ciclo de vida que estará pendiente de los cambios en base de datos.
-     *
-     * @param lifecycleOwner - Ciclo de vida
-     * @param observer - Observador a registrar
-     * */
-    //fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer)
-
-    /**
-     * Elimina un observador del registro
-     *
-     * @param observer - Observador a eliminar
-     * */
-    //fun unregisterObserver(observer: Observer)
-
-    /**
      * Obtiene una aplicación por el nombre de paquete
      *
      * @param packageName - Nombre de paquete de la aplicación a buscar
@@ -101,28 +77,28 @@ interface IAppRepository {
      *
      * @param app - Aplicación a actualizar
      * */
-    suspend fun update(app: App)
+    suspend fun update(app: App): Int
 
     /**
      * Actualiza una lista de aplicaciones
      *
      * @param apps - Lista de aplicaciones
      * */
-    suspend fun update(apps: List<IApp>)
+    suspend fun update(apps: List<IApp>): Int
 
     /**
      * Elimina una aplicación
      *
      * @param app - Aplicación a eliminar
      * */
-    suspend fun delete(app: App)
+    suspend fun delete(app: App): Int
 
     /**
      * Elimina una lista de aplicaciones
      *
      * @param apps - Lista de aplicaciones a eliminar
      * */
-    suspend fun delete(apps: List<IApp>)
+    suspend fun delete(apps: List<IApp>): Int
 
     /**
      * Llena una nueva aplicación con los datos del PackageInfo.

@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface IUserDataBytesDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert
     suspend fun create(userDataBytes: UserDataBytes)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert
     suspend fun create(userDataBytesList: List<UserDataBytes>)
 
     @Query("SELECT * FROM users_data_bytes")

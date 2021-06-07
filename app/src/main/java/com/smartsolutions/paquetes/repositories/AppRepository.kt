@@ -13,6 +13,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -34,14 +36,6 @@ class AppRepository @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    //Lista de observadores
-    private val listObserver = mutableListOf<Pair<LifecycleOwner?, Observer>>()
-
-    /**
-     * Indica si se está en una transacción donde no se lanzara ningún evento.
-     * */
-    private val inTransaction = false
-
     override val appsCount: Int
         get() = dao.appsCount
 
@@ -56,49 +50,10 @@ class AppRepository @Inject constructor(
 
     override fun flow(): Flow<List<App>> = dao.flow()
 
-    override fun flowByGroup(): Flow<List<IApp>> {
-        TODO("Not yet implemented")
-    }
-
-    fun registerObserver(observer: Observer) {
-        if (!observerExist(observer))
-            this.listObserver.add(Pair(null, observer))
-
-        launch {
-            if (dao.appsCount > 0) {
-                val list = convertToListIApp(dao.apps)
-
-                withContext(Dispatchers.Main) {
-                    observer.onChange(list)
-                }
-            }
+    override fun flowByGroup(): Flow<List<IApp>> =
+        dao.flow().map {
+            return@map convertToListIApp(it)
         }
-    }
-
-    fun registerObserver(lifecycleOwner: LifecycleOwner, observer: Observer) {
-        if (!observerExist(observer))
-            this.listObserver.add(Pair(lifecycleOwner, observer))
-
-        launch {
-            if (dao.appsCount > 0) {
-                val list = convertToListIApp(dao.apps)
-
-                withContext(Dispatchers.Main) {
-                    observer.onChange(list)
-                }
-            }
-        }
-    }
-
-    private fun observerExist(observer: Observer): Boolean {
-        return this.listObserver.firstOrNull { it.second == observer } != null
-    }
-
-    fun unregisterObserver(observer: Observer) {
-        this.listObserver.firstOrNull { it.second == observer }?.let {
-            this.listObserver.remove(it)
-        }
-    }
 
     override suspend fun get(packageName: String): App? = dao.get(packageName)
 
@@ -127,41 +82,17 @@ class AppRepository @Inject constructor(
 
     override suspend fun getAllByGroup(): List<IApp> = convertToListIApp(dao.apps)
 
-    override suspend fun create(app: App) {
-        dao.create(app)
-        observersOnChangeType(listOf(app), ChangeType.Created)
-    }
+    override suspend fun create(app: App) = dao.create(app)
 
-    override suspend fun create(apps: List<IApp>) {
-        val list = convertToListApp(apps)
+    override suspend fun create(apps: List<IApp>) = dao.create(convertToListApp(apps))
 
-        dao.create(list)
-        observersOnChangeType(list, ChangeType.Created)
-    }
+    override suspend fun update(app: App) = dao.update(app)
 
-    override suspend fun update(app: App) {
-        if (dao.update(app) > 0)
-            observersOnChangeType(listOf(app), ChangeType.Updated)
-    }
+    override suspend fun update(apps: List<IApp>) = dao.update(convertToListApp(apps))
 
-    override suspend fun update(apps: List<IApp>) {
-        val list = convertToListApp(apps)
+    override suspend fun delete(app: App) = dao.delete(app)
 
-        if (dao.update(list) > 0)
-            observersOnChangeType(list, ChangeType.Updated)
-    }
-
-    override suspend fun delete(app: App) {
-        if (dao.delete(app) > 0)
-            observersOnChangeType(listOf(app), ChangeType.Deleted)
-    }
-
-    override suspend fun delete(apps: List<IApp>) {
-        val list = convertToListApp(apps)
-
-        if (dao.delete(list) > 0)
-            observersOnChangeType(list, ChangeType.Deleted)
-    }
+    override suspend fun delete(apps: List<IApp>) = dao.delete(convertToListApp(apps))
 
     /**
      * Convierte una lista de IApp en una lista de App
@@ -209,56 +140,6 @@ class AppRepository @Inject constructor(
                 listGroup[it][0]
             else {
                 fillAppGroup(listGroup[it])
-            }
-        }
-    }
-
-    /**
-     * Lanza los eventos de los observadores
-     * */
-    private suspend fun observersOnChangeType(apps: List<App>, type: ChangeType) {
-
-        //Lista de todas las aplcaciones que se usará para lanzar el evento onChange
-        val all = convertToListIApp(dao.apps)
-
-        /*Cambio de contexto hacia el hilo principal para poder
-          tocar vistas dentro de
-          estos eventos*/
-        withContext(Dispatchers.Main) {
-
-            //Lista negra de observadores a remover
-            val observersToRemove = mutableListOf<Observer>()
-
-            listObserver.forEach {
-
-                //Si el ciclo de vida está destruido
-                if (it.first?.lifecycle?.currentState == Lifecycle.State.DESTROYED)
-                    //Agrego el observador a la lista negra
-                    observersToRemove.add(it.second)
-                else {
-                    //Lanzo el evento correspondiente al cambio
-                    when (type) {
-                        ChangeType.Created -> {
-                            it.second.onCreate(apps)
-                        }
-                        ChangeType.Updated -> {
-                            it.second.onUpdate(apps)
-                        }
-                        ChangeType.Deleted -> {
-                            it.second.onDelete(apps)
-                        }
-                        ChangeType.None -> {
-                            //None
-                        }
-                    }
-                    //Lanzo el evento onChange
-                    it.second.onChange(all)
-                }
-            }
-
-            //Eliminos los observadores de la lista negra
-            observersToRemove.forEach {
-                unregisterObserver(it)
             }
         }
     }

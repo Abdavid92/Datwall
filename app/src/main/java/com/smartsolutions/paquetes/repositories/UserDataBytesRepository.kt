@@ -5,6 +5,7 @@ import com.smartsolutions.paquetes.data.IUserDataBytesDao
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
@@ -28,27 +29,35 @@ class UserDataBytesRepository @Inject constructor(
         }
 
     override suspend fun bySimId(simId: String): List<UserDataBytes> {
-        val userDataBytesList: MutableList<UserDataBytes> = userDataBytesDao
-            .bySimId(simId).toMutableList()
+        try {
+            val userDataBytesList: MutableList<UserDataBytes> = userDataBytesDao
+                .bySimId(simId).toMutableList()
 
-        if (userDataBytesList.size < 5) {
-            seedUserDataBytes(simId, userDataBytesList)
-        }
+            if (userDataBytesList.size < UserDataBytes.DataType.values().size) {
+                seedUserDataBytes(simId, userDataBytesList)
+            }
 
-        return userDataBytesList.map {
-            transform(it)
+            return userDataBytesList.map {
+                transform(it)
+            }
+        } catch (e: Exception) {
+
         }
+        return emptyList()
     }
 
     override fun flowBySimId(simId: String): Flow<List<UserDataBytes>> =
-        userDataBytesDao.flowBySimId(simId).map { list ->
-            if (list.size < 5) {
-                return@map seedUserDataBytes(simId, list.toMutableList()).map {
-                    transform(it)
+        userDataBytesDao.flowBySimId(simId)
+            .map { list ->
+                if (list.size < UserDataBytes.DataType.values().size) {
+                    return@map seedUserDataBytes(simId, list.toMutableList()).map {
+                        transform(it)
+                    }
                 }
+                return@map list
+            }.catch {
+                emit(emptyList())
             }
-            return@map list
-        }
 
     override suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes? {
         var userDataBytes = userDataBytesDao.get(simId, type.name)

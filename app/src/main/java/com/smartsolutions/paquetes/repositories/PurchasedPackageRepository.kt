@@ -1,46 +1,77 @@
 package com.smartsolutions.paquetes.repositories
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.smartsolutions.paquetes.data.IDataPackageDao
 import com.smartsolutions.paquetes.data.IPurchasedPackageDao
+import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 class PurchasedPackageRepository @Inject constructor(
     private val purchasedPackageDao: IPurchasedPackageDao,
-    private val dataPackageDao: IDataPackageDao
-): IPurchasedPackageRepository, CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+    private val dataPackageDao: IDataPackageDao,
+    private val simDao: ISimDao
+): IPurchasedPackageRepository {
 
     override fun getAll(): Flow<List<PurchasedPackage>> =
-        onEach(purchasedPackageDao.getAll())
+        purchasedPackageDao.getAll().map { list ->
+            list.forEach {
+                transform(it)
+            }
+            return@map list
+        }
 
     override fun getByDate(start: Long, finish: Long): Flow<List<PurchasedPackage>> =
-        onEach(purchasedPackageDao.getByDate(start, finish))
+        purchasedPackageDao.getByDate(start, finish).map { list ->
+            list.forEach {
+                transform(it)
+            }
+            return@map list
+        }
+
+    override suspend fun getBySimId(simId: String): List<PurchasedPackage> =
+        purchasedPackageDao.getBySimId(simId).map {
+            return@map transform(it)
+        }
+
+    override fun flowBySimId(simId: String): Flow<List<PurchasedPackage>> =
+        purchasedPackageDao.flowBySimId(simId).map { list ->
+            list.forEach {
+                transform(it)
+            }
+            return@map list
+        }
 
     override fun get(id: Long): Flow<PurchasedPackage> =
-        purchasedPackageDao.get(id).onEach {
-            it.dataPackage = dataPackageDao.get(it.dataPackageId)
+        purchasedPackageDao.get(id).map {
+            return@map transform(it)
         }
 
     override fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>> =
-        onEach(purchasedPackageDao.getByDataPackageId(dataPackageId))
+        purchasedPackageDao.getByDataPackageId(dataPackageId).map { list ->
+            list.forEach {
+                transform(it)
+            }
+            return@map list
+        }
 
     override fun getPending(): Flow<List<PurchasedPackage>> =
-        onEach(purchasedPackageDao.getPending())
+        purchasedPackageDao.getPending().map { list ->
+            list.forEach {
+                transform(it)
+            }
+            return@map list
+        }
 
     override fun getPending(dataPackageId: String): Flow<List<PurchasedPackage>> =
-        onEach(purchasedPackageDao.getPending(dataPackageId))
+        purchasedPackageDao.getPending(dataPackageId).map { list ->
+            list.forEach {
+                transform(it)
+            }
+            return@map list
+        }
 
     override suspend fun create(purchasedPackage: PurchasedPackage) = purchasedPackageDao.create(purchasedPackage)
 
@@ -54,10 +85,13 @@ class PurchasedPackageRepository @Inject constructor(
 
     override suspend fun delete(purchasedPackages: List<PurchasedPackage>) = purchasedPackageDao.delete(purchasedPackages)
 
-    private fun onEach(flow: Flow<List<PurchasedPackage>>) =
-        flow.onEach {
-            it.forEach { purchasedPackage ->
-                purchasedPackage.dataPackage = dataPackageDao.get(purchasedPackage.dataPackageId)
-            }
+    private suspend fun transform(purchasedPackage: PurchasedPackage): PurchasedPackage {
+        simDao.get(purchasedPackage.simId)?.let {
+            purchasedPackage.sim = it
         }
+        dataPackageDao.get(purchasedPackage.dataPackageId)?.let {
+            purchasedPackage.dataPackage = it
+        }
+        return purchasedPackage
+    }
 }

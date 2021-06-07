@@ -8,8 +8,17 @@ import com.smartsolutions.paquetes.managers.IDataPackageManager
         ForeignKey(
             entity = DataPackage::class,
             parentColumns = ["id"],
-            childColumns = ["data_package_id"]
-)], indices = [
+            childColumns = ["data_package_id"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Sim::class,
+            parentColumns = ["id"],
+            childColumns = ["sim_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+],
+    indices = [
         Index(
             "data_package_id"
         )
@@ -20,15 +29,18 @@ data class PurchasedPackage(
     val id: Long,
     val date: Long,
     val origin: IDataPackageManager.BuyMode,
-    @ColumnInfo(name = "sim_index")
-    var simIndex: Int,
+    @ColumnInfo(name = "sim_id")
+    var simId: String,
     var pending: Boolean,
     @ColumnInfo(name = "data_package_id")
     val dataPackageId: String
 ) {
 
     @Ignore
-    var dataPackage: DataPackage? = null
+    lateinit var dataPackage: DataPackage
+
+    @Ignore
+    lateinit var sim: Sim
 
     class BuyModeConverter {
 

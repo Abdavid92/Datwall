@@ -13,6 +13,12 @@ interface IPurchasedPackageDao {
     @Query("SELECT * FROM purchased_packages WHERE date >= :start AND date <= :finish ORDER BY id DESC")
     fun getByDate(start: Long, finish: Long): Flow<List<PurchasedPackage>>
 
+    @Query("SELECT * FROM purchased_packages WHERE sim_id = :simId")
+    suspend fun getBySimId(simId: String): List<PurchasedPackage>
+
+    @Query("SELECT * FROM purchased_packages WHERE sim_id = :simId")
+    fun flowBySimId(simId: String): Flow<List<PurchasedPackage>>
+
     @Query("SELECT * FROM purchased_packages WHERE id = :id")
     fun get(id: Long): Flow<PurchasedPackage>
 
