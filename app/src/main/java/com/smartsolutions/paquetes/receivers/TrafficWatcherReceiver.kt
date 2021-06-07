@@ -6,7 +6,7 @@ import android.content.Intent
 import android.net.TrafficStats
 import android.os.Build
 import com.smartsolutions.paquetes.DatwallApplication
-import com.smartsolutions.paquetes.managers.IUserDataBytesManager
+import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.TrafficRepository

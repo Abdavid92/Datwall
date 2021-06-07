@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.managers
 import com.smartsolutions.paquetes.data.DataPackagesContract.DailyBag
 import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -17,9 +18,9 @@ class UserDataBytesManager @Inject constructor(
     private val simDelegate: SimDelegate
 ): IUserDataBytesManager {
 
-    override suspend fun addDataBytes(dataPackage: DataPackage, simIndex: Int) {
+    override suspend fun addDataBytes(dataPackage: DataPackage, simId: Int) {
         if (dataPackage.id == DailyBag.id) {
-           userDataBytesRepository.byType(UserDataBytes.DataType.DailyBag, simIndex).apply {
+           userDataBytesRepository.byType(UserDataBytes.DataType.DailyBag, simId).apply {
                bytesLte += dataPackage.bytesLte
                initialBytes = bytesLte
                startTime = 0L
@@ -27,7 +28,7 @@ class UserDataBytesManager @Inject constructor(
                userDataBytesRepository.update(this)
            }
         } else {
-            userDataBytesRepository.update(userDataBytesRepository.all(simIndex).apply {
+            userDataBytesRepository.update(userDataBytesRepository.all(simId).apply {
                 val bonus = first { it.type == UserDataBytes.DataType.Bonus }
                 bonus.bytesLte += dataPackage.bonusBytes
                 bonus.initialBytes = bonus.bytesLte
@@ -50,8 +51,8 @@ class UserDataBytesManager @Inject constructor(
         }
     }
 
-    override suspend fun addPromoBonus(simIndex: Int) {
-        val promoBonus = userDataBytesRepository.byType(UserDataBytes.DataType.PromoBonus, simIndex)
+    override suspend fun addPromoBonus(simId: Int) {
+        val promoBonus = userDataBytesRepository.byType(UserDataBytes.DataType.PromoBonus, simId)
         promoBonus.bytes += DataBytes.GB.toLong()
         promoBonus.initialBytes = promoBonus.bytes
         promoBonus.startTime = System.currentTimeMillis()

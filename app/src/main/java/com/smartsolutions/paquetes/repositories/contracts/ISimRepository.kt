@@ -9,11 +9,11 @@ interface ISimRepository {
 
     suspend fun create(sims: List<Sim>)
 
-    suspend fun all(): List<Sim>
+    suspend fun all(withRelations: Boolean = false): List<Sim>
 
-    fun flow(): Flow<List<Sim>>
+    fun flow(withRelations: Boolean = false): Flow<List<Sim>>
 
-    suspend fun get(id: String): Sim?
+    suspend fun get(id: String, withRelations: Boolean = false): Sim?
 
     suspend fun update(sim: Sim): Int
 

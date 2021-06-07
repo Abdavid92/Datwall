@@ -5,21 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.smartsolutions.paquetes.ui.ApplicationFragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.helpers.string
-import com.smartsolutions.paquetes.managers.IDataPackageManager
+import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class DashboardFragment : ApplicationFragment() {

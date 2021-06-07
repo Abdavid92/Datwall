@@ -1,9 +1,7 @@
-package com.smartsolutions.paquetes.managers
+package com.smartsolutions.paquetes.managers.contracts
 
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.repositories.models.DataPackage
-import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
-import kotlinx.coroutines.flow.Flow
 import kotlin.jvm.Throws
 
 /**
@@ -25,14 +23,6 @@ interface IDataPackageManager {
      * de los que tenga disponible la tarjeta sim.
      * */
     suspend fun configureDataPackages()
-
-    /**
-     * Obtiene todos los paquetes disponibles para
-     * la compra.
-     *
-     * @return Flow con los paquetes disponibles para la compra.
-     * */
-    fun getPackages(): Flow<List<DataPackage>>
 
     /**
      * Compra un paquete de datos.

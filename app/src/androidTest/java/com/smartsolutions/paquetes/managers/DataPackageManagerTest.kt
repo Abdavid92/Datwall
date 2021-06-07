@@ -1,12 +1,11 @@
 package com.smartsolutions.paquetes.managers
 
+import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 
-import org.junit.Assert.*
 import org.junit.Rule
-import org.junit.Test
 import javax.inject.Inject
 
 @HiltAndroidTest

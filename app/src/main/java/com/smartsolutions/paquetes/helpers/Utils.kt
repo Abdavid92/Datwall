@@ -10,7 +10,7 @@ import kotlin.math.pow
  * Contruye el código ussd para comprar un
  * paquete de datos.
  *
- * @param index - Índice en donde esta el tipo de paquete (se es 3G o 4G).
+ * @param index - Índice en donde esta el tipo de paquete (si es 3G o 4G).
  * @param dataPackageIndex - Índice en donde está el paquete. Si este parámetro
  * es -1 se considera que se está construyendo el código ussd de la bolsa diaria
  * y por lo tanto el resultado será diferente.

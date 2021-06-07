@@ -6,13 +6,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsMessage
-import android.telephony.TelephonyManager
-import com.smartsolutions.paquetes.managers.IDataPackageManager
+import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 /**

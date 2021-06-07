@@ -28,16 +28,32 @@ class SimRepository @Inject constructor(
         simDao.create(sims)
     }
 
-    override suspend fun all(): List<Sim> =
-        simDao.all()
+    override suspend fun all(withRelations: Boolean): List<Sim> =
+        if (withRelations)
+            simDao.all().map {
+                transform(it)
+            }
+        else
+            simDao.all()
 
-    override fun flow(): Flow<List<Sim>> =
-        simDao.flow()
+    override fun flow(withRelations: Boolean): Flow<List<Sim>> =
+        if (withRelations)
+            simDao.flow().map { list ->
+                list.forEach {
+                    transform(it)
+                }
+                return@map list
+            }
+        else
+            simDao.flow()
 
-    override suspend fun get(id: String): Sim? =
-        simDao.get(id)?.apply {
-            transform(this)
-        }
+    override suspend fun get(id: String, withRelations: Boolean): Sim? =
+        if (withRelations)
+            simDao.get(id)?.apply {
+                transform(this)
+            }
+        else
+            simDao.get(id)
 
     override suspend fun update(sim: Sim): Int {
         return simDao.update(sim)
@@ -54,15 +70,15 @@ class SimRepository @Inject constructor(
 
         when (sim.network) {
             NETWORK_4G -> {
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_4G))
+                packages.addAll(dataPackageDao.getByNetwork(NETWORK_4G).filter { !it.deprecated })
             }
             NETWORK_3G_4G -> {
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G_4G))
+                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G_4G).filter { !it.deprecated })
                 packages.addAll(dataPackageDao.getByNetwork(NETWORK_4G))
             }
             NETWORK_3G -> {
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G_4G))
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G))
+                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G_4G).filter { !it.deprecated })
+                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G).filter { !it.deprecated })
             }
         }
 

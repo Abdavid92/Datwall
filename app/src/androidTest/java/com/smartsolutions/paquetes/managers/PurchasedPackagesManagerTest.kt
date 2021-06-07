@@ -2,13 +2,13 @@ package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.data.DataPackagesContract
 import com.smartsolutions.paquetes.helpers.createDataPackageId
+import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
-import org.junit.Assert.*
 import org.junit.Rule
 import javax.inject.Inject
 

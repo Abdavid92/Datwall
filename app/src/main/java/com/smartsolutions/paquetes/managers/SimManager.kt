@@ -12,6 +12,9 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import com.smartsolutions.paquetes.helpers.SimDelegate.SimType
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlin.jvm.Throws
 
 /**
@@ -36,17 +39,19 @@ class SimManager @Inject constructor(
      * mediante el método [setDefaultVoiceSim]. Si es android 23 o 22 y no existe ninguna
      * linea establecida como predeterminada se lanza un [IllegalStateException].
      *
+     * @param withRelations - Indica si se debe obtener la linea con sus relaciones foráneas.
+     *
      * @return [Sim]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getDefaultVoiceSim(): Sim {
+    suspend fun getDefaultVoiceSim(withRelations: Boolean = false): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.VOICE)
 
-            return findSim(subscriptionInfo)
+            return findSim(subscriptionInfo, withRelations)
         }
         try {
-            return getInstalledSims().first { it.defaultVoice }
+            return getInstalledSims(withRelations).first { it.defaultVoice }
         } catch (e: NoSuchElementException) {
             throw IllegalStateException("Default voice sim not configured")
         }
@@ -72,17 +77,19 @@ class SimManager @Inject constructor(
      * mediante el método [setDefaultDataSim]. Si es android 23 o 22 y no existe ninguna
      * linea establecida como predeterminada se lanza un [IllegalStateException].
      *
+     * @param withRelations - Indica si se debe obtener la linea con sus relaciones foráneas.
+     *
      * @return [Sim]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getDefaultDataSim(): Sim {
+    suspend fun getDefaultDataSim(withRelations: Boolean = false): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.DATA)
 
-            return findSim(subscriptionInfo)
+            return findSim(subscriptionInfo, withRelations)
         }
         try {
-            return getInstalledSims().first { it.defaultData }
+            return getInstalledSims(withRelations).first { it.defaultData }
         } catch (e: NoSuchElementException) {
             throw IllegalStateException("Default data sim not configured")
         }
@@ -109,38 +116,53 @@ class SimManager @Inject constructor(
         getInstalledSims().size > 1
 
     /**
-     * Obtiene todas las lienas instaladas.
+     * Obtiene todas las lineas instaladas.
      *
      * @return [List]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getInstalledSims(): List<Sim> {
+    suspend fun getInstalledSims(withRelations: Boolean = false): List<Sim> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             val list = mutableListOf<Sim>()
 
             simDelegate.getActiveSimsInfo().forEach {
-                list.add(findSim(it))
+                list.add(findSim(it, withRelations))
             }
 
             return list
         }
-        return listOf(seedEmbeddedSim())
+        return listOf(seedEmbeddedSim(withRelations))
     }
+
+    @Throws(MissingPermissionException::class)
+    fun flowInstalledSims(withRelations: Boolean): Flow<List<Sim>> =
+        simRepository.flow(withRelations).map { list ->
+            val finalList = mutableListOf<Sim>()
+
+            val installedSims = getInstalledSims()
+
+            list.forEach {
+                if (installedSims.contains(it))
+                    finalList.add(it)
+            }
+            return@map finalList
+        }
 
     /**
      * Obtiene una linea por el índice.
      *
      * @param simIndex - Índice en base a 1 de la linea. Normalmente este es el
      * slot donde está instalada.
+     * @param withRelations - Indica si se debe obtener la linea con sus relaciones foráneas.
      *
      * @return [Sim]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getSimByIndex(simIndex: Int): Sim {
+    suspend fun getSimByIndex(simIndex: Int, withRelations: Boolean = false): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            return findSim(simDelegate.getSimByIndex(simIndex))
+            return findSim(simDelegate.getSimByIndex(simIndex), withRelations)
         }
-        return seedEmbeddedSim()
+        return seedEmbeddedSim(withRelations)
     }
 
     /**
@@ -152,8 +174,8 @@ class SimManager @Inject constructor(
      *
      * @return [Sim]
      * */
-    private suspend fun seedEmbeddedSim(): Sim {
-        simRepository.get(embeddedSimId)?.let {
+    private suspend fun seedEmbeddedSim(withRelations: Boolean): Sim {
+        simRepository.get(embeddedSimId, withRelations)?.let {
             return it
         }
 
@@ -174,10 +196,10 @@ class SimManager @Inject constructor(
      * @return [Sim]
      * */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    private suspend fun findSim(subscriptionInfo: SubscriptionInfo): Sim {
+    private suspend fun findSim(subscriptionInfo: SubscriptionInfo, withRelations: Boolean): Sim {
         val id = simDelegate.getSimId(subscriptionInfo)
 
-        simRepository.get(id)?.let {
+        simRepository.get(id, withRelations)?.let {
             it.icon = subscriptionInfo.createIconBitmap(context)
 
             return it

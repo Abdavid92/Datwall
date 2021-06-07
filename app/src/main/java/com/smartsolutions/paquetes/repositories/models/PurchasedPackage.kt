@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.repositories.models
 
 import androidx.room.*
-import com.smartsolutions.paquetes.managers.IDataPackageManager
+import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 
 @Entity(tableName = "purchased_packages",
     foreignKeys = [
