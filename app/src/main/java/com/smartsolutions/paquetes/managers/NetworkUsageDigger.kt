@@ -17,9 +17,20 @@ import java.util.ArrayList
 abstract class NetworkUsageDigger(
     private val networkStatsManager: NetworkStatsManager,
     telephonyManager: TelephonyManager,
-    private val simDelegate: SimDelegate
+    private val simManager: SimManager
 ) : NetworkUsageManager() {
-    private var ID: String? = null
+
+    private var subscriberId: String? = null
+
+    /**
+     * Cache que contiene los buckets por aplicación que se pidieron con antelación.
+     * */
+    private val simCache = mapOf<String, MutableList<BucketCache<List<NetworkStats.Bucket>>>>()
+
+    /**
+     * Cache que contiene los buckets generales que se pidieron con antelación.
+     * */
+    private val generalSimCache = mapOf<String, MutableList<BucketCache<List<NetworkStats.Bucket>>>>()
 
     private var cacheSim1 = mutableListOf<BucketCache<List<NetworkStats.Bucket>>>()
     private var generalCacheSim1 = mutableListOf<BucketCache<NetworkStats.Bucket>>()
@@ -28,7 +39,7 @@ abstract class NetworkUsageDigger(
 
     init {
         if (Build.VERSION.SDK_INT < 29) {
-            ID = telephonyManager.subscriberId
+            subscriberId = telephonyManager.subscriberId
         }
     }
 
@@ -53,7 +64,7 @@ abstract class NetworkUsageDigger(
 
         val buckets: MutableList<NetworkStats.Bucket> = ArrayList()
         try {
-            val networkStats = networkStatsManager.querySummary(ConnectivityManager.TYPE_MOBILE, ID, start, finish)
+            val networkStats = networkStatsManager.querySummary(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
             do {
                 val bucket = NetworkStats.Bucket()
                 if (networkStats.getNextBucket(bucket)) {
@@ -90,7 +101,7 @@ abstract class NetworkUsageDigger(
         }
 
         return try {
-            val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, ID, start, finish)
+            val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
             if (simIndex == 1) {
                 generalCacheSim1.add(BucketCache(System.currentTimeMillis(), start, finish, result))
             }else {

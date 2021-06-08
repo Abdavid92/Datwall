@@ -131,16 +131,6 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    /**
-     * Checkea si se pudo obtener el índice de la linea por la que entró el mensaje.
-     * */
-    private fun checkSimIndex(dataPackageId: String, simIndex: Int): Boolean {
-        if (simIndex == -1) {
-
-        }
-        return true
-    }
-
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {
         val simDefault = simManager.getDefaultVoiceSim(true)
 
@@ -191,15 +181,13 @@ class DataPackageManager @Inject constructor(
                     index = 4
                 }
             }
+            Networks.NETWORK_3G,
             Networks.NETWORK_3G_4G -> {
                 if (sim.network == Networks.NETWORK_3G) {
                     index = 3
                 } else if (sim.network == Networks.NETWORK_3G_4G) {
                     index = 4
                 }
-            }
-            Networks.NETWORK_3G -> {
-                index = 3
             }
         }
 

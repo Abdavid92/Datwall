@@ -5,6 +5,7 @@ import com.smartsolutions.paquetes.micubacel.models.DataType
 import com.smartsolutions.paquetes.micubacel.models.Product
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.contracts.IMiCubacelAccountRepository
+import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -41,11 +42,11 @@ class MCubacelClient @Inject constructor() {
      * cuenta del usuario.
      * */
     private val dataKeys = mapOf(
-        Pair("myStat_3001", DATA_BYTES), //Paquete de navegación
-        Pair("myStat_30012", DATA_BONUS_BYTES), //Navegación LTE
-        Pair("myStat_2001", DATA_DAILY_BAG), //Bolsa diaria
-        Pair("myStat_bonusDataN", DATA_BONUS_CU_BYTES), //Navegación nacional
-        Pair("myStat_bonusData", DATA_PROMO_BYTES) //Navegación promocional
+        Pair("myStat_3001", UserDataBytes.DataType.International), //Paquete de navegación
+        Pair("myStat_30012", UserDataBytes.DataType.Bonus), //Navegación LTE
+        Pair("myStat_2001", UserDataBytes.DataType.DailyBag), //Bolsa diaria
+        Pair("myStat_bonusDataN", UserDataBytes.DataType.National), //Navegación nacional
+        Pair("myStat_bonusData", UserDataBytes.DataType.PromoBonus) //Navegación promocional
     )
 
     /**
@@ -516,29 +517,6 @@ class MCubacelClient @Inject constructor() {
          * Fecha de expiración de la linea.
          * */
         const val EXPIRE = "expire"
-
-        //--------------------------------
-
-        /**
-         * Paquete de navegación.
-         * */
-        const val DATA_BYTES = "bytes"
-        /**
-         * Navegación LTE.
-         * */
-        const val DATA_BONUS_BYTES = "bonus_bytes"
-        /**
-         * Navegación nacional.
-         * */
-        const val DATA_BONUS_CU_BYTES = "bonus_cu_bytes"
-        /**
-         * Navegación promocional.
-         * */
-        const val DATA_PROMO_BYTES = "promo_bytes"
-        /**
-         * Bolsa diaria.
-         * */
-        const val DATA_DAILY_BAG = "daily_bag"
 
     }
 }

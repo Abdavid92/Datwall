@@ -5,6 +5,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.Serializable
 
+/**
+ * Cuenta de mi.cubacel.net
+ * */
 @Entity(
     tableName = "mi_cubacel_accounts",
     foreignKeys = [
@@ -18,11 +21,23 @@ import java.io.Serializable
 )
 @TypeConverters(MiCubacelAccount.MapConverter::class)
 data class MiCubacelAccount(
+    /**
+     * Id de la sim al que pertenece la cuenta.
+     * */
     @PrimaryKey
     @ColumnInfo(name = "sim_id")
     var simId: String,
+    /**
+     * Número de teléfono.
+     * */
     var phone: String,
+    /**
+     * Contraseña.
+     * */
     var password: String,
+    /**
+     * Cookies de inicio de sesión.
+     * */
     var cookies: Map<String, String>
 ): Serializable {
 

@@ -23,8 +23,7 @@ import kotlin.jvm.Throws
  * */
 class MiCubacelClientManager @Inject constructor(
     private val miCubacelAccountRepository: IMiCubacelAccountRepository,
-    private val client: MCubacelClient,
-    private val simDelegate: SimDelegate,
+    private val client: MCubacelClient
 ): CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -53,7 +52,9 @@ class MiCubacelClientManager @Inject constructor(
      * */
     @Throws(UnprocessableRequestException::class)
     suspend fun signIn(phone: String, password: String) {
+
         val cookies = sendRequests(9) { client.signIn(phone, password) }
+
         miCubacelAccountRepository.createOrUpdate(MiCubacelAccount(
             simDelegate.getActiveDataSimIndex(),
             phone, password, cookies
@@ -95,6 +96,7 @@ class MiCubacelClientManager @Inject constructor(
      * */
     suspend fun getUserDataPackagesInfo() {
         setCookiesForAccount()
+        TODO("Darle estos datos obtenidos al UserDataByteManager para rectificar los datos")
     }
 
     /**

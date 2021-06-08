@@ -3,6 +3,9 @@ package com.smartsolutions.paquetes.repositories.models
 import androidx.room.*
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 
+/**
+ * Representa una compra de un paquete.
+ * */
 @Entity(tableName = "purchased_packages",
     foreignKeys = [
         ForeignKey(
@@ -25,20 +28,44 @@ import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 ])
 @TypeConverters(PurchasedPackage.BuyModeConverter::class)
 data class PurchasedPackage(
+    /**
+     * Id de la compra.
+     * */
     @PrimaryKey(autoGenerate = true)
     val id: Long,
+    /**
+     * Fecha en que se realizó la compra.
+     * */
     val date: Long,
+    /**
+     * Origen de la compra (USSD o mi.cubacel.net).
+     * */
     val origin: IDataPackageManager.BuyMode,
+    /**
+     * Linea por donde se efectuó la compra.
+     * */
     @ColumnInfo(name = "sim_id")
     var simId: String,
+    /**
+     * Indica si la compra está pendiente a confirmar.
+     * */
     var pending: Boolean,
+    /**
+     * Id del paquete que se compró.
+     * */
     @ColumnInfo(name = "data_package_id")
     val dataPackageId: String
 ) {
 
+    /**
+     * Paquete que se compró.
+     * */
     @Ignore
     lateinit var dataPackage: DataPackage
 
+    /**
+     * Linea por donde se efectuó la compra.
+     * */
     @Ignore
     lateinit var sim: Sim
 

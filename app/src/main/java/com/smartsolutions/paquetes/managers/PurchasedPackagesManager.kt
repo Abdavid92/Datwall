@@ -13,19 +13,19 @@ class PurchasedPackagesManager @Inject constructor(
     private val purchasedPackageRepository: IPurchasedPackageRepository
 ) {
 
-    suspend fun newPurchased(dataPackageId: String, simIndex: Int, buyMode: IDataPackageManager.BuyMode) {
+    suspend fun newPurchased(dataPackageId: String, simId: String, buyMode: IDataPackageManager.BuyMode) {
         val purchasedPackage = PurchasedPackage(
             0,
             System.currentTimeMillis(),
             buyMode,
-            simIndex,
+            simId,
             true,
             dataPackageId
         )
         purchasedPackageRepository.create(purchasedPackage)
     }
 
-    suspend fun confirmPurchased(dataPackageId: String, simIndex: Int) {
+    suspend fun confirmPurchased(dataPackageId: String, simId: String) {
         val pending = purchasedPackageRepository
             .getPending(dataPackageId)
             .first()
@@ -45,10 +45,17 @@ class PurchasedPackagesManager @Inject constructor(
             pending.removeAll(pendingToDelete)
 
             if (pending.isNotEmpty()) {
-                pending[0].pending = false
-                pending[0].simIndex = simIndex
-                purchasedPackageRepository.update(pending[0])
+                /*pending[0].pending = false
+                pending[0].simId = simId
+                purchasedPackageRepository.update(pending[0])*/
+                val pendingToConfirmed = pending.firstOrNull { it.simId == simId }
+
+                if (pendingToConfirmed != null) {
+                    pendingToConfirmed.pending = false
+                    purchasedPackageRepository.update(pendingToConfirmed)
+                }
             }
+            TODO("Verificar si el usuario cometió algún error")
         }
     }
 

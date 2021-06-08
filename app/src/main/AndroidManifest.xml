@@ -33,6 +33,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
+
         <!-- Activities -->
         <activity
             android:name=".ui.MainActivity"
@@ -49,6 +50,7 @@
             android:parentActivityName=".ui.MainActivity" />
 
         <activity android:name=".ui.firewall.AskActivity" />
+
         <!-- Services -->
         <service
             android:name=".services.DatwallService"
@@ -72,7 +74,9 @@
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
-        </service> <!-- Receivers -->
+        </service>
+
+        <!-- Receivers -->
         <receiver
             android:name=".receivers.PackageMonitorReceiver"
             android:enabled="true"

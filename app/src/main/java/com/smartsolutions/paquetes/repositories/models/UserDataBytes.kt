@@ -1,6 +1,11 @@
 package com.smartsolutions.paquetes.repositories.models
 
+import android.os.Parcel
+import android.os.Parcelable
+import android.renderscript.RenderScript
 import androidx.room.*
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 /**
@@ -20,23 +25,52 @@ import java.util.*
 )
 @TypeConverters(UserDataBytes.DataTypeConverter::class)
 data class UserDataBytes(
+    /**
+     * Id de la linea a la que pertenecen estos bytes.
+     * */
     @ColumnInfo(name = "sim_id")
     var simId: String,
+    /**
+     * Tipo de bytes.
+     * */
     val type: DataType,
+    /**
+     * Bytes iniciales que estaban disponibles cuando se configuró o
+     * se compro un paquete nuevo. Este campo se puede usar para comparar
+     * los bytes iniciales con los actuales y saber cuánto se ha consumido.
+     * */
     @ColumnInfo(name = "initial_bytes")
     var initialBytes: Long,
+    /**
+     * Bytes disponibles en todas las redes.
+     * */
     var bytes: Long,
+    /**
+     * Bytes disponibles en la red 4G.
+     * */
     @ColumnInfo(name = "bytes_lte")
     var bytesLte: Long,
+    /**
+     * Fecha en que obtuvieron los bytes.
+     * */
     @ColumnInfo(name = "start_time")
     var startTime: Long,
+    /**
+     * Fechan en la que expiran los bytes y se pierden.
+     * */
     @ColumnInfo(name = "expired_time")
     var expiredTime: Long
-) {
+) : Parcelable {
 
+    /**
+     * Linea a la que pertenecen los bytes.
+     * */
     @Ignore
     lateinit var sim: Sim
 
+    /**
+     * Prioridad de consumo.
+     * */
     val priority: Int
         get() = when (type) {
             DataType.National -> 0
@@ -46,6 +80,18 @@ data class UserDataBytes(
             DataType.International -> 4
         }
 
+    constructor(parcel: Parcel) : this(
+        parcel.readString() ?: throw NullPointerException(),
+        DataType.valueOf(parcel.readString() ?: throw NullPointerException()),
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readLong()
+    ) {
+        sim = parcel.readParcelable(Sim::class.java.classLoader) ?: throw NullPointerException()
+    }
+
     enum class DataType {
         International,
         Bonus,
@@ -54,8 +100,14 @@ data class UserDataBytes(
         DailyBag
     }
 
+    /**
+     * Indica si existen bytes a consumir.
+     * */
     fun exists() = bytes != 0L || bytesLte != 0L
 
+    /**
+     * Indica si estos bytes están expirados.
+     * */
     fun isExpired() = expiredTime != 0L && Date().after(Date(expiredTime))
 
     override fun equals(other: Any?): Boolean {
@@ -79,5 +131,30 @@ data class UserDataBytes(
         @TypeConverter
         fun fromType(type: DataType): String =
             type.name
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(simId)
+        parcel.writeString(type.name)
+        parcel.writeLong(initialBytes)
+        parcel.writeLong(bytes)
+        parcel.writeLong(bytesLte)
+        parcel.writeLong(startTime)
+        parcel.writeLong(expiredTime)
+        parcel.writeParcelable(sim, flags)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<UserDataBytes> {
+        override fun createFromParcel(parcel: Parcel): UserDataBytes {
+            return UserDataBytes(parcel)
+        }
+
+        override fun newArray(size: Int): Array<UserDataBytes?> {
+            return arrayOfNulls(size)
+        }
     }
 }
