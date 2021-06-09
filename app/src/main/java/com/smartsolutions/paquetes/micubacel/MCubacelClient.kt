@@ -4,7 +4,6 @@ import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.micubacel.models.DataType
 import com.smartsolutions.paquetes.micubacel.models.Product
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
-import com.smartsolutions.paquetes.repositories.contracts.IMiCubacelAccountRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
@@ -59,7 +58,7 @@ class MCubacelClient @Inject constructor() {
             return url
         }
 
-        val response = ConnectionFactory.newConnection(baseHomeUrl, cookies).execute()
+        val response = ConnectionFactory.newConnection(baseHomeUrl, COOKIES).execute()
 
         updateCookies(response.cookies())
 
@@ -82,7 +81,7 @@ class MCubacelClient @Inject constructor() {
      * */
     @Throws(Exception::class)
     fun loadPage(url: String) : Document {
-        val response = ConnectionFactory.newConnection(url = url, cookies = cookies).execute()
+        val response = ConnectionFactory.newConnection(url = url, cookies = COOKIES).execute()
         updateCookies(response.cookies())
         return response.parse()
     }
@@ -160,7 +159,7 @@ class MCubacelClient @Inject constructor() {
         )
         val response = ConnectionFactory.newConnection(
             url = urls["login"]!!,
-            cookies = cookies,
+            cookies = COOKIES,
             data = data
         )
             .method(Connection.Method.POST)
@@ -190,7 +189,7 @@ class MCubacelClient @Inject constructor() {
             Pair("agree", "on")
         )
 
-        val response = ConnectionFactory.newConnection(urls["create"]!!, data, cookies)
+        val response = ConnectionFactory.newConnection(urls["create"]!!, data, COOKIES)
             .method(Connection.Method.POST)
             .execute()
 
@@ -210,7 +209,7 @@ class MCubacelClient @Inject constructor() {
         val data = mapOf(
             Pair("username", code)
         )
-        val response = ConnectionFactory.newConnection(urls["verify"]!!, data, cookies)
+        val response = ConnectionFactory.newConnection(urls["verify"]!!, data, COOKIES)
             .method(Connection.Method.POST)
             .execute()
 
@@ -234,7 +233,7 @@ class MCubacelClient @Inject constructor() {
             Pair("cnewPassword", password)
         )
 
-        val response = ConnectionFactory.newConnection(urls["passwordCreation"]!!, data, cookies)
+        val response = ConnectionFactory.newConnection(urls["passwordCreation"]!!, data, COOKIES)
             .method(Connection.Method.POST)
             .execute()
 
@@ -255,7 +254,7 @@ class MCubacelClient @Inject constructor() {
      * @return Una lista de productos organizados en grupos.
      * */
     fun getProducts(): List<ProductGroup> {
-        val page = ConnectionFactory.newConnection(url = urls["products"]!!, cookies = cookies)
+        val page = ConnectionFactory.newConnection(url = urls["products"]!!, cookies = COOKIES)
             .get()
 
         val productGroup = mutableListOf<ProductGroup>()
@@ -279,7 +278,7 @@ class MCubacelClient @Inject constructor() {
         }
 
         page.select("h3[class=\"product_block_title\"]").forEach { element ->
-            print(element.text())
+
             when (element.text()) {
                 bags -> {
                     buildProductGroup(element, ProductGroup.GroupType.Bag)
@@ -291,6 +290,10 @@ class MCubacelClient @Inject constructor() {
                     buildProductGroup(element, ProductGroup.GroupType.PackagesLTE)
                 }
             }
+        }
+
+        if (productGroup.size < 2) {
+            throw UnprocessableRequestException(UnprocessableRequestException.Reason.NO_LOGIN)
         }
 
         return productGroup
@@ -305,7 +308,7 @@ class MCubacelClient @Inject constructor() {
      * no poder resolverla.
      * */
     fun resolveUrlBuyProductConfirmation(productUrl: String) : String? {
-        val pageConfirmation = ConnectionFactory.newConnection(productUrl, cookies = cookies)
+        val pageConfirmation = ConnectionFactory.newConnection(productUrl, cookies = COOKIES)
             .get()
 
         val urlConfirmation = pageConfirmation
@@ -334,7 +337,7 @@ class MCubacelClient @Inject constructor() {
      * */
     @Throws(UnprocessableRequestException::class)
     fun buyProduct(url: String) {
-        val result = ConnectionFactory.newConnection(url, cookies = cookies)
+        val result = ConnectionFactory.newConnection(url, cookies = COOKIES)
             .get()
 
         result.select("div[class=\"products_purchase_details_block\"]")
@@ -358,7 +361,7 @@ class MCubacelClient @Inject constructor() {
      * */
     @Throws(UnprocessableRequestException::class)
     fun obtainPackagesInfo() : List<DataType> {
-        val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = cookies)
+        val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = COOKIES)
             .execute()
 
         val page = response.parse()
@@ -489,9 +492,9 @@ class MCubacelClient @Inject constructor() {
      * */
     private fun updateCookies(updateCookies: Map<String, String>): Map<String, String> {
         updateCookies.forEach {
-            cookies[it.key] = it.value
+            COOKIES[it.key] = it.value
         }
-        return cookies
+        return COOKIES
     }
 
     companion object {
@@ -499,7 +502,7 @@ class MCubacelClient @Inject constructor() {
         /**
          * Mapa de cookies que guardan las sesiones y otros datos.
          * */
-        var cookies = mutableMapOf<String, String>()
+        var COOKIES = mutableMapOf<String, String>()
 
         /**
          * Nombre de usuario.

@@ -11,13 +11,13 @@ import org.junit.Rule
 import javax.inject.Inject
 
 @HiltAndroidTest
-class MiCubacelClientManagerTest {
+class MiCubacelManagerOldTest {
 
     @get:Rule
     val rule = HiltAndroidRule(this)
 
     @Inject
-    lateinit var manager: MiCubacelClientManager
+    lateinit var managerOld: MiCubacelManagerOld
 
     @Before
     fun setUp() {
@@ -29,9 +29,9 @@ class MiCubacelClientManagerTest {
 
         runBlocking {
 
-            manager.signIn("55055870", "Abel.2021")
+            managerOld.signIn("55055870", "Abel.2021")
 
-            val result = manager.getProducts()
+            val result = managerOld.getProducts()
 
             assertNotNull(result)
         }

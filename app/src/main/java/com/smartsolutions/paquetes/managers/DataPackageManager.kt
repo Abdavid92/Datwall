@@ -34,7 +34,7 @@ class DataPackageManager @Inject constructor(
     private val ussdHelper: USSDHelper,
     private val simManager: SimManager,
     private val simRepository: ISimRepository,
-    private val miCubacelClientManager: MiCubacelClientManager
+    private val miCubacelManagerOld: MiCubacelManagerOld
 ): IDataPackageManager {
 
 
@@ -148,13 +148,13 @@ class DataPackageManager @Inject constructor(
     }
 
     private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage) {
-        val productGroups = miCubacelClientManager.getProducts()
+        val productGroups = miCubacelManagerOld.getProducts()
 
         for (group in productGroups) {
             val product = group.firstOrNull { it.id == dataPackage.id }
 
             if (product != null) {
-                miCubacelClientManager.buyProduct(product.urlBuy)
+                miCubacelManagerOld.buyProduct(product.urlBuy)
 
                 purchasedPackagesManager.newPurchased(
                     dataPackage.id,

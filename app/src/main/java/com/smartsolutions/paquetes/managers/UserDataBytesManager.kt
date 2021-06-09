@@ -5,6 +5,7 @@ import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.DataBytes
+import com.smartsolutions.paquetes.micubacel.models.DataType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -61,6 +62,14 @@ class UserDataBytesManager @Inject constructor(
         userDataBytesRepository.update(promoBonus)
     }
 
+    override suspend fun addDataBytes(dataPackage: DataPackage, simId: String) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addPromoBonus(simId: String) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun registerTraffic(rxBytes: Long, txBytes: Long) {
         val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
 
@@ -71,6 +80,10 @@ class UserDataBytesManager @Inject constructor(
         } else {
             registerTraffic(fixTrafficByTime(rxBytes + txBytes), simIndex)
         }
+    }
+
+    override suspend fun synchronizeUserDataBytes(data: List<DataType>, simId: String) {
+        TODO("Not yet implemented")
     }
 
     private suspend fun registerLteTraffic(bytes: Long, simIndex: Int) {

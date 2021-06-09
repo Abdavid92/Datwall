@@ -36,6 +36,10 @@ data class MiCubacelAccount(
      * */
     var password: String,
     /**
+     * Saldo de la cuenta.
+     * */
+    var credit: Double,
+    /**
      * Cookies de inicio de sesión.
      * */
     var cookies: Map<String, String>

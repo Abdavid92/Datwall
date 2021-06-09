@@ -1,16 +1,13 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.micubacel.MCubacelClient
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.contracts.IMiCubacelAccountRepository
 import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import kotlin.Exception
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -21,13 +18,10 @@ import kotlin.jvm.Throws
  * Los métodos de este administrador funcionan de manera
  * suspendida.
  * */
-class MiCubacelClientManager @Inject constructor(
+class MiCubacelManagerOld @Inject constructor(
     private val miCubacelAccountRepository: IMiCubacelAccountRepository,
     private val client: MCubacelClient
-): CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+) {
 
     /**
      * Carga la página principal.
@@ -60,6 +54,8 @@ class MiCubacelClientManager @Inject constructor(
             phone, password, cookies
         ))
     }
+
+
 
     /**
      * Inicia el proceso de creación de cuenta.
@@ -122,7 +118,7 @@ class MiCubacelClientManager @Inject constructor(
         val sim = simDelegate.getActiveDataSimIndex()
 
         miCubacelAccountRepository.get(sim).firstOrNull()?.let {
-            MCubacelClient.cookies = it.cookies.toMutableMap()
+            MCubacelClient.COOKIES = it.cookies.toMutableMap()
         }
     }
 
@@ -141,7 +137,7 @@ class MiCubacelClientManager @Inject constructor(
         return suspendCancellableCoroutine {
             var fails = 1
 
-            GlobalScope.launch(coroutineContext) {
+            GlobalScope.launch(Dispatchers.IO) {
                 for (i in 1..attempt) {
                     if (it.isCompleted || it.isCancelled)
                         break
