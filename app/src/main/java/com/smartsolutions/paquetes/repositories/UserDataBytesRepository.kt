@@ -59,7 +59,7 @@ class UserDataBytesRepository @Inject constructor(
                 emit(emptyList())
             }
 
-    override suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes? {
+    override suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes {
         var userDataBytes = userDataBytesDao.get(simId, type.name)
 
         if (userDataBytes == null) {

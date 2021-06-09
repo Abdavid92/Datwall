@@ -9,7 +9,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-abstract class BaseMiCubacelManager : IMiCubacelManager {
+abstract class AbstractMiCubacelManager : IMiCubacelManager {
 
     protected suspend fun <T> loginAndRetry(e: Exception, account: MiCubacelAccount, action: suspend () -> T): Result<T> {
         if (e is UnprocessableRequestException && e.reason == UnprocessableRequestException.Reason.NO_LOGIN) {

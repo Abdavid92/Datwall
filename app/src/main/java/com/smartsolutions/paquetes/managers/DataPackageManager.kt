@@ -8,6 +8,7 @@ import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackagesContract
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.exceptions.NotFoundException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
@@ -34,7 +35,7 @@ class DataPackageManager @Inject constructor(
     private val ussdHelper: USSDHelper,
     private val simManager: SimManager,
     private val simRepository: ISimRepository,
-    private val miCubacelManagerOld: MiCubacelManagerOld
+    private val miCubacelManager: MiCubacelManager
 ): IDataPackageManager {
 
 
@@ -99,13 +100,21 @@ class DataPackageManager @Inject constructor(
     }
 
     @Throws(IllegalStateException::class, MissingPermissionException::class, UnprocessableRequestException::class)
-    override suspend fun buyDataPackage(dataPackage: DataPackage) {
+    override suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim) {
+
+        if (sim.packages.isEmpty()) {
+            throw IllegalStateException("The sim must be provide with relations")
+        }
+
+        if (!sim.packages.contains(dataPackage)) {
+            throw IllegalStateException(context.getString(R.string.pkg_not_configured))
+        }
         when (buyMode) {
             IDataPackageManager.BuyMode.USSD -> {
-                buyDataPackageForUSSD(dataPackage)
+                buyDataPackageForUSSD(dataPackage, sim)
             }
             IDataPackageManager.BuyMode.MiCubacel -> {
-                buyDataPackageForMiCubacel(dataPackage)
+                buyDataPackageForMiCubacel(dataPackage, sim)
             }
         }
     }
@@ -131,39 +140,44 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage) {
-        val simDefault = simManager.getDefaultVoiceSim(true)
+    private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage, sim: Sim) {
 
-        if (!simDefault.packages.contains(dataPackage)) {
-            throw IllegalStateException(context.getString(R.string.pkg_not_configured))
-        }
-
-        ussdHelper.sendUSSDRequestLegacy(buildUssd(simDefault, dataPackage),false)
+        ussdHelper.sendUSSDRequestLegacy(buildUssd(sim, dataPackage),false)
 
         purchasedPackagesManager.newPurchased(
             dataPackage.id,
-            simDefault.id,
+            sim.id,
             IDataPackageManager.BuyMode.USSD
         )
     }
 
-    private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage) {
-        val productGroups = miCubacelManagerOld.getProducts()
+    private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage, sim: Sim) {
+        if (sim.miCubacelAccount == null)
+            throw NotFoundException(context.getString(R.string.account_not_found))
 
-        for (group in productGroups) {
+
+        val result = miCubacelManager.getProducts(sim.miCubacelAccount!!)
+
+        var found = false
+
+        for (group in result.getOrThrow()) {
             val product = group.firstOrNull { it.id == dataPackage.id }
 
             if (product != null) {
-                miCubacelManagerOld.buyProduct(product.urlBuy)
+                found = true
+                miCubacelManager.buyProduct(product.urlBuy, sim.miCubacelAccount!!)
 
                 purchasedPackagesManager.newPurchased(
                     dataPackage.id,
-                    simManager.getDefaultDataSim().id,
+                    sim.id,
                     IDataPackageManager.BuyMode.MiCubacel
                 )
                 break
             }
         }
+
+        if (!found)
+            throw NotFoundException(context.getString(R.string.product_not_found))
     }
 
     private fun buildUssd(sim: Sim, dataPackage: DataPackage): String {

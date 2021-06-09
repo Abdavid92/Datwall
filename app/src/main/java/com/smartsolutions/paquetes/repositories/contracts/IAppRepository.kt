@@ -13,22 +13,22 @@ interface IAppRepository {
     /**
      * Cantidad total de aplicaciones
      * */
-    val appsCount: Int
+    suspend fun appsCount(): Int
 
     /**
      * Cantidad de aplicaciones permitidas
      * */
-    val appsAllowedCount: Int
+    suspend fun appsAllowedCount(): Int
 
     /**
      * Cantidad de aplicaciones bloqueadas
      * */
-    val appsBlockedCount: Int
+    suspend fun appsBlockedCount(): Int
 
     /**
      * Obtiene todas las aplicaciones
      * */
-    val all: List<App>
+    suspend fun all(): List<App>
 
     /**
      * Retorna un Flow con la lista de aplicaciones.

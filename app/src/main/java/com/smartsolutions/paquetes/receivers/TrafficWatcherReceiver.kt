@@ -6,41 +6,34 @@ import android.content.Intent
 import android.net.TrafficStats
 import android.os.Build
 import com.smartsolutions.paquetes.DatwallApplication
+import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.TrafficRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Receiver que se lanza cada un segundo para recojer el tráfico de datos.
- * Se usa en apis 21 y 22 porque estas no tienen el servicio de estadísticas
- * de redes.
  * */
 class TrafficWatcherReceiver @Inject constructor(
     private val appRepository: IAppRepository,
     private val trafficRepository: TrafficRepository,
-    private val userDataBytesManager: IUserDataBytesManager
-): BroadcastReceiver(), CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+    private val userDataBytesManager: IUserDataBytesManager,
+    private val networkUtil: NetworkUtil
+): BroadcastReceiver() {
 
     private val traffics : MutableList<Traffic> = mutableListOf()
-
-    private var globalRxBytes = 0L
-    private var globalTxBytes = 0L
 
     init {
         globalRxBytes = TrafficStats.getMobileRxBytes()
         globalTxBytes = TrafficStats.getMobileTxBytes()
 
-        launch {
+        GlobalScope.launch(Dispatchers.IO) {
             appRepository.flow().collect { apps ->
                 val listToRemove = mutableListOf<Traffic>()
 
@@ -55,7 +48,7 @@ class TrafficWatcherReceiver @Inject constructor(
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        launch {
+        GlobalScope.launch(Dispatchers.Default) {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
                 registerTrafficByApp(context)
 
@@ -69,13 +62,15 @@ class TrafficWatcherReceiver @Inject constructor(
         globalRxBytes += rxBytes
         globalTxBytes += txBytes
 
-        userDataBytesManager.registerTraffic(rxBytes, txBytes)
+        val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
+
+        userDataBytesManager.registerTraffic(rxBytes, txBytes, isLte)
     }
 
     private suspend fun registerTrafficByApp(context: Context) {
         val dataConnected = (context.applicationContext as DatwallApplication).dataMobileOn
 
-        appRepository.all.forEach { app->
+        appRepository.all().forEach { app->
             val rxBytes = TrafficStats.getUidRxBytes(app.uid)
             val txBytes = TrafficStats.getUidTxBytes(app.uid)
 
@@ -100,5 +95,12 @@ class TrafficWatcherReceiver @Inject constructor(
                 trafficOld.endTime = time
             }
         }
+    }
+
+    companion object {
+
+        private var globalRxBytes = 0L
+        private var globalTxBytes = 0L
+
     }
 }

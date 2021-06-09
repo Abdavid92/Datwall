@@ -9,7 +9,7 @@ interface IUserDataBytesManager {
 
     suspend fun addPromoBonus(simId: String)
 
-    suspend fun registerTraffic(rxBytes: Long, txBytes: Long)
+    suspend fun registerTraffic(rxBytes: Long, txBytes: Long, isLte: Boolean)
 
     suspend fun synchronizeUserDataBytes(data: List<DataType>, simId: String)
 }

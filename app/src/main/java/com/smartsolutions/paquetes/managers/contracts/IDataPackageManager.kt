@@ -1,7 +1,10 @@
 package com.smartsolutions.paquetes.managers.contracts
 
+import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.exceptions.NotFoundException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import com.smartsolutions.paquetes.repositories.models.Sim
 import kotlin.jvm.Throws
 
 /**
@@ -27,14 +30,23 @@ interface IDataPackageManager {
     /**
      * Compra un paquete de datos.
      *
-     * @throws IllegalStateException Lanza una excepción si el paquete no se puede comprar
+     * @throws MissingPermissionException si no tiene los permisos necesarios.
+     *
+     * @throws IllegalStateException si el paquete no se puede comprar
      * porque no está configurado o no está activado para la linea actual.
      * 
-     * @throws UnprocessableRequestException Lanza una excepción si la compra
+     * @throws UnprocessableRequestException si la compra
      * no tuvo éxito por alguna razón.
+     *
+     * @throws NotFoundException si se esta comprando por mi.cubacel.net y no existe una cuenta asociada
+     * a la linea.
      * */
-    @Throws(IllegalStateException::class, UnprocessableRequestException::class)
-    suspend fun buyDataPackage(dataPackage: DataPackage)
+    @Throws(
+        IllegalStateException::class,
+        MissingPermissionException::class,
+        UnprocessableRequestException::class,
+        NotFoundException::class)
+    suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim)
 
     /**
      * Registra un paquete comprado y actualiza los corresppondientes
@@ -56,6 +68,10 @@ interface IDataPackageManager {
         /**
          * Por mi.cubacel.net
          * */
-        MiCubacel
+        MiCubacel,
+        /**
+         * Origen desconocido
+         * */
+        Unknown
     }
 }

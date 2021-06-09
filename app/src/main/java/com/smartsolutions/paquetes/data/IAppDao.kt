@@ -7,17 +7,17 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface IAppDao {
 
-    @get:Query("SELECT count() FROM apps")
-    val appsCount: Int
+    @Query("SELECT count() FROM apps")
+    suspend fun appsCount(): Int
 
-    @get:Query("SELECT count() FROM apps WHERE access = 1")
-    val appsAllowedCount: Int
+    @Query("SELECT count() FROM apps WHERE access = 1")
+    suspend fun appsAllowedCount(): Int
 
-    @get:Query("SELECT count() FROM apps WHERE access = 0")
-    val appsBlockedCount: Int
+    @Query("SELECT count() FROM apps WHERE access = 0")
+    suspend fun appsBlockedCount(): Int
 
-    @get:Query("SELECT * FROM apps ORDER BY name")
-    val apps: List<App>
+    @Query("SELECT * FROM apps ORDER BY name")
+    suspend fun apps(): List<App>
 
     @Query("SELECT * FROM apps ORDER BY uid")
     fun flow(): Flow<List<App>>

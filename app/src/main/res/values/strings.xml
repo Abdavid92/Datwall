@@ -29,4 +29,6 @@
     <string name="c_5">package_name</string>
     <string name="c_6">version</string>
     <string name="c_7">key</string>
+    <string name="account_not_found">No se encontró ninguna cuenta vinculada a esta linea.</string>
+    <string name="product_not_found">No se ha podido encontrar el paquete solicitado en mi.cubacel.net.</string>
 </resources>

@@ -1,25 +1,16 @@
 package com.smartsolutions.paquetes.repositories
 
 import android.content.Context
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.data.IAppDao
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
-import com.smartsolutions.paquetes.watcher.ChangeType
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Implementación de la interfaz IAppRepository
@@ -30,23 +21,15 @@ class AppRepository @Inject constructor(
     context: Context,
     gson: Gson,
     private val dao: IAppDao
-): BaseAppRepository(context, gson), CoroutineScope {
+): BaseAppRepository(context, gson) {
 
-    //Contexto de las co-rutinas
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+    override suspend fun appsCount(): Int = dao.appsCount()
 
-    override val appsCount: Int
-        get() = dao.appsCount
+    override suspend fun appsAllowedCount(): Int = dao.appsAllowedCount()
 
-    override val appsAllowedCount: Int
-        get() = dao.appsAllowedCount
+    override suspend fun appsBlockedCount(): Int = dao.appsBlockedCount()
 
-    override val appsBlockedCount: Int
-        get() = dao.appsBlockedCount
-
-    override val all: List<App>
-        get() = dao.apps
+    override suspend fun all(): List<App> = dao.apps()
 
     override fun flow(): Flow<List<App>> = dao.flow()
 
@@ -80,7 +63,7 @@ class AppRepository @Inject constructor(
         }
     }
 
-    override suspend fun getAllByGroup(): List<IApp> = convertToListIApp(dao.apps)
+    override suspend fun getAllByGroup(): List<IApp> = convertToListIApp(dao.apps())
 
     override suspend fun create(app: App) = dao.create(app)
 

@@ -13,7 +13,7 @@ interface IUserDataBytesRepository {
 
     fun flowBySimId(simId: String): Flow<List<UserDataBytes>>
 
-    suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes?
+    suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes
 
     suspend fun update(userDataBytes: UserDataBytes)
 
