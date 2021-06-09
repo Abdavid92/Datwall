@@ -29,7 +29,7 @@ interface IMiCubacelManager {
      *
      * @return [Result]
      * */
-    suspend fun signUp(firstName : String, lastName : String, phone: String): Result<Unit>
+    suspend fun signUp(firstName : String, lastName : String, account: MiCubacelAccount): Result<MiCubacelAccount>
 
     /**
      * Verifica el código recibido por sms.
@@ -38,7 +38,7 @@ interface IMiCubacelManager {
      *
      * @return [Result]
      * */
-    suspend fun verifyCode(code: String): Result<Unit>
+    suspend fun verifyCode(code: String, account: MiCubacelAccount): Result<MiCubacelAccount>
 
     /**
      * Completa el proceso de creación de la cuenta con una contraseña.
@@ -47,7 +47,7 @@ interface IMiCubacelManager {
      *
      * @return [Result] - Si el resultado es exitoso, se retorna la cuenta creada.
      * */
-    suspend fun createPassword(password: String): Result<MiCubacelAccount>
+    suspend fun createPassword(account: MiCubacelAccount): Result<MiCubacelAccount>
 
     /**
      * Sincroniza los UserDataBytes de la cuenta.
@@ -71,5 +71,5 @@ interface IMiCubacelManager {
      *
      * @param url - Url del producto a comprar.
      * */
-    suspend fun buyProduct(url: String): Result<Unit>
+    suspend fun buyProduct(url: String, account: MiCubacelAccount): Result<Unit>
 }

@@ -49,6 +49,11 @@ class MCubacelClient @Inject constructor() {
     )
 
     /**
+     * Mapa de cookies que guardan las sesiones y otros datos.
+     * */
+    var COOKIES = mutableMapOf<String, String>()
+
+    /**
      * Resuelve la url de la página principal en el idioma español.
      * Este método actualiza las cookies en caso de que se le indique.
      * */
@@ -427,11 +432,11 @@ class MCubacelClient @Inject constructor() {
         }
 
         return when (element.attr("data-info")) {
-            "KB" -> value * 1024
-            "MB" -> value * 1024.0.pow(2)
-            "GB" -> value * 1024.0.pow(3)
-            else -> value
-        }.toLong()
+            "KB" -> (value * 1024).toLong()
+            "MB" -> (value * 1024.0.pow(2)).toLong()
+            "GB" -> (value * 1024.0.pow(3)).toLong()
+            else -> value.toLong()
+        }
     }
 
     /**
@@ -498,12 +503,6 @@ class MCubacelClient @Inject constructor() {
     }
 
     companion object {
-
-        /**
-         * Mapa de cookies que guardan las sesiones y otros datos.
-         * */
-        var COOKIES = mutableMapOf<String, String>()
-
         /**
          * Nombre de usuario.
          * */

@@ -32,20 +32,36 @@ class MiCubacelManager @Inject constructor(
         }
     }
 
-    override suspend fun signUp(firstName: String, lastName: String, phone: String): Result<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun signUp(firstName: String, lastName: String, account: MiCubacelAccount): Result<MiCubacelAccount> {
+        return try {
+            account.cookies = sendQueueRequests(attempts) { client.signUp(firstName, lastName, account.phone) }
+
+            Result.Success(account)
+        }catch (e: Exception){
+            Result.Failure(e)
+        }
     }
 
-    override suspend fun verifyCode(code: String): Result<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun verifyCode(code: String, account: MiCubacelAccount): Result<MiCubacelAccount> {
+        return try {
+            account.cookies = sendQueueRequests(attempts){client.verifyCode(code)}
+            Result.Success(account)
+        }catch (e: Exception){
+            Result.Failure(e)
+        }
     }
 
-    override suspend fun createPassword(password: String): Result<MiCubacelAccount> {
-        TODO("Not yet implemented")
+    override suspend fun createPassword(account: MiCubacelAccount): Result<MiCubacelAccount> {
+        return try {
+            account.cookies = sendQueueRequests(attempts) {client.createPassword(account.password)}
+            miCubacelAccountRepository.createOrUpdate(account)
+            Result.Success(account)
+        }catch (e: Exception){
+            Result.Failure(e)
+        }
     }
 
     override suspend fun synchronizeUserDataBytes(account: MiCubacelAccount?): Result<Unit> {
-
         val account1 = account ?: miCubacelAccountRepository.get(simManager.getDefaultDataSim().id)
 
         account1?.let {
@@ -62,7 +78,7 @@ class MiCubacelManager @Inject constructor(
     }
 
     override suspend fun getProducts(account: MiCubacelAccount): Result<List<ProductGroup>> {
-        MCubacelClient.COOKIES = account.cookies.toMutableMap()
+        client.COOKIES = account.cookies.toMutableMap()
 
         return try {
             Result.Success(
@@ -73,7 +89,9 @@ class MiCubacelManager @Inject constructor(
         }
     }
 
-    override suspend fun buyProduct(url: String): Result<Unit> {
+    override suspend fun buyProduct(url: String, account: MiCubacelAccount): Result<Unit> {
+        client.COOKIES = account.cookies.toMutableMap()
+
         return try {
             val urlConfirmation = sendQueueRequests(attempts) {
                 client.resolveUrlBuyProductConfirmation(url)
@@ -90,7 +108,7 @@ class MiCubacelManager @Inject constructor(
     }
 
     private suspend fun getUserDataBytes(account: MiCubacelAccount) {
-        MCubacelClient.COOKIES = account.cookies.toMutableMap()
+        client.COOKIES = account.cookies.toMutableMap()
         val data = sendRequests(attempts) { client.obtainPackagesInfo() }
         userDataBytesManager.synchronizeUserDataBytes(data, account.simId)
     }
