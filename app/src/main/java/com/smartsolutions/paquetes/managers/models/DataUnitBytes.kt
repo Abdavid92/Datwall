@@ -8,10 +8,9 @@ class DataUnitBytes(val bytes: Long) {
     /**
      * Procesa y obtiene la unidad más optima para los bytes dados.
      *
-     * @param bytes - Bytes que se van a procesar
      * @param dataUnit - Parametro opcional en caso de que se quiera especificar la unidad de medida.
      * */
-    fun getValue(bytes: Long, dataUnit: DataUnit? = null) : DataValue {
+    fun getValue(dataUnit: DataUnit? = null) : DataValue {
 
         var unit = dataUnit
 

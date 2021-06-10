@@ -43,7 +43,7 @@ abstract class AbstractNetworkUsage(
     /**
      * Retorna los buckets con el registro de las app que han consumido en el periodo de tiempo especificado
      * */
-    suspend fun getUsage(start: Long, finish: Long): List<NetworkStats.Bucket>? {
+    protected suspend fun getUsage(start: Long, finish: Long): List<NetworkStats.Bucket>? {
         clearCache()
         val defaultSim = simManager.getDefaultDataSim()
 
@@ -53,14 +53,17 @@ abstract class AbstractNetworkUsage(
 
         val buckets: MutableList<NetworkStats.Bucket> = ArrayList()
         try {
+
             val networkStats = networkStatsManager.querySummary(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
-            do {
+
+            while (networkStats.hasNextBucket()) {
+
                 val bucket = NetworkStats.Bucket()
                 if (networkStats.getNextBucket(bucket)) {
                     buckets.add(bucket)
                 }
-            } while (networkStats.hasNextBucket())
-        } catch (e: RemoteException) {
+            }
+        } catch (e: Exception) {
             return null
         }
 
@@ -70,7 +73,7 @@ abstract class AbstractNetworkUsage(
     }
 
     //Retorna el bucket de consumo en general en el periodo especificado
-    suspend fun getUsageGeneral(start: Long, finish: Long): NetworkStats.Bucket? {
+    protected suspend fun getUsageGeneral(start: Long, finish: Long): NetworkStats.Bucket? {
         clearCache()
         val defaultSim = simManager.getDefaultDataSim()
 
@@ -78,25 +81,51 @@ abstract class AbstractNetworkUsage(
             return it.buckets
         }
 
-        val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
+        return try {
+            val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
 
-        generalCache.add(BucketCache(defaultSim.id, System.currentTimeMillis(), start, finish, result))
+            generalCache.add(BucketCache(defaultSim.id, System.currentTimeMillis(), start, finish, result))
 
-        return result
+            result
+        } catch (e: Exception) {
+            null
+        }
     }
 
+    protected suspend fun getAppUsageForUid(uid: Int, start: Long, finish: Long): List<NetworkStats.Bucket> {
+        val buckets = mutableListOf<NetworkStats.Bucket>()
+
+        try {
+            val result = networkStatsManager.queryDetailsForUid(
+                ConnectivityManager.TYPE_MOBILE,
+                subscriberId,
+                start,
+                finish,
+                uid)
+
+            while (result.hasNextBucket()) {
+
+                val bucket = NetworkStats.Bucket()
+
+                if (result.getNextBucket(bucket))
+                    buckets.add(bucket)
+
+            }
+        } catch (e: Exception) { }
+        return buckets
+    }
 
     private fun clearCache() {
         val cacheToClear = mutableListOf<BucketCache<List<NetworkStats.Bucket>>>()
         val generalCacheToClear = mutableListOf<BucketCache<NetworkStats.Bucket>>()
 
         cache.forEach {
-            if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_HOUR){
+            if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_DAY){
                 cacheToClear.add(it)
             }
         }
         generalCache.forEach {
-            if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_HOUR){
+            if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_DAY){
                 generalCacheToClear.add(it)
             }
         }
