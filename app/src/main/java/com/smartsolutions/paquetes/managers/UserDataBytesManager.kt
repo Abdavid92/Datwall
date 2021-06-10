@@ -64,9 +64,8 @@ class UserDataBytesManager @Inject constructor(
                 if (it.type == DataType.PromoBonus) {
                     it.bytes += DataUnitBytes.GB.toLong()
                     it.initialBytes = it.bytes
+                    it.startTime = System.currentTimeMillis()
                 }
-
-                it.startTime = System.currentTimeMillis()
                 it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
             })
     }
