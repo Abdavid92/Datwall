@@ -2,10 +2,8 @@ package com.smartsolutions.paquetes.repositories.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.renderscript.RenderScript
 import androidx.room.*
-import kotlinx.parcelize.IgnoredOnParcel
-import kotlinx.parcelize.Parcelize
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import java.util.*
 
 /**
@@ -24,7 +22,7 @@ import java.util.*
     ]
 )
 @TypeConverters(UserDataBytes.DataTypeConverter::class)
-data class UserDataBytes(
+class UserDataBytes(
     /**
      * Id de la linea a la que pertenecen estos bytes.
      * */
@@ -33,7 +31,7 @@ data class UserDataBytes(
     /**
      * Tipo de bytes.
      * */
-    val type: DataType,
+    type: DataType,
     /**
      * Bytes iniciales que estaban disponibles cuando se configuró o
      * se compro un paquete nuevo. Este campo se puede usar para comparar
@@ -44,12 +42,7 @@ data class UserDataBytes(
     /**
      * Bytes disponibles en todas las redes.
      * */
-    var bytes: Long,
-    /**
-     * Bytes disponibles en la red 4G.
-     * */
-    @ColumnInfo(name = "bytes_lte")
-    var bytesLte: Long,
+    bytes: Long,
     /**
      * Fecha en que obtuvieron los bytes.
      * */
@@ -58,9 +51,8 @@ data class UserDataBytes(
     /**
      * Fechan en la que expiran los bytes y se pierden.
      * */
-    @ColumnInfo(name = "expired_time")
-    var expiredTime: Long
-) : Parcelable {
+    expiredTime: Long
+) : DataBytes(type, bytes, expiredTime), Parcelable {
 
     /**
      * Linea a la que pertenecen los bytes.
@@ -73,11 +65,12 @@ data class UserDataBytes(
      * */
     val priority: Int
         get() = when (type) {
-            DataType.National -> 0
+            DataType.National -> 0 //Prioridad nula
             DataType.DailyBag -> 1
             DataType.Bonus -> 2
-            DataType.PromoBonus -> 3
-            DataType.International -> 4
+            DataType.InternationalLte -> 3
+            DataType.PromoBonus -> 4
+            DataType.International -> 5
         }
 
     constructor(parcel: Parcel) : this(
@@ -86,24 +79,15 @@ data class UserDataBytes(
         parcel.readLong(),
         parcel.readLong(),
         parcel.readLong(),
-        parcel.readLong(),
         parcel.readLong()
     ) {
         sim = parcel.readParcelable(Sim::class.java.classLoader) ?: throw NullPointerException()
     }
 
-    enum class DataType {
-        International,
-        Bonus,
-        PromoBonus,
-        National,
-        DailyBag
-    }
-
     /**
      * Indica si existen bytes a consumir.
      * */
-    fun exists() = bytes != 0L || bytesLte != 0L
+    fun exists() = bytes != 0L
 
     /**
      * Indica si estos bytes están expirados.
@@ -138,7 +122,6 @@ data class UserDataBytes(
         parcel.writeString(type.name)
         parcel.writeLong(initialBytes)
         parcel.writeLong(bytes)
-        parcel.writeLong(bytesLte)
         parcel.writeLong(startTime)
         parcel.writeLong(expiredTime)
         parcel.writeParcelable(sim, flags)

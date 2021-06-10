@@ -66,6 +66,10 @@ data class DataPackage(
      * */
     val index: Int,
     /**
+     * Duración en dias.
+     * */
+    val duration: Int,
+    /**
      * Indica si este paquete está obsoleto.
      * */
     var deprecated: Boolean = false
@@ -91,6 +95,7 @@ data class DataPackage(
         parcel.readLong(),
         parcel.readString() ?: throw NullPointerException(),
         parcel.readInt(),
+        parcel.readInt(),
         parcel.readByte() != 0.toByte()
     ) {
         sims = parcel.createTypedArrayList(Sim) ?: throw NullPointerException()
@@ -107,6 +112,7 @@ data class DataPackage(
         parcel.writeLong(nationalBytes)
         parcel.writeString(network)
         parcel.writeInt(index)
+        parcel.writeInt(duration)
         parcel.writeByte(if (deprecated) 1 else 0)
         parcel.writeTypedList(sims)
     }

@@ -3,8 +3,7 @@ package com.smartsolutions.paquetes.data
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G_4G
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
 import com.smartsolutions.paquetes.helpers.createDataPackageId
-import com.smartsolutions.paquetes.repositories.models.DataPackage
-import com.smartsolutions.paquetes.managers.models.DataBytes.*
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes.*
 
 object DataPackagesContract {
 
@@ -20,7 +19,8 @@ object DataPackagesContract {
         DataValue(0.0, DataUnit.KB),
         NETWORK_4G,
         -1,
-        "bolsa Diaria de 200MB")
+        "bolsa Diaria de 200MB",
+        1)
 
     val P_1GbLte = PackageModel (
         "Paquete 1 GB LTE",
@@ -126,7 +126,8 @@ object DataPackagesContract {
         DataValue(300.0, DataUnit.MB),
         NETWORK_3G_4G,
         5,
-        "4GB + Bono LTE")
+        "4GB + Bono LTE"
+    )
 
     val PackagesList = listOf(
         DailyBag,
@@ -150,7 +151,9 @@ object DataPackagesContract {
         val bonusCuBytes: DataValue,
         val network: String,
         val index: Int,
-        val smsKey: String) {
+        val smsKey: String,
+        val duration: Int = 30
+    ) {
 
         val id: String
             get() = createDataPackageId(name, price)

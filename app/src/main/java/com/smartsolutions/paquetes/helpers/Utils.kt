@@ -1,10 +1,9 @@
 package com.smartsolutions.paquetes.helpers
 
-import com.smartsolutions.paquetes.managers.models.DataBytes
-import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.GB
-import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.KB
-import com.smartsolutions.paquetes.managers.models.DataBytes.Companion.MB
-import kotlin.math.pow
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.GB
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.KB
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.MB
 
 /**
  * Contruye el código ussd para comprar un
@@ -34,12 +33,12 @@ fun createDataPackageId(name: String, price: Float): String {
  *
  * @param dataValue - DataValue a convertir.
  * */
-fun convertToBytes(dataValue: DataBytes.DataValue): Long {
+fun convertToBytes(dataValue: DataUnitBytes.DataValue): Long {
     return when (dataValue.dataUnit) {
-        DataBytes.DataUnit.GB -> (dataValue.value * GB).toLong()
-        DataBytes.DataUnit.MB -> (dataValue.value * MB).toLong()
-        DataBytes.DataUnit.KB -> (dataValue.value * KB).toLong()
-        DataBytes.DataUnit.B -> dataValue.value.toLong()
+        DataUnitBytes.DataUnit.GB -> (dataValue.value * GB).toLong()
+        DataUnitBytes.DataUnit.MB -> (dataValue.value * MB).toLong()
+        DataUnitBytes.DataUnit.KB -> (dataValue.value * KB).toLong()
+        DataUnitBytes.DataUnit.B -> dataValue.value.toLong()
     }
 }
 

@@ -2,13 +2,14 @@ package com.smartsolutions.paquetes.repositories
 
 import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.data.IUserDataBytesDao
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
+import com.smartsolutions.paquetes.micubacel.models.DataBytes.DataType
 
 class UserDataBytesRepository @Inject constructor(
     private val userDataBytesDao: IUserDataBytesDao,
@@ -33,7 +34,7 @@ class UserDataBytesRepository @Inject constructor(
             val userDataBytesList: MutableList<UserDataBytes> = userDataBytesDao
                 .bySimId(simId).toMutableList()
 
-            if (userDataBytesList.size < UserDataBytes.DataType.values().size) {
+            if (userDataBytesList.size < DataBytes.DataType.values().size) {
                 seedUserDataBytes(simId, userDataBytesList)
             }
 
@@ -49,7 +50,7 @@ class UserDataBytesRepository @Inject constructor(
     override fun flowBySimId(simId: String): Flow<List<UserDataBytes>> =
         userDataBytesDao.flowBySimId(simId)
             .map { list ->
-                if (list.size < UserDataBytes.DataType.values().size) {
+                if (list.size < DataType.values().size) {
                     return@map seedUserDataBytes(simId, list.toMutableList()).map {
                         transform(it)
                     }
@@ -59,14 +60,13 @@ class UserDataBytesRepository @Inject constructor(
                 emit(emptyList())
             }
 
-    override suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes {
+    override suspend fun get(simId: String, type: DataType): UserDataBytes {
         var userDataBytes = userDataBytesDao.get(simId, type.name)
 
         if (userDataBytes == null) {
             userDataBytes = UserDataBytes(
                 simId,
                 type,
-                0,
                 0,
                 0,
                 0,
@@ -96,13 +96,12 @@ class UserDataBytesRepository @Inject constructor(
     }
 
     private suspend fun seedUserDataBytes(simId: String, userDataBytesList: MutableList<UserDataBytes>): List<UserDataBytes> {
-        UserDataBytes.DataType.values().forEach { dataType ->
+        DataType.values().forEach { dataType ->
             if (userDataBytesList.firstOrNull { it.type == dataType} == null) {
 
                 val userDataBytes = UserDataBytes(
                     simId,
                     dataType,
-                    0,
                     0,
                     0,
                     0,

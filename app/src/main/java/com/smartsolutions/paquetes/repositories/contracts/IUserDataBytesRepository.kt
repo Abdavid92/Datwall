@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import kotlinx.coroutines.flow.Flow
 
@@ -13,7 +14,7 @@ interface IUserDataBytesRepository {
 
     fun flowBySimId(simId: String): Flow<List<UserDataBytes>>
 
-    suspend fun get(simId: String, type: UserDataBytes.DataType): UserDataBytes
+    suspend fun get(simId: String, type: DataBytes.DataType): UserDataBytes
 
     suspend fun update(userDataBytes: UserDataBytes)
 

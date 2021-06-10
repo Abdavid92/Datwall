@@ -14,7 +14,7 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltAndroidTest
-class UserDataBytesRepositoryTest {
+class UserDataUnitBytesRepositoryTest {
 
     @Inject
     lateinit var repository: IUserDataBytesRepository
@@ -28,15 +28,6 @@ class UserDataBytesRepositoryTest {
     @Before
     fun setUp() {
         rule.inject()
-    }
-
-    @Test
-    fun testEqualsLiveData() {
-
-        val liveData1 = repository.getAll()
-        val liveData2 = repository2.getAll()
-
-        assertEquals(liveData1, liveData2)
     }
 
     @Test

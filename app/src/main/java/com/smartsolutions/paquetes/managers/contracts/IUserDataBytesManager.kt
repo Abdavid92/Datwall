@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.managers.contracts
 
-import com.smartsolutions.paquetes.micubacel.models.DataType
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 
 interface IUserDataBytesManager {
@@ -11,5 +11,5 @@ interface IUserDataBytesManager {
 
     suspend fun registerTraffic(rxBytes: Long, txBytes: Long, isLte: Boolean)
 
-    suspend fun synchronizeUserDataBytes(data: List<DataType>, simId: String)
+    suspend fun synchronizeUserDataBytes(data: List<DataBytes>, simId: String)
 }

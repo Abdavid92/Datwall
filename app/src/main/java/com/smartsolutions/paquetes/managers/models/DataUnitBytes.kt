@@ -3,7 +3,7 @@ package com.smartsolutions.paquetes.managers.models
 import com.smartsolutions.paquetes.helpers.convertToBytes
 import kotlin.math.pow
 
-class DataBytes(val bytes: Long) {
+class DataUnitBytes(val bytes: Long) {
 
     /**
      * Procesa y obtiene la unidad más optima para los bytes dados.

@@ -70,7 +70,8 @@ abstract class DbContext: RoomDatabase() {
                             packageModel.bonusBytes.toBytes(),
                             packageModel.bonusCuBytes.toBytes(),
                             packageModel.network,
-                            packageModel.index
+                            packageModel.index,
+                            packageModel.duration
                         )
 
                         dao.create(dataPackage)

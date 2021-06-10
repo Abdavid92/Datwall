@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.micubacel
 
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
-import com.smartsolutions.paquetes.micubacel.models.DataType
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.micubacel.models.Product
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -41,11 +41,11 @@ class MCubacelClient @Inject constructor() {
      * cuenta del usuario.
      * */
     private val dataKeys = mapOf(
-        Pair("myStat_3001", UserDataBytes.DataType.International), //Paquete de navegación
-        Pair("myStat_30012", UserDataBytes.DataType.Bonus), //Navegación LTE
-        Pair("myStat_2001", UserDataBytes.DataType.DailyBag), //Bolsa diaria
-        Pair("myStat_bonusDataN", UserDataBytes.DataType.National), //Navegación nacional
-        Pair("myStat_bonusData", UserDataBytes.DataType.PromoBonus) //Navegación promocional
+        Pair("myStat_3001", DataBytes.DataType.International), //Paquete de navegación
+        Pair("myStat_30012", DataBytes.DataType.Bonus), //Navegación LTE
+        Pair("myStat_2001", DataBytes.DataType.DailyBag), //Bolsa diaria
+        Pair("myStat_bonusDataN", DataBytes.DataType.National), //Navegación nacional
+        Pair("myStat_bonusData", DataBytes.DataType.PromoBonus) //Navegación promocional
     )
 
     /**
@@ -365,7 +365,7 @@ class MCubacelClient @Inject constructor() {
      * @throws UnprocessableRequestException En caso de no tener la sesión iniciada.
      * */
     @Throws(UnprocessableRequestException::class)
-    fun obtainPackagesInfo() : List<DataType> {
+    fun obtainPackagesInfo() : List<DataBytes> {
         val response = ConnectionFactory.newConnection(urls["myAccount"]!!, cookies = COOKIES)
             .execute()
 
@@ -375,11 +375,11 @@ class MCubacelClient @Inject constructor() {
             throw UnprocessableRequestException(UnprocessableRequestException.Reason.NO_LOGIN, "Debe inciar sesión.")
         }
 
-        val data = mutableListOf<DataType>()
+        val data = mutableListOf<DataBytes>()
 
         dataKeys.forEach {
             page.getElementById(it.key)?.let { element ->
-                data.add(DataType(it.value, getValue(element), getDateExpired(element)))
+                data.add(DataBytes(it.value, getValue(element), getDateExpired(element)))
             }
         }
 

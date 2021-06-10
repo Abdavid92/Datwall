@@ -9,8 +9,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.smartsolutions.paquetes.managers.NetworkUtils
-import org.apache.commons.lang.time.DateUtils
-import java.util.*
 
 /**
  * Representa un fragmento de tráfico de datos tanto
@@ -57,20 +55,20 @@ open class Traffic(
     /**
      * Bytes de bajada optimizados a la unidad más conveniente
      * */
-    val rxBytes: DataBytes
-        get() = DataBytes(_rxBytes)
+    val rxBytes: DataUnitBytes
+        get() = DataUnitBytes(_rxBytes)
 
     /**
      * Bytes de subida optimizados a la unidad más conveniente
      * */
-    val txBytes: DataBytes
-        get() = DataBytes(_txBytes)
+    val txBytes: DataUnitBytes
+        get() = DataUnitBytes(_txBytes)
 
     /**
      * Suma de todos los bytes optimizados a la unidad más conveniente
      * */
-    val totalBytes: DataBytes
-        get() = DataBytes(_rxBytes + _txBytes)
+    val totalBytes: DataUnitBytes
+        get() = DataUnitBytes(_rxBytes + _txBytes)
 
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
