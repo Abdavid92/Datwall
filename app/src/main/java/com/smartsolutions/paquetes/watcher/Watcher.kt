@@ -1,10 +1,12 @@
 package com.smartsolutions.paquetes.watcher
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,10 +22,11 @@ import kotlin.coroutines.CoroutineContext
  * */
 @Singleton
 class Watcher @Inject constructor(
+    @ApplicationContext
+    private val context: Context,
     private val packageMonitor: PackageMonitor,
     private val watcherUtils: WatcherUtils,
-    private val appRepository: IAppRepository,
-    private val localBroadcastManager: LocalBroadcastManager
+    private val appRepository: IAppRepository
 ) : Runnable, AutoCloseable, CoroutineScope {
 
     private val TAG = "Watcher"
@@ -82,7 +85,8 @@ class Watcher @Inject constructor(
 
                 //Log.i(TAG, "sending ticktock broadcast")
 
-                localBroadcastManager.sendBroadcast(Intent(ACTION_TICKTOCK))
+                LocalBroadcastManager.getInstance(context)
+                    .sendBroadcast(Intent(ACTION_TICKTOCK))
 
                 Thread.sleep(1000)
             } catch (e: Exception) {
@@ -110,7 +114,8 @@ class Watcher @Inject constructor(
                     }
                 }
 
-                localBroadcastManager.sendBroadcast(intent)
+                LocalBroadcastManager.getInstance(context)
+                    .sendBroadcast(intent)
 
                 currentPackageName = packageName
             }

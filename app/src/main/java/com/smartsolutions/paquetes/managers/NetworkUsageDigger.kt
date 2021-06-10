@@ -9,6 +9,7 @@ import android.os.RemoteException
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import org.apache.commons.lang.time.DateUtils
 import java.util.ArrayList
 
@@ -17,7 +18,7 @@ import java.util.ArrayList
 abstract class NetworkUsageDigger(
     private val networkStatsManager: NetworkStatsManager,
     telephonyManager: TelephonyManager,
-    private val simManager: SimManager
+    private val simManager: ISimManager
 ) : NetworkUsageManager() {
 
     private var subscriberId: String? = null
@@ -50,7 +51,8 @@ abstract class NetworkUsageDigger(
 
         clearCache()
 
-        val simIndex = simDelegate.getActiveDataSimIndex()
+        TODO("Arreglar el sistema de cache")
+        /*val simIndex = simDelegate.getActiveDataSimIndex()
 
         if (simIndex == 1) {
             cacheSim1.firstOrNull { it.start == start && it.finish == finish }?.let {
@@ -60,7 +62,7 @@ abstract class NetworkUsageDigger(
             cacheSim2.firstOrNull { it.start == start && it.finish == finish }?.let {
                 return it.buckets
             }
-        }
+        }*/
 
         val buckets: MutableList<NetworkStats.Bucket> = ArrayList()
         try {
@@ -75,11 +77,11 @@ abstract class NetworkUsageDigger(
             return null
         }
 
-        if (simIndex == 1) {
+        /*if (simIndex == 1) {
             cacheSim1.add(BucketCache(System.currentTimeMillis(), start, finish, buckets))
         }else {
             cacheSim2.add(BucketCache(System.currentTimeMillis(), start, finish, buckets))
-        }
+        }*/
 
         return buckets
     }
@@ -88,7 +90,8 @@ abstract class NetworkUsageDigger(
     fun getUsageGeneral(start: Long, finish: Long): NetworkStats.Bucket? {
         clearGeneralCache()
 
-        val simIndex = simDelegate.getActiveDataSimIndex()
+        TODO("Arreglar el sistema de cache")
+        /*val simIndex = simDelegate.getActiveDataSimIndex()
 
         if (simIndex == 1) {
             generalCacheSim1.firstOrNull { it.start == start && it.finish == finish }?.let {
@@ -98,9 +101,9 @@ abstract class NetworkUsageDigger(
             generalCacheSim2.firstOrNull { it.start == start && it.finish == finish }?.let {
                 return it.buckets
             }
-        }
+        }*/
 
-        return try {
+        /*return try {
             val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
             if (simIndex == 1) {
                 generalCacheSim1.add(BucketCache(System.currentTimeMillis(), start, finish, result))
@@ -110,7 +113,7 @@ abstract class NetworkUsageDigger(
             result
         } catch (e: RemoteException) {
             null
-        }
+        }*/
     }
 
     private fun clearCache() {

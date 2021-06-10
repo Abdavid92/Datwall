@@ -18,10 +18,4 @@ class DashboardViewModel @Inject constructor(
     val text: LiveData<String> = _text
 
     val apps = appRepository.flow().asLiveData(viewModelScope.coroutineContext)
-
-    fun deleteOne() {
-        viewModelScope.launch(Dispatchers.IO) {
-            appRepository.delete(appRepository.all[0])
-        }
-    }
 }

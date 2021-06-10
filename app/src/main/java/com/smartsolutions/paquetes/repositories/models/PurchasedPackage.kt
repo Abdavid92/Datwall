@@ -22,9 +22,8 @@ import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
         )
 ],
     indices = [
-        Index(
-            "data_package_id"
-        )
+        Index("data_package_id"),
+        Index("sim_id")
 ])
 @TypeConverters(PurchasedPackage.BuyModeConverter::class)
 data class PurchasedPackage(

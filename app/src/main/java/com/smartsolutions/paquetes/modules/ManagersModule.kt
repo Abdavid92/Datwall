@@ -5,10 +5,12 @@ import com.smartsolutions.paquetes.managers.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ServiceComponent::class, ViewModelComponent::class)
 class ManagersModule {
 
     /*@Provides

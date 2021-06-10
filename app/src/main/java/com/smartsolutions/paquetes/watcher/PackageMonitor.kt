@@ -123,7 +123,7 @@ class PackageMonitor @Inject constructor(
         val installedPackages = packageManager.getInstalledPackages(0)
 
         //Obtengo las aplicaciones guardadas en base de datos
-        val apps = appRepository.all
+        val apps = appRepository.all()
 
         val appsToAdd = mutableListOf<App>()
         val appsToUpdate = mutableListOf<App>()

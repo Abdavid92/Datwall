@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
@@ -18,7 +19,7 @@ import javax.inject.Inject
 class IconManager @Inject constructor(
     @ApplicationContext
     private val context: Context
-) {
+) : IIconManager {
 
     /**
      * Servicio que se usa para obtener los íconos de las aplicaciones
@@ -42,18 +43,59 @@ class IconManager @Inject constructor(
         }
     }
 
+    /**
+     * Obtiene el ícono de la aplicación actualizado a la versión pasada como argumento
+     *
+     * @param packageName - Nombre de paquete de la aplicación
+     * @param versionCode - Versión de la aplicación que se usará para determinar si
+     * se debe actualizar el ícono.
+     *
+     * @return Ícono de la aplicación
+     * */
+    override fun get(packageName: String, versionCode: Long): Bitmap {
+        //Instancio un file
+        val iconFile = File(this.cacheDir, makeIconName(packageName, versionCode))
+
+        //Si el file no existe es porque o no se ha creado el ícono o tiene una versión diferente
+        if (!iconFile.exists()) {
+            //Creo o actualizo el ícono
+            saveOrUpdate(packageName, versionCode)
+        }
+
+        //Y después construyo el bitmap
+        return BitmapFactory.decodeFile(iconFile.path)
+    }
+
+    /**
+     * Elimina un ícono.
+     * */
+    override fun delete(packageName: String, versionCode: Long) {
+        val file = File(cacheDir, makeIconName(packageName, versionCode))
+
+        if (file.exists())
+            file.delete()
+    }
+
+    /**
+     * Elimina la cache de íconos completa.
+     * */
+    override fun deleteAll() {
+        cacheDir.listFiles()?.forEach {
+            it.delete()
+        }
+    }
 
     /**
      * Obtiene y crea un ícono de una aplicación si no existe
      *
      * @param packageName - Nombre de paquete de la aplicación
-     * @param versionName - Versión de la aplicación
+     * @param versionCode - Versión de la aplicación
      * */
-    private fun create(packageName: String, versionName: String) {
+    private fun create(packageName: String, versionCode: Long) {
         //File que contendrá el ícono
-        val file = File(cacheDir, makeIconName(packageName, versionName))
+        val file = File(cacheDir, makeIconName(packageName, versionCode))
 
-         if (file.createNewFile()) {
+        if (file.createNewFile()) {
             /*Si logré crear el file, construyo el ícono de la aplicación o uno predeterminado de android
               en caso de que la aplicación no tenga ícono*/
             val icon = try {
@@ -68,82 +110,40 @@ class IconManager @Inject constructor(
     }
 
     /**
-     * Obtiene el ícono de la aplicación actualizado a la versión pasada como argumento
-     *
-     * @param packageName Nombre de paquete de la aplicación
-     * @param versionName Versión de la aplicación que se usará para determinar si
-     * se debe actualizar el ícono.
-     *
-     * @return Ícono de la aplicación
-     * */
-    fun get(packageName: String, versionName: String): Bitmap {
-        //Instancio un file
-        val iconFile = File(this.cacheDir, makeIconName(packageName, versionName))
-
-        //Si el file no existe es porque o no se ha creado el ícono o tiene una versión diferente
-        if (!iconFile.exists()) {
-            //Creo o actualizo el ícono
-            saveOrUpdate(packageName, versionName)
-        }
-
-        //Y después construyo el bitmap
-        return BitmapFactory.decodeFile(iconFile.path)
-    }
-
-    /**
      * Actualiza el ícono de una aplicación
      * */
-    private fun update(packageName: String, versionName: String, oldIcon: String) {
+    private fun update(packageName: String, versionCode: Long, oldIcon: String) {
         val oldIconFile = File(cacheDir, oldIcon)
 
         if (oldIconFile.exists())
             oldIconFile.delete()
 
-        create(packageName, versionName)
+        create(packageName, versionCode)
     }
 
     /**
-     * Elimina la cache de íconos completa
+     * Guarda o actualiza un ícono.
      * */
-    fun deleteAll() {
-        cacheDir.listFiles()?.forEach {
-            it.delete()
-        }
-    }
-
-    /**
-     * Elimina un ícono
-     * */
-    fun delete(packageName: String, versionName: String) {
-        val file = File(cacheDir, makeIconName(packageName, versionName))
-
-        if (file.exists())
-            file.delete()
-    }
-
-    /**
-     * Guarda o actualiza un ícono
-     * */
-    private fun saveOrUpdate(packageName: String, versionName: String) {
+    private fun saveOrUpdate(packageName: String, versionCode: Long) {
         //Obtengo la lista de íconos en cache
         cacheDir.list()?.forEach { name ->
 
             if (name.contains("${this.baseIconName}$packageName")) {
                 //Si contiene el nombre de paquete es porque existe pero tiene una versión diferente.
                 //Entonces actualizo el ícono
-                update(packageName, versionName, name)
+                update(packageName, versionCode, name)
                 //Y termino
                 return
             }
         }
         //Sino encontré nada, creo el ícono
-        create(packageName, versionName)
+        create(packageName, versionCode)
     }
 
     /**
-     * Contruye el nombre del ícono basado en el nombre de paquete y la versión
+     * Contruye el nombre del ícono basado en el nombre de paquete y la versión.
      * */
-    private fun makeIconName(packageName: String, versionName: String) = "${this.baseIconName}${packageName}_$versionName"
+    private fun makeIconName(packageName: String, versionCode: Long) = "${this.baseIconName}${packageName}_$versionCode"
 
     /**
      * Redimenciona un Bitmap

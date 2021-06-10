@@ -38,7 +38,7 @@ class AppsListAdapter(
         fun bind(app: IApp) {
             binding.name.text = app.name
             if (app is App)
-                binding.icon.setImageBitmap(iconManager.get(app.packageName, app.version.toString()))
+                binding.icon.setImageBitmap(iconManager.get(app.packageName, app.version))
 
             binding.access.setOnCheckedChangeListener(null)
             binding.access.isChecked = app.access

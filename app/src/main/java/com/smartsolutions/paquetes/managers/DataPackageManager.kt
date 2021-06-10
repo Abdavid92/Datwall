@@ -8,11 +8,9 @@ import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackagesContract
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.exceptions.NotFoundException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
-import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
-import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
+import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -30,12 +28,12 @@ class DataPackageManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val dataPackageRepository: IDataPackageRepository,
-    private val purchasedPackagesManager: PurchasedPackagesManager,
+    private val purchasedPackagesManager: IPurchasedPackagesManager,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simManager: SimManager,
+    private val simManager: ISimManager,
     private val simRepository: ISimRepository,
-    private val miCubacelManager: MiCubacelManager
+    private val miCubacelManager: IMiCubacelManager
 ): IDataPackageManager {
 
 
@@ -103,12 +101,13 @@ class DataPackageManager @Inject constructor(
     override suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim) {
 
         if (sim.packages.isEmpty()) {
-            throw IllegalStateException("The sim must be provide with relations")
+            throw UnsupportedOperationException("The sim must be provide with relations")
         }
 
         if (!sim.packages.contains(dataPackage)) {
             throw IllegalStateException(context.getString(R.string.pkg_not_configured))
         }
+
         when (buyMode) {
             IDataPackageManager.BuyMode.USSD -> {
                 buyDataPackageForUSSD(dataPackage, sim)
@@ -116,6 +115,8 @@ class DataPackageManager @Inject constructor(
             IDataPackageManager.BuyMode.MiCubacel -> {
                 buyDataPackageForMiCubacel(dataPackage, sim)
             }
+            IDataPackageManager.BuyMode.Unknown ->
+                throw UnsupportedOperationException("Unknown buy mode")
         }
     }
 
@@ -153,7 +154,7 @@ class DataPackageManager @Inject constructor(
 
     private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage, sim: Sim) {
         if (sim.miCubacelAccount == null)
-            throw NotFoundException(context.getString(R.string.account_not_found))
+            throw NoSuchElementException(context.getString(R.string.account_not_found))
 
 
         val result = miCubacelManager.getProducts(sim.miCubacelAccount!!)
@@ -177,7 +178,7 @@ class DataPackageManager @Inject constructor(
         }
 
         if (!found)
-            throw NotFoundException(context.getString(R.string.product_not_found))
+            throw NoSuchElementException(context.getString(R.string.product_not_found))
     }
 
     private fun buildUssd(sim: Sim, dataPackage: DataPackage): String {

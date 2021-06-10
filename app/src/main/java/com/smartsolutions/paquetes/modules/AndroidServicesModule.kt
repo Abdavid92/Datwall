@@ -28,13 +28,9 @@ class AndroidServicesModule {
     fun providePackageManager(@ApplicationContext context: Context): PackageManager = context.packageManager
 
     @Provides
-    @SuppressLint("InlinedApi")
-    fun provideUsageStatsManager(@ApplicationContext context: Context): UsageStatsManager {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            ContextCompat.getSystemService(context, UsageStatsManager::class.java) ?: throw NullPointerException()
-        else
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    fun provideUsageStatsManager(@ApplicationContext context: Context): UsageStatsManager =
+        ContextCompat.getSystemService(context, UsageStatsManager::class.java) ?: throw NullPointerException()
 
     @Provides
     fun provideActivityManager(@ApplicationContext context: Context): ActivityManager =
@@ -50,15 +46,7 @@ class AndroidServicesModule {
         ContextCompat.getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException()
 
     @Provides
-    fun provideLocalBroadcastManager(@ApplicationContext context: Context) =
-        LocalBroadcastManager.getInstance(context)
-
-    @Provides
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun provideSubscriptionManager(@ApplicationContext context: Context) =
         ContextCompat.getSystemService(context, SubscriptionManager::class.java) ?: throw NullPointerException()
-
-    @Provides
-    fun providePreferences(@ApplicationContext context: Context): SharedPreferences =
-        PreferenceManager.getDefaultSharedPreferences(context)
 }

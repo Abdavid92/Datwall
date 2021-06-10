@@ -38,4 +38,7 @@ object DbContextsModule {
 
     @Provides
     fun provideITrafficDao(dbContext: TrafficDbContext) = dbContext.getTrafficDao()
+
+    @Provides
+    fun provideIUSerDataBytesDao(dbContext: DbContext) = dbContext.getUserDataBytesDao()
 }

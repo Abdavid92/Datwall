@@ -29,6 +29,7 @@ class UserDataBytesManager @Inject constructor(
                 }
         } else {
             userDataBytesRepository.update(userDataBytesRepository.bySimId(simId).apply {
+                TODO("Este método tiene un error")
                 val bonus = first { it.type == UserDataBytes.DataType.Bonus }
                 bonus.bytesLte += dataPackage.bonusBytes
                 bonus.initialBytes = bonus.bytesLte
@@ -74,7 +75,42 @@ class UserDataBytesManager @Inject constructor(
     }
 
     override suspend fun synchronizeUserDataBytes(data: List<DataType>, simId: String) {
-        TODO("Not yet implemented")
+        //Obtengo todos los userDataBytes de la linea
+        val userDataBytes = userDataBytesRepository.bySimId(simId)
+
+        //Iteración por la lista de DataType que me dieron
+        data.forEach { dataType ->
+            //Busco el UserDataBytes correspondiente al DataType en el que estoy
+            userDataBytes.first { it.type == dataType.type }.apply {
+                //Analizo el tipo del UserDataBytes
+                when (type) {
+                    /*Estos tipos de UserDataBytes solo tienen asignada la variable bytesLte
+                    * porque funcionan solo en las 4G. Por eso se le asigna el valor del
+                    * DataType a dicha variable.*/
+                    UserDataBytes.DataType.Bonus,
+                    UserDataBytes.DataType.DailyBag -> {
+                        bytesLte = dataType.value
+                        dataType.dateExpired?.let {
+                            expiredTime = it
+                        }
+                    }
+                    /*Estos tipos de UserDataBytes tienen asignada la variable bytes
+                    * porque funcionan en todas las redes. Es esta variable la que se aigna.*/
+                    UserDataBytes.DataType.PromoBonus,
+                    UserDataBytes.DataType.International,
+                    UserDataBytes.DataType.National -> {
+                        bytes = dataType.value
+                        dataType.dateExpired?.let {
+                            expiredTime = it
+                            /*Si estamos tratando con los datos nacionales, se le asigna la fecha de compra
+                            * porque no hay otra forma de resolverla.*/
+                            if (type == UserDataBytes.DataType.National)
+                                startTime = it - DateUtils.MILLIS_PER_DAY * 30
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private suspend fun registerLteTraffic(bytes: Long, simId: String) {

@@ -12,6 +12,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import com.smartsolutions.paquetes.helpers.SimDelegate.SimType
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -25,7 +26,7 @@ class SimManager @Inject constructor(
     private val context: Context,
     private val simDelegate: SimDelegate,
     private val simRepository: ISimRepository
-) {
+) : ISimManager {
 
     /**
      * Id de la linea embeida para android 5.0(api 21).
@@ -44,7 +45,7 @@ class SimManager @Inject constructor(
      * @return [Sim]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getDefaultVoiceSim(withRelations: Boolean = false): Sim {
+    override suspend fun getDefaultVoiceSim(withRelations: Boolean): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.VOICE)
 
@@ -64,7 +65,7 @@ class SimManager @Inject constructor(
      *
      * @param sim - Linea que se establecerá como predeterminada.
      * */
-    suspend fun setDefaultVoiceSim(sim: Sim) {
+    override suspend fun setDefaultVoiceSim(sim: Sim) {
         resetDefault(SimType.VOICE)
         sim.defaultVoice = true
         simRepository.update(sim)
@@ -82,7 +83,7 @@ class SimManager @Inject constructor(
      * @return [Sim]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getDefaultDataSim(withRelations: Boolean = false): Sim {
+    override suspend fun getDefaultDataSim(withRelations: Boolean): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.DATA)
 
@@ -102,7 +103,7 @@ class SimManager @Inject constructor(
      *
      * @param sim - Linea que se establecerá como predeterminada.
      * */
-    suspend fun setDefaultDataSim(sim: Sim) {
+    override suspend fun setDefaultDataSim(sim: Sim) {
         resetDefault(SimType.DATA)
         sim.defaultData = true
         simRepository.update(sim)
@@ -112,7 +113,7 @@ class SimManager @Inject constructor(
      * Indica si hay más de una linea instalada.
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun isInstalledSeveralSims(): Boolean =
+    override suspend fun isInstalledSeveralSims(): Boolean =
         getInstalledSims().size > 1
 
     /**
@@ -121,7 +122,7 @@ class SimManager @Inject constructor(
      * @return [List]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getInstalledSims(withRelations: Boolean = false): List<Sim> {
+    override suspend fun getInstalledSims(withRelations: Boolean): List<Sim> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             val list = mutableListOf<Sim>()
 
@@ -135,7 +136,7 @@ class SimManager @Inject constructor(
     }
 
     @Throws(MissingPermissionException::class)
-    fun flowInstalledSims(withRelations: Boolean): Flow<List<Sim>> =
+    override fun flowInstalledSims(withRelations: Boolean): Flow<List<Sim>> =
         simRepository.flow(withRelations).map { list ->
             val finalList = mutableListOf<Sim>()
 
@@ -158,7 +159,7 @@ class SimManager @Inject constructor(
      * @return [Sim]
      * */
     @Throws(MissingPermissionException::class)
-    suspend fun getSimByIndex(simIndex: Int, withRelations: Boolean = false): Sim {
+    override suspend fun getSimByIndex(simIndex: Int, withRelations: Boolean): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             return findSim(simDelegate.getSimByIndex(simIndex), withRelations)
         }

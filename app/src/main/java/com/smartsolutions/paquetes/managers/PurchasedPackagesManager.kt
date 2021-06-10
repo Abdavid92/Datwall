@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
+import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.flow.Flow
@@ -11,13 +12,13 @@ import javax.inject.Inject
 
 class PurchasedPackagesManager @Inject constructor(
     private val purchasedPackageRepository: IPurchasedPackageRepository
-) {
+) : IPurchasedPackagesManager {
 
-    suspend fun newPurchased(
+    override suspend fun newPurchased(
         dataPackageId: String,
         simId: String,
         buyMode: IDataPackageManager.BuyMode,
-        pending: Boolean = true
+        pending: Boolean
     ) {
         val purchasedPackage = PurchasedPackage(
             0,
@@ -30,7 +31,7 @@ class PurchasedPackagesManager @Inject constructor(
         purchasedPackageRepository.create(purchasedPackage)
     }
 
-    suspend fun confirmPurchased(dataPackageId: String, simId: String) {
+    override suspend fun confirmPurchased(dataPackageId: String, simId: String) {
         val pending = purchasedPackageRepository
             .getPending(dataPackageId)
             .first()
@@ -67,10 +68,10 @@ class PurchasedPackagesManager @Inject constructor(
         }
     }
 
-    fun getHistory(): Flow<List<PurchasedPackage>> =
+    override fun getHistory(): Flow<List<PurchasedPackage>> =
         purchasedPackageRepository.getAll()
 
-    suspend fun clearHistory() {
+    override suspend fun clearHistory() {
         purchasedPackageRepository
             .getAll()
             .firstOrNull()?.let {

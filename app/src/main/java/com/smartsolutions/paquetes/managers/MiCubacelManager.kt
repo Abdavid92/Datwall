@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.exceptions.NotFoundException
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.micubacel.MCubacelClient
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
@@ -100,7 +99,7 @@ class MiCubacelManager @Inject constructor(
             }
         }
 
-        return Result.Failure(NotFoundException())
+        return Result.Failure(NoSuchElementException())
     }
 
     /**

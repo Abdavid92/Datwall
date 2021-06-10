@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.managers.contracts
 
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.exceptions.NotFoundException
+import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -23,12 +23,21 @@ interface IDataPackageManager {
 
     /**
      * Configura los paquetes de datos en dependencia
-     * de los que tenga disponible la tarjeta sim.
+     * de los que tenga disponible la tarjeta sim. Este método
+     * elige la linea predeterminada para llamadas para realizar la configuración.
+     *
+     * @throws USSDRequestException en caso de que no tenga permiso de llamada,
+     * el servicio de accesibilidad no esté encendido o la respuesta agote el
+     * tiempo de espera.
      * */
+    @Throws(USSDRequestException::class)
     suspend fun configureDataPackages()
 
     /**
      * Compra un paquete de datos.
+     *
+     * @param dataPackage - Paquete que se va a intentar comprar.
+     * @param sim - Linea por donde se va a comprar el paquete.
      *
      * @throws MissingPermissionException si no tiene los permisos necesarios.
      *
@@ -36,24 +45,25 @@ interface IDataPackageManager {
      * porque no está configurado o no está activado para la linea actual.
      * 
      * @throws UnprocessableRequestException si la compra
-     * no tuvo éxito por alguna razón.
+     * no tuvo éxito por algún problema de red.
      *
-     * @throws NotFoundException si se esta comprando por mi.cubacel.net y no existe una cuenta asociada
+     * @throws NoSuchElementException si se esta comprando por mi.cubacel.net y no existe una cuenta asociada
      * a la linea.
      * */
     @Throws(
         IllegalStateException::class,
         MissingPermissionException::class,
         UnprocessableRequestException::class,
-        NotFoundException::class)
+        NoSuchElementException::class)
     suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim)
 
     /**
      * Registra un paquete comprado y actualiza los corresppondientes
      * repositorios.
      *
-     * @param smsBody - Cuerpo del mensage rrecibido como confirmación
+     * @param smsBody - Cuerpo del mensage recibido como confirmación
      * del paquete comprado.
+     * @param simIndex - Index o slot de la linea por donde entró el mensaje.
      * */
     suspend fun registerDataPackage(smsBody: String, simIndex: Int)
 

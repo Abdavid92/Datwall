@@ -1,0 +1,3 @@
+package com.smartsolutions.paquetes.managers.contracts
+
+interface IStatisticsManager
