@@ -7,7 +7,7 @@ import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import javax.inject.Inject
 
 class PurchasedPackagesManager @Inject constructor(
@@ -17,7 +17,7 @@ class PurchasedPackagesManager @Inject constructor(
     override suspend fun newPurchased(
         dataPackageId: String,
         simId: String,
-        buyMode: IDataPackageManager.BuyMode,
+        buyMode: IDataPackageManager.ConnectionMode,
         pending: Boolean
     ) {
         val purchasedPackage = PurchasedPackage(
@@ -60,7 +60,7 @@ class PurchasedPackagesManager @Inject constructor(
                     newPurchased(
                         dataPackageId,
                         simId,
-                        IDataPackageManager.BuyMode.Unknown,
+                        IDataPackageManager.ConnectionMode.Unknown,
                         false
                     )
                 }

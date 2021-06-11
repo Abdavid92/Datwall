@@ -37,8 +37,8 @@ class DataPackageManager @Inject constructor(
 ): IDataPackageManager {
 
 
-    private var _buyMode: IDataPackageManager.BuyMode = IDataPackageManager.BuyMode.USSD
-    override var buyMode: IDataPackageManager.BuyMode
+    private var _buyMode: IDataPackageManager.ConnectionMode = IDataPackageManager.ConnectionMode.USSD
+    override var buyMode: IDataPackageManager.ConnectionMode
         get() = _buyMode
         set(value) {
             GlobalScope.launch(Dispatchers.IO) {
@@ -52,8 +52,8 @@ class DataPackageManager @Inject constructor(
     init {
         GlobalScope.launch(Dispatchers.IO) {
             context.dataStore.data.collect {
-                _buyMode = IDataPackageManager.BuyMode
-                    .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.BuyMode.USSD.name)
+                _buyMode = IDataPackageManager.ConnectionMode
+                    .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.ConnectionMode.USSD.name)
             }
         }
     }
@@ -109,13 +109,13 @@ class DataPackageManager @Inject constructor(
         }
 
         when (buyMode) {
-            IDataPackageManager.BuyMode.USSD -> {
+            IDataPackageManager.ConnectionMode.USSD -> {
                 buyDataPackageForUSSD(dataPackage, sim)
             }
-            IDataPackageManager.BuyMode.MiCubacel -> {
+            IDataPackageManager.ConnectionMode.MiCubacel -> {
                 buyDataPackageForMiCubacel(dataPackage, sim)
             }
-            IDataPackageManager.BuyMode.Unknown ->
+            IDataPackageManager.ConnectionMode.Unknown ->
                 throw UnsupportedOperationException("Unknown buy mode")
         }
     }
@@ -148,7 +148,7 @@ class DataPackageManager @Inject constructor(
         purchasedPackagesManager.newPurchased(
             dataPackage.id,
             sim.id,
-            IDataPackageManager.BuyMode.USSD
+            IDataPackageManager.ConnectionMode.USSD
         )
     }
 
@@ -171,7 +171,7 @@ class DataPackageManager @Inject constructor(
                 purchasedPackagesManager.newPurchased(
                     dataPackage.id,
                     sim.id,
-                    IDataPackageManager.BuyMode.MiCubacel
+                    IDataPackageManager.ConnectionMode.MiCubacel
                 )
                 break
             }

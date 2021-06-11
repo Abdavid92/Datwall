@@ -5,12 +5,10 @@ import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.net.ConnectivityManager
 import android.os.Build
-import android.os.RemoteException
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import java.util.ArrayList
 
 @RequiresApi(23)

@@ -28,4 +28,9 @@ object PreferencesKeys {
      * Modo de compra de los paquertes de datos.
      * */
     val BUY_MODE = stringPreferencesKey("buy_mode")
+
+    /**
+     * Modo de sincronización de los datos.
+     * */
+    val SYNCHRONIZATION_MODE = stringPreferencesKey("synchronization_mode")
 }

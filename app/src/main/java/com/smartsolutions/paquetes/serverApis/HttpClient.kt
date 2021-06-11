@@ -1,10 +1,8 @@
 package com.smartsolutions.paquetes.serverApis
 
 import android.content.Context
-import com.google.gson.Gson
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
-import com.smartsolutions.paquetes.serverApis.models.Result
 import com.squareup.duktape.Duktape
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.ResponseBody

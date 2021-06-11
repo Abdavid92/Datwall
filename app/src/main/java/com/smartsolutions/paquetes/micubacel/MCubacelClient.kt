@@ -4,7 +4,6 @@ import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.micubacel.models.Product
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
-import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -392,17 +391,28 @@ class MCubacelClient @Inject constructor() {
 
     private fun processInternationalBytes(element: Element, data: MutableList<DataBytes>) {
         val international = DataBytes(DataBytes.DataType.International, getValue(element), getDateExpired(element))
+        val internationalLte = DataBytes(DataBytes.DataType.InternationalLte, 0, international.expiredTime)
 
         try {
             element.parent().select("div[class=\"network_all\"]").forEach {networkAll ->
-               if (networkAll.select("b").text().trimStart().trimEnd().equals("Solo para 4G/LTE:", true) && networkAll.childrenSize() > 1){
-                   val bytes = getValue(networkAll.child(1).text())
+               if (networkAll.select("b")
+                       .text()
+                       .trimStart()
+                       .trimEnd()
+                       .equals("Solo para 4G/LTE:", true) &&
+                   networkAll.childNodeSize() > 1) {
+
+                   val bytes = getValue(networkAll.childNode(1).toString())
+
                    international.bytes -= bytes
+
+                   internationalLte.bytes = bytes
                }
             }
-        }catch (e: Exception){
-            val text = "jfvwefw"
+        }catch (e: Exception) {
         }
+
+        data.addAll(arrayOf(international, internationalLte))
     }
 
     /**

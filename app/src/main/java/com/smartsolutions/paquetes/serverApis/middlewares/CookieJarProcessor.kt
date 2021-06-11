@@ -1,11 +1,9 @@
 package com.smartsolutions.paquetes.serverApis.middlewares
 
-import android.content.SharedPreferences
 import com.smartsolutions.paquetes.serverApis.HttpClient
 import okhttp3.*
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import java.util.*
-import javax.inject.Inject
 
 class CookieJarProcessor : CookieJar {
 

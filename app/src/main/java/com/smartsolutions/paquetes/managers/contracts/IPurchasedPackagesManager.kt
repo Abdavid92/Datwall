@@ -7,7 +7,7 @@ interface IPurchasedPackagesManager {
     suspend fun newPurchased(
         dataPackageId: String,
         simId: String,
-        buyMode: IDataPackageManager.BuyMode,
+        buyMode: IDataPackageManager.ConnectionMode,
         pending: Boolean = true
     )
 

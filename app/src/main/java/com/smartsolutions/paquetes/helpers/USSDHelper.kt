@@ -59,18 +59,18 @@ class USSDHelper @Inject constructor(
     )
 
     /**
-     * Ejecuta un código ussd
+     * Ejecuta un código ussd.
      *
      * @param ussd - Código ussd.
      *
      * @return Array<CharSequence> con el cuerpo de la respuesta.
      * */
     @Throws(USSDRequestException::class)
-    suspend fun sendUSSDRequest(ussd: String): Array<CharSequence>? {
+    suspend fun sendUSSDRequest(ussd: String): Array<CharSequence> {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             sendUSSDRequestOreo(ussd)
         } else {
-            sendUSSDRequestLegacy(ussd)
+            sendUSSDRequestLegacy(ussd)!!
         }
     }
 

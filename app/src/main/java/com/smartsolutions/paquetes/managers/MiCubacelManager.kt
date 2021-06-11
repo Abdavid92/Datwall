@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.micubacel.MCubacelClient
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.contracts.IMiCubacelAccountRepository
 import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
@@ -16,8 +17,7 @@ import javax.inject.Inject
 class MiCubacelManager @Inject constructor(
     private val miCubacelAccountRepository: IMiCubacelAccountRepository,
     private val client: MCubacelClient,
-    private val simManager: SimManager,
-    private val userDataBytesManager: IUserDataBytesManager
+    private val simManager: SimManager
 ): AbstractMiCubacelManager() {
 
     private val attempts = 9
@@ -86,13 +86,12 @@ class MiCubacelManager @Inject constructor(
         }
     }
 
-    override suspend fun synchronizeUserDataBytes(account: MiCubacelAccount?): Result<Unit> {
+    override suspend fun synchronizeUserDataBytes(account: MiCubacelAccount?): Result<List<DataBytes>> {
         val account1 = account ?: miCubacelAccountRepository.get(simManager.getDefaultDataSim().id)
 
         account1?.let {
             return try {
-                getUserDataBytes(account1)
-                Result.Success(Unit)
+                Result.Success(getUserDataBytes(account1))
 
             } catch (e: Exception) {
                 loginAndRetry(e, account1) { getUserDataBytes(account1) }
@@ -140,21 +139,8 @@ class MiCubacelManager @Inject constructor(
         }
     }
 
-    suspend fun getUserDataBytes(account: MiCubacelAccount) {
+    private suspend fun getUserDataBytes(account: MiCubacelAccount): List<DataBytes> {
         client.COOKIES = account.cookies.toMutableMap()
-        try {
-            val data = sendRequests(attempts) { client.obtainPackagesInfo() }
-            userDataBytesManager.synchronizeUserDataBytes(data, account.simId)
-        }catch (e: Exception){
-            loginAndRetry(e, account) {
-                try {
-                    val data = sendRequests(attempts) { client.obtainPackagesInfo() }
-                    userDataBytesManager.synchronizeUserDataBytes(data, account.simId)
-                }catch (e: Exception){
-
-                }
-
-            }
-        }
+        return sendRequests(attempts) { client.obtainPackagesInfo() }
     }
 }

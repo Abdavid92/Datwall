@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers.contracts
 
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
 import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
 import com.smartsolutions.paquetes.serverApis.models.Result
@@ -53,9 +54,11 @@ interface IMiCubacelManager {
      * Sincroniza los UserDataBytes de la cuenta.
      *
      * @param account - Cuenta a sincronizar.
-     * Si es null se sincriniza la cuenta predeterminada.
+     * Si es null se sincroniza la cuenta predeterminada.
+     *
+     * @return [List] lista con los DataBytes
      * */
-    suspend fun synchronizeUserDataBytes(account: MiCubacelAccount? = null): Result<Unit>
+    suspend fun synchronizeUserDataBytes(account: MiCubacelAccount? = null): Result<List<DataBytes>>
 
     /**
      * Obtiene una lista de productos a la venta.

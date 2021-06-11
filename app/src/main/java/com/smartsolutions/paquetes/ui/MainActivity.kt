@@ -41,8 +41,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-        obtainData()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -57,12 +55,5 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
         return true
-    }
-
-    private fun obtainData() {
-        val account = MiCubacelAccount("1", "52379969", "Geaelf*1736#", 1.0, mapOf())
-        GlobalScope.launch(Dispatchers.Default) {
-            miCubacelManager.getUserDataBytes(account)
-        }
     }
 }

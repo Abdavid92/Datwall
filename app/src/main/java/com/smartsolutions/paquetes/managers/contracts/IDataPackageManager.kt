@@ -19,7 +19,7 @@ interface IDataPackageManager {
      * momento de intentar comprar un paquete de datos.
      * Puede se por ussd o por mi.cubacel.net.
      * */
-    var buyMode: BuyMode
+    var buyMode: ConnectionMode
 
     /**
      * Configura los paquetes de datos en dependencia
@@ -68,9 +68,9 @@ interface IDataPackageManager {
     suspend fun registerDataPackage(smsBody: String, simIndex: Int)
 
     /**
-     * Modo de compra de paquetes.
+     * Modo de compra y sincronización de los paquetes.
      * */
-    enum class BuyMode {
+    enum class ConnectionMode {
         /**
          * Por código ussd
          * */

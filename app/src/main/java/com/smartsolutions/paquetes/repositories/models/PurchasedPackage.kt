@@ -39,7 +39,7 @@ data class PurchasedPackage(
     /**
      * Origen de la compra (USSD o mi.cubacel.net).
      * */
-    val origin: IDataPackageManager.BuyMode,
+    val origin: IDataPackageManager.ConnectionMode,
     /**
      * Linea por donde se efectuó la compra.
      * */
@@ -71,11 +71,11 @@ data class PurchasedPackage(
     class BuyModeConverter {
 
         @TypeConverter
-        fun fromOrigin(origin: IDataPackageManager.BuyMode): String =
+        fun fromOrigin(origin: IDataPackageManager.ConnectionMode): String =
             origin.name
 
         @TypeConverter
-        fun toOrigin(name: String): IDataPackageManager.BuyMode =
-            IDataPackageManager.BuyMode.valueOf(name)
+        fun toOrigin(name: String): IDataPackageManager.ConnectionMode =
+            IDataPackageManager.ConnectionMode.valueOf(name)
     }
 }

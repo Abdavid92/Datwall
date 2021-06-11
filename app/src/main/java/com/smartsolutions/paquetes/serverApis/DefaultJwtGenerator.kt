@@ -13,7 +13,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import okhttp3.OkHttpClient
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
