@@ -92,29 +92,6 @@ abstract class AbstractNetworkUsage(
         }
     }
 
-    protected suspend fun getAppUsageForUid(uid: Int, start: Long, finish: Long): List<NetworkStats.Bucket> {
-        val buckets = mutableListOf<NetworkStats.Bucket>()
-
-        try {
-            val result = networkStatsManager.queryDetailsForUid(
-                ConnectivityManager.TYPE_MOBILE,
-                subscriberId,
-                start,
-                finish,
-                uid)
-
-            while (result.hasNextBucket()) {
-
-                val bucket = NetworkStats.Bucket()
-
-                if (result.getNextBucket(bucket))
-                    buckets.add(bucket)
-
-            }
-        } catch (e: Exception) { }
-        return buckets
-    }
-
     private fun clearCache() {
         val cacheToClear = mutableListOf<BucketCache<List<NetworkStats.Bucket>>>()
         val generalCacheToClear = mutableListOf<BucketCache<NetworkStats.Bucket>>()

@@ -379,11 +379,30 @@ class MCubacelClient @Inject constructor() {
 
         dataKeys.forEach {
             page.getElementById(it.key)?.let { element ->
-                data.add(DataBytes(it.value, getValue(element), getDateExpired(element)))
+                if(it.key == dataKeys.keys.toList()[0]){
+                    processInternationalBytes(element, data)
+                }else {
+                    data.add(DataBytes(it.value, getValue(element), getDateExpired(element)))
+                }
             }
         }
 
         return data
+    }
+
+    private fun processInternationalBytes(element: Element, data: MutableList<DataBytes>) {
+        val international = DataBytes(DataBytes.DataType.International, getValue(element), getDateExpired(element))
+
+        try {
+            element.parent().select("div[class=\"network_all\"]").forEach {networkAll ->
+               if (networkAll.select("b").text().trimStart().trimEnd().equals("Solo para 4G/LTE:", true) && networkAll.childrenSize() > 1){
+                   val bytes = getValue(networkAll.child(1).text())
+                   international.bytes -= bytes
+               }
+            }
+        }catch (e: Exception){
+            val text = "jfvwefw"
+        }
     }
 
     /**
@@ -432,6 +451,29 @@ class MCubacelClient @Inject constructor() {
         }
 
         return when (element.attr("data-info")) {
+            "KB" -> (value * 1024).toLong()
+            "MB" -> (value * 1024.0.pow(2)).toLong()
+            "GB" -> (value * 1024.0.pow(3)).toLong()
+            else -> value.toLong()
+        }
+    }
+
+    private fun getValue(text: String): Long {
+        val split = text.trimStart().trimEnd().split(" ")
+
+        if (split.size != 2){
+            return 0L
+        }
+
+        val value: Float
+
+        try {
+            value = split[0].toFloat()
+        } catch (e: Exception) {
+            return 0L
+        }
+
+        return when (split[1]) {
             "KB" -> (value * 1024).toLong()
             "MB" -> (value * 1024.0.pow(2)).toLong()
             "GB" -> (value * 1024.0.pow(3)).toLong()

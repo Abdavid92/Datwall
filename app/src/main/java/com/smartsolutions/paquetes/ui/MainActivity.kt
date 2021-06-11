@@ -11,11 +11,20 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.MiCubacelManager
+import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
 import com.smartsolutions.paquetes.ui.firewall.LogActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+    @Inject
+    lateinit var miCubacelManager: MiCubacelManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +41,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        obtainData()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -46,5 +57,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
         return true
+    }
+
+    private fun obtainData() {
+        val account = MiCubacelAccount("1", "52379969", "Geaelf*1736#", 1.0, mapOf())
+        GlobalScope.launch(Dispatchers.Default) {
+            miCubacelManager.getUserDataBytes(account)
+        }
     }
 }

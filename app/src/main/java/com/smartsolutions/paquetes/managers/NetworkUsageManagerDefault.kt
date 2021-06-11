@@ -25,18 +25,7 @@ class NetworkUsageManagerDefault @Inject constructor(
     simManager
 ) {
 
-    override suspend fun getAppUsage(uid: Int, start: Long, finish: Long): Traffic {
-        val traffic = Traffic(uid, 0, 0)
-        traffic.startTime = start
-        traffic.endTime = finish
-
-        getAppUsageForUid(uid, start, finish).forEach {
-            traffic += it
-        }
-        return traffic
-    }
-
-    /*override suspend fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic {
+    override suspend fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic {
         val traffic = Traffic(uid, 0L, 0L)
         traffic.startTime = start
         traffic.endTime = finish
@@ -49,7 +38,7 @@ class NetworkUsageManagerDefault @Inject constructor(
             }
         }
         return traffic
-    }*/
+    }
 
     override suspend fun getAppsUsage(start: Long, finish: Long): List<Traffic> {
         val result = mutableListOf<Traffic>()

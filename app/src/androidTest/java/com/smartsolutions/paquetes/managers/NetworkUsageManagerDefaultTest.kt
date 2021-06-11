@@ -34,7 +34,7 @@ class NetworkUsageManagerDefaultTest {
 
         runBlocking {
 
-            val uid = 10187
+            val uid = 10548
 
             for (i in 0..20) {
 
@@ -43,7 +43,7 @@ class NetworkUsageManagerDefaultTest {
 
                 val traffic = networkUsageManager.getAppUsage(uid, start, finish)
 
-                Log.i(TAG, "getAppUsage: ${traffic.totalBytes.getValue().value}")
+                Log.i(TAG, "getAppUsage: ${traffic.totalBytes.getValue().value}    bytes: ${traffic.totalBytes.bytes}")
 
                 delay(1000)
             }

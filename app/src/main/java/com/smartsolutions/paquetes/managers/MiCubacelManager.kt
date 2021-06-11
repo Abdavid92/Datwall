@@ -140,9 +140,21 @@ class MiCubacelManager @Inject constructor(
         }
     }
 
-    private suspend fun getUserDataBytes(account: MiCubacelAccount) {
+    suspend fun getUserDataBytes(account: MiCubacelAccount) {
         client.COOKIES = account.cookies.toMutableMap()
-        val data = sendRequests(attempts) { client.obtainPackagesInfo() }
-        userDataBytesManager.synchronizeUserDataBytes(data, account.simId)
+        try {
+            val data = sendRequests(attempts) { client.obtainPackagesInfo() }
+            userDataBytesManager.synchronizeUserDataBytes(data, account.simId)
+        }catch (e: Exception){
+            loginAndRetry(e, account) {
+                try {
+                    val data = sendRequests(attempts) { client.obtainPackagesInfo() }
+                    userDataBytesManager.synchronizeUserDataBytes(data, account.simId)
+                }catch (e: Exception){
+
+                }
+
+            }
+        }
     }
 }
