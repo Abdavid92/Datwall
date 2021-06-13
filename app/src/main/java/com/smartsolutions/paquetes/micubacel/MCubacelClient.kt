@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.micubacel
 
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.micubacel.models.Product
 import com.smartsolutions.paquetes.micubacel.models.ProductGroup
@@ -484,9 +485,9 @@ class MCubacelClient @Inject constructor() {
         }
 
         return when (split[1]) {
-            "KB" -> (value * 1024).toLong()
-            "MB" -> (value * 1024.0.pow(2)).toLong()
-            "GB" -> (value * 1024.0.pow(3)).toLong()
+            "KB" -> (value * DataUnitBytes.KB).toLong()
+            "MB" -> (value * DataUnitBytes.MB).toLong()
+            "GB" -> (value * DataUnitBytes.GB).toLong()
             else -> value.toLong()
         }
     }

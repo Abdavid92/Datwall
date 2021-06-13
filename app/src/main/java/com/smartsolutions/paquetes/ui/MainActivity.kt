@@ -11,8 +11,11 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.managers.MiCubacelManager
+import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
+import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.firewall.LogActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +27,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Inject
-    lateinit var miCubacelManager: MiCubacelManager
+    lateinit var synchronizationManager: SynchronizationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +54,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_log -> {
+                obtainPackages()
                 startActivity(Intent(this, LogActivity::class.java))
             }
         }
         return true
+    }
+
+    private fun obtainPackages(){
+        GlobalScope.launch(Dispatchers.IO) {
+            synchronizationManager.synchronizeUserDataBytes(Sim("1", 0L, Networks.NETWORK_3G_4G))
+        }
     }
 }
