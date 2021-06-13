@@ -7,10 +7,11 @@
         <option name="testRunner" value="PLATFORM" />
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../Repository/gradle-6.5" />
+        <option name="gradleHome" value="$USER_HOME$/Repository/gradle-6.5" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/apklisupdate" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/vpncore" />
           </set>
