@@ -6,7 +6,10 @@ import android.content.Intent
 import android.net.TrafficStats
 import android.os.Build
 import com.smartsolutions.paquetes.DatwallApplication
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtil
+import com.smartsolutions.paquetes.managers.SimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -67,7 +70,7 @@ class TrafficWatcherReceiver @Inject constructor(
         userDataBytesManager.registerTraffic(rxBytes, txBytes, isLte)
     }
 
-    private suspend fun registerTrafficByApp(context: Context) {
+    private suspend fun registerTrafficByApp(context: Context, isLte: Boolean) {
         val dataConnected = (context.applicationContext as DatwallApplication).dataMobileOn
 
         appRepository.all().forEach { app->
@@ -85,6 +88,11 @@ class TrafficWatcherReceiver @Inject constructor(
                 val traffic = Traffic(app.uid, rxBytes - trafficOld._rxBytes, txBytes - trafficOld._txBytes)
                 traffic.startTime = trafficOld.endTime
                 traffic.endTime = time
+                if (isLte) {
+                    traffic.network = Networks.NETWORK_4G
+                }else {
+                    traffic.network = Networks.NETWORK_3G
+                }
 
                 if (dataConnected && (traffic._rxBytes > 0 || traffic._txBytes > 0)) {
                     trafficRepository.create(traffic)

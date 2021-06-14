@@ -6,7 +6,7 @@ import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G_4G
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_NONE
 
-@Target(AnnotationTarget.VALUE_PARAMETER)
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.SOURCE)
 @StringDef(NETWORK_3G_4G, NETWORK_4G, NETWORK_3G, NETWORK_NONE)
 annotation class Networks {

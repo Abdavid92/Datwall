@@ -15,6 +15,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import org.apache.commons.lang3.time.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -302,47 +303,28 @@ class SynchronizationManager @Inject constructor(
     inner class SynchronizationWorker(
         appContext: Context,
         workerParams: WorkerParameters
-    ) : Worker(appContext, workerParams), CoroutineScope {
-
-        private val job = Job()
-
-        override val coroutineContext: CoroutineContext
-            get() = Dispatchers.IO + job
-
-        private lateinit var defaultSim: Sim
-
-        init {
-            launch {
-
-                defaultSim = simManager.getDefaultDataSim(true)
-
-                appContext.dataStore.data.collect {
-                    it[PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID]?.let { id ->
-                        if (id != "null") {
-                            simRepository.get(id, true)?.let { sim ->
-                                defaultSim = sim
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    ) : Worker(appContext, workerParams) {
 
         override fun doWork(): Result {
             return runBlocking {
                 if (synchronizationMode != IDataPackageManager.ConnectionMode.USSD) {
 
-                    synchronizeUserDataBytes(defaultSim)
+                    val simID = applicationContext.dataStore.data.firstOrNull()?.get(PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID)
+
+                    val sim = if (simID != null && simID != "null"){
+                        simRepository.get(simID, true)
+                    }else {
+                        simManager.getDefaultDataSim(true)
+                    }
+
+                    sim?.let {
+                        synchronizeUserDataBytes(it)
+                    }
 
                 }
                 return@runBlocking Result.success()
             }
         }
 
-        override fun onStopped() {
-            super.onStopped()
-
-            job.cancel()
-        }
     }
 }

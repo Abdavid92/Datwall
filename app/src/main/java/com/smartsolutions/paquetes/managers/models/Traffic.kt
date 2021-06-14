@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.managers.NetworkUtils
 
 /**
@@ -51,6 +52,11 @@ open class Traffic(
      * */
     @ColumnInfo(name = "end_time")
     var endTime: Long = 0L
+
+    @Networks
+    var network: String = Networks.NETWORK_NONE
+
+
 
     /**
      * Bytes de bajada optimizados a la unidad más conveniente
