@@ -1,34 +1,36 @@
 package com.smartsolutions.paquetes.managers
 
 import android.content.Context
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.edit
+import androidx.work.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
-import com.smartsolutions.paquetes.managers.contracts.IMiCubacelManager
-import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
-import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
+import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
+import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.apache.commons.lang3.time.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.NoSuchElementException
+import kotlin.coroutines.CoroutineContext
 
 class SynchronizationManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val miCubacelManager: IMiCubacelManager,
     private val userDataBytesManager: IUserDataBytesManager,
-    private val ussdHelper: USSDHelper
+    private val ussdHelper: USSDHelper,
+    private val simManager: ISimManager,
+    private val simRepository: ISimRepository
 ) : ISynchronizationManager {
 
     private var _synchronizationMode = IDataPackageManager.ConnectionMode.USSD
@@ -73,12 +75,39 @@ class SynchronizationManager @Inject constructor(
             data.addAll(obtainDataBytesPackages(bytesPackages))
             data.addAll(obtainDataByteBonus(bonusPackages))
 
-            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), sim.id)
+            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), simManager.getDefaultVoiceSim().id)
         }
     }
 
-    override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int) {
-        TODO("Not yet implemented")
+    override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int, sim: Sim?) {
+        if (intervalInMinutes < 1 || intervalInMinutes > 15)
+            return
+
+        if (synchronizationMode == IDataPackageManager.ConnectionMode.USSD)
+            return
+
+        GlobalScope.launch(Dispatchers.IO) {
+            context.dataStore.edit {
+                if (sim != null)
+                    it[PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID] = sim.id
+                else
+                    it[PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID] = "null"
+            }
+        }
+
+        val workRequest = PeriodicWorkRequestBuilder<SynchronizationWorker>(
+            intervalInMinutes.toLong(),
+            TimeUnit.MINUTES)
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build())
+            .addTag(SYNCHRONIZATION_WORKER_TAG)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+
+        workManager.cancelAllWorkByTag(SYNCHRONIZATION_WORKER_TAG)
+        workManager.enqueue(workRequest)
     }
 
     private fun obtainDataBytesPackages(bytesPackages: Array<CharSequence>): Collection<DataBytes> {
@@ -103,17 +132,17 @@ class SynchronizationManager @Inject constructor(
         val data = mutableListOf<DataBytes>()
 
         var value = getValueFromText(PROMO_BONO, response)
-        if (value > 0){
+        if (value >= 0){
             data.add(DataBytes(DataBytes.DataType.PromoBonus, value, getExpireDateBonus(PROMO_BONO, response)))
         }
 
         value = getValueFromText(BONO, response)
-        if (value > 0){
+        if (value >= 0){
             data.add(DataBytes(DataBytes.DataType.Bonus, value, getExpireDateBonus(BONO, response)))
         }
 
         value = getValueFromText(NATIONAL, response)
-        if (value > 0){
+        if (value >= 0){
             data.add(DataBytes(DataBytes.DataType.National, value, getExpireDateBonus(NATIONAL, response)))
         }
 
@@ -139,7 +168,10 @@ class SynchronizationManager @Inject constructor(
         if (text.contains("solo LTE)")){
             val start = text.indexOf(PAQUETES)
             internationalLte = getValueFromText(text.substring(start, text.indexOf("(", start) + 1), text)
-            international -= internationalLte
+            if (internationalLte >= 0)
+                international -= internationalLte
+            else
+                internationalLte = 0
 
         }else if (text.contains("solo LTE")){
             internationalLte = international
@@ -192,7 +224,7 @@ class SynchronizationManager @Inject constructor(
                 DataUnitBytes.DataUnit.GB -> (value * DataUnitBytes.GB).toLong()
                 else -> value.toLong()
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             -1
         }
     }
@@ -219,7 +251,11 @@ class SynchronizationManager @Inject constructor(
             if (isBolsa) {
                 DateUtils.addHours(Date(), value).time
             }else {
-                DateUtils.addDays(Date(), value).time
+                var date = DateUtils.addDays(Date(), value)
+                date = DateUtils.setHours(date, 23)
+                date = DateUtils.setMinutes(date, 59)
+                date = DateUtils.setSeconds(date, 59)
+                date.time
             }
         }catch (e: Exception){
             0L
@@ -259,5 +295,54 @@ class SynchronizationManager @Inject constructor(
         const val BONO = "LTE"
         const val PROMO_BONO = "Datos"
         const val NATIONAL = "Datos.cu"
+
+        const val SYNCHRONIZATION_WORKER_TAG = "synchronization_worker"
+    }
+
+    inner class SynchronizationWorker(
+        appContext: Context,
+        workerParams: WorkerParameters
+    ) : Worker(appContext, workerParams), CoroutineScope {
+
+        private val job = Job()
+
+        override val coroutineContext: CoroutineContext
+            get() = Dispatchers.IO + job
+
+        private lateinit var defaultSim: Sim
+
+        init {
+            launch {
+
+                defaultSim = simManager.getDefaultDataSim(true)
+
+                appContext.dataStore.data.collect {
+                    it[PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID]?.let { id ->
+                        if (id != "null") {
+                            simRepository.get(id, true)?.let { sim ->
+                                defaultSim = sim
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        override fun doWork(): Result {
+            return runBlocking {
+                if (synchronizationMode != IDataPackageManager.ConnectionMode.USSD) {
+
+                    synchronizeUserDataBytes(defaultSim)
+
+                }
+                return@runBlocking Result.success()
+            }
+        }
+
+        override fun onStopped() {
+            super.onStopped()
+
+            job.cancel()
+        }
     }
 }

@@ -10,5 +10,5 @@ interface ISynchronizationManager {
     @Throws(Exception::class)
     suspend fun synchronizeUserDataBytes(sim: Sim)
 
-    fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int)
+    fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int, sim: Sim? = null)
 }

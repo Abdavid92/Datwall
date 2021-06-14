@@ -33,4 +33,9 @@ object PreferencesKeys {
      * Modo de sincronización de los datos.
      * */
     val SYNCHRONIZATION_MODE = stringPreferencesKey("synchronization_mode")
+
+    /**
+     * Linea predeterminada para ejecutar la sincronización automática.
+     * */
+    val DEFAULT_SYNCHRONIZATION_SIM_ID = stringPreferencesKey("default_synchronization_sim_id")
 }
