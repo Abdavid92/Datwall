@@ -10,13 +10,13 @@ import javax.inject.Inject
 
 class RegistrationClientImpl @Inject constructor(
     private val api: ISmartSolutionsApps,
-    private val httpClient: HttpClient,
+    private val httpDelegate: HttpDelegate,
     private val gson: Gson
 ) : IRegistrationClient {
 
     override suspend fun getRegisterDevice(id: String): Result<Device> {
         return try {
-            val result = httpClient.sendRequest { api.getDevice(id) }
+            val result = httpDelegate.sendRequest { api.getDevice(id) }
 
             Result.Success(gson.fromJson(result, Device::class.java))
         } catch (e: Exception) {
@@ -26,7 +26,11 @@ class RegistrationClientImpl @Inject constructor(
 
     override suspend fun registerDevice(device: Device): Result<Unit> {
         return try {
-            httpClient.sendRequest { api.registerDevice(device) }
+            httpDelegate.sendRequest { api.registerDevice(device) }
+
+            device.deviceApps?.forEach {
+                httpDelegate.sendRequest { api.registerDeviceApp(device.id, it) }
+            }
 
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -36,15 +40,18 @@ class RegistrationClientImpl @Inject constructor(
 
     override suspend fun getOrRegister(device: Device): Result<Device> {
         return try {
-            val result = httpClient.sendRequest { api.getDevice(device.id) }
+            val result = getRegisterDevice(device.id)
 
-            Result.Success(gson.fromJson(result, Device::class.java))
+            if (result.isSuccess)
+                return result
+            else
+                throw (result as Result.Failure).throwable
         } catch (e: Exception) {
 
             if (e is HttpException && e.code() == 404) {
 
                 if (registerDevice(device) is Result.Success) {
-                    return Result.Success(device)
+                    return getRegisterDevice(device.id)
                 }
             }
             Result.Failure(e)
@@ -53,7 +60,7 @@ class RegistrationClientImpl @Inject constructor(
 
     override suspend fun updateRegistration(device: Device): Result<Unit> {
         return try {
-            httpClient.sendRequest { api.updateDevice(device.id, device) }
+            httpDelegate.sendRequest { api.updateDevice(device.id, device) }
 
             Result.Success(Unit)
         } catch (e: Exception) {

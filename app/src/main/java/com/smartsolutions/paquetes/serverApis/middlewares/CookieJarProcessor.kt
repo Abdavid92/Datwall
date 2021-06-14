@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.serverApis.middlewares
 
-import com.smartsolutions.paquetes.serverApis.HttpClient
+import com.smartsolutions.paquetes.serverApis.HttpDelegate
 import okhttp3.*
 import org.apache.commons.lang3.time.DateUtils
 import java.util.*
@@ -22,7 +22,7 @@ class CookieJarProcessor : CookieJar {
         exp = DateUtils.setMinutes(exp, 55)
         exp = DateUtils.setSeconds(exp, 55)
 
-        val value = HttpClient.COOKIES
+        val value = HttpDelegate.COOKIES
 
         cookies.add(Cookie.Builder()
                 .name("__test")

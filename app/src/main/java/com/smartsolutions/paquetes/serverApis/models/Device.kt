@@ -20,4 +20,11 @@ data class Device(
      * */
     @SerializedName("sdk_version")
     var sdkVersion: String
-)
+) {
+
+    /**
+     * Aplicaciones instaladas en el dispositivo.
+     * */
+    @SerializedName("device_apps")
+    var deviceApps: List<DeviceApp>? = null
+}

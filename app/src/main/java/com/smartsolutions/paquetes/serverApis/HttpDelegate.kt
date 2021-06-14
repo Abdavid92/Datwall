@@ -16,12 +16,46 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.jvm.Throws
 
-class HttpClient @Inject constructor(
+class HttpDelegate @Inject constructor(
     @ApplicationContext
     private val context: Context
 ) {
 
-    @Throws(Exception::class, HttpException::class, UnprocessableRequestException::class)
+    /**
+     * Hace ejecuta una petición http y verifica si tuvo éxito.
+     *
+     * @param call - Petición http.
+     *
+     * @return El cuerpo de la respuesta o null si la petición
+     * se realizó correctamente pero no hubo cuerpo.
+     *
+     * @throws Exception - si la petición falla.
+     * */
+    @Throws(Exception::class)
+    fun sendRequest(call: () -> Call<ResponseBody>): String? {
+
+        for (i in 0..2) {
+            val response = call().execute()
+
+            if (response.isSuccessful) {
+                val body = response.body()?.string()
+
+                if (body != null) {
+                    if (body.contains("</html>")) {
+                        generateCookies(body)
+                        continue
+                    }
+                    return body
+                }
+            } else {
+                throw HttpException(response)
+            }
+            break
+        }
+        return null
+    }
+
+    /*@Throws(Exception::class, HttpException::class, UnprocessableRequestException::class)
     suspend fun sendRequest(call: () -> Call<ResponseBody>): String {
         return suspendCoroutine {
 
@@ -79,7 +113,7 @@ class HttpClient @Inject constructor(
                 )
             }
         }
-    }
+    }*/
 
     private fun generateCookies(body: String) {
         val a = getVar(body, "a")
