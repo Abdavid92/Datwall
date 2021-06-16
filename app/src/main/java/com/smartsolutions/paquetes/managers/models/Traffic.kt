@@ -7,16 +7,18 @@ import android.os.Parcelable
 import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.managers.NetworkUtils
+import com.smartsolutions.paquetes.repositories.models.Sim
 
 /**
  * Representa un fragmento de tráfico de datos tanto
  * para una aplicación como para todas la aplicaciones,
  * dependiendo si uid es distinto de cero.
  * */
-@Entity(tableName = "traffic")
+@Entity(tableName = "traffic", foreignKeys = [ForeignKey(entity = Sim::class, parentColumns = ["id"], childColumns = ["simID"])])
 open class Traffic(
     /**
      * Uid de la aplicación que pertenece el tráfico de datos.
@@ -32,7 +34,12 @@ open class Traffic(
      * Tráfico de subida en bytes
      * */
     @ColumnInfo(name = "tx_bytes")
-    var _txBytes : Long
+    var _txBytes : Long,
+    /**
+     * Id de la sim en la que se realizó el tráfico
+     */
+    @ColumnInfo(name = "sim_id")
+    val simID: String
     ) : Parcelable {
 
     /**
@@ -79,14 +86,17 @@ open class Traffic(
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readLong(),
-        parcel.readLong()
+        parcel.readLong(),
+        parcel.readString() ?: ""
     ) {
+        id = parcel.readLong()
         startTime = parcel.readLong()
         endTime = parcel.readLong()
+        network = parcel.readString() ?: Networks.NETWORK_NONE
     }
 
     constructor() : this(
-        0, 0L, 0L
+        0, 0L, 0L, ""
     )
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -126,8 +136,11 @@ open class Traffic(
         parcel.writeInt(uid)
         parcel.writeLong(_rxBytes)
         parcel.writeLong(_txBytes)
+        parcel.writeString(simID)
+        parcel.writeLong(id)
         parcel.writeLong(startTime)
         parcel.writeLong(endTime)
+        parcel.writeString(network)
     }
 
     override fun describeContents(): Int {
