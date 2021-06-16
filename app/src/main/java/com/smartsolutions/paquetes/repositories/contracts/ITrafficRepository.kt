@@ -16,15 +16,15 @@ interface ITrafficRepository {
 
     suspend fun delete(traffics: List<Traffic>): Int
 
-    fun getFlow(): Flow<List<Traffic>>
+    fun getFlow(simId: String): Flow<List<Traffic>>
 
-    suspend fun getAll(): List<Traffic>
+    suspend fun getAll(simId: String): List<Traffic>
 
-    suspend fun getByUid(uid: Int, startTime: Long, endTime: Long): List<Traffic>
+    suspend fun getByUid(uid: Int, simId: String, startTime: Long, endTime: Long): List<Traffic>
 
-    fun getFlowByUid(uid: Int, startTime: Long, endTime: Long): Flow<List<Traffic>>
+    fun getFlowByUid(uid: Int, simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>>
 
-    suspend fun getByTime(startTime: Long, endTime: Long): List<Traffic>
+    suspend fun getByTime(simId: String, startTime: Long, endTime: Long): List<Traffic>
 
-    fun getFlowByTime(startTime: Long, endTime: Long): Flow<List<Traffic>>
+    fun getFlowByTime(simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>>
 }

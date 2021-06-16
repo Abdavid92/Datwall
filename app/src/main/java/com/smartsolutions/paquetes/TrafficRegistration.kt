@@ -10,9 +10,13 @@ import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
+import com.smartsolutions.paquetes.repositories.models.App
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 class TrafficRegistration @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -20,9 +24,22 @@ class TrafficRegistration @Inject constructor(
     private val networkUtil: NetworkUtil,
     private val simManager: ISimManager,
     private val appRepository: IAppRepository
-) {
+): CoroutineScope {
+
+    private var appsList = emptyList<App>()
+    private val job = Job()
 
     fun startRegistration(intervalInMilliseconds: Long){
+        if (TrafficStats.getTotalRxBytes() == TrafficStats.UNSUPPORTED.toLong()){
+            return
+        }
+
+        launch {
+            appRepository.flow().collect {
+                appsList = it
+            }
+        }
+
         val request = PeriodicWorkRequestBuilder<TrafficRegistrationWorker>(intervalInMilliseconds, TimeUnit.MILLISECONDS)
         request.addTag(TRAFFIC_REGISTRATION_TAG)
         WorkManager.getInstance(context).enqueue(request.build())
@@ -30,6 +47,8 @@ class TrafficRegistration @Inject constructor(
 
     fun stopRegistration(){
         WorkManager.getInstance(context).cancelAllWorkByTag(TRAFFIC_REGISTRATION_TAG)
+        traffics.clear()
+        job.cancel()
     }
 
 
@@ -39,14 +58,14 @@ class TrafficRegistration @Inject constructor(
         val trafficsToAdd = mutableListOf<Traffic>()
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            appRepository.all().forEach {
+            appsList.forEach {
                 processTraffic(it.uid, simID, TrafficStats.getUidRxBytes(it.uid), TrafficStats.getUidTxBytes(it.uid), isLte)?.let {
                     trafficsToAdd.add(it)
                 }
             }
         }
 
-        processTraffic(GENERAL_TRAFFIC_UID, simID, TrafficStats.getTotalRxBytes(), TrafficStats.getTotalTxBytes(), isLte)?.let {
+        processTraffic(GENERAL_TRAFFIC_UID, simID, TrafficStats.getMobileRxBytes(), TrafficStats.getMobileTxBytes(), isLte)?.let {
             trafficsToAdd.add(it)
         }
 
@@ -54,7 +73,7 @@ class TrafficRegistration @Inject constructor(
     }
 
     private fun processTraffic(uid: Int, simID: String, rxBytes: Long, txBytes: Long, isLte: Boolean): Traffic? {
-        var oldTraffic = traffics.firstOrNull{ it.uid == uid }
+        var oldTraffic = traffics.firstOrNull{ it.uid == uid && it.simID == simID }
 
         if (oldTraffic == null){
             oldTraffic = Traffic(uid, rxBytes, txBytes, simID)
@@ -66,11 +85,14 @@ class TrafficRegistration @Inject constructor(
             traffic.startTime = oldTraffic.endTime
             traffic.endTime = System.currentTimeMillis()
 
-            if (isLte){
-                traffic.network = Networks.NETWORK_4G
+            traffic.network = if (isLte){
+                Networks.NETWORK_4G
             }else {
-                traffic.network = Networks.NETWORK_3G
+                Networks.NETWORK_3G
             }
+
+            traffics[traffics.indexOf(oldTraffic)] = Traffic(uid, rxBytes, txBytes, simID).apply { endTime = System.currentTimeMillis() }
+
             return traffic
         }
 
@@ -81,7 +103,10 @@ class TrafficRegistration @Inject constructor(
     inner class TrafficRegistrationWorker(context: Context, workerParameters: WorkerParameters): Worker(context, workerParameters) {
 
         override fun doWork(): Result {
-            TODO("Not yet implemented")
+            return runBlocking {
+                obtainTraffic()
+                return@runBlocking Result.success()
+            }
         }
 
     }
@@ -92,5 +117,8 @@ class TrafficRegistration @Inject constructor(
 
         private var traffics = mutableListOf<Traffic>()
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + job
 
 }

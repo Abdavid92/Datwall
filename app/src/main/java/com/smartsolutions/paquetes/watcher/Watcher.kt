@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.watcher
 
 import android.content.Context
 import android.content.Intent
+import android.net.TrafficStats
 import android.os.Build
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -55,6 +56,10 @@ class Watcher @Inject constructor(
      * */
     private var currentJob: Job? = null
 
+    private var rxBytes: Long = TrafficStats.getTotalRxBytes()
+
+    private var txBytes: Long = TrafficStats.getTotalTxBytes()
+
     /**
      * Enciende el Watcher
      * */
@@ -86,7 +91,16 @@ class Watcher @Inject constructor(
                 //Log.i(TAG, "sending ticktock broadcast")
 
                 LocalBroadcastManager.getInstance(context)
-                    .sendBroadcast(Intent(ACTION_TICKTOCK))
+                    .sendBroadcast(Intent(ACTION_TICKTOCK).apply {
+                        if (rxBytes != -1L && txBytes != -1L) {
+                            val rx = TrafficStats.getTotalRxBytes()
+                            val tx = TrafficStats.getTotalTxBytes()
+                            putExtra(EXTRA_RX_BANDWITH, rx - rxBytes)
+                            putExtra(EXTRA_TX_BANDWITH, tx - txBytes)
+                            rxBytes = rx
+                            txBytes = tx
+                        }
+                    })
 
                 Thread.sleep(1000)
             } catch (e: Exception) {
@@ -158,5 +172,9 @@ class Watcher @Inject constructor(
          * Extra que contiene la aplicación que dejó el primer plano.
          * */
         const val EXTRA_DELAY_APP = "com.smartsolutions.datwall.extra.DELAY_APP"
+
+        const val EXTRA_RX_BANDWITH = "com.smartsolutions.datwall.extra.RX_BANDWITH"
+
+        const val EXTRA_TX_BANDWITH = "com.smartsolutions.datwall.extra.TX_BANDWITH"
     }
 }

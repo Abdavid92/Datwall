@@ -25,11 +25,14 @@ class NetworkUsageManagerDefault @Inject constructor(
     simManager
 ) {
 
-    override suspend fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic {
-        val traffic = Traffic(uid, 0L, 0L)
+    override suspend fun getAppUsage(uid : Int, start: Long, finish: Long, updateSim: Boolean): Traffic {
+        if (updateSim){
+            updateSimID()
+        }
+        val buckets = getUsage(start, finish)
+        val traffic = Traffic(uid, 0L, 0L, simId)
         traffic.startTime = start
         traffic.endTime = finish
-        val buckets = getUsage(start, finish)
         buckets?.let {bucketsList ->
             bucketsList.forEach { bucket ->
                 if (bucket.uid == uid) {
@@ -41,6 +44,7 @@ class NetworkUsageManagerDefault @Inject constructor(
     }
 
     override suspend fun getAppsUsage(start: Long, finish: Long): List<Traffic> {
+        updateSimID()
         val result = mutableListOf<Traffic>()
 
         getUsage(start, finish)?.let { buckets ->
@@ -48,7 +52,7 @@ class NetworkUsageManagerDefault @Inject constructor(
                 var traffic = result.firstOrNull { it.uid == bucket.uid }
 
                 if (traffic == null) {
-                    traffic = Traffic(bucket.uid, bucket.rxBytes, bucket.txBytes)
+                    traffic = Traffic(bucket.uid, bucket.rxBytes, bucket.txBytes, simId)
                     result.add(traffic)
                 } else {
                     traffic += bucket
@@ -60,23 +64,25 @@ class NetworkUsageManagerDefault @Inject constructor(
     }
 
     override suspend fun fillAppsUsage(apps: List<IApp>, start: Long, finish: Long) {
+        updateSimID()
         apps.forEach { iapp ->
             if (iapp is App)
-                iapp.traffic = getAppUsage(iapp.uid, start, finish)
+                iapp.traffic = getAppUsage(iapp.uid, start, finish, false)
             else if (iapp is AppGroup)
                 iapp.forEach { app ->
-                    app.traffic = getAppUsage(app.uid, start, finish)
+                    app.traffic = getAppUsage(app.uid, start, finish, false)
                 }
         }
     }
 
     override suspend fun getUsageTotal(start : Long, finish : Long) : Traffic {
+        updateSimID()
         getUsageGeneral(start, finish)?.let {
-            val traffic = Traffic(0, it.rxBytes, it.txBytes)
+            val traffic = Traffic(0, it.rxBytes, it.txBytes, simId)
             traffic.startTime = start
             traffic.endTime = finish
             return traffic
         }
-        return Traffic(0, 0L, 0L)
+        return Traffic(0, 0L, 0L, simId)
     }
 }

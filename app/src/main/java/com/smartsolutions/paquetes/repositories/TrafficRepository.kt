@@ -20,19 +20,19 @@ class TrafficRepository @Inject constructor(private val dao: ITrafficDao) : ITra
 
     override suspend fun delete(traffics: List<Traffic>) = dao.delete(traffics)
 
-    override fun getFlow() = dao.getFlow()
+    override fun getFlow(simId: String) = dao.getFlow(simId)
 
-    override suspend fun getAll() = dao.getAll()
+    override suspend fun getAll(simId: String) = dao.getAll(simId)
 
-    override suspend fun getByUid(uid: Int, startTime: Long, endTime: Long) =
-        dao.getByUid(uid, startTime, endTime)
+    override suspend fun getByUid(uid: Int, simId: String, startTime: Long, endTime: Long) =
+        dao.getByUid(uid, simId, startTime, endTime)
 
-    override fun getFlowByUid(uid: Int, startTime: Long, endTime: Long): Flow<List<Traffic>> =
-        dao.getFlowByUid(uid, startTime, endTime)
+    override fun getFlowByUid(uid: Int, simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>> =
+        dao.getFlowByUid(uid, simId, startTime, endTime)
 
-    override suspend fun getByTime(startTime: Long, endTime: Long) =
-        dao.getByTime(startTime, endTime)
+    override suspend fun getByTime(simId: String, startTime: Long, endTime: Long) =
+        dao.getByTime(simId, startTime, endTime)
 
-    override fun getFlowByTime(startTime: Long, endTime: Long): Flow<List<Traffic>> =
-        dao.getFlowByTime(startTime, endTime)
+    override fun getFlowByTime(simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>> =
+        dao.getFlowByTime(simId, startTime, endTime)
 }

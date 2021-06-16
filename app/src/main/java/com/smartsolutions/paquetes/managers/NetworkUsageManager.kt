@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
@@ -10,7 +11,9 @@ import java.util.*
  * Administrador de estadísticas de tráfico de datos de la aplicaciones.
  * Se encarga de recopilar y obtener el uso de datos de las aplicaciones.
  * */
-abstract class NetworkUsageManager {
+abstract class NetworkUsageManager(private val simManager: ISimManager) {
+
+    protected lateinit var simId: String
 
     /**
      * Obtiene el tráfico de un tiempo dado de una o varias aplicaciones por el uid.
@@ -22,7 +25,7 @@ abstract class NetworkUsageManager {
      *
      * @return Una instancia de Traffic con los datos recopilados.
      * */
-    abstract suspend fun getAppUsage(uid : Int, start: Long, finish: Long): Traffic
+    abstract suspend fun getAppUsage(uid : Int, start: Long, finish: Long, updateSim: Boolean = true): Traffic
 
     /**
      * Obtiene el tráfico completo de un tiempo dado organizado por aplicaciones.
@@ -109,5 +112,9 @@ abstract class NetworkUsageManager {
         }
 
         return pairList
+    }
+
+    suspend fun updateSimID(){
+        simId = simManager.getDefaultDataSim().id
     }
 }
