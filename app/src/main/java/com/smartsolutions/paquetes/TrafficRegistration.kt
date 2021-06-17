@@ -1,12 +1,15 @@
 package com.smartsolutions.paquetes
 
 import android.content.Context
+import android.content.Intent
 import android.net.TrafficStats
 import android.os.Build
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
@@ -23,14 +26,15 @@ class TrafficRegistration @Inject constructor(
     private val trafficRepository: ITrafficRepository,
     private val networkUtil: NetworkUtil,
     private val simManager: ISimManager,
-    private val appRepository: IAppRepository
-): CoroutineScope {
+    private val appRepository: IAppRepository,
+    private val userDataBytesManager: IUserDataBytesManager
+) : CoroutineScope {
 
     private var appsList = emptyList<App>()
     private val job = Job()
 
-    fun startRegistration(intervalInMilliseconds: Long){
-        if (TrafficStats.getTotalRxBytes() == TrafficStats.UNSUPPORTED.toLong()){
+    fun startRegistration(){
+        if (TrafficStats.getTotalRxBytes() == TrafficStats.UNSUPPORTED.toLong()) {
             return
         }
 
@@ -40,9 +44,11 @@ class TrafficRegistration @Inject constructor(
             }
         }
 
-        val request = PeriodicWorkRequestBuilder<TrafficRegistrationWorker>(intervalInMilliseconds, TimeUnit.MILLISECONDS)
-        request.addTag(TRAFFIC_REGISTRATION_TAG)
-        WorkManager.getInstance(context).enqueue(request.build())
+        val request = PeriodicWorkRequestBuilder<TrafficRegistrationWorker>(1000, TimeUnit.MILLISECONDS)
+            .addTag(TRAFFIC_REGISTRATION_TAG)
+
+        WorkManager.getInstance(context)
+            .enqueue(request.build())
     }
 
     fun stopRegistration(){
@@ -52,27 +58,36 @@ class TrafficRegistration @Inject constructor(
     }
 
 
-    suspend fun obtainTraffic(){
-        val simID = simManager.getDefaultDataSim().id
+    suspend fun takeLollipopTraffic(){
+        val simId = simManager.getDefaultDataSim().id
         val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
+
         val trafficsToAdd = mutableListOf<Traffic>()
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            appsList.forEach {
-                processTraffic(it.uid, simID, TrafficStats.getUidRxBytes(it.uid), TrafficStats.getUidTxBytes(it.uid), isLte)?.let {
-                    trafficsToAdd.add(it)
-                }
+        appsList.forEach { app ->
+            processLollipopTraffic(
+                app.uid,
+                simId,
+                TrafficStats.getUidRxBytes(app.uid),
+                TrafficStats.getUidTxBytes(app.uid),
+                isLte)?.let { traffic ->
+                trafficsToAdd.add(traffic)
             }
         }
 
-        processTraffic(GENERAL_TRAFFIC_UID, simID, TrafficStats.getMobileRxBytes(), TrafficStats.getMobileTxBytes(), isLte)?.let {
-            trafficsToAdd.add(it)
+        processLollipopTraffic(
+            GENERAL_TRAFFIC_UID,
+            simId,
+            TrafficStats.getMobileRxBytes(),
+            TrafficStats.getMobileTxBytes(),
+            isLte)?.let { traffic ->
+            trafficsToAdd.add(traffic)
         }
 
         trafficRepository.create(trafficsToAdd)
     }
 
-    private fun processTraffic(uid: Int, simID: String, rxBytes: Long, txBytes: Long, isLte: Boolean): Traffic? {
+    private fun processLollipopTraffic(uid: Int, simID: String, rxBytes: Long, txBytes: Long, isLte: Boolean): Traffic? {
         var oldTraffic = traffics.firstOrNull{ it.uid == uid && it.simID == simID }
 
         if (oldTraffic == null){
@@ -91,7 +106,10 @@ class TrafficRegistration @Inject constructor(
                 Networks.NETWORK_3G
             }
 
-            traffics[traffics.indexOf(oldTraffic)] = Traffic(uid, rxBytes, txBytes, simID).apply { endTime = System.currentTimeMillis() }
+            traffics[traffics.indexOf(oldTraffic)] = Traffic(uid, rxBytes, txBytes, simID)
+                .apply {
+                    endTime = System.currentTimeMillis()
+                }
 
             return traffic
         }
@@ -100,11 +118,41 @@ class TrafficRegistration @Inject constructor(
     }
 
 
+    private suspend fun registerTraffic() {
+        if (rxBytes == -1L || txBytes == -1L) {
+            rxBytes = TrafficStats.getMobileRxBytes()
+            txBytes = TrafficStats.getMobileTxBytes()
+        } else {
+            val rx = TrafficStats.getMobileRxBytes()
+            val tx = TrafficStats.getMobileTxBytes()
+            val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
+
+            LocalBroadcastManager.getInstance(context)
+                .sendBroadcast(Intent(ACTION_TRAFFIC).apply {
+                    putExtra(EXTRA_RX_BAND_WITH, rx - rxBytes)
+                    putExtra(EXTRA_TX_BAND_WITH, tx - txBytes)
+                })
+
+            userDataBytesManager.registerTraffic(
+                rx - rxBytes,
+                tx - txBytes,
+                /*TODO:Temp*/0,
+                isLte)
+
+            rxBytes = rx
+            txBytes = tx
+        }
+    }
+
     inner class TrafficRegistrationWorker(context: Context, workerParameters: WorkerParameters): Worker(context, workerParameters) {
 
         override fun doWork(): Result {
             return runBlocking {
-                obtainTraffic()
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+                    takeLollipopTraffic()
+
+                registerTraffic()
+
                 return@runBlocking Result.success()
             }
         }
@@ -116,6 +164,15 @@ class TrafficRegistration @Inject constructor(
         const val GENERAL_TRAFFIC_UID = Int.MIN_VALUE
 
         private var traffics = mutableListOf<Traffic>()
+
+        private var rxBytes = -1L
+        private var txBytes = -1L
+
+        const val ACTION_TRAFFIC = "com.smartsolutions.datwall.action.TRAFFIC"
+
+        const val EXTRA_RX_BAND_WITH = "com.smartsolutions.datwall.extra.RX_BAND_WITH"
+
+        const val EXTRA_TX_BAND_WITH = "com.smartsolutions.datwall.extra.TX_BAND_WITH"
     }
 
     override val coroutineContext: CoroutineContext

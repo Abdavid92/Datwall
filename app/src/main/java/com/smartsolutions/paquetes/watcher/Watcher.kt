@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
+import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,7 @@ import kotlin.coroutines.CoroutineContext
 class Watcher @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val packageMonitor: PackageMonitor,
+    private val packageMonitor: Lazy<PackageMonitor>,
     private val watcherUtils: WatcherUtils,
     private val appRepository: IAppRepository
 ) : Runnable, AutoCloseable, CoroutineScope {
@@ -56,10 +57,6 @@ class Watcher @Inject constructor(
      * */
     private var currentJob: Job? = null
 
-    private var rxBytes: Long = TrafficStats.getTotalRxBytes()
-
-    private var txBytes: Long = TrafficStats.getTotalTxBytes()
-
     /**
      * Enciende el Watcher
      * */
@@ -80,7 +77,7 @@ class Watcher @Inject constructor(
 
                 currentJob = launch {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        packageMonitor.synchronizeDatabase()
+                        packageMonitor.get().synchronizeDatabase()
                     }
 
                     watcherUtils.getLastApp()?.let {
@@ -91,16 +88,7 @@ class Watcher @Inject constructor(
                 //Log.i(TAG, "sending ticktock broadcast")
 
                 LocalBroadcastManager.getInstance(context)
-                    .sendBroadcast(Intent(ACTION_TICKTOCK).apply {
-                        if (rxBytes != -1L && txBytes != -1L) {
-                            val rx = TrafficStats.getTotalRxBytes()
-                            val tx = TrafficStats.getTotalTxBytes()
-                            putExtra(EXTRA_RX_BANDWITH, rx - rxBytes)
-                            putExtra(EXTRA_TX_BANDWITH, tx - txBytes)
-                            rxBytes = rx
-                            txBytes = tx
-                        }
-                    })
+                    .sendBroadcast(Intent(ACTION_TICKTOCK))
 
                 Thread.sleep(1000)
             } catch (e: Exception) {
@@ -172,9 +160,5 @@ class Watcher @Inject constructor(
          * Extra que contiene la aplicación que dejó el primer plano.
          * */
         const val EXTRA_DELAY_APP = "com.smartsolutions.datwall.extra.DELAY_APP"
-
-        const val EXTRA_RX_BANDWITH = "com.smartsolutions.datwall.extra.RX_BANDWITH"
-
-        const val EXTRA_TX_BANDWITH = "com.smartsolutions.datwall.extra.TX_BANDWITH"
     }
 }

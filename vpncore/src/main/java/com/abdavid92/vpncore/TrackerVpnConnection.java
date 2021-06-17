@@ -66,20 +66,6 @@ public class TrackerVpnConnection extends BaseVpnConnection {
             throw new IllegalArgumentException("VpnService must be instance of IProtectSocket");
     }
 
-    @NonNull
-    @Override
-    public IVpnConnection setSessionName(@NonNull String sessionName) {
-        this.sessionName = sessionName;
-        return this;
-    }
-
-    @NonNull
-    @Override
-    public IVpnConnection setPendingIntent(PendingIntent pendingIntent) {
-        this.pendingIntent = pendingIntent;
-        return this;
-    }
-
     public void allowUnknownUid(boolean allow) {
         this.allowUnknownUid = allow;
         if (handler != null)

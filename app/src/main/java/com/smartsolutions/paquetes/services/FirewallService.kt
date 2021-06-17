@@ -121,7 +121,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         super.onCreate()
 
         //Configuración extra del vpn
-        vpnConnection = TrackerVpnConnection(this)
+        vpnConnection = BasicVpnConnection(this)
             .setSessionName(getString(R.string.app_name))
             .setPendingIntent(PendingIntent.getActivity(
                 this,
@@ -154,9 +154,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                         .unregisterReceiver(watcherReceiver)
                 }
             }
-        }
 
-        launch {
             appRepository.flow().collect {
                 vpnConnection.setAllowedPackageNames(it.filter { app ->
                     app.access || app.tempAccess
@@ -233,6 +231,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
     override fun onRevoke() {
         stopService()
+        //TODO: Notificar que se murió el vpn.
     }
 
     override fun protectSocket(socket: Socket) {

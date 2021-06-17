@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -22,6 +23,20 @@ public abstract class BaseVpnConnection implements IVpnConnection {
     protected final List<IObserverPacket> observers = new ArrayList<>();
     protected final Handler observerHandler = new Handler(Looper.getMainLooper());
     protected boolean running = false;
+
+    @NonNull
+    @Override
+    public IVpnConnection setSessionName(@NonNull String sessionName) {
+        this.sessionName = sessionName;
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public IVpnConnection setPendingIntent(PendingIntent pendingIntent) {
+        this.pendingIntent = pendingIntent;
+        return this;
+    }
 
     @Override
     public boolean isConnected() {

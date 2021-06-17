@@ -1,11 +1,11 @@
 package com.abdavid92.vpncore;
 
-import android.app.PendingIntent;
 import android.content.pm.PackageManager;
 import android.net.VpnService;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.abdavid92.vpncore.exceptions.PacketHeaderException;
@@ -39,24 +39,11 @@ import static com.abdavid92.vpncore.DataConst.PROTOCOL_UDP;
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class LiteVpnConnection extends BaseVpnConnection {
 
+    @Nullable
     private String[] allowedPackageNames = null;
 
     public LiteVpnConnection(VpnService vpnService) {
         this.vpnService = vpnService;
-    }
-
-    @NonNull
-    @Override
-    public IVpnConnection setSessionName(@NonNull String sessionName) {
-        this.sessionName = sessionName;
-        return this;
-    }
-
-    @NonNull
-    @Override
-    public IVpnConnection setPendingIntent(PendingIntent pendingIntent) {
-        this.pendingIntent = pendingIntent;
-        return this;
     }
 
     @NonNull

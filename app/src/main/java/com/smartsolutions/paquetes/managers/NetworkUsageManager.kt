@@ -93,7 +93,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
     /**
      * Obtiene el uso por hora de una o varias aplicaciones.
      *
-     * @param uid - Uid de la aplicación o  las aplicaciones
+     * @param uid - Uid de la aplicación o las aplicaciones
      * @param day - Día que se usará para realizar la búsqueda.
      *
      * @return Una lista de pares con la hora en un Long y el tráfico.

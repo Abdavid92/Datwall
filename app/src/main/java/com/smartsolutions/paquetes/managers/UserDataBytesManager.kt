@@ -70,10 +70,20 @@ class UserDataBytesManager @Inject constructor(
             })
     }
 
-    override suspend fun registerTraffic(rxBytes: Long, txBytes: Long, isLte: Boolean) {
+    override suspend fun registerTraffic(rxBytes: Long, txBytes: Long, nationalBytes: Long, isLte: Boolean) {
 
-        //TODO: Procesar los bytes nacionales
         val sim = simManager.getDefaultDataSim()
+
+        if (nationalBytes > 0) {
+            //Temp
+            userDataBytesRepository.bySimId(sim.id)
+                .first { it.type == DataType.National }
+                .apply {
+                    bytes -= nationalBytes
+
+                    userDataBytesRepository.update(this)
+                }
+        }
 
         if (isLte) {
             registerLteTraffic(fixTrafficByTime(rxBytes + txBytes), sim.id)

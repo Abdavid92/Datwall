@@ -9,6 +9,8 @@ object DataPackagesContract {
 
     const val PROMO_BONUS_KEY = "Bonos: 1024 MB"
 
+    const val GENERAL_DURATION = 30
+
     val DailyBag = PackageModel (
         "Bolsa Diaria LTE",
         "Navega en la red LTE por 24 horas.",
@@ -152,7 +154,7 @@ object DataPackagesContract {
         val network: String,
         val index: Int,
         val smsKey: String,
-        val duration: Int = 30
+        val duration: Int = GENERAL_DURATION
     ) {
 
         val id: String

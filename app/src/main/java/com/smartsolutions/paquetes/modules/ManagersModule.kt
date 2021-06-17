@@ -27,7 +27,7 @@ class ManagersModule {
     }*/
 
     @Provides
-    fun provideINetworkUsageManager(
+    fun provideNetworkUsageManager(
         impl: NetworkUsageManagerDefault,
         legacyImpl: NetworkUsageManagerLegacy
     ): NetworkUsageManager {

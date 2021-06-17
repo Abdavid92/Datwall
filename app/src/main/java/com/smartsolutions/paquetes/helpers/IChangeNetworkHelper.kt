@@ -15,7 +15,6 @@ interface IChangeNetworkHelper {
      * Guarda un valor en el DatwallApplication que dice
      * que los datos móbiles están encendidos.
      *
-     * @see Context.dataStore
      * */
     fun setDataMobileStateOn()
 
@@ -26,7 +25,6 @@ interface IChangeNetworkHelper {
      * Guarda un valor en el DatwallApplication que dice
      * que los datos móbiles están apagados.
      *
-     * @see Context.dataStore
      * */
     fun setDataMobileStateOff()
 }

@@ -2,8 +2,10 @@ package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
 import android.content.Intent
+import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.TrafficRegistration
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.services.FirewallService
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,7 +21,9 @@ import kotlin.coroutines.CoroutineContext
  * */
 class ChangeNetworkHelper @Inject constructor(
     @ApplicationContext
-    private val context: Context
+    private val context: Context,
+    private val trafficRegistration: TrafficRegistration,
+    private val networkUtil: NetworkUtil
 ): CoroutineScope, IChangeNetworkHelper {
 
     override val coroutineContext: CoroutineContext
@@ -47,6 +51,15 @@ class ChangeNetworkHelper @Inject constructor(
 
             context.startService(intent)
         }
+        trafficRegistration.startRegistration()
+
+        if (networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G) {
+            launch {
+                context.dataStore.edit {
+                    it[PreferencesKeys.ENABLED_LTE] = true
+                }
+            }
+        }
     }
 
     override fun setDataMobileStateOff() {
@@ -58,5 +71,6 @@ class ChangeNetworkHelper @Inject constructor(
 
             context.startService(intent)
         }
+        trafficRegistration.stopRegistration()
     }
 }

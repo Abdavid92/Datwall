@@ -38,4 +38,9 @@ object PreferencesKeys {
      * Linea predeterminada para ejecutar la sincronización automática.
      * */
     val DEFAULT_SYNCHRONIZATION_SIM_ID = stringPreferencesKey("default_synchronization_sim_id")
+
+    /**
+     * Indica si el dispositotivo se puede conectar a la red LTE
+     * */
+    val ENABLED_LTE = booleanPreferencesKey("enabled_lte")
 }
