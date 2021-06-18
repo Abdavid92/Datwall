@@ -54,6 +54,7 @@ public abstract class BaseVpnConnection implements IVpnConnection {
         }
     }
 
+    @NonNull
     protected VpnService.Builder configure() {
         VpnService.Builder builder = vpnService.new Builder()
                 .addAddress("192.168.0.32", 32)

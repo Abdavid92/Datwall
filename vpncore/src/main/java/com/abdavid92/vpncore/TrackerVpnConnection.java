@@ -1,15 +1,11 @@
 package com.abdavid92.vpncore;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.VpnService;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.abdavid92.vpncore.exceptions.PacketHeaderException;
 import com.abdavid92.vpncore.socket.IProtectSocket;
@@ -20,8 +16,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.abdavid92.vpncore.DataConst.MAX_PACKET_LENGTH;
 
@@ -168,14 +162,14 @@ public class TrackerVpnConnection extends BaseVpnConnection {
     }
 
     @Override
-    public void subscribe(IObserverPacket observer) {
+    public void subscribe(@NonNull IObserverPacket observer) {
         if (!observers.contains(observer))
             observers.add(observer);
     }
 
 
     @Override
-    public void unsubscribe(IObserverPacket observer) {
+    public void unsubscribe(@NonNull IObserverPacket observer) {
         observers.remove(observer);
     }
 

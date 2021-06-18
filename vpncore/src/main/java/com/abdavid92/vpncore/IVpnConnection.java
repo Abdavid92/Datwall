@@ -28,6 +28,8 @@ public interface IVpnConnection extends Runnable {
     /**
      * Establece las aplicaciones permitidas. (Aplicaciones que no se le
      * bloqueara la conexión a internet).
+     *
+     * @param packageNames - Lista de los nombres de paquete de las aplicaciones permitidas.
      * */
     @NonNull
     IVpnConnection setAllowedPackageNames(@NonNull String[] packageNames);
@@ -35,13 +37,17 @@ public interface IVpnConnection extends Runnable {
     /**
      * Subscribe un observador que recibirá todos los paquetes
      * entarntes y salientes.
+     *
+     * @param observer - Observador a subscribir.
      * */
-    void subscribe(IObserverPacket observer);
+    void subscribe(@NonNull IObserverPacket observer);
 
     /**
      * Elimina una subscripción.
+     *
+     * @param observer - Observador que se dará de baja de la subscripción.
      * */
-    void unsubscribe(IObserverPacket observer);
+    void unsubscribe(@NonNull IObserverPacket observer);
 
     /**
      * Indica si el vpn está conectado.

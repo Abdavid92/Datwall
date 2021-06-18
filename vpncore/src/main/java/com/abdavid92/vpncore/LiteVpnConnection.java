@@ -49,8 +49,11 @@ public class LiteVpnConnection extends BaseVpnConnection {
     @NonNull
     @Override
     public IVpnConnection setAllowedPackageNames(@NonNull String[] packageNames) {
+        boolean packagesNotEquals = packagesNotEquals(packageNames);
+
         this.allowedPackageNames = packageNames;
-        if (isConnected()) {
+
+        if (isConnected() && packagesNotEquals) {
             VpnService.Builder builder = configure();
             shutdown();
             mInterface = builder.establish();
@@ -59,13 +62,13 @@ public class LiteVpnConnection extends BaseVpnConnection {
     }
 
     @Override
-    public void subscribe(IObserverPacket observer) {
+    public void subscribe(@NonNull IObserverPacket observer) {
         if (!this.observers.contains(observer))
             this.observers.add(observer);
     }
 
     @Override
-    public void unsubscribe(IObserverPacket observer) {
+    public void unsubscribe(@NonNull IObserverPacket observer) {
         this.observers.remove(observer);
     }
 
@@ -120,7 +123,7 @@ public class LiteVpnConnection extends BaseVpnConnection {
         }
     }
 
-    private void handlePacket(ByteBuffer packet) throws PacketHeaderException {
+    private void handlePacket(@NonNull ByteBuffer packet) throws PacketHeaderException {
         final IPv4Header ipHeader = IPPacketFactory.createIPv4Header(packet);
 
         ITransportHeader transportHeader;
@@ -148,6 +151,7 @@ public class LiteVpnConnection extends BaseVpnConnection {
         mInterface = null;
     }
 
+    @NonNull
     @Override
     protected VpnService.Builder configure() {
         VpnService.Builder builder = super.configure();
@@ -166,5 +170,19 @@ public class LiteVpnConnection extends BaseVpnConnection {
                 } catch (PackageManager.NameNotFoundException ignored) { }
             }
         }
+    }
+
+    private boolean packagesNotEquals(String[] newPackageNames) {
+        if (this.allowedPackageNames == null)
+            return true;
+
+        if (this.allowedPackageNames.length != newPackageNames.length)
+            return true;
+
+        for (int i = 0; i < this.allowedPackageNames.length; i++) {
+            if (!this.allowedPackageNames[i].equals(newPackageNames[i]))
+                return true;
+        }
+        return false;
     }
 }
