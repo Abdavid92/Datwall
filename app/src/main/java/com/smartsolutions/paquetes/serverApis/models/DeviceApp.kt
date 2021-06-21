@@ -31,6 +31,12 @@ data class DeviceApp(
     @JsonAdapter(BooleanConverter::class)
     val trialPeriod: Boolean,
     /**
+     * Última consulta.
+     * */
+    @SerializedName("last_query")
+    @JsonAdapter(DateConverter::class)
+    val lastQuery: Date,
+    /**
      * Transacción de compra.
      * */
     var transaction: String?,
@@ -60,7 +66,7 @@ data class DeviceApp(
      * Aplicación relacionada.
      * */
     @SerializedName("android_app")
-    var androidApp: AndroidApp? = null
+    lateinit var androidApp: AndroidApp
 
     companion object {
         /**

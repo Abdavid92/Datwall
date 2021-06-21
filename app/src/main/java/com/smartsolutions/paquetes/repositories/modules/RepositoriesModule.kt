@@ -28,4 +28,7 @@ interface RepositoriesModule {
 
     @Binds
     fun bindISimRepository(impl: SimRepository): ISimRepository
+
+    @Binds
+    fun bindITrafficRepository(impl: TrafficRepository): ITrafficRepository
 }

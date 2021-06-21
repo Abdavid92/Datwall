@@ -24,7 +24,8 @@ class DateConverter : JsonSerializer<Date>, JsonDeserializer<Date> {
         return try {
             Date(json.asLong)
         } catch (e: Exception) {
-            Date(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).parse(json.asString)?.time ?: System.currentTimeMillis())
+            Date(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+                .parse(json.asString)?.time ?: System.currentTimeMillis())
         }
     }
 }

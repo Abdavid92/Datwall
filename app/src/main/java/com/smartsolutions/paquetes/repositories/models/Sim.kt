@@ -54,6 +54,12 @@ data class Sim(
     var phone: String? = null
 
     /**
+     * Última sincronización de los [UserDataBytes] de esta linea.
+     * */
+    @ColumnInfo(name = "last_synchronization")
+    var lastSynchronization: Long = 0
+
+    /**
      * Ícono de la linea.
      * */
     @Ignore

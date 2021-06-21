@@ -12,8 +12,8 @@ import com.smartsolutions.paquetes.serverApis.models.JwtData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -23,7 +23,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
 @Module
-@InstallIn(ActivityComponent::class)
+@InstallIn(SingletonComponent::class)
 class WebApisModule {
 
     @Provides
@@ -50,7 +50,7 @@ class WebApisModule {
 
     @Provides
     fun provideOkHttpClient(interceptor: JwtInterceptor, sslContext: SSLContext): OkHttpClient {
-        val trustManager = buildTrustManager()
+        val trustManager = provideTrustManagerArray()
 
         return OkHttpClient.Builder()
             .cookieJar(CookieJarProcessor())
@@ -67,9 +67,10 @@ class WebApisModule {
     }
 
     @Provides
-    fun provideTrustManager(): X509TrustManager = buildTrustManager()[0]
+    fun provideTrustManager(): X509TrustManager = provideTrustManagerArray()[0]
 
-    private fun buildTrustManager(): Array<X509TrustManager> =
+    @Provides
+    fun provideTrustManagerArray(): Array<X509TrustManager> =
         arrayOf(object : X509TrustManager {
             @SuppressLint("TrustAllX509TrustManager")
             override fun checkClientTrusted(p0: Array<out X509Certificate>?, p1: String?) {}

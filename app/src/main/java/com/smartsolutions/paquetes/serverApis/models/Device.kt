@@ -19,7 +19,7 @@ data class Device(
      * Version del sistema.
      * */
     @SerializedName("sdk_version")
-    var sdkVersion: String
+    var sdkVersion: Int
 ) {
 
     /**

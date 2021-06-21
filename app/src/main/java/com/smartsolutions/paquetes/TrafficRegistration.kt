@@ -88,7 +88,7 @@ class TrafficRegistration @Inject constructor(
     }
 
     private fun processLollipopTraffic(uid: Int, simID: String, rxBytes: Long, txBytes: Long, isLte: Boolean): Traffic? {
-        var oldTraffic = traffics.firstOrNull{ it.uid == uid && it.simID == simID }
+        var oldTraffic = traffics.firstOrNull{ it.uid == uid && it.simId == simID }
 
         if (oldTraffic == null){
             oldTraffic = Traffic(uid, rxBytes, txBytes, simID)

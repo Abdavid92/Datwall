@@ -2,7 +2,7 @@ package com.smartsolutions.paquetes.serverApis.middlewares
 
 import com.smartsolutions.paquetes.serverApis.HttpDelegate
 import okhttp3.*
-import org.apache.commons.lang3.time.DateUtils
+import org.apache.commons.lang.time.DateUtils
 import java.util.*
 
 class CookieJarProcessor : CookieJar {

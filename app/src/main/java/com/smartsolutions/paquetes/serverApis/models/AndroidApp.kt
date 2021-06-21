@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.serverApis.models
 
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.serverApis.converters.BooleanConverter
 import com.smartsolutions.paquetes.serverApis.converters.UpdatePriorityConverter
 
@@ -20,11 +21,16 @@ data class AndroidApp(
     val updatePriority: UpdatePriority,
     @SerializedName("update_comments")
     val updateComments: String,
+    @ApplicationStatus
     val status: String,
     @JsonAdapter(BooleanConverter::class)
     val debug: Boolean,
     @SerializedName("trial_period")
     val trialPeriod: Int,
+    val price: Float,
+    @SerializedName("debit_card")
+    val debitCard: String,
+    val phone: String,
     @SerializedName("balance_msg")
     val balanceMsg: String,
     @SerializedName("transfermovil_msg")

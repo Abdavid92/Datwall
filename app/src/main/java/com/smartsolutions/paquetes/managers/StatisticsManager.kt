@@ -11,7 +11,7 @@ import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
-import org.apache.commons.lang3.time.DateUtils
+import org.apache.commons.lang.time.DateUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

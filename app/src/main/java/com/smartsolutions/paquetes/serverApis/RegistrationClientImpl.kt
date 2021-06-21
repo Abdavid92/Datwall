@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
 import com.smartsolutions.paquetes.serverApis.contracts.ISmartSolutionsApps
 import com.smartsolutions.paquetes.serverApis.models.Device
+import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.serverApis.models.Result
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -24,13 +25,19 @@ class RegistrationClientImpl @Inject constructor(
         }
     }
 
+    override suspend fun getOrRegister(device: Device): Result<Device> {
+        return try {
+            val result = httpDelegate.sendRequest { api.getOrRegister(device.id, device) }
+
+            Result.Success(gson.fromJson(result, Device::class.java))
+        } catch (e: Exception) {
+            Result.Failure(e)
+        }
+    }
+
     override suspend fun registerDevice(device: Device): Result<Unit> {
         return try {
             httpDelegate.sendRequest { api.registerDevice(device) }
-
-            device.deviceApps?.forEach {
-                httpDelegate.sendRequest { api.registerDeviceApp(device.id, it) }
-            }
 
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -38,29 +45,39 @@ class RegistrationClientImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOrRegister(device: Device): Result<Device> {
+    override suspend fun updateRegistration(device: Device): Result<Unit> {
         return try {
-            val result = getRegisterDevice(device.id)
+            httpDelegate.sendRequest { api.updateDevice(device.id, device) }
 
-            if (result.isSuccess)
-                return result
-            else
-                throw (result as Result.Failure).throwable
+            Result.Success(Unit)
         } catch (e: Exception) {
-
-            if (e is HttpException && e.code() == 404) {
-
-                if (registerDevice(device) is Result.Success) {
-                    return getRegisterDevice(device.id)
-                }
-            }
             Result.Failure(e)
         }
     }
 
-    override suspend fun updateRegistration(device: Device): Result<Unit> {
+    override suspend fun registerDeviceApp(deviceId: String, deviceApp: DeviceApp): Result<Unit> {
         return try {
-            httpDelegate.sendRequest { api.updateDevice(device.id, device) }
+            httpDelegate.sendRequest { api.registerDeviceApp(deviceId, deviceApp) }
+
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun getOrRegisterDeviceApp(id: String, deviceApp: DeviceApp): Result<DeviceApp> {
+        return try {
+            val result = httpDelegate.sendRequest { api.getOrRegisterDeviceApp(id, deviceApp) }
+
+            Result.Success(gson.fromJson(result, DeviceApp::class.java))
+        }catch (e: Exception){
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun updateDeviceApp(deviceApp: DeviceApp): Result<Unit> {
+        return try {
+            httpDelegate.sendRequest { api.updateDeviceApp(deviceApp.id, deviceApp) }
 
             Result.Success(Unit)
         } catch (e: Exception) {

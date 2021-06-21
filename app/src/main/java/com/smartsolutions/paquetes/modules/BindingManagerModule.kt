@@ -33,4 +33,7 @@ interface BindingManagerModule {
 
     @Binds
     fun bindIUserDataBytesManager(impl: UserDataBytesManager): IUserDataBytesManager
+
+    @Binds
+    fun bindIActivationManager(impl: ActivationManager): IActivationManager
 }

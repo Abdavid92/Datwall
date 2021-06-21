@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
 import androidx.annotation.IntDef
-import org.apache.commons.lang3.time.DateUtils
+import org.apache.commons.lang.time.DateUtils
 import java.util.*
 import kotlin.IllegalArgumentException
 

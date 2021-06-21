@@ -18,7 +18,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
  * para una aplicación como para todas la aplicaciones,
  * dependiendo si uid es distinto de cero.
  * */
-@Entity(tableName = "traffic", foreignKeys = [ForeignKey(entity = Sim::class, parentColumns = ["id"], childColumns = ["simID"])])
+@Entity(tableName = "traffic", foreignKeys = [ForeignKey(entity = Sim::class, parentColumns = ["id"], childColumns = ["sim_id"])])
 open class Traffic(
     /**
      * Uid de la aplicación que pertenece el tráfico de datos.
@@ -39,7 +39,7 @@ open class Traffic(
      * Id de la sim en la que se realizó el tráfico
      */
     @ColumnInfo(name = "sim_id")
-    val simID: String
+    val simId: String
     ) : Parcelable {
 
     /**
@@ -136,7 +136,7 @@ open class Traffic(
         parcel.writeInt(uid)
         parcel.writeLong(_rxBytes)
         parcel.writeLong(_txBytes)
-        parcel.writeString(simID)
+        parcel.writeString(simId)
         parcel.writeLong(id)
         parcel.writeLong(startTime)
         parcel.writeLong(endTime)

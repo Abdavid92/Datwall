@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.serverApis.contracts
 
 import com.smartsolutions.paquetes.serverApis.models.Device
+import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.serverApis.models.Result
 
 /**
@@ -19,6 +20,8 @@ interface IRegistrationClient {
      * */
     suspend fun getRegisterDevice(id: String): Result<Device>
 
+    suspend fun getOrRegister(device: Device): Result<Device>
+
     /**
      * Registra un nuevo dispositivo.
      *
@@ -29,16 +32,6 @@ interface IRegistrationClient {
     suspend fun registerDevice(device: Device): Result<Unit>
 
     /**
-     * Obtiene los datos del dispositivo o lo registra en caso de no
-     * encontrarlo.
-     *
-     * @param device - Dispositivo.
-     *
-     * @return [Device] - Datos del dispositivo.
-     * */
-    suspend fun getOrRegister(device: Device): Result<Device>
-
-    /**
      * Actualiza los datos de un dispositivo previamente registrado.
      *
      * @param device - Datos del dispositivo.
@@ -46,4 +39,10 @@ interface IRegistrationClient {
      * @return `true` si tiene éxito.
      * */
     suspend fun updateRegistration(device: Device): Result<Unit>
+
+    suspend fun registerDeviceApp(deviceId: String, deviceApp: DeviceApp): Result<Unit>
+
+    suspend fun getOrRegisterDeviceApp(id: String, deviceApp: DeviceApp): Result<DeviceApp>
+
+    suspend fun updateDeviceApp(deviceApp: DeviceApp): Result<Unit>
 }

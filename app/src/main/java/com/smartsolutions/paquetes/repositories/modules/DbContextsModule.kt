@@ -2,7 +2,6 @@ package com.smartsolutions.paquetes.repositories.modules
 
 import android.content.Context
 import com.smartsolutions.paquetes.data.DbContext
-import com.smartsolutions.paquetes.data.TrafficDbContext
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,10 +15,6 @@ object DbContextsModule {
     @Provides
     fun provideDbContext(@ApplicationContext context: Context) =
         DbContext.getInstance(context)
-
-    @Provides
-    fun provideTrafficDbContext(@ApplicationContext context: Context) =
-        TrafficDbContext.getInstance(context)
 
     @Provides
     fun provideIAppDao(dbContext: DbContext) = dbContext.getAppDao()
@@ -37,7 +32,7 @@ object DbContextsModule {
     fun provideIMiCubacelAccountDao(dbContext: DbContext) = dbContext.getMiCubacelAccountDao()
 
     @Provides
-    fun provideITrafficDao(dbContext: TrafficDbContext) = dbContext.getTrafficDao()
+    fun provideITrafficDao(dbContext: DbContext) = dbContext.getTrafficDao()
 
     @Provides
     fun provideIUSerDataBytesDao(dbContext: DbContext) = dbContext.getUserDataBytesDao()

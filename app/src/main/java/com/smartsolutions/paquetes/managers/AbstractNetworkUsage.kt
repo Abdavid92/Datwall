@@ -9,7 +9,7 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import kotlinx.coroutines.runBlocking
-import org.apache.commons.lang3.time.DateUtils
+import org.apache.commons.lang.time.DateUtils
 import java.util.ArrayList
 
 @RequiresApi(23)

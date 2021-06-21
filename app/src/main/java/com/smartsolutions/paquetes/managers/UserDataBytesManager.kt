@@ -10,7 +10,7 @@ import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import javax.inject.Inject
 import kotlin.math.abs
 import com.smartsolutions.paquetes.micubacel.models.DataBytes.DataType
-import org.apache.commons.lang3.time.DateUtils
+import org.apache.commons.lang.time.DateUtils
 
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,

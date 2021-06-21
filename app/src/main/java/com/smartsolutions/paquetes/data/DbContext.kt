@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.smartsolutions.paquetes.managers.models.Traffic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -19,7 +20,8 @@ import com.smartsolutions.paquetes.repositories.models.*
     PurchasedPackage::class,
     Sim::class,
     MiCubacelAccount::class,
-    UserDataBytes::class], version = 1, exportSchema = false)
+    UserDataBytes::class,
+    Traffic::class], version = 1, exportSchema = false)
 abstract class DbContext: RoomDatabase() {
 
     /**
@@ -45,6 +47,8 @@ abstract class DbContext: RoomDatabase() {
     abstract fun getMiCubacelAccountDao(): IMiCubacelAccountDao
 
     abstract fun getUserDataBytesDao(): IUserDataBytesDao
+
+    abstract fun getTrafficDao(): ITrafficDao
 
     /**
      * Seeder de la tabla data_packages

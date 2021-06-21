@@ -43,4 +43,17 @@ object PreferencesKeys {
      * Indica si el dispositotivo se puede conectar a la red LTE
      * */
     val ENABLED_LTE = booleanPreferencesKey("enabled_lte")
+
+    /**
+     * Identificador del dispositivo
+     * */
+    val DEVICE_ID = stringPreferencesKey("device_id")
+
+    val WAITING_PURCHASED = booleanPreferencesKey("waiting_purchased")
+
+    val DEVICE_APP = stringPreferencesKey("device_app")
+
+    //El key es random para despistar a los pocos usuarios rooteados que tengan la app y puedan
+    // increiblemente modificar el data store
+    val IS_PURCHASED = booleanPreferencesKey("disable_lte")
 }

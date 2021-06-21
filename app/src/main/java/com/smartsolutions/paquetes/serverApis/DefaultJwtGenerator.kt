@@ -9,11 +9,12 @@ import com.smartsolutions.paquetes.serverApis.contracts.ITimeApi
 import com.smartsolutions.paquetes.serverApis.converters.LongConverterFactory
 import com.smartsolutions.paquetes.serverApis.middlewares.CookieJarProcessor
 import com.smartsolutions.paquetes.serverApis.models.JwtData
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import okhttp3.OkHttpClient
-import org.apache.commons.lang3.time.DateUtils
+import org.apache.commons.lang.time.DateUtils
 import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
@@ -21,9 +22,10 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
 class DefaultJwtGenerator @Inject constructor(
-        private val context: Context,
-        sslContext: SSLContext,
-        trustManager: X509TrustManager
+    @ApplicationContext
+    private val context: Context,
+    sslContext: SSLContext,
+    trustManager: X509TrustManager
 ) : IJwtGenerator {
 
     private val api: ITimeApi

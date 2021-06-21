@@ -16,7 +16,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
-import org.apache.commons.lang3.time.DateUtils
+import org.apache.commons.lang.time.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -78,6 +78,10 @@ class SynchronizationManager @Inject constructor(
 
             userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), simManager.getDefaultVoiceSim().id)
         }
+
+        simRepository.update(sim.apply {
+            lastSynchronization = System.currentTimeMillis()
+        })
     }
 
     override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int, sim: Sim?) {
