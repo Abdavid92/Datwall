@@ -128,7 +128,11 @@ class DataPackageManager @Inject constructor(
             simManager.getSimByIndex(simIndex)
 
         if (smsBody.contains(DataPackagesContract.PROMO_BONUS_KEY)) {
-            userDataBytesManager.addPromoBonus(defaultSim.id)
+            val bytes = getBytesFromText("Bonos: ", smsBody)
+
+            if (bytes != -1L) {
+                userDataBytesManager.addPromoBonus(defaultSim.id, bytes)
+            }
             return
         }
 

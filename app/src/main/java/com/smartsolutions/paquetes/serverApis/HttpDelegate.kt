@@ -55,66 +55,6 @@ class HttpDelegate @Inject constructor(
         return null
     }
 
-    /*@Throws(Exception::class, HttpException::class, UnprocessableRequestException::class)
-    suspend fun sendRequest(call: () -> Call<ResponseBody>): String {
-        return suspendCoroutine {
-
-            var completed = false
-
-            for (i in 0..2) {
-                if (completed) {
-                    break
-                }
-
-                val callResponse = call()
-
-                callResponse.enqueue(object : Callback<ResponseBody> {
-
-                    override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                        if (response.isSuccessful) {
-                            val body = response.body()?.string()
-
-                            if (body != null && body.isNotEmpty()) {
-
-                                if (body.contains("</html>")) {
-                                    //Genero la cookies de nuevo
-                                    generateCookies(body)
-                                } else {
-                                    it.resume(body)
-                                    completed = true
-                                }
-                            } else {
-                                it.resumeWithException(
-                                    UnprocessableRequestException(
-                                        UnprocessableRequestException.Reason.NO_RESPONSE
-                                    )
-                                )
-                                completed = true
-                            }
-                        } else {
-                            it.resumeWithException(HttpException(response))
-                            completed = true
-                        }
-                    }
-
-                    override fun onFailure(call: Call<ResponseBody>, throwable: Throwable) {
-                        if (i == 2) {
-                            it.resumeWithException(throwable)
-                        }
-                    }
-                })
-            }
-
-            if (!completed) {
-                it.resumeWithException(
-                    UnprocessableRequestException(
-                        UnprocessableRequestException.Reason.NO_RESPONSE
-                    )
-                )
-            }
-        }
-    }*/
-
     private fun generateCookies(body: String) {
         val a = getVar(body, "a")
         val b = getVar(body, "b")

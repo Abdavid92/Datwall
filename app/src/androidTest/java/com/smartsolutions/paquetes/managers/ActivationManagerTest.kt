@@ -9,6 +9,9 @@ import org.junit.Test
 
 import org.junit.Assert.*
 import org.junit.Rule
+import java.math.RoundingMode
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import javax.inject.Inject
 
 @HiltAndroidTest
@@ -37,5 +40,13 @@ class ActivationManagerTest {
 
             assertNotNull(device)
         }
+    }
+
+    @Test
+    fun confirmPurchased() {
+
+        val text = DecimalFormat("0.00").format(50)
+
+        assertNotNull(text)
     }
 }

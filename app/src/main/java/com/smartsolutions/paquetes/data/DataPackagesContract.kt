@@ -7,7 +7,7 @@ import com.smartsolutions.paquetes.managers.models.DataUnitBytes.*
 
 object DataPackagesContract {
 
-    const val PROMO_BONUS_KEY = "Bonos: 1024 MB"
+    const val PROMO_BONUS_KEY = "Su cuenta ha sido recargada en promocion"
 
     const val GENERAL_DURATION = 30
 

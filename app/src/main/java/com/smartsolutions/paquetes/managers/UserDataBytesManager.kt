@@ -57,15 +57,16 @@ class UserDataBytesManager @Inject constructor(
         }
     }
 
-    override suspend fun addPromoBonus(simId: String) {
+    override suspend fun addPromoBonus(simId: String, bytes: Long) {
         userDataBytesRepository.update(userDataBytesRepository.bySimId(simId)
             .filter { it.type != DataType.DailyBag }.onEach {
 
                 if (it.type == DataType.PromoBonus) {
-                    it.bytes += DataUnitBytes.GB.toLong()
+                    it.bytes += bytes
                     it.initialBytes = it.bytes
                     it.startTime = System.currentTimeMillis()
                 }
+                //Le ampliamos la fecha de expiración a todos UserDataBytes.
                 it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
             })
     }

@@ -127,12 +127,6 @@ class TrafficRegistration @Inject constructor(
             val tx = TrafficStats.getMobileTxBytes()
             val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
 
-            LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(Intent(ACTION_TRAFFIC).apply {
-                    putExtra(EXTRA_RX_BAND_WITH, rx - rxBytes)
-                    putExtra(EXTRA_TX_BAND_WITH, tx - txBytes)
-                })
-
             userDataBytesManager.registerTraffic(
                 rx - rxBytes,
                 tx - txBytes,
@@ -167,12 +161,6 @@ class TrafficRegistration @Inject constructor(
 
         private var rxBytes = -1L
         private var txBytes = -1L
-
-        const val ACTION_TRAFFIC = "com.smartsolutions.datwall.action.TRAFFIC"
-
-        const val EXTRA_RX_BAND_WITH = "com.smartsolutions.datwall.extra.RX_BAND_WITH"
-
-        const val EXTRA_TX_BAND_WITH = "com.smartsolutions.datwall.extra.TX_BAND_WITH"
     }
 
     override val coroutineContext: CoroutineContext

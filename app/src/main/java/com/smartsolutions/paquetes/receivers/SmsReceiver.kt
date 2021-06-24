@@ -6,10 +6,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsMessage
+import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
+import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,11 +27,18 @@ import javax.inject.Inject
 class SmsReceiver : BroadcastReceiver() {
 
     /**
-     * IDataPackageManager encargado de registrar los nuevos
+     * [IDataPackageManager] encargado de registrar los nuevos
      * paquetes comprados.
      * */
     @Inject
     lateinit var dataPackageManager: IDataPackageManager
+
+    /**
+     * [IActivationManager] encargado de confirmar y activar la compra de
+     * la aplicación.
+     * */
+    @Inject
+    lateinit var activationManager: Lazy<IActivationManager>
 
     override fun onReceive(context: Context, intent: Intent) {
         val sms: Array<SmsMessage>? = Telephony.Sms.Intents.getMessagesFromIntent(intent)
@@ -48,11 +60,20 @@ class SmsReceiver : BroadcastReceiver() {
                 number = it.originatingAddress
         }
 
-        number?.let {
+        number?.let { phoneNumber ->
 
-            if (it.equals("cubacel", true)) {
-                GlobalScope.launch(Dispatchers.IO) {
+            GlobalScope.launch(Dispatchers.IO) {
+                if (phoneNumber.equals("cubacel", true))
                     dataPackageManager.registerDataPackage(body, simIndex)
+
+                val waitingPurchased = context.dataStore
+                    .data
+                    .firstOrNull()
+                    ?.get(PreferencesKeys.WAITING_PURCHASED) == true
+
+                if (waitingPurchased) {
+                    activationManager.get()
+                        .confirmPurchase(body, phoneNumber, simIndex)
                 }
             }
         }

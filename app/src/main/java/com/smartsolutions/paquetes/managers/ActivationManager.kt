@@ -5,10 +5,11 @@ import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
-import android.telephony.SmsManager
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import androidx.work.*
 import com.google.gson.Gson
+import com.smartsolutions.paquetes.ActivationWorker
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.dataStore
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.net.NetworkInterface
 import java.sql.Date
-import java.text.DecimalFormat
 import javax.inject.Inject
 import kotlin.NoSuchElementException
 
@@ -91,9 +91,11 @@ class ActivationManager @Inject constructor(
 
     override fun getApplicationState(listener: IActivationManager.ApplicationStateListener) {
         GlobalScope.launch(Dispatchers.IO) {
-            val result = getDeviceApp()
+            val result = getDevice()
             try {
                 val deviceApp = result.getOrThrow()
+                    .deviceApps!!.first { it.androidAppPackageName == context.packageName }
+
                 when {
                     deviceApp.purchased -> listener.onPurchased(deviceApp)
                     deviceApp.androidApp.minVersion > Build.VERSION.SDK_INT -> listener.onDeprecated(deviceApp)
@@ -126,7 +128,7 @@ class ActivationManager @Inject constructor(
 
     override suspend fun transferCreditByUSSD(key: String, deviceApp: DeviceApp): Result<Unit> {
         val price = deviceApp.androidApp.price
-        if (key.isEmpty() || key.isBlank() || key.length != 4 || price - price.toInt() != 0F){
+        if (key.isEmpty() || key.isBlank() || key.length != 4 || price - price != 0){
             return Result.Failure(IllegalArgumentException())
         }
 
@@ -157,8 +159,9 @@ class ActivationManager @Inject constructor(
             )
 
            val androidApp = deviceApp.androidApp
-           val price = DecimalFormat("0").format(androidApp.price)
-           val priceTransfermovil = DecimalFormat("0.00").format(androidApp.price)
+           val price = androidApp.price.toString()
+
+           val priceTransfermovil = "${androidApp.price}.00"
 
            if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)){
                deviceApp.transaction = readTransaction(smsBody)
@@ -169,9 +172,11 @@ class ActivationManager @Inject constructor(
            }
 
            deviceApp.purchased = true
+           deviceApp.waitingPurchase = false
 
            context.dataStore.edit {
                it[PreferencesKeys.DEVICE_APP] = gson.toJson(deviceApp)
+               it[PreferencesKeys.WAITING_PURCHASED] = false
                scheduleWorker()
            }
 
@@ -200,7 +205,14 @@ class ActivationManager @Inject constructor(
     }
 
     private fun scheduleWorker() {
-        TODO()
+        val workRequest = OneTimeWorkRequestBuilder<ActivationWorker>()
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build())
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueue(workRequest)
     }
 
     @SuppressLint("HardwareIds")
@@ -217,13 +229,16 @@ class ActivationManager @Inject constructor(
                 }
 
                 val wifiManager = ContextCompat
-                    .getSystemService(context, WifiManager::class.java) ?: throw NullPointerException()
+                    .getSystemService(context, WifiManager::class.java) ?:
+                    throw NullPointerException()
 
                 if (!wifiManager.isWifiEnabled) {
                     throw IllegalStateException("Wifi must be enabled.")
                 }
 
-                deviceId = getMacAddress() ?: Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+                deviceId = getMacAddress() ?: Settings
+                    .Secure
+                    .getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
                 context.dataStore.edit {
                     it[PreferencesKeys.DEVICE_ID] = deviceId!!

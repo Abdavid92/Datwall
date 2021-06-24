@@ -55,3 +55,69 @@ fun Array<CharSequence>.string(): String {
 
     return text
 }
+
+/**
+ * Lee la cantidad de bytes de un texto en el que se exprese de
+ * la siguiente manera: '1.24 MB' o '1.5 GB'.
+ *
+ * @param key - Texto que se encuentra justo antes de la cantidad de bytes.
+ * @param text - Texto completo donde buscar.
+ *
+ * @return La cantidad encontrada expresada en bytes o -1 si no es posible
+ * obtener la cantidad.
+ * */
+fun getBytesFromText(key: String, text: String): Long {
+    if (!text.contains(key))
+        return -1
+
+    val start = text.indexOf(key) + key.length
+    var unit: DataUnitBytes.DataUnit = DataUnitBytes.DataUnit.B
+
+    var index = start
+
+    while (index < text.length) {
+
+        when (text[index].toUpperCase()){
+            'B' -> {
+                unit = DataUnitBytes.DataUnit.B
+                break
+            }
+            'K' -> {
+                unit = DataUnitBytes.DataUnit.KB
+                break
+            }
+            'M' -> {
+                unit = DataUnitBytes.DataUnit.MB
+                break
+            }
+            'G' -> {
+                unit = DataUnitBytes.DataUnit.GB
+                break
+            }
+        }
+        index++
+    }
+
+    when (text[index].toUpperCase()) {
+        'K', 'M', 'G' -> {
+            if (text.length < index + 1 || !text[index + 1].toUpperCase().equals('B', true))
+                return -1
+        }
+        'B' -> {
+            if (text.length > index + 1 && text[index + 1].isLetter())
+                return -1
+        }
+    }
+
+    return try {
+        val value = text.substring(start, index).trimStart().trimEnd().toFloat()
+        when (unit) {
+            DataUnitBytes.DataUnit.KB -> (value * KB).toLong()
+            DataUnitBytes.DataUnit.MB -> (value * MB).toLong()
+            DataUnitBytes.DataUnit.GB -> (value * GB).toLong()
+            else -> value.toLong()
+        }
+    } catch (e: Exception) {
+        -1
+    }
+}

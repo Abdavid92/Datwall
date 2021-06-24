@@ -1,14 +1,13 @@
 package com.smartsolutions.paquetes.managers
 
 import android.content.Context
-import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.helpers.getBytesFromText
 import com.smartsolutions.paquetes.managers.contracts.*
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -22,7 +21,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.NoSuchElementException
-import kotlin.coroutines.CoroutineContext
 
 class SynchronizationManager @Inject constructor(
     @ApplicationContext
@@ -123,7 +121,7 @@ class SynchronizationManager @Inject constructor(
         if (response.contains(PAQUETES))
             data.addAll(getInternationals(response))
 
-        val value = getValueFromText(DIARIA, response)
+        val value = getBytesFromText(DIARIA, response)
         if (value > 0){
             data.add(DataBytes(DataBytes.DataType.DailyBag, value, getExpireDatePackages(response, true)))
         }
@@ -136,17 +134,17 @@ class SynchronizationManager @Inject constructor(
 
         val data = mutableListOf<DataBytes>()
 
-        var value = getValueFromText(PROMO_BONO, response)
+        var value = getBytesFromText(PROMO_BONO, response)
         if (value >= 0){
             data.add(DataBytes(DataBytes.DataType.PromoBonus, value, getExpireDateBonus(PROMO_BONO, response)))
         }
 
-        value = getValueFromText(BONO, response)
+        value = getBytesFromText(BONO, response)
         if (value >= 0){
             data.add(DataBytes(DataBytes.DataType.Bonus, value, getExpireDateBonus(BONO, response)))
         }
 
-        value = getValueFromText(NATIONAL, response)
+        value = getBytesFromText(NATIONAL, response)
         if (value >= 0){
             data.add(DataBytes(DataBytes.DataType.National, value, getExpireDateBonus(NATIONAL, response)))
         }
@@ -167,12 +165,12 @@ class SynchronizationManager @Inject constructor(
     }
 
     private fun getInternationals(text: String): List<DataBytes> {
-        var international = getValueFromText(PAQUETES, text)
+        var international = getBytesFromText(PAQUETES, text)
         var internationalLte = 0L
 
         if (text.contains("solo LTE)")){
             val start = text.indexOf(PAQUETES)
-            internationalLte = getValueFromText(text.substring(start, text.indexOf("(", start) + 1), text)
+            internationalLte = getBytesFromText(text.substring(start, text.indexOf("(", start) + 1), text)
             if (internationalLte >= 0)
                 international -= internationalLte
             else
@@ -189,50 +187,7 @@ class SynchronizationManager @Inject constructor(
         )
     }
 
-    private fun getValueFromText(find: String, text: String): Long {
-        if (!text.contains(find))
-            return -1
 
-        val start = text.indexOf(find) + find.length
-        var unit: DataUnitBytes.DataUnit = DataUnitBytes.DataUnit.B
-
-        var index = start
-
-        while (index < text.length){
-            val letter = text[index]
-            when (letter.toString()){
-                "B" -> {
-                    unit = DataUnitBytes.DataUnit.B
-                    break
-                }
-                "K" -> {
-                    unit = DataUnitBytes.DataUnit.KB
-                    break
-                }
-                "M" -> {
-                    unit = DataUnitBytes.DataUnit.MB
-                    break
-                }
-                "G" -> {
-                    unit = DataUnitBytes.DataUnit.GB
-                    break
-                }
-            }
-            index++
-        }
-
-        return try {
-            val value = text.substring(start, index).trimStart().trimEnd().toFloat()
-            when (unit) {
-                DataUnitBytes.DataUnit.KB -> (value * DataUnitBytes.KB).toLong()
-                DataUnitBytes.DataUnit.MB -> (value * DataUnitBytes.MB).toLong()
-                DataUnitBytes.DataUnit.GB -> (value * DataUnitBytes.GB).toLong()
-                else -> value.toLong()
-            }
-        } catch (e: Exception) {
-            -1
-        }
-    }
 
     private fun getExpireDatePackages(text: String, isBolsa: Boolean): Long {
         if (isBolsa && !text.contains(DIARIA) || !isBolsa && !text.contains(PAQUETES)){

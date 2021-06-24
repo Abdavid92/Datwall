@@ -27,7 +27,7 @@ data class AndroidApp(
     val debug: Boolean,
     @SerializedName("trial_period")
     val trialPeriod: Int,
-    val price: Float,
+    val price: Int,
     @SerializedName("debit_card")
     val debitCard: String,
     val phone: String,
