@@ -48,4 +48,6 @@
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_ok">Aceptar</string>
     <string name="jump">Saltar</string>
+    <string name="required_permission_denied">Sin este permiso la aplicación no puede funcionar.</string>
+    <string name="optional_permission_denied">Sin este permiso algunas funciones no estarán disponibles.</string>
 </resources>

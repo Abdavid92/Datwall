@@ -47,9 +47,13 @@ open class PermissionsManager @Inject constructor(
 
                 mode == AppOpsManager.MODE_ALLOWED
             },
-            requestPermission = { activity ->
+            requestPermissionActivity = { activity ->
                 val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
                 activity.startActivityForResult(intent, requestCode)
+            },
+            requestPermissionFragment = { fragment ->
+                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                fragment.startActivityForResult(intent, requestCode)
             }
         ),
         Permission(
@@ -62,12 +66,23 @@ open class PermissionsManager @Inject constructor(
                 intent = VpnService.prepare(context)
                 intent == null
             },
-            requestPermission = { activity ->
+            requestPermissionActivity = { activity ->
                 if (intent != null) {
                     activity.startActivityForResult(intent, requestCode)
                 } else {
                     VpnService.prepare(activity)?.let {
                         activity.startActivityForResult(it, requestCode)
+                    }
+                }
+            },
+            requestPermissionFragment = { fragment ->
+                if (intent != null) {
+                    fragment.startActivityForResult(intent, requestCode)
+                } else {
+                    fragment.context?.let { context ->
+                        VpnService.prepare(context)?.let { serviceIntent ->
+                            fragment.startActivityForResult(serviceIntent, requestCode)
+                        }
                     }
                 }
             }

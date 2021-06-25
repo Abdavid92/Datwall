@@ -1,19 +1,17 @@
 package com.smartsolutions.paquetes.ui.permissions
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.os.Build
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.AndroidEntryPoint
-import moe.feng.common.stepperview.VerticalStepperItemView
 import moe.feng.common.stepperview.VerticalStepperView
 import javax.inject.Inject
 
@@ -25,8 +23,11 @@ private const val REQUEST_CODES = "request_codes"
  * create an instance of this fragment.
  */
 @AndroidEntryPoint
-@RequiresApi(Build.VERSION_CODES.M)
-class PermissionsFragment private constructor(): Fragment() {
+class PermissionsFragment private constructor(
+    private val callback: PermissionFragmentCallback?
+): Fragment() {
+
+    private lateinit var steppers: VerticalStepperView
 
     private var permissions = emptyList<Permission>()
 
@@ -53,17 +54,17 @@ class PermissionsFragment private constructor(): Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val steppers = view.findViewById<VerticalStepperView>(R.id.steppers)
+        steppers = view.findViewById(R.id.steppers)
 
-        activity?.let {
-            steppers.stepperAdapter = StepperAdapter(permissions, it)
-        }
+        steppers.stepperAdapter = StepperAdapter(permissions, this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-
+        this.permissions.firstOrNull { it.requestCode == requestCode }?.let { permission ->
+            processPermissionResult(resultCode == RESULT_OK, permission)
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -73,7 +74,36 @@ class PermissionsFragment private constructor(): Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        Toast.makeText(context, "Permission", Toast.LENGTH_SHORT).show()
+        this.permissions.firstOrNull { it.requestCode == requestCode }?.let { permission ->
+            var granted = true
+
+            grantResults.forEach {
+                if (it == PackageManager.PERMISSION_DENIED)
+                    granted = false
+            }
+
+            processPermissionResult(granted, permission)
+        }
+    }
+
+    private fun processPermissionResult(granted: Boolean, permission: Permission) {
+        if (granted) {
+            if (steppers.canNext())
+                steppers.nextStep()
+            else {
+                notifyFinished()
+            }
+        } else {
+            if (permission.category == Permission.Category.Required) {
+                steppers.setErrorText(steppers.currentStep, getString(R.string.required_permission_denied))
+            } else {
+                steppers.setErrorText(steppers.currentStep, getString(R.string.optional_permission_denied))
+            }
+        }
+    }
+
+    fun notifyFinished() {
+        callback?.onFinished()
     }
 
     companion object {
@@ -82,15 +112,20 @@ class PermissionsFragment private constructor(): Fragment() {
          * this fragment using the provided parameters.
          *
          * @param requestCodes
+         * @param callback
          *
          * @return A new instance of fragment PermissionsFragment.
          */
         @JvmStatic
-        fun newInstance(requestCodes: IntArray) =
-            PermissionsFragment().apply {
+        fun newInstance(requestCodes: IntArray, callback: PermissionFragmentCallback? = null) =
+            PermissionsFragment(callback).apply {
                 arguments = Bundle().apply {
                     putIntArray(REQUEST_CODES, requestCodes)
                 }
             }
+    }
+
+    interface PermissionFragmentCallback {
+        fun onFinished()
     }
 }

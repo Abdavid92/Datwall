@@ -42,13 +42,23 @@ class PermissionsManagerM @Inject constructor(
             checkPermission = { context ->
                 Settings.canDrawOverlays(context)
             },
-            requestPermission = { activity ->
+            requestPermissionActivity = { activity ->
                 val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
 
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
                     intent.data = Uri.parse("package:${activity.packageName}")
 
                 activity.startActivityForResult(intent, requestCode)
+            },
+            requestPermissionFragment = { fragment ->
+                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+
+                fragment.context?.let { context ->
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                        intent.data = Uri.parse("package:${context.packageName}")
+                }
+
+                fragment.startActivityForResult(intent, requestCode)
             }
         ),
         *super.permissions.toTypedArray()

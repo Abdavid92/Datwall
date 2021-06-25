@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.fragment.app.Fragment
 
 data class Permission(
     val name: String,
@@ -27,9 +28,13 @@ data class Permission(
         } else
             true
     },
-    val requestPermission: Permission.(context: Activity) -> Unit = { activity ->
+    val requestPermissionActivity: Permission.(activity: Activity) -> Unit = { activity ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             activity.requestPermissions(keys, requestCode)
+    },
+    val requestPermissionFragment: Permission.(fragment: Fragment) -> Unit = { fragment ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            fragment.requestPermissions(keys, requestCode)
     }
 ) {
 

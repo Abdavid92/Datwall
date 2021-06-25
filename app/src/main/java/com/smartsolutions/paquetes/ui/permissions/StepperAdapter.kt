@@ -1,10 +1,12 @@
 package com.smartsolutions.paquetes.ui.permissions
 
-import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatButton
+import androidx.fragment.app.Fragment
 import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.Permission
@@ -13,7 +15,7 @@ import moe.feng.common.stepperview.VerticalStepperItemView
 
 class StepperAdapter(
     private val permissions: List<Permission>,
-    private val activity: Activity
+    private val fragment: PermissionsFragment
 ) : IStepperAdapter {
 
     override fun getTitle(position: Int): CharSequence {
@@ -27,23 +29,31 @@ class StepperAdapter(
     override fun size() = permissions.size
 
     override fun onCreateCustomView(position: Int, context: Context?, stepper: VerticalStepperItemView?): View {
+        val permission = permissions[position]
+
         val view = LayoutInflater.from(context)
             .inflate(R.layout.item_permission, stepper, false)
 
         view.findViewById<MaterialTextView>(R.id.description)
-            .text = permissions[position].description
+            .text = permission.description
 
         view.findViewById<AppCompatButton>(R.id.btn_ok).setOnClickListener {
             permissions[position].apply {
-                requestPermission(activity)
+                requestPermissionFragment(fragment)
             }
         }
 
         view.findViewById<AppCompatButton>(R.id.btn_cancel).apply {
-            text = context?.getString(R.string.jump)
-            visibility = View.GONE
-            setOnClickListener {
-                stepper?.nextStep()
+            if (permission.category == Permission.Category.Required)
+                visibility = View.GONE
+            else {
+                text = context?.getString(R.string.jump)
+                setOnClickListener {
+                    if (stepper?.isLastStep == false)
+                        stepper.nextStep()
+                    else
+                        fragment.notifyFinished()
+                }
             }
         }
 
