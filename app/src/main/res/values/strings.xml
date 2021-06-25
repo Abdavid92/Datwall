@@ -31,4 +31,21 @@
     <string name="c_7">key</string>
     <string name="account_not_found">No se encontró ninguna cuenta vinculada a esta linea.</string>
     <string name="product_not_found">No se ha podido encontrar el paquete solicitado en mi.cubacel.net.</string>
+
+    <!--Permissions-->
+    <string name="call_permission">Permiso de llamadas</string>
+    <string name="call_permission_description">Permiso de realizar llamadas</string>
+    <string name="sms_permission">Permiso de sms</string>
+    <string name="sms_permission_description">Descripción del permiso de sms</string>
+    <string name="usage_access_permission">Acceso a Datos de Uso</string>
+    <string name="usage_access_permission_description">Descripción del permsio de acceso a datos de uso.</string>
+    <string name="draw_overlays_permission">Permiso para sobreponerse a otras apps</string>
+    <string name="draw_overlays_permission_description">Descripción del permiso de sobreponerse a otras apps</string>
+    <string name="vpn_permission">Permiso para crear vpn</string>
+    <string name="vpn_permission_description">Este permiso se utiliza para poder crear un cortafuegos mediante del uso de una vpn.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_ok">Aceptar</string>
+    <string name="jump">Saltar</string>
 </resources>

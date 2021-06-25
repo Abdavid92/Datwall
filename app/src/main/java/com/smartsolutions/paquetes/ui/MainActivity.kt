@@ -45,25 +45,4 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_log -> {
-                obtainPackages()
-                startActivity(Intent(this, LogActivity::class.java))
-            }
-        }
-        return true
-    }
-
-    private fun obtainPackages(){
-        GlobalScope.launch(Dispatchers.IO) {
-            synchronizationManager.synchronizeUserDataBytes(Sim("1", 0L, Networks.NETWORK_3G_4G))
-        }
-    }
 }

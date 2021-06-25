@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.modules
 
 import android.os.Build
 import com.smartsolutions.paquetes.managers.*
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,27 +14,25 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(ServiceComponent::class, ViewModelComponent::class, SingletonComponent::class)
 class ManagersModule {
 
-    /*@Provides
-    fun provideINetworkUsageManager(
-        @ApplicationContext
-        context: Context,
-        trafficRepository: TrafficRepository,
-        simsHelper: SimsHelper
-    ): NetworkUsageManager {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            NetworkUsageManagerDefault(context, simsHelper)
-        else
-            NetworkUsageManagerLegacy(trafficRepository)
-    }*/
-
     @Provides
     fun provideNetworkUsageManager(
-        impl: NetworkUsageManagerDefault,
-        legacyImpl: NetworkUsageManagerLegacy
+        impl: Lazy<NetworkUsageManagerDefault>,
+        legacyImpl: Lazy<NetworkUsageManagerLegacy>
     ): NetworkUsageManager {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            impl
+            impl.get()
         else
-            legacyImpl
+            legacyImpl.get()
+    }
+
+    @Provides
+    fun providePermissionsManager(
+        impl: Lazy<PermissionsManagerM>,
+        legacyImpl: Lazy<PermissionsManager>
+    ): PermissionsManager {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            impl.get()
+        else
+            legacyImpl.get()
     }
 }

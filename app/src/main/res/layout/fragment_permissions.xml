@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.permissions.PermissionsFragment">
+
+    <moe.feng.common.stepperview.VerticalStepperView
+        android:id="@+id/steppers"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:step_normal_color="?attr/colorPrimary"
+        app:step_activated_color="?attr/colorAccent" />
+
+</FrameLayout>
