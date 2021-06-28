@@ -11,6 +11,7 @@ import com.smartsolutions.paquetes.ui.ApplicationFragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
+import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -51,9 +52,7 @@ class DashboardFragment : ApplicationFragment() {
     }
     
     private fun deleteOne(view: View) {
-        //dashboardViewModel.deleteOne()
-        GlobalScope.launch {
-            dataPackageManager.configureDataPackages()
-        }
+        SinglePermissionFragment.newInstance(5)
+            .show(parentFragmentManager, "Single")
     }
 }
