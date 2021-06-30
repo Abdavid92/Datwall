@@ -1,17 +1,22 @@
 package com.smartsolutions.paquetes.ui.permissions
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.appcompat.widget.AppCompatButton
+import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.PacketManager
+import com.smartsolutions.paquetes.managers.PermissionsManager
+import com.smartsolutions.paquetes.managers.models.Permission
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-// TODO: Customize parameter argument names
-const val ARG_ITEM_COUNT = "item_count"
+private const val ARG_REQUEST_CODE = "request_code"
 
 /**
  *
@@ -22,7 +27,24 @@ const val ARG_ITEM_COUNT = "item_count"
  *    SinglePermissionFragment.newInstance(30).show(supportFragmentManager, "dialog")
  * </pre>
  */
-class SinglePermissionFragment : BottomSheetDialogFragment() {
+@AndroidEntryPoint
+class SinglePermissionFragment private constructor(
+    private val callback: SinglePermissionCallback?
+): BottomSheetDialogFragment() {
+
+    @Inject
+    lateinit var permissionsManager: PermissionsManager
+
+    private lateinit var permission: Permission
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val requestCode = arguments?.getInt(ARG_REQUEST_CODE)
+
+        permission = permissionsManager.findPermission(requestCode ?: 0)
+            ?: throw IllegalArgumentException()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,18 +54,78 @@ class SinglePermissionFragment : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.findViewById<MaterialTextView>(R.id.permission_name)
+            .text = permission.name
 
+        view.findViewById<MaterialTextView>(R.id.description)
+            .text = permission.description
+
+        view.findViewById<AppCompatButton>(R.id.btn_cancel).apply {
+            if (permission.category == Permission.Category.Required)
+                this.visibility = View.GONE
+            else {
+                setOnClickListener {
+                    dismiss()
+                    notifyResult(false)
+                }
+            }
+        }
+
+        view.findViewById<AppCompatButton>(R.id.btn_grant)
+            .setOnClickListener { permission.requestPermissionFragment(permission, this) }
+    }
+
+    private fun notifyResult(granted: Boolean) {
+        if (granted)
+            callback?.onGranted()
+        else
+            callback?.onDenied()
+
+        this.dismiss()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == permission.requestCode) {
+            var granted = true
+
+            grantResults.forEach {
+                if (it == PackageManager.PERMISSION_DENIED)
+                    granted = false
+            }
+
+            notifyResult(granted)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == permission.requestCode) {
+            context?.let {
+                notifyResult(permission.checkPermission(permission, it))
+            }
+        }
     }
 
     companion object {
 
-        // TODO: Customize parameters
-        fun newInstance(itemCount: Int): SinglePermissionFragment =
-            SinglePermissionFragment().apply {
+        fun newInstance(requestCode: Int, callback: SinglePermissionCallback? = null): SinglePermissionFragment =
+            SinglePermissionFragment(callback).apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_ITEM_COUNT, itemCount)
+                    putInt(ARG_REQUEST_CODE, requestCode)
                 }
             }
 
+    }
+
+    interface SinglePermissionCallback {
+        fun onGranted()
+        fun onDenied()
     }
 }

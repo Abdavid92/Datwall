@@ -1,12 +1,9 @@
 package com.smartsolutions.paquetes.ui.permissions
 
 import android.content.Context
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatButton
-import androidx.fragment.app.Fragment
 import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.Permission
@@ -37,7 +34,7 @@ class StepperAdapter(
         view.findViewById<MaterialTextView>(R.id.description)
             .text = permission.description
 
-        view.findViewById<AppCompatButton>(R.id.btn_ok).setOnClickListener {
+        view.findViewById<AppCompatButton>(R.id.btn_grant).setOnClickListener {
             permissions[position].apply {
                 requestPermissionFragment(fragment)
             }
@@ -49,10 +46,7 @@ class StepperAdapter(
             else {
                 text = context?.getString(R.string.jump)
                 setOnClickListener {
-                    if (stepper?.isLastStep == false)
-                        stepper.nextStep()
-                    else
-                        fragment.notifyFinished()
+                    fragment.nextStep()
                 }
             }
         }

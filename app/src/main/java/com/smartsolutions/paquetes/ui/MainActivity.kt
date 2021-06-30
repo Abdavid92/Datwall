@@ -44,5 +44,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        startActivity(Intent(this, PresentationActivity::class.java))
     }
 }

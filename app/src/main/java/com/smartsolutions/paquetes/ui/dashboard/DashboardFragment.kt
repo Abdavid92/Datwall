@@ -52,7 +52,7 @@ class DashboardFragment : ApplicationFragment() {
     }
     
     private fun deleteOne(view: View) {
-        SinglePermissionFragment.newInstance(5)
+        SinglePermissionFragment.newInstance(34)
             .show(parentFragmentManager, "Single")
     }
 }

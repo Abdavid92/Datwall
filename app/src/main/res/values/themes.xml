@@ -14,4 +14,7 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="BottomSheetDialog." parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="cornerSizeTopLeft">20dp</item>
+    </style>
 </resources>

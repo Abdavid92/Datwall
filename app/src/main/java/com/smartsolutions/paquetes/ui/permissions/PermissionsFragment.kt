@@ -12,6 +12,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.AndroidEntryPoint
+import moe.feng.common.stepperview.VerticalStepperItemView
 import moe.feng.common.stepperview.VerticalStepperView
 import javax.inject.Inject
 
@@ -57,13 +58,28 @@ class PermissionsFragment private constructor(
         steppers = view.findViewById(R.id.steppers)
 
         steppers.stepperAdapter = StepperAdapter(permissions, this)
+
+    }
+
+    fun nextStep() {
+        steppers.setErrorText(steppers.currentStep, null)
+        if (steppers.canNext())
+            steppers.nextStep()
+        else
+            notifyFinished()
+    }
+
+    private fun notifyFinished() {
+        callback?.onFinished()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         this.permissions.firstOrNull { it.requestCode == requestCode }?.let { permission ->
-            processPermissionResult(resultCode == RESULT_OK, permission)
+            context?.let { context ->
+                processPermissionResult(permission.checkPermission(permission, context), permission)
+            }
         }
     }
 
@@ -88,11 +104,7 @@ class PermissionsFragment private constructor(
 
     private fun processPermissionResult(granted: Boolean, permission: Permission) {
         if (granted) {
-            if (steppers.canNext())
-                steppers.nextStep()
-            else {
-                notifyFinished()
-            }
+            nextStep()
         } else {
             if (permission.category == Permission.Category.Required) {
                 steppers.setErrorText(steppers.currentStep, getString(R.string.required_permission_denied))
@@ -100,10 +112,6 @@ class PermissionsFragment private constructor(
                 steppers.setErrorText(steppers.currentStep, getString(R.string.optional_permission_denied))
             }
         }
-    }
-
-    fun notifyFinished() {
-        callback?.onFinished()
     }
 
     companion object {

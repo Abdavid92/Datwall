@@ -50,4 +50,11 @@
     <string name="jump">Saltar</string>
     <string name="required_permission_denied">Sin este permiso la aplicación no puede funcionar.</string>
     <string name="optional_permission_denied">Sin este permiso algunas funciones no estarán disponibles.</string>
+    <string name="btn_grant">Conceder</string>
+    <string name="page_1_title">Compra tus Paquetes</string>
+    <string name="page_1_description">Compra de manera fácil y segura todos los paquetes de datos de Etecsa.</string>
+    <string name="page_2_title">Monitorea tu Consumo</string>
+    <string name="page_2_description">Obtenga en tiempo real lo restante de tus megas y lo que han consumido las apps.</string>
+    <string name="page_3_title">Controla tus gastos</string>
+    <string name="page_3_description">No dejes que se escape ni un mega más con nuestro cortafuegos dinámico.</string>
 </resources>

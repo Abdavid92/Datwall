@@ -17,18 +17,18 @@
         android:id="@+id/btn_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/btn_ok"
+        app:layout_constraintEnd_toStartOf="@id/btn_grant"
         app:layout_constraintTop_toBottomOf="@id/description"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:text="@string/btn_cancel" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_ok"
+        android:id="@+id/btn_grant"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/description"
         app:layout_constraintEnd_toEndOf="parent"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:text="@string/btn_ok" />
+        android:text="@string/btn_grant" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
