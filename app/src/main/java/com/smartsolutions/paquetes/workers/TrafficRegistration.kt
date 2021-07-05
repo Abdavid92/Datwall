@@ -1,10 +1,8 @@
-package com.smartsolutions.paquetes
+package com.smartsolutions.paquetes.workers
 
 import android.content.Context
-import android.content.Intent
 import android.net.TrafficStats
 import android.os.Build
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtil

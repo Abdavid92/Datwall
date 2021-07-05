@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.TrafficRegistration
+import com.smartsolutions.paquetes.workers.TrafficRegistration
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.services.FirewallService
 import dagger.hilt.android.qualifiers.ApplicationContext

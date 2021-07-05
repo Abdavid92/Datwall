@@ -4,6 +4,7 @@ import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 import com.smartsolutions.paquetes.serverApis.converters.BooleanConverter
 import com.smartsolutions.paquetes.serverApis.converters.DateConverter
+import org.apache.commons.lang.time.DateUtils
 import java.sql.Date
 
 /**
@@ -25,8 +26,13 @@ data class DeviceApp(
     @JsonAdapter(BooleanConverter::class)
     var restored: Boolean,
     /**
-     * Si aún está en período de prueba.
+     * Si aún está en período de prueba. Esta propiedad
+     * no es segura.
      * */
+    @Deprecated(
+        "Esta propiedad no es segura",
+        replaceWith = ReplaceWith("inTrialPeriod()")
+    )
     @SerializedName("trial_period")
     @JsonAdapter(BooleanConverter::class)
     val trialPeriod: Boolean,
@@ -54,12 +60,18 @@ data class DeviceApp(
     /**
      * Id del dispositivo relacionado.
      * */
-    var deviceId: String,
+    val deviceId: String,
     /**
      * Nombre de paquete de la aplicación relacionada.
      * */
     @SerializedName("android_app_package_name")
-    var androidAppPackageName: String
+    val androidAppPackageName: String,
+    /**
+     * Fecha el la que se creó.
+     * */
+    @SerializedName("created_at")
+    @JsonAdapter(DateConverter::class)
+    val createdAt: Date
 ) {
 
     /**
@@ -67,6 +79,17 @@ data class DeviceApp(
      * */
     @SerializedName("android_app")
     lateinit var androidApp: AndroidApp
+
+    /**
+     * Indica si está en periodo de prueba.
+     * */
+    fun inTrialPeriod(): Boolean {
+        val days = (System.currentTimeMillis() - createdAt.time) / DateUtils.MILLIS_PER_DAY
+
+        val trialPeriod = androidApp.trialPeriod
+
+        return days <= trialPeriod
+    }
 
     companion object {
         /**

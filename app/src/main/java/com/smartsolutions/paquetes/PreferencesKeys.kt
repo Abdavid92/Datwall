@@ -51,9 +51,8 @@ object PreferencesKeys {
 
     val WAITING_PURCHASED = booleanPreferencesKey("waiting_purchased")
 
+    /**
+     * DeviceApp obtenido del servidor.
+     * */
     val DEVICE_APP = stringPreferencesKey("device_app")
-
-    //El key es random para despistar a los pocos usuarios rooteados que tengan la app y puedan
-    // increiblemente modificar el data store
-    val IS_PURCHASED = booleanPreferencesKey("disable_lte")
 }

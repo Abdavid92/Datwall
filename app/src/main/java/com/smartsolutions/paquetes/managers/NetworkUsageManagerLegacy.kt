@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.TrafficRegistration
+import com.smartsolutions.paquetes.workers.TrafficRegistration
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.TrafficRepository

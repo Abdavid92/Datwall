@@ -5,6 +5,7 @@ import com.stephentuso.welcome.BasicPage
 import com.stephentuso.welcome.TitlePage
 import com.stephentuso.welcome.WelcomeActivity
 import com.stephentuso.welcome.WelcomeConfiguration
+
 //TODO: Los íconos están pendiente a cambios
 class PresentationActivity : WelcomeActivity() {
 

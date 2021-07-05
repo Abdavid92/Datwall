@@ -1,15 +1,14 @@
-package com.smartsolutions.paquetes
+package com.smartsolutions.paquetes.workers
 
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
+import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
-import com.smartsolutions.paquetes.serverApis.models.Result
 import dagger.hilt.EntryPoint
-import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent

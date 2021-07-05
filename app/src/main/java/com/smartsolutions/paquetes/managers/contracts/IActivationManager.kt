@@ -3,8 +3,16 @@ package com.smartsolutions.paquetes.managers.contracts
 import com.smartsolutions.paquetes.serverApis.models.Device
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.serverApis.models.Result
+import java.sql.Date
 
 interface IActivationManager {
+
+    suspend fun canWork(): Boolean
+
+    /**
+     * Revisa con el dataStore si la aplicación sigue en periodo de prueba.
+     * */
+    suspend fun isInTrialPeriod(): Boolean
 
     /**
      * Obtiene el dispositivo del servidor.
@@ -17,11 +25,16 @@ interface IActivationManager {
     suspend fun getDeviceApp(): Result<DeviceApp>
 
     /**
-     * Verifica el estado de la aplicación y lanza el evento corespondiente.
+     * Obtiene el deviceApp guardado en el dataStore
+     * */
+    suspend fun getSaveDeviceApp(): DeviceApp?
+
+    /**
+     * Verifica el estado de la aplicación y lanza el evento correspondiente.
      *
      * @param listener - Listener de eventos.
      * */
-    fun getApplicationState(listener: ApplicationStateListener)
+    fun getApplicationStatus(listener: ApplicationStatusListener)
 
     /**
      * Inicia el proceso de activación.
@@ -44,11 +57,29 @@ interface IActivationManager {
 
     suspend fun isWaitingPurchased(): Boolean
 
-    interface ApplicationStateListener {
+
+    interface ApplicationStatusListener {
+        /**
+         * La aplicación ya ha sido comprada.
+         * */
         fun onPurchased(deviceApp: DeviceApp)
+        /**
+         * Ha sido descontinuada.
+         * */
         fun onDiscontinued(deviceApp: DeviceApp)
+        /**
+         * Está obsoleta. Hay que actualizar.
+         * */
         fun onDeprecated(deviceApp: DeviceApp)
-        fun onTrialPeriod(deviceApp: DeviceApp, expired: Boolean)
+        /**
+         * Está en periodo de prueba.
+         *
+         * @param isTrialPeriod - Indica si el periodo de prueba no ha expirado.
+         * */
+        fun onTrialPeriod(deviceApp: DeviceApp, isTrialPeriod: Boolean)
+        /**
+         * Falló la conexión.
+         * */
         fun onFailed(th: Throwable)
     }
 }

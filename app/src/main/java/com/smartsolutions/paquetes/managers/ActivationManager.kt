@@ -9,7 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.google.gson.Gson
-import com.smartsolutions.paquetes.ActivationWorker
+import com.smartsolutions.paquetes.workers.ActivationWorker
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.dataStore
@@ -40,6 +40,21 @@ class ActivationManager @Inject constructor(
     private val simManager: ISimManager
 ) : IActivationManager {
 
+    override suspend fun canWork(): Boolean {
+        getSaveDeviceApp()?.let {
+            if (it.purchased || (it.inTrialPeriod() && it.androidApp.status != ApplicationStatus.DISCONTINUED))
+                return true
+        }
+        return false
+    }
+
+    override suspend fun isInTrialPeriod(): Boolean {
+        getSaveDeviceApp()?.let {
+            return it.inTrialPeriod()
+        }
+        return false
+    }
+
     override suspend fun getDevice(): Result<Device> {
 
         val deviceId = getDeviceId()
@@ -62,12 +77,26 @@ class ActivationManager @Inject constructor(
             phone = null,
             waitingPurchase = false,
             deviceId = deviceId,
-            androidAppPackageName = packageName
+            androidAppPackageName = packageName,
+            createdAt = Date(System.currentTimeMillis())
         )
 
         device.deviceApps = listOf(deviceApp)
 
-        return registrationClient.getOrRegister(device)
+        val result = registrationClient.getOrRegister(device)
+
+        if (result.isSuccess) {
+            result.getOrNull()
+                ?.deviceApps
+                ?.firstOrNull { it.androidAppPackageName == packageName }
+                ?.let { deviceApp ->
+                    context.dataStore.edit {
+                        it[PreferencesKeys.DEVICE_APP] = gson.toJson(deviceApp)
+                    }
+                }
+        }
+
+        return result
     }
 
     override suspend fun getDeviceApp(): Result<DeviceApp> {
@@ -84,12 +113,35 @@ class ActivationManager @Inject constructor(
             phone = null,
             waitingPurchase = false,
             deviceId = deviceId,
-            androidAppPackageName = packageName
+            androidAppPackageName = packageName,
+            createdAt = Date(System.currentTimeMillis())
         )
-        return registrationClient.getOrRegisterDeviceApp(deviceApp.id, deviceApp)
+        val result = registrationClient.getOrRegisterDeviceApp(deviceApp.id, deviceApp)
+
+        if (result.isSuccess) {
+            result.getOrNull()?.let { deviceApp ->
+                context.dataStore.edit {
+                    it[PreferencesKeys.DEVICE_APP] = gson.toJson(deviceApp)
+                }
+            }
+        }
+
+        return result
     }
 
-    override fun getApplicationState(listener: IActivationManager.ApplicationStateListener) {
+    override suspend fun getSaveDeviceApp(): DeviceApp? {
+        context.dataStore.data
+            .firstOrNull()
+            ?.get(PreferencesKeys.DEVICE_APP)
+            ?.let {
+                try {
+                    return gson.fromJson(it, DeviceApp::class.java)
+                } catch (e: Exception) {}
+            }
+        return null
+    }
+
+    override fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener) {
         GlobalScope.launch(Dispatchers.IO) {
             val result = getDevice()
             try {
@@ -98,10 +150,10 @@ class ActivationManager @Inject constructor(
 
                 when {
                     deviceApp.purchased -> listener.onPurchased(deviceApp)
-                    deviceApp.androidApp.minVersion > Build.VERSION.SDK_INT -> listener.onDeprecated(deviceApp)
                     deviceApp.androidApp.status == ApplicationStatus.DISCONTINUED ->
                         listener.onDiscontinued(deviceApp)
-                    else -> listener.onTrialPeriod(deviceApp, deviceApp.trialPeriod)
+                    deviceApp.androidApp.minVersion > Build.VERSION.SDK_INT -> listener.onDeprecated(deviceApp)
+                    else -> listener.onTrialPeriod(deviceApp, deviceApp.inTrialPeriod())
                 }
             }catch (e: Exception){
                 listener.onFailed(e)
@@ -143,8 +195,6 @@ class ActivationManager @Inject constructor(
         }
         return Result.Success(Unit)
     }
-
-
 
     override suspend fun confirmPurchase(smsBody: String, phone: String, simIndex: Int): Result<Unit> {
         if (!isWaitingPurchased() || !phone.contains("PAGOxMOVIL", true) &&
@@ -245,9 +295,6 @@ class ActivationManager @Inject constructor(
                 }
 
                 return deviceId!!
-            }
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-                return Build.getSerial()
             }
             else -> {
                 return Build.SERIAL

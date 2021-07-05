@@ -30,6 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
+        <activity android:name=".ui.setup.SetupActivity"></activity>
         <!-- Activities -->
         <activity
             android:name=".ui.MainActivity"
@@ -40,17 +41,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.firewall.LogActivity"
             android:label="@string/log_activity_title"
             android:parentActivityName=".ui.MainActivity" />
-
         <activity android:name=".ui.firewall.AskActivity" />
-
-        <activity android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeScreenTheme"/>
-        <!-- Services -->
+        <activity
+            android:name=".ui.PresentationActivity"
+            android:theme="@style/WelcomeScreenTheme" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:enabled="true"
