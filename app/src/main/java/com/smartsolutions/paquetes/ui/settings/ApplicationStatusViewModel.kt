@@ -9,29 +9,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ApplicationStatusViewModel @Inject constructor(
     private val activationManager: IActivationManager
-) : ViewModel(), IActivationManager.ApplicationStatusListener {
+) : ViewModel() {
 
-    fun getApplicationStatus() {
-        activationManager.getApplicationStatus(this)
-    }
-
-    override fun onPurchased(deviceApp: DeviceApp) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onDiscontinued(deviceApp: DeviceApp) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onDeprecated(deviceApp: DeviceApp) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onTrialPeriod(deviceApp: DeviceApp, isTrialPeriod: Boolean) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onFailed(th: Throwable) {
-        TODO("Not yet implemented")
+    fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener) {
+        activationManager.getApplicationStatus(listener)
     }
 }

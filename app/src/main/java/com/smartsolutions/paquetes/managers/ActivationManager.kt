@@ -26,6 +26,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.NetworkInterface
 import java.sql.Date
 import javax.inject.Inject
@@ -40,12 +41,11 @@ class ActivationManager @Inject constructor(
     private val simManager: ISimManager
 ) : IActivationManager {
 
-    override suspend fun canWork(): Boolean {
+    override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
         getSaveDeviceApp()?.let {
-            if (it.purchased || (it.inTrialPeriod() && it.androidApp.status != ApplicationStatus.DISCONTINUED))
-                return true
+            return processApplicationStatus(it)
         }
-        return false
+        return Pair(false, IActivationManager.ApplicationStatuses.Unknown)
     }
 
     override suspend fun isInTrialPeriod(): Boolean {
@@ -144,19 +144,28 @@ class ActivationManager @Inject constructor(
     override fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener) {
         GlobalScope.launch(Dispatchers.IO) {
             val result = getDevice()
-            try {
-                val deviceApp = result.getOrThrow()
-                    .deviceApps!!.first { it.androidAppPackageName == context.packageName }
 
-                when {
-                    deviceApp.purchased -> listener.onPurchased(deviceApp)
-                    deviceApp.androidApp.status == ApplicationStatus.DISCONTINUED ->
-                        listener.onDiscontinued(deviceApp)
-                    deviceApp.androidApp.minVersion > Build.VERSION.SDK_INT -> listener.onDeprecated(deviceApp)
-                    else -> listener.onTrialPeriod(deviceApp, deviceApp.inTrialPeriod())
+            withContext(Dispatchers.Main) {
+                try {
+                    val deviceApp = result.getOrThrow()
+                        .deviceApps!!.first { it.androidAppPackageName == context.packageName }
+
+                    val status = processApplicationStatus(deviceApp)
+
+                    when (status.second) {
+                        IActivationManager.ApplicationStatuses.Purchased ->
+                            listener.onPurchased(deviceApp)
+                        IActivationManager.ApplicationStatuses.TrialPeriod ->
+                            listener.onTrialPeriod(deviceApp, status.first)
+                        IActivationManager.ApplicationStatuses.Discontinued ->
+                            listener.onDiscontinued(deviceApp)
+                        IActivationManager.ApplicationStatuses.Deprecated ->
+                            listener.onDeprecated(deviceApp)
+                        else -> listener.onFailed(Exception())
+                    }
+                } catch (e: Exception) {
+                    listener.onFailed(e)
                 }
-            }catch (e: Exception){
-                listener.onFailed(e)
             }
         }
     }
@@ -239,6 +248,30 @@ class ActivationManager @Inject constructor(
 
     override suspend fun isWaitingPurchased(): Boolean {
         return context.dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
+    }
+
+    private fun processApplicationStatus(deviceApp: DeviceApp): Pair<Boolean, IActivationManager.ApplicationStatuses> {
+        var canWork = false
+        val statuses: IActivationManager.ApplicationStatuses
+
+        when {
+            deviceApp.androidApp.status == ApplicationStatus.DISCONTINUED &&
+                    !deviceApp.purchased -> {
+                statuses = IActivationManager.ApplicationStatuses.Discontinued
+            }
+            deviceApp.androidApp.minVersion > Build.VERSION.SDK_INT -> {
+                statuses = IActivationManager.ApplicationStatuses.Deprecated
+            }
+            deviceApp.purchased -> {
+                canWork = true
+                statuses = IActivationManager.ApplicationStatuses.Purchased
+            }
+            else -> {
+                canWork = deviceApp.inTrialPeriod()
+                statuses = IActivationManager.ApplicationStatuses.TrialPeriod
+            }
+        }
+        return Pair(canWork, statuses)
     }
 
     private fun readTransaction(body: String): String {

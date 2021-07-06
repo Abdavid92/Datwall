@@ -17,6 +17,7 @@ import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.firewall.LogActivity
+import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -45,6 +46,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        startActivity(Intent(this, PresentationActivity::class.java))
+        startActivity(Intent(this, SetupActivity::class.java))
     }
 }

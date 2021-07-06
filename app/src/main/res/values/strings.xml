@@ -43,8 +43,7 @@
     <string name="draw_overlays_permission_description">Descripción del permiso de sobreponerse a otras apps</string>
     <string name="vpn_permission">Permiso para crear vpn</string>
     <string name="vpn_permission_description">Este permiso se utiliza para poder crear un cortafuegos mediante del uso de una vpn.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btn_continue">Continuar</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_ok">Aceptar</string>
     <string name="jump">Saltar</string>
@@ -57,4 +56,7 @@
     <string name="page_2_description">Obtenga en tiempo real lo restante de tus megas y lo que han consumido las apps.</string>
     <string name="page_3_title">Controla tus gastos</string>
     <string name="page_3_description">No dejes que se escape ni un mega más con nuestro cortafuegos dinámico.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="initial_application_status_summary">Vamos a revisar el estado de la aplicación. Por favor conectese a internet y presione continuar.</string>
 </resources>

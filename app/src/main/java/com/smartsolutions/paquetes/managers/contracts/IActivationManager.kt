@@ -3,11 +3,14 @@ package com.smartsolutions.paquetes.managers.contracts
 import com.smartsolutions.paquetes.serverApis.models.Device
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.serverApis.models.Result
-import java.sql.Date
 
 interface IActivationManager {
 
-    suspend fun canWork(): Boolean
+    /**
+     * Indica si la aplicación puede trabajar dependiendo de
+     * si está comprada o si está en periodo de prueba.
+     * */
+    suspend fun canWork(): Pair<Boolean, ApplicationStatuses>
 
     /**
      * Revisa con el dataStore si la aplicación sigue en periodo de prueba.
@@ -60,11 +63,11 @@ interface IActivationManager {
 
     interface ApplicationStatusListener {
         /**
-         * La aplicación ya ha sido comprada.
+         * La aplicación ya ha sido comprada y no está obsoleta.
          * */
         fun onPurchased(deviceApp: DeviceApp)
         /**
-         * Ha sido descontinuada.
+         * Ha sido descontinuada y no ha sido comprada.
          * */
         fun onDiscontinued(deviceApp: DeviceApp)
         /**
@@ -81,5 +84,32 @@ interface IActivationManager {
          * Falló la conexión.
          * */
         fun onFailed(th: Throwable)
+    }
+
+    /**
+     * Estados de la aplicación.
+     * */
+    enum class ApplicationStatuses {
+        /**
+         * Ha sido comprada.
+         * */
+        Purchased,
+        /**
+         * Está en periodo de prueba o expiró el periodo de
+         * prueba.
+         * */
+        TrialPeriod,
+        /**
+         * Ha sido descontinuada.
+         * */
+        Discontinued,
+        /**
+         * Obsoleto.
+         * */
+        Deprecated,
+        /**
+         * Desconocido.
+         * */
+        Unknown,
     }
 }
