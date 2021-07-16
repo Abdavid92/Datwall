@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import androidx.fragment.app.viewModels
@@ -14,7 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ApplicationStatusFragment :
-    AbstractSettingsFragment(R.layout.application_status_fragment),
+    AbstractSettingsFragment(R.layout.fragment_application_status),
     IActivationManager.ApplicationStatusListener
 {
 
