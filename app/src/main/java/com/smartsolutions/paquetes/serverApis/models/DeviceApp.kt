@@ -84,12 +84,18 @@ data class DeviceApp(
      * Indica si está en periodo de prueba.
      * */
     fun inTrialPeriod(): Boolean {
-        val days = (System.currentTimeMillis() - createdAt.time) / DateUtils.MILLIS_PER_DAY
+        val days = daysInUse()
 
         val trialPeriod = androidApp.trialPeriod
 
         return days <= trialPeriod
     }
+
+    /**
+     * Obtiene la cantidad de días que se ha usado la aplicación en el dispositivo.
+     * */
+    fun daysInUse() =
+        ((System.currentTimeMillis() - createdAt.time) / DateUtils.MILLIS_PER_DAY).toInt()
 
     companion object {
         /**

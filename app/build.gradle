@@ -10,10 +10,20 @@ plugins {
 def tokenDuration = "5"
 //Clave secreta con encriptación que se usa para firmar los tokens
 def secretKey = "\"Nk5pV3RhMFZwMFVaZGhSRDZDSkxkd3VYcnBPZE9HZW1zWGhOY3RwNVdnVW1MVG0xQldGVktDZWVPSDU2MlVaSg==\""
+
+/*Nombre de la aplicación.*/
+def name = "Mis Datos"
+/*Clave de la aplicación.*/
+def applicationKey = "WIwzfl2mFbZa3fRCEQUcLeSASxrERxt1C23oPpWcu53n43tZ3tcY4ZAApNl7uJrm1AhV9DLAt29liGq8"
+/*Audiencia.*/
+def audience = "https://smartsolutions-apps.infinityfreeapp.com"
+
 /*Contenido encriptado que contiene
 * el nombre de la aplicación, la audiencia y la clave
 * de la aplicación.*/
-def content0 = "\"TWlzIERhdG9zO2h0dHBzOi8vc21hcnRzb2x1dGlvbnMtYXBwcy5pbmZpbml0eWZyZWVhcHAuY29tO1dJd3pmbDJtRmJaYTNmUkNFUVVjTGVTQVN4ckVSeHQxQzIzb1BwV2N1NTNuNDN0WjN0Y1k0WkFBcE5sN3VKcm0xQWhWOURMQXQyOWxpR3E4\""
+def s = "$name;$audience;$applicationKey"
+def enc = Base64.encoder.encode(s.getBytes())
+def content0 = "\"${new String(enc)}\""
 
 android {
     compileSdkVersion 30
