@@ -20,11 +20,19 @@ import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+/**
+ * Programa un trabajo que se lanza cada un segundo para registrar el tráfico de red.
+ * */
 class TrafficRegistration @Inject constructor(
     @ApplicationContext
     private val context: Context,
 ) {
 
+    /**
+     * Inicia el registro del tráfico de red. Si el dispositivo
+     * no es compatible con la clase [TrafficStats], el trabajo de registro
+     * no se iniciará y por lo tanto no se registrará ningún trafico.
+     * */
     fun startRegistration() {
         if (TrafficStats.getTotalRxBytes() == TrafficStats.UNSUPPORTED.toLong()) {
             return
@@ -37,6 +45,9 @@ class TrafficRegistration @Inject constructor(
             .enqueue(request.build())
     }
 
+    /**
+     * Detiene el registro de red.
+     * */
     fun stopRegistration() {
         WorkManager.getInstance(context).cancelAllWorkByTag(TRAFFIC_REGISTRATION_TAG)
         traffics.clear()
@@ -47,21 +58,21 @@ class TrafficRegistration @Inject constructor(
         workerParameters: WorkerParameters
     ) : Worker(context, workerParameters) {
 
-        private val networkUtil: NetworkUtil
-        private val userDataBytesManager: IUserDataBytesManager
-        private val simManager: ISimManager
-        private val trafficRepository: ITrafficRepository
-        private val appRepository: IAppRepository
+        @Inject
+        lateinit var networkUtil: NetworkUtil
+        @Inject
+        lateinit var userDataBytesManager: IUserDataBytesManager
+        @Inject
+        lateinit var simManager: ISimManager
+        @Inject
+        lateinit var trafficRepository: ITrafficRepository
+        @Inject
+        lateinit var appRepository: IAppRepository
 
         init {
-            val entryPoint = EntryPointAccessors
+            EntryPointAccessors
                 .fromApplication(context, TrafficRegistrationEntryPoint::class.java)
-
-            networkUtil = entryPoint.getNetworkUtil()
-            userDataBytesManager = entryPoint.getUserDataBytesManager()
-            simManager = entryPoint.getSimManager()
-            trafficRepository = entryPoint.getTrafficRepository()
-            appRepository = entryPoint.getAppRepository()
+                .inject(this)
         }
 
         override fun doWork(): Result {
@@ -157,11 +168,7 @@ class TrafficRegistration @Inject constructor(
         @EntryPoint
         @InstallIn(SingletonComponent::class)
         interface TrafficRegistrationEntryPoint {
-            fun getNetworkUtil(): NetworkUtil
-            fun getUserDataBytesManager(): IUserDataBytesManager
-            fun getSimManager(): ISimManager
-            fun getTrafficRepository(): ITrafficRepository
-            fun getAppRepository(): IAppRepository
+            fun inject(trafficRegistrationWorker: TrafficRegistrationWorker)
         }
     }
 

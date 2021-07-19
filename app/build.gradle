@@ -19,7 +19,7 @@ def applicationKey = "WIwzfl2mFbZa3fRCEQUcLeSASxrERxt1C23oPpWcu53n43tZ3tcY4ZAApN
 def audience = "https://smartsolutions-apps.infinityfreeapp.com"
 
 /*Contenido encriptado que contiene
-* el nombre de la aplicación, la audiencia y la clave
+* el nombre, la audiencia y la clave
 * de la aplicación.*/
 def s = "$name;$audience;$applicationKey"
 def enc = Base64.encoder.encode(s.getBytes())
@@ -139,7 +139,7 @@ dependencies {
     }
 
     //LeakCanary
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
+    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

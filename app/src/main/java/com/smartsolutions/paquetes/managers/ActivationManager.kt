@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.google.gson.Gson
+import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.workers.ActivationWorker
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
@@ -259,7 +260,7 @@ class ActivationManager @Inject constructor(
                     !deviceApp.purchased -> {
                 statuses = IActivationManager.ApplicationStatuses.Discontinued
             }
-            deviceApp.androidApp.minVersion > Build.VERSION.SDK_INT -> {
+            deviceApp.androidApp.minVersion > BuildConfig.VERSION_CODE -> {
                 statuses = IActivationManager.ApplicationStatuses.Deprecated
             }
             deviceApp.purchased -> {

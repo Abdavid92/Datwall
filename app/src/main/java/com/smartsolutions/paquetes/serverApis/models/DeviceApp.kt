@@ -67,7 +67,9 @@ data class DeviceApp(
     @SerializedName("android_app_package_name")
     val androidAppPackageName: String,
     /**
-     * Fecha el la que se creó.
+     * Fecha en la que se registró esta aplicación en el dispositivo.
+     * Esta fecha se usa para verificar el periodo de prueba y los
+     * días restantes de prueba.
      * */
     @SerializedName("created_at")
     @JsonAdapter(DateConverter::class)

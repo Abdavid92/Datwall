@@ -8,6 +8,7 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.serverApis.models.Result.Failure
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -15,6 +16,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
+import javax.inject.Inject
 
 
 class ActivationWorker (
@@ -22,15 +24,15 @@ class ActivationWorker (
     params: WorkerParameters
 ) : Worker(context, params) {
 
-    private val gson: Gson
-    private val client: IRegistrationClient
+    @Inject
+    lateinit var gson: Gson
+    @Inject
+    lateinit var client: IRegistrationClient
 
     init {
-        val entryPoint = EntryPointAccessors
+        EntryPointAccessors
             .fromApplication(context, ActivationWorkerEntryPoint::class.java)
-
-        gson = entryPoint.getGson()
-        client = entryPoint.getRegistrationClient()
+            .inject(this)
     }
 
     override fun doWork(): Result {
@@ -51,7 +53,7 @@ class ActivationWorker (
                 if (result.isSuccess)
                     return@runBlocking Result.success()
                 else {
-                    val ex = (result as com.smartsolutions.paquetes.serverApis.models.Result.Failure).throwable
+                    val ex = (result as Failure).throwable
 
                     if (ex is HttpException && ex.code() == 422)
                         return@runBlocking Result.failure()
@@ -68,7 +70,6 @@ class ActivationWorker (
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface ActivationWorkerEntryPoint {
-        fun getGson(): Gson
-        fun getRegistrationClient(): IRegistrationClient
+        fun inject(activationWorker: ActivationWorker)
     }
 }

@@ -45,6 +45,7 @@ class ApplicationStatusFragment :
             msgText += " Sin embargo la aplicación ha sido descontinuada, por lo que no recibirá más actualizaciones."
         }
 
+        message.text = msgText
         enableBtnAction {
             listener?.invoke(null)
         }
