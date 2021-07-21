@@ -1,94 +1,110 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
+import android.widget.Button
 import android.widget.TextView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.managers.UpdateManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
+import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UpdateFragment : Fragment(R.layout.fragment_update), IUpdateManager.DownloadStatus {
+class UpdateFragment(
+    private val androidApp: AndroidApp
+    ) : BottomSheetDialogFragment(), IUpdateManager.DownloadStatus {
 
     @Inject
     lateinit var updateManager: IUpdateManager
 
-    private lateinit var status: TextView
-    private lateinit var progress: ProgressBar
-    private lateinit var reason: TextView
+
     private var job: Job? = null
 
 
+    private lateinit var text_version: TextView
+    private lateinit var text_comments: TextView
+    private lateinit var button_download: Button
+    private lateinit var button_store: Button
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_update, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        status = view.findViewById(R.id.text_status_download)
-        progress = view.findViewById(R.id.progressBar)
-        reason = view.findViewById(R.id.status_reason)
+        text_version = view.findViewById(R.id.text_version)
+        text_comments = view.findViewById(R.id.text_comments)
+        button_download = view.findViewById(R.id.button_download)
+        button_store = view.findViewById(R.id.button_store)
 
-        progress.isIndeterminate = true
 
-        val url = Uri.parse("https://archive.apklis.cu/application/apk/Jefferson.covid19.world.data-v4.apk")
+        text_comments.text = androidApp.updateComments
+        text_version.text = "La nueva versión es la: ${androidApp.versionName}"
+
+        button_store.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("https://www.apklis.cu/application/com.smartsolutions.paquetes")
+            startActivity(intent)
+        }
+
+        val url = Uri.parse(
+            updateManager.buildDynamicUrl(
+                updateManager.BASE_URL_APKLIS,
+                androidApp.packageName,
+                androidApp.version
+            )
+        )
+
 
         val uriFile = updateManager.foundIfDownloaded(url)
 
         if (uriFile == null) {
-            updateManager.downloadUpdate(url)?.let {
-                job = updateManager.getStatusDownload(it, this)
+            button_download.setOnClickListener {
+                val id = updateManager.downloadUpdate(url)
+                job = updateManager.getStatusDownload(id, this)
             }
-        }else {
-            onSuccessful()
-            updateManager.installDownloadedPackage(uriFile)
+        } else {
+            button_download.text = "Instalar Ahora"
+            button_download.setOnClickListener {
+                updateManager.installDownloadedPackage(uriFile)
+            }
         }
-
     }
 
     override fun onRunning(downloaded: Long, total: Long) {
-        progress.isIndeterminate = false
-        progress.max = total.toInt()
-        progress.progress = downloaded.toInt()
-        status.text = "Descargando"
-        reason.visibility = View.GONE
+
     }
 
     override fun onFailed(reason: String) {
-        progress.isIndeterminate = false
-        progress.max = 0
-        progress.progress = 0
-        status.text = "La descarga falló"
-        this.reason.visibility = View.VISIBLE
-        this.reason.text = reason
+
     }
 
     override fun onPending() {
-        reason.visibility = View.GONE
-        status.text = "La descarga está en espera"
-        progress.isIndeterminate = true
+
     }
 
     override fun onPaused(reason: String) {
-        status.text = "La descarga está en pausa"
-        this.reason.visibility = View.VISIBLE
-        this.reason.text = reason
+
     }
 
     override fun onSuccessful() {
-        reason.visibility = View.GONE
-        progress.isIndeterminate = false
-        progress.max = 100
-        progress.progress = 100
-        status.text = "La descarga se completo correctamente"
+
     }
 
-    override fun onDestroy() {
-        job?.cancel()
-        super.onDestroy()
+    override fun onCanceled() {
+
     }
+
+
 }

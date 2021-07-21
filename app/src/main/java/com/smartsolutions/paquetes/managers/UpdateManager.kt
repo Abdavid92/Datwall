@@ -77,7 +77,7 @@ class UpdateManager @Inject constructor(
     }
 
 
-    override fun downloadUpdate(url: Uri): Long? {
+    override fun downloadUpdate(url: Uri): Long {
 
         val request = DownloadManager.Request(url)
             .setAllowedOverMetered(true)
@@ -155,6 +155,11 @@ class UpdateManager @Inject constructor(
                             }
                         }
                     }
+                } else {
+                    isFinished = true
+                    withContext(Dispatchers.Main){
+                        callback.onCanceled()
+                    }
                 }
 
                 delay(200)
@@ -215,13 +220,28 @@ class UpdateManager @Inject constructor(
     }
 
 
+    fun isDownloading(id: Long, url: Uri): Boolean {
+        TODO()
+    }
+
+
     override fun buildDynamicUrl(baseUrl: String, version: Int): String {
         val url = if (baseUrl.endsWith('/'))
             baseUrl
         else
             "$baseUrl/"
 
-        return "$url${context.packageName}/v-$version.apk"
+        return "$url${context.packageName}-v$version.apk"
+    }
+
+
+    override fun buildDynamicUrl(baseUrl: String, packageName: String,  version: Int): String {
+        val url = if (baseUrl.endsWith('/'))
+            baseUrl
+        else
+            "$baseUrl/"
+
+        return "$url${packageName}-v$version.apk"
     }
 
 

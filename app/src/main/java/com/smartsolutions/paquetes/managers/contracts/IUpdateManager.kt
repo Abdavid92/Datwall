@@ -37,7 +37,7 @@ interface IUpdateManager {
      *
      * @return id de la descarga o null si el archivo ya ha sido descargado
      * */
-    fun downloadUpdate(url: Uri): Long?
+    fun downloadUpdate(url: Uri): Long
 
 
     /**
@@ -69,6 +69,9 @@ interface IUpdateManager {
      * */
     fun buildDynamicUrl(baseUrl: String, version: Int): String
 
+
+    fun buildDynamicUrl(baseUrl: String, packageName: String,  version: Int): String
+
     /**
      * Verifica si el permiso de instalar apps está concedido para esta app
      * @author EJV96
@@ -93,5 +96,6 @@ interface IUpdateManager {
         fun onPending()
         fun onPaused(reason: String)
         fun onSuccessful()
+        fun onCanceled()
     }
 }

@@ -12,10 +12,16 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
+import com.smartsolutions.paquetes.serverApis.models.AndroidApp
+import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -23,6 +29,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Inject
     lateinit var synchronizationManager: SynchronizationManager
+
+    @Inject
+    lateinit var updateManager: IUpdateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +49,48 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        startActivity(Intent(this, SetupActivity::class.java))
+        //startActivity(Intent(this, SetupActivity::class.java))
+
+        searchUpdate()
+
+    }
+
+
+    fun searchUpdate(){
+        /*GlobalScope.launch(Dispatchers.IO) {
+            updateManager.findUpdate()?.let {
+                UpdateFragment().show(supportFragmentManager, "UpdateDialog")
+            }
+        }*/
+
+        val androidApp = AndroidApp(
+            12,
+            "Covid",
+            "Jefferson.covid19.world.data",
+            1,
+            4,
+            "4.2.0",
+            AndroidApp.UpdatePriority.High,
+            "Se mejoro mucho esto de las actualizaciones\nAhora todo funciona mucho mejor\nClaro por lo menos en las pruebas que hemos realizado",
+            ApplicationStatus.DISCONTINUED,
+            false,
+            trialPeriod = 12,
+            12,
+            "",
+            "",
+            "",
+            ""
+        )
+
+        val st = "https://archive.apklis.cu/application/apk/Jefferson.covid19.world.data-v4.apk"
+
+       val dialog = UpdateFragment(androidApp)
+
+        //dialog.isCancelable = false
+
+        dialog.show(supportFragmentManager, "UpdateDialog")
+
+
 
     }
 }
