@@ -55,4 +55,9 @@ object PreferencesKeys {
      * DeviceApp obtenido del servidor.
      * */
     val DEVICE_APP = stringPreferencesKey("device_app")
+
+    /**
+     * ID único de la descarga que proporciona el DownloadManager
+     */
+    val DOWNLOAD_UPDATE_ID = longPreferencesKey("download_update_id")
 }

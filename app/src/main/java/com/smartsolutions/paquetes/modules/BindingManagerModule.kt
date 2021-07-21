@@ -36,4 +36,7 @@ interface BindingManagerModule {
 
     @Binds
     fun bindIActivationManager(impl: ActivationManager): IActivationManager
+
+    @Binds
+    fun bindIUpdateManager(impl: UpdateManager): IUpdateManager
 }
