@@ -3,7 +3,6 @@ package com.smartsolutions.paquetes.ui.settings
 import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
@@ -11,10 +10,8 @@ import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.serverApis.models.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,56 +32,65 @@ class PurchasedViewModel @Inject constructor(
     private val _beginActivationResult = MutableLiveData<Result<Unit>>()
     val beginActivationResult: LiveData<Result<Unit>>
         get() {
-            viewModelScope.launch {
-                val deviceAppResult = activationManager.getDeviceApp()
-
-                if (deviceAppResult.isFailure)
-                    _beginActivationResult.postValue(Result.Failure((deviceAppResult as Result.Failure).throwable))
-                else {
-                    deviceApp = deviceAppResult.getOrNull()
-
-                    deviceApp?.let {
-                        _beginActivationResult.postValue(
-                            activationManager.beginActivation(it)
-                        )
-                    }
-                }
-            }
+            initDeviceAppAndActivation()
             return _beginActivationResult
         }
 
     /**
-     * Copia el número de tarjeta en el portapapeles.
+     * Resultado de la tranferencia por código ussd.
      * */
-    fun copyDebitCardToClipboard() {
-        viewModelScope.launch {
-            deviceApp?.let {
+    val ussdTranferenceResult: LiveData<Result<Unit>> = MutableLiveData()
 
-                val clipboardManager = ContextCompat.getSystemService(
-                    getApplication(),
-                    ClipboardManager::class.java
-                ) ?: throw NullPointerException()
+    fun initDeviceAppAndActivation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val deviceAppResult = activationManager.getDeviceApp()
 
-                val clipData = ClipData.newPlainText(
-                    "Tarjeta de débito de Mis Datos",
-                    it.androidApp.debitCard
-                )
+            if (deviceAppResult.isFailure)
+                _beginActivationResult.postValue(Result.Failure((deviceAppResult as Result.Failure).throwable))
+            else {
+                deviceApp = deviceAppResult.getOrNull()
 
-                clipboardManager.setPrimaryClip(clipData)
-
-                cardCopied = true
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        getApplication(),
-                        "Número de tarjeta copiado al portapapeles.",
-                        Toast.LENGTH_SHORT).show()
+                deviceApp?.let {
+                    _beginActivationResult.postValue(
+                        activationManager.beginActivation(it)
+                    )
                 }
             }
         }
     }
 
+    /**
+     * Copia el número de tarjeta en el portapapeles.
+     * */
+    fun copyDebitCardToClipboard() {
+        checkDeviceApp()
+
+        deviceApp?.let {
+
+            val clipboardManager = ContextCompat.getSystemService(
+                getApplication(),
+                ClipboardManager::class.java
+            ) ?: throw NullPointerException()
+
+            val clipData = ClipData.newPlainText(
+                "Tarjeta de débito de Mis Datos",
+                it.androidApp.debitCard
+            )
+
+            clipboardManager.setPrimaryClip(clipData)
+
+            cardCopied = true
+
+            Toast.makeText(
+                getApplication(),
+                "Número de tarjeta copiado al portapapeles.",
+                Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun getDebitCardNumber(): String? {
+        checkDeviceApp()
+
         deviceApp?.let {
             return it.androidApp.debitCard
         }
@@ -113,6 +119,29 @@ class PurchasedViewModel @Inject constructor(
     }
 
     fun transferCreditByUSSD(key: String) {
+        checkDeviceApp()
 
+        deviceApp?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                (ussdTranferenceResult as MutableLiveData).postValue(
+                    activationManager.transferCreditByUSSD(key, it)
+                )
+            }
+        }
+    }
+
+    fun getPrice(): String {
+        checkDeviceApp()
+
+        deviceApp?.let {
+            return "${it.androidApp.price}$"
+        }
+        return "30$"
+    }
+    
+    private fun checkDeviceApp() {
+        if (deviceApp == null)
+            throw Exception("DeviceApp is null. First call property beginActivationResult " +
+                    "or method initDeviceAppAndActivation()")
     }
 }

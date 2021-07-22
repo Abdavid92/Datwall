@@ -78,7 +78,7 @@
         Una vez realizada la transferencia con éxito, la aplicación se activará automáticamente.
         No suspenda ni fuerze la detención de la misma. No debe realizar la transferencia por otra vía que no sea la indicada.
     </string>
-    <string name="debid_card_number">Número de tarjeta: <br/>%s</string>
+    <string name="debit_card_number">Número de tarjeta: <br/>%s</string>
     <string name="btn_back">Atras</string>
     <string name="copy_to_clipboard">Copiar al portapapeles</string>
 
@@ -88,5 +88,8 @@
         La aplicación se activará automáticamente una vez realizada la transferencia con éxito.
         No suspenda ni fuerze la detención de la misma. No realice la transferencia por otro medio que no sea el indicado.
     </string>
-    <string name="begin_activation">Iniciando activación. Por favor, no se desconecte.</string>
+    <string name="begin_activation_summary">Iniciando activación. Por favor, espere…</string>
+    <string name="btn_close">Cerrar</string>
+    <string name="btn_retry">Reintentar</string>
+    <string name="begin_activation_title">Iniciando activación</string>
 </resources>

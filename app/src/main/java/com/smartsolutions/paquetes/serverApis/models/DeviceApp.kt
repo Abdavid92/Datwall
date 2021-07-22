@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.smartsolutions.paquetes.serverApis.converters.BooleanConverter
 import com.smartsolutions.paquetes.serverApis.converters.DateConverter
 import org.apache.commons.lang.time.DateUtils
-import java.sql.Date
+import java.util.*
 
 /**
  * Aplicación instalada en el dispositivo.

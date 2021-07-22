@@ -1,15 +1,9 @@
 package com.smartsolutions.paquetes.serverApis.converters
 
-import android.util.Patterns
 import com.google.gson.*
-import org.apache.commons.lang.time.DateFormatUtils
-import org.apache.commons.lang.time.DateUtils
 import java.lang.reflect.Type
-import java.sql.Date
-import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.regex.Pattern
 import kotlin.reflect.javaType
 import kotlin.reflect.typeOf
 
@@ -33,8 +27,7 @@ class DateConverter : JsonSerializer<Date>, JsonDeserializer<Date> {
             Date(json.asLong)
         else
             try {
-                Date(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-                    .parse(json.asString)?.time ?: System.currentTimeMillis())
+                Date(json.asLong)
             } catch (e: Exception) {
                 Date(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
                     .parse(json.asString)?.time ?: System.currentTimeMillis())

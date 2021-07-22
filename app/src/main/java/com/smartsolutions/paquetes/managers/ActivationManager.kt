@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.NetworkInterface
-import java.sql.Date
+import java.util.Date
 import javax.inject.Inject
 import kotlin.NoSuchElementException
 
@@ -43,14 +43,14 @@ class ActivationManager @Inject constructor(
 ) : IActivationManager {
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
-        getSaveDeviceApp()?.let {
+        getSavedDeviceApp()?.let {
             return processApplicationStatus(it)
         }
         return Pair(false, IActivationManager.ApplicationStatuses.Unknown)
     }
 
     override suspend fun isInTrialPeriod(): Boolean {
-        getSaveDeviceApp()?.let {
+        getSavedDeviceApp()?.let {
             return it.inTrialPeriod()
         }
         return false
@@ -100,7 +100,16 @@ class ActivationManager @Inject constructor(
         return result
     }
 
-    override suspend fun getDeviceApp(): Result<DeviceApp> {
+    override suspend fun getDeviceApp(ignoreCache: Boolean): Result<DeviceApp> {
+
+        if (!ignoreCache) {
+            val savedDeviceApp = getSavedDeviceApp()
+
+            if (savedDeviceApp != null && isNotOldDeviceApp(savedDeviceApp)) {
+                return Result.Success(savedDeviceApp)
+            }
+        }
+
         val deviceId = getDeviceId()
         val packageName = context.packageName
 
@@ -130,14 +139,16 @@ class ActivationManager @Inject constructor(
         return result
     }
 
-    override suspend fun getSaveDeviceApp(): DeviceApp? {
+    override suspend fun getSavedDeviceApp(): DeviceApp? {
         context.dataStore.data
             .firstOrNull()
             ?.get(PreferencesKeys.DEVICE_APP)
             ?.let {
                 try {
                     return gson.fromJson(it, DeviceApp::class.java)
-                } catch (e: Exception) {}
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         return null
     }
@@ -194,7 +205,10 @@ class ActivationManager @Inject constructor(
             return Result.Failure(IllegalArgumentException())
         }
 
-        beginActivation(deviceApp)
+        //beginActivation(deviceApp)
+
+        if (context.dataStore.data.first()[PreferencesKeys.WAITING_PURCHASED] == false)
+            throw IllegalStateException("First call the method beginActivation()")
 
         try {
             ussdHelper.sendUSSDRequestLegacy(
@@ -362,5 +376,10 @@ class ActivationManager @Inject constructor(
         } catch (ex: Exception) {
             null
         }
+    }
+
+    private fun isNotOldDeviceApp(savedDeviceApp: DeviceApp): Boolean {
+        val time = savedDeviceApp.lastQuery.time + (60000 * 5)
+        return time > System.currentTimeMillis()
     }
 }

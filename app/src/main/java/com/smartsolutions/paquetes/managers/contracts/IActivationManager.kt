@@ -23,14 +23,24 @@ interface IActivationManager {
     suspend fun getDevice(): Result<Device>
 
     /**
-     * Obtiene la aplicación instalada en este dispòsitivo del servidor.
+     * Obtiene la aplicación instalada en este dispòsitivo.
+     * Primero busca en el dataStore y revisa que no tenga una
+     * antiguedad de más de cinco minutos. Si lo tiene, lo baja del servidor,
+     * los guarda en el dataStore y lo retorna.
+     *
+     * @param ignoreCache - Indica si se debe ignorar el deviceApp guardado y buscarlo
+     * en el servidor.
+     *
+     * @return [Result] Resultado del proceso. [Result.Success] si tuvo éxito.
+     * Su valor contiene el deviceApp. [Result.Failure] si fracasó. Contiene una excepción
+     * con la razón del por qué no tuvo éxito.
      * */
-    suspend fun getDeviceApp(): Result<DeviceApp>
+    suspend fun getDeviceApp(ignoreCache: Boolean = false): Result<DeviceApp>
 
     /**
      * Obtiene el deviceApp guardado en el dataStore
      * */
-    suspend fun getSaveDeviceApp(): DeviceApp?
+    suspend fun getSavedDeviceApp(): DeviceApp?
 
     /**
      * Verifica el estado de la aplicación y lanza el evento correspondiente.
@@ -50,6 +60,11 @@ interface IActivationManager {
 
     /**
      * Transfiere el crédito por código ussd.
+     *
+     * @param key - Clave de transferencia.
+     * @param deviceApp - [DeviceApp] con el precio y el número a transferir.
+     *
+     * @return [Result] Resultado de la transferencia.
      * */
     suspend fun transferCreditByUSSD(key: String, deviceApp: DeviceApp): Result<Unit>
 

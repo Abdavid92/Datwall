@@ -82,7 +82,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/transfermovil_instructions"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:text="@string/debid_card_number"
+            android:text="@string/debit_card_number"
             android:layout_marginTop="@dimen/activity_horizontal_margin"/>
 
         <androidx.appcompat.widget.AppCompatButton
