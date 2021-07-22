@@ -237,6 +237,10 @@ class UpdateManager @Inject constructor(
         return "$url${packageName}-v$version.apk"
     }
 
+    override fun buildDynamicUrl(baseUrl: String, androidApp: AndroidApp): String {
+        return buildDynamicUrl(baseUrl, androidApp.packageName, androidApp.version)
+    }
+
 
     override fun isInstallPermissionGranted(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

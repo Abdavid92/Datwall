@@ -79,6 +79,11 @@ interface IUpdateManager {
     fun buildDynamicUrl(baseUrl: String, packageName: String,  version: Int): String
 
     /**
+     * Construye la url dinamicamente con el androidApp
+     */
+    fun buildDynamicUrl(baseUrl: String, androidApp: AndroidApp): String
+
+    /**
      * Verifica si el permiso de instalar apps está concedido para esta app
      * @author EJV96
      */

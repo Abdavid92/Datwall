@@ -1,9 +1,5 @@
 package com.smartsolutions.paquetes.ui
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -17,12 +13,12 @@ import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
-import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
+const val EXTRA_FRAGMENT = "extra_fragment"
+const val FRAGMENT_UPDATE_DIALOG = "fragment_update_dialog"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -51,24 +47,37 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         //startActivity(Intent(this, SetupActivity::class.java))
 
-        searchUpdate()
+        handleIntent()
 
     }
 
 
-    fun searchUpdate(){
-        /*GlobalScope.launch(Dispatchers.IO) {
-            updateManager.findUpdate()?.let {
-                UpdateFragment().show(supportFragmentManager, "UpdateDialog")
+    private fun handleIntent(){
+        intent.action?.let { action ->
+            if (action == ACTION_OPEN_FRAGMENT){
+                intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
+                    when(extra) {
+                        FRAGMENT_UPDATE_DIALOG -> {
+                            testDownload()
+                        }
+                        else -> {
+
+                        }
+                    }
+                }
             }
-        }*/
+
+        }
+    }
+
+    fun testDownload() {
 
         val androidApp = AndroidApp(
             12,
             "Covid",
-            "cu.xetid.apk.enzona",
+            "Jefferson.covid19.world.data",
             1,
-            17100,
+            4,
             "4.2.0",
             AndroidApp.UpdatePriority.High,
             "Se mejoro mucho esto de las actualizaciones\nAhora todo funciona mucho mejor\nClaro por lo menos en las pruebas que hemos realizado",
@@ -81,16 +90,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             "",
             ""
         )
+        //archive.apklis.cu/application/apk/Jefferson.covid19.world.data-v4.apk
 
-        val st = "https://archive.apklis.cu/application/apk/Jefferson.covid19.world.data-v4.apk"
-
-       val dialog = UpdateFragment(androidApp)
-
-        //dialog.isCancelable = false
+        val dialog = UpdateFragment(androidApp)
 
         dialog.show(supportFragmentManager, "UpdateDialog")
 
-
-
     }
+
+
 }

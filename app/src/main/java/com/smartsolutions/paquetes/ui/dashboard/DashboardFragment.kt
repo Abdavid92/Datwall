@@ -9,9 +9,13 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.smartsolutions.paquetes.ui.ApplicationFragment
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
+import com.smartsolutions.paquetes.serverApis.models.AndroidApp
+import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
+import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -44,7 +48,9 @@ class DashboardFragment : ApplicationFragment() {
             textView.text = it
         })*/
 
-        view.findViewById<MaterialButton>(R.id.delete_one).setOnClickListener(::deleteOne)
+        view.findViewById<MaterialButton>(R.id.delete_one).setOnClickListener{
+            testDownload()
+        }
 
         dashboardViewModel.apps.observe(viewLifecycleOwner, {
             textView.text = "Cantidad de aplicaciones: ${it.size}"
@@ -54,5 +60,11 @@ class DashboardFragment : ApplicationFragment() {
     private fun deleteOne(view: View) {
         SinglePermissionFragment.newInstance(34)
             .show(parentFragmentManager, "Single")
+    }
+
+    private fun testDownload() {
+
+        (activity as MainActivity).testDownload()
+
     }
 }

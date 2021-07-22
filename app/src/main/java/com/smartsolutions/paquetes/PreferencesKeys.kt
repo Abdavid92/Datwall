@@ -60,4 +60,14 @@ object PreferencesKeys {
      * ID único de la descarga que proporciona el DownloadManager
      */
     val DOWNLOAD_UPDATE_ID = longPreferencesKey("download_update_id")
+
+    /**
+     * Determina si se descarga automaticamente las actualizaciones
+     */
+    val AUTO_UPDATE = booleanPreferencesKey("auto_update")
+
+    /**
+     * Intervalo en el cual se verificará el estado de la app
+     */
+    val INTERVAL_UPDATE_SYNCHRONIZATION = longPreferencesKey("interval_update_synchronization")
 }

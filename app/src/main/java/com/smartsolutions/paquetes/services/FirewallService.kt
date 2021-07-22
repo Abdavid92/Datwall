@@ -3,14 +3,13 @@ package com.smartsolutions.paquetes.services
 import android.app.PendingIntent
 import android.content.*
 import android.net.VpnService
-import android.os.Build
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.abdavid92.vpncore.*
 import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -56,6 +55,9 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
      * */
     @Inject
     lateinit var appRepository: IAppRepository
+
+    @Inject
+    lateinit var notificationHelper: NotificationHelper
 
     /**
      * Receptor de radiodifución del observador
@@ -213,18 +215,13 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
      * Crea la notificación persistente del servicio.
      * */
     private fun launchNotification() {
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationCompat.Builder(this, NotificationChannels.MAIN_CHANNEL_ID)
-        } else {
-            NotificationCompat.Builder(this)
-        }
-
-        //TODO: Ícono temporal
-        builder.setSmallIcon(R.mipmap.ic_launcher_round)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.firewall_service_running))
-
-        startForeground(NotificationChannels.MAIN_NOTIFICATION_ID, builder.build())
+        startForeground(NotificationHelper.MAIN_NOTIFICATION_ID,
+            notificationHelper.buildNotification(NotificationHelper.MAIN_CHANNEL_ID).apply {
+                //TODO: Ícono temporal
+                setSmallIcon(R.mipmap.ic_launcher_round)
+                setContentTitle(getString(R.string.app_name))
+                setContentText(getString(R.string.firewall_service_running))
+        }.build())
     }
 
     override fun onRevoke() {

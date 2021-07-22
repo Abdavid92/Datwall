@@ -12,17 +12,20 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.ActivationManager
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class UpdateFragment(
     private val androidApp: AndroidApp
-    ) : BottomSheetDialogFragment(), IUpdateManager.DownloadStatus {
+): BottomSheetDialogFragment(), IUpdateManager.DownloadStatus {
 
     @Inject
     lateinit var updateManager: IUpdateManager
@@ -33,13 +36,12 @@ class UpdateFragment(
 
     private lateinit var linearDownload: LinearLayout
     private lateinit var linearStatus: LinearLayout
-
     private lateinit var textStatus: TextView
     private lateinit var textReason: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var buttonStop: Button
-
     private lateinit var buttonDownload: Button
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,10 +50,26 @@ class UpdateFragment(
         return inflater.inflate(R.layout.fragment_update, container, false)
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        initializeViews(view)
+
+         id = updateManager.getSavedDownloadId()
+
+        if (id != null){
+            updateManager.getStatusDownload(id!!, this)
+            linearDownload.visibility = View.GONE
+            linearStatus.visibility = View.VISIBLE
+        }else {
+            findOrDownload()
+        }
+    }
+
+
+    private fun initializeViews(view: View){
         val textVersion: TextView = view.findViewById(R.id.text_version)
         val textComments: TextView = view.findViewById(R.id.text_comments)
-        buttonDownload = view.findViewById(R.id.button_download)
         val buttonStore: Button = view.findViewById(R.id.button_store)
 
         linearDownload = view.findViewById(R.id.lin_download)
@@ -60,13 +78,13 @@ class UpdateFragment(
         textReason = view.findViewById(R.id.text_reason)
         progressBar = view.findViewById(R.id.progressBar)
         buttonStop = view.findViewById(R.id.button_stop_download)
+        buttonDownload = view.findViewById(R.id.button_download)
 
         buttonStop.setOnClickListener {
             id?.let {
                 updateManager.cancelDownload(it)
             }
         }
-
 
         textComments.text = androidApp.updateComments
         textVersion.text = "La nueva versión es la: ${androidApp.versionName}"
@@ -76,20 +94,13 @@ class UpdateFragment(
             intent.data = Uri.parse("https://www.apklis.cu/application/com.smartsolutions.paquetes")
             startActivity(intent)
         }
-
-         id = updateManager.getSavedDownloadId()
-
-        if (id != null){
-            updateManager.getStatusDownload(id!!, this)
-            linearDownload.visibility = View.GONE
-            linearStatus.visibility = View.VISIBLE
-        }else {
-            findDownloadAndInstall()
-        }
     }
 
 
-    private fun findDownloadAndInstall(){
+    /**
+     * Busca el apk si ha sido descargado, sino lo descarga y luego lo instala
+     */
+    private fun findOrDownload(){
         linearStatus.visibility = View.GONE
         linearDownload.visibility = View.VISIBLE
 
@@ -151,7 +162,7 @@ class UpdateFragment(
             id?.let {
                 updateManager.cancelDownload(it)
             }
-            findDownloadAndInstall()
+            findOrDownload()
         }
     }
 
@@ -200,7 +211,7 @@ class UpdateFragment(
             id?.let {
                 updateManager.saveIdDownload(null)
             }
-            findDownloadAndInstall()
+            findOrDownload()
         }
     }
 
@@ -209,6 +220,7 @@ class UpdateFragment(
         textStatus.text = status
         textReason.text = reason
     }
+
 
     private fun setProgressBar(progress: Int, total: Int){
         progressBar.isIndeterminate = false
