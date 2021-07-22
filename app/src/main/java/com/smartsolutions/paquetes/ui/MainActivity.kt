@@ -66,9 +66,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val androidApp = AndroidApp(
             12,
             "Covid",
-            "Jefferson.covid19.world.data",
+            "cu.xetid.apk.enzona",
             1,
-            4,
+            17100,
             "4.2.0",
             AndroidApp.UpdatePriority.High,
             "Se mejoro mucho esto de las actualizaciones\nAhora todo funciona mucho mejor\nClaro por lo menos en las pruebas que hemos realizado",

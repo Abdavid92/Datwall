@@ -50,12 +50,16 @@ interface IUpdateManager {
 
 
     /**
-     * Se encarga de llevar a cabo la actualización una vez completada la descarga del apk
+     * Encuentra el Uri del archivo descargado y se lo entrega a [installDownloadedPackage]
      * @param id - ID unico de la descarga que se completo
      * @author EJV96
      */
     fun installDownloadedPackage(idDownload: Long): Boolean
 
+    /**
+     * Envía un Intent con el Uri al instalador de paquetes
+     * @return true si el resultado de la operación se completa correctamente o falso si se produce una excepción
+     **/
     fun installDownloadedPackage(uri: Uri): Boolean
 
     /**
@@ -69,7 +73,9 @@ interface IUpdateManager {
      * */
     fun buildDynamicUrl(baseUrl: String, version: Int): String
 
-
+    /**
+     * Construye la url dinamicamente con los parametros recibidos
+     */
     fun buildDynamicUrl(baseUrl: String, packageName: String,  version: Int): String
 
     /**
@@ -86,6 +92,22 @@ interface IUpdateManager {
      */
     @RequiresApi(Build.VERSION_CODES.O)
     fun requestInstallPermission(requestCode: Int, activity: Activity)
+
+    /**
+     * Obtiene del DataStore el id de la descarga que proporciona el DownloadManager
+     * @return null si no se ha guardado ningun id o no hay ninguna descarga pendiente
+     */
+    fun getSavedDownloadId(): Long?
+
+    /**
+     * Guarda el id de la descarga proporcionado por el DownloadManager
+     */
+    fun saveIdDownload(id: Long?)
+
+    /**
+     *Detiene la descarga y la borra de el almacenamiento
+     */
+    fun cancelDownload(id: Long)
 
     /**
      * Interfaz que se utiliza para conocer el estado de las descargas realizadas con Download Manager

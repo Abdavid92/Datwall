@@ -99,7 +99,7 @@ abstract class BaseAppRepository(
 
     override fun fillApp(app: App, info: PackageInfo) {
         app.version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
-        app.name = info.applicationInfo.name
+        app.name = info.applicationInfo.name ?: "Unknown"
         app.internet = hasInternet(app.packageName)
         getSpecialApp(app.packageName)?.let {
             app.allowAnnotations = it.allowAnnotations

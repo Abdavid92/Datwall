@@ -22,10 +22,8 @@ class DownloadFileReceive : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         runBlocking {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            context.dataStore.data.firstOrNull()?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)?.let {
-                if (id == it){
-                    updateManager.installDownloadedPackage(id)
-                }
+            if (id == updateManager.getSavedDownloadId()){
+                updateManager.installDownloadedPackage(id)
             }
         }
 

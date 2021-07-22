@@ -26,6 +26,7 @@ import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import com.smartsolutions.paquetes.workers.UpdateApplicationStatusWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.firstOrNull
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -83,6 +84,7 @@ class UpdateManager @Inject constructor(
             .setAllowedOverMetered(true)
             .setAllowedOverRoaming(true)
             .setTitle(context.getString(R.string.update_notification_title))
+            .setDescription(url.lastPathSegment)
             .setDestinationInExternalFilesDir(
                 context,
                 TYPE_DIR_UPDATES,
@@ -91,11 +93,7 @@ class UpdateManager @Inject constructor(
 
         val id = downloadManager.enqueue(request)
 
-        runBlocking {
-            context.dataStore.edit {
-                it[PreferencesKeys.DOWNLOAD_UPDATE_ID] = id
-            }
-        }
+       saveIdDownload(id)
 
         return id
     }
@@ -220,11 +218,6 @@ class UpdateManager @Inject constructor(
     }
 
 
-    fun isDownloading(id: Long, url: Uri): Boolean {
-        TODO()
-    }
-
-
     override fun buildDynamicUrl(baseUrl: String, version: Int): String {
         val url = if (baseUrl.endsWith('/'))
             baseUrl
@@ -260,6 +253,33 @@ class UpdateManager @Inject constructor(
             setData(Uri.parse("package:${context.packageName}"))
         }
         activity.startActivityForResult(intent, requestCode)
+    }
+
+
+    override fun getSavedDownloadId(): Long? {
+        var id: Long?
+        runBlocking {
+            id = context.dataStore.data.firstOrNull()?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
+        }
+        if (id == -1L){
+            id = null
+        }
+        return id
+    }
+
+
+    override fun saveIdDownload(id: Long?) {
+        runBlocking {
+            context.dataStore.edit {
+                it[PreferencesKeys.DOWNLOAD_UPDATE_ID] = id ?: -1
+            }
+        }
+    }
+
+    override fun cancelDownload(id: Long) {
+        DownloadManager.ACTION_NOTIFICATION_CLICKED
+        downloadManager.remove(id)
+        saveIdDownload(null)
     }
 
 

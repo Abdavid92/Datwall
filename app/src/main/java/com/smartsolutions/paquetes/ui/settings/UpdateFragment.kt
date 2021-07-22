@@ -4,15 +4,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -26,14 +27,19 @@ class UpdateFragment(
     @Inject
     lateinit var updateManager: IUpdateManager
 
-
     private var job: Job? = null
 
+    private var id: Long? = null
 
-    private lateinit var text_version: TextView
-    private lateinit var text_comments: TextView
-    private lateinit var button_download: Button
-    private lateinit var button_store: Button
+    private lateinit var linearDownload: LinearLayout
+    private lateinit var linearStatus: LinearLayout
+
+    private lateinit var textStatus: TextView
+    private lateinit var textReason: TextView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var buttonStop: Button
+
+    private lateinit var buttonDownload: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,20 +49,49 @@ class UpdateFragment(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        text_version = view.findViewById(R.id.text_version)
-        text_comments = view.findViewById(R.id.text_comments)
-        button_download = view.findViewById(R.id.button_download)
-        button_store = view.findViewById(R.id.button_store)
+        val textVersion: TextView = view.findViewById(R.id.text_version)
+        val textComments: TextView = view.findViewById(R.id.text_comments)
+        buttonDownload = view.findViewById(R.id.button_download)
+        val buttonStore: Button = view.findViewById(R.id.button_store)
+
+        linearDownload = view.findViewById(R.id.lin_download)
+        linearStatus = view.findViewById(R.id.lin_status_download)
+        textStatus = view.findViewById(R.id.text_status)
+        textReason = view.findViewById(R.id.text_reason)
+        progressBar = view.findViewById(R.id.progressBar)
+        buttonStop = view.findViewById(R.id.button_stop_download)
+
+        buttonStop.setOnClickListener {
+            id?.let {
+                updateManager.cancelDownload(it)
+            }
+        }
 
 
-        text_comments.text = androidApp.updateComments
-        text_version.text = "La nueva versión es la: ${androidApp.versionName}"
+        textComments.text = androidApp.updateComments
+        textVersion.text = "La nueva versión es la: ${androidApp.versionName}"
 
-        button_store.setOnClickListener {
+        buttonStore.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://www.apklis.cu/application/com.smartsolutions.paquetes")
             startActivity(intent)
         }
+
+         id = updateManager.getSavedDownloadId()
+
+        if (id != null){
+            updateManager.getStatusDownload(id!!, this)
+            linearDownload.visibility = View.GONE
+            linearStatus.visibility = View.VISIBLE
+        }else {
+            findDownloadAndInstall()
+        }
+    }
+
+
+    private fun findDownloadAndInstall(){
+        linearStatus.visibility = View.GONE
+        linearDownload.visibility = View.VISIBLE
 
         val url = Uri.parse(
             updateManager.buildDynamicUrl(
@@ -66,45 +101,124 @@ class UpdateFragment(
             )
         )
 
-
         val uriFile = updateManager.foundIfDownloaded(url)
 
         if (uriFile == null) {
-            button_download.setOnClickListener {
-                val id = updateManager.downloadUpdate(url)
-                job = updateManager.getStatusDownload(id, this)
+            buttonStop.text = "Cancelar Descarga"
+            buttonStop.setOnClickListener {
+                id?.let {
+                    updateManager.cancelDownload(it)
+                }
+            }
+            setStatusAndReason(
+                "Comenzando Descarga",
+                "Inicializando descarga"
+            )
+            buttonDownload.setOnClickListener {
+                id = updateManager.downloadUpdate(url)
+                job = updateManager.getStatusDownload(id!!, this)
+                linearDownload.visibility = View.GONE
+                linearStatus.visibility = View.VISIBLE
             }
         } else {
-            button_download.text = "Instalar Ahora"
-            button_download.setOnClickListener {
+            buttonDownload.text = "Instalar Ahora"
+            buttonDownload.setOnClickListener {
                 updateManager.installDownloadedPackage(uriFile)
             }
         }
     }
 
-    override fun onRunning(downloaded: Long, total: Long) {
 
+    override fun onRunning(downloaded: Long, total: Long) {
+       setProgressBar(downloaded.toInt(), total.toInt())
+        val part = DataUnitBytes(downloaded).getValue()
+        val all = DataUnitBytes(total).getValue()
+        setStatusAndReason(
+            "Descargando",
+            "Descargado ${Math.round(part.value*100.0)/100.0} ${part.dataUnit.name} de ${Math.round(all.value*100.0)/100.0} ${all.dataUnit.name}"
+        )
     }
+
 
     override fun onFailed(reason: String) {
-
+        setProgressBar(100, 100)
+        setStatusAndReason(
+            "Descarga Fallida",
+            reason
+        )
+        buttonStop.text = "Volver a Intentar"
+        buttonStop.setOnClickListener {
+            id?.let {
+                updateManager.cancelDownload(it)
+            }
+            findDownloadAndInstall()
+        }
     }
+
 
     override fun onPending() {
-
+        setStatusAndReason(
+            "Descarga Pendiente",
+            "La descarga está en cola"
+        )
     }
+
 
     override fun onPaused(reason: String) {
-
+        setStatusAndReason(
+            "Descarga Pausada",
+            reason
+        )
     }
+
 
     override fun onSuccessful() {
+        setProgressBar(100, 100)
+        updateManager.saveIdDownload(null)
+        setStatusAndReason(
+            "Descarga Completa",
+            "La descarga se completó correctamente"
+        )
 
+        buttonStop.text = "Instalar Ahora"
+        buttonStop.setOnClickListener {
+            id?.let {
+                updateManager.installDownloadedPackage(it)
+            }
+        }
     }
+
 
     override fun onCanceled() {
-
+        setProgressBar(100, 100)
+        setStatusAndReason(
+            "Descarga Cancelada",
+            "La descarga fue cancelada por usted"
+        )
+        buttonStop.text = "Volver a Intentar"
+        buttonStop.setOnClickListener {
+            id?.let {
+                updateManager.saveIdDownload(null)
+            }
+            findDownloadAndInstall()
+        }
     }
 
 
+    private fun setStatusAndReason(status: String, reason: String){
+        textStatus.text = status
+        textReason.text = reason
+    }
+
+    private fun setProgressBar(progress: Int, total: Int){
+        progressBar.isIndeterminate = false
+        progressBar.max = total
+        progressBar.progress = progress
+    }
+
+
+    override fun onDestroy() {
+        job?.cancel()
+        super.onDestroy()
+    }
 }
