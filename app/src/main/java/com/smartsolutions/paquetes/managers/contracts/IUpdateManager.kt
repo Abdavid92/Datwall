@@ -69,6 +69,11 @@ interface IUpdateManager {
     fun foundIfDownloaded(url: Uri): Uri?
 
     /**
+     * Verifica el estado con el DownloadManager
+     */
+    fun isDownloaded(id: Long): Boolean
+
+    /**
      * Construye la url dinámica para descarga.
      * */
     fun buildDynamicUrl(baseUrl: String, version: Int): String

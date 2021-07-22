@@ -217,6 +217,17 @@ class UpdateManager @Inject constructor(
         return null
     }
 
+    override fun isDownloaded(id: Long): Boolean {
+        val cursor: Cursor =
+            downloadManager.query(DownloadManager.Query().setFilterById(id))
+
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL
+        }
+
+        return false
+    }
+
 
     override fun buildDynamicUrl(baseUrl: String, version: Int): String {
         val url = if (baseUrl.endsWith('/'))
