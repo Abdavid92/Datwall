@@ -60,4 +60,33 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="initial_application_status_summary">Vamos a revisar el estado de la aplicación. Por favor conectese a internet y presione continuar.</string>
     <string name="update_notification_title">Descargando actualización</string>
+
+    <string name="terms_and_conditions_title">
+        Términos y condiciones
+    </string>
+    <string name="terms_and_conditions">
+        Estos son los términos y condiciones para usar la aplicación.
+        Por favor, lea detenidamente este documento antes de realizar la compra.
+        <hr/>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias dolor exercitationem reprehenderit repudiandae voluptas? Ab eum expedita explicabo hic impedit molestiae reiciendis repudiandae! Blanditiis consectetur deserunt dolores, placeat quisquam
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt dolores facere maiores, minus nesciunt, non numquam quam ratione saepe sequi temporibus veritatis. Accusamus eveniet facere impedit libero placeat quas
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam aliquid atque aut deleniti, eaque fuga fugit in molestiae mollitia non, officiis optio quibusdam quos repellat sed sequi, sint soluta tempore!
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi consequatur deserunt hic in, nemo nihil obcaecati quos repellendus saepe sequi, veniam voluptate. Accusantium autem dignissimos iste quas quidem reprehenderit ut.
+    </string>
+    <string name="transfermovil_instruccions">
+        Por favor, vaya al Transfermovil y realize una transferencia de %s al siguiente número de tarjeta.
+        Una vez realizada la transferencia con éxito, la aplicación se activará automáticamente.
+        No suspenda ni fuerze la detención de la misma. No debe realizar la transferencia por otra vía que no sea la indicada.
+    </string>
+    <string name="debid_card_number">Número de tarjeta: <br/>%s</string>
+    <string name="btn_back">Atras</string>
+    <string name="copy_to_clipboard">Copiar al portapapeles</string>
+
+    <string name="ussd_instructions">
+        Por favor ingrese la clave de transferencia.
+        A continuación, escriba \'1\' en el diálogo que aparecerá y presione \'aceptar\'.
+        La aplicación se activará automáticamente una vez realizada la transferencia con éxito.
+        No suspenda ni fuerze la detención de la misma. No realice la transferencia por otro medio que no sea el indicado.
+    </string>
+    <string name="begin_activation">Iniciando activación. Por favor, no se desconecte.</string>
 </resources>
