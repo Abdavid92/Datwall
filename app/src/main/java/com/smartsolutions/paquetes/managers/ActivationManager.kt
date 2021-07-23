@@ -380,6 +380,11 @@ class ActivationManager @Inject constructor(
 
     private fun isNotOldDeviceApp(savedDeviceApp: DeviceApp): Boolean {
         val time = savedDeviceApp.lastQuery.time + (60000 * 5)
-        return time > System.currentTimeMillis()
+        val current = System.currentTimeMillis()
+
+        val date = Date(time)
+        val dateCurrent = Date(current)
+
+        return time > current
     }
 }

@@ -75,12 +75,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
                 listener?.invoke(null)
 
             } else {
-
-                //TODO: Pedir permiso si lo tengo denegado
-                Toast.makeText(
-                    requireContext(),
-                    (it as Result.Failure).throwable.message,
-                    Toast.LENGTH_SHORT).show()
+                viewModel.handleUssdResultFailure(it as Result.Failure, childFragmentManager)
             }
         }
     }
@@ -95,6 +90,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         val dialog = AlertDialog.Builder(requireContext())
             .setView(view)
             .setTitle(R.string.begin_activation_title)
+            .setCancelable(false)
             .create()
 
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
