@@ -8,6 +8,9 @@ import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.CALL_CODE
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.DRAW_OVERLAYS_CODE
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.SMS_CODE
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

@@ -10,8 +10,10 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
 import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.managers.PermissionsManager
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,7 +35,7 @@ class SinglePermissionFragment private constructor(
 ): BottomSheetDialogFragment() {
 
     @Inject
-    lateinit var permissionsManager: PermissionsManager
+    lateinit var permissionsManager: IPermissionsManager
 
     private lateinit var permission: Permission
 
@@ -121,7 +123,6 @@ class SinglePermissionFragment private constructor(
                     putInt(ARG_REQUEST_CODE, requestCode)
                 }
             }
-
     }
 
     interface SinglePermissionCallback {

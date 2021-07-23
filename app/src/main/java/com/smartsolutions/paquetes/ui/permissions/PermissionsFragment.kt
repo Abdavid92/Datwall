@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.PermissionsManager
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.AndroidEntryPoint
 import moe.feng.common.stepperview.VerticalStepperItemView
@@ -33,7 +34,7 @@ class PermissionsFragment private constructor(
     private var permissions = emptyList<Permission>()
 
     @Inject
-    lateinit var permissionsManager: PermissionsManager
+    lateinit var permissionsManager: IPermissionsManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

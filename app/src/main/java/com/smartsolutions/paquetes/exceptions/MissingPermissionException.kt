@@ -4,8 +4,9 @@ import android.app.Activity
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import java.io.Serializable
 
-class MissingPermissionException: Exception {
+class MissingPermissionException: Exception, Serializable {
 
     val permission: Array<String>
 

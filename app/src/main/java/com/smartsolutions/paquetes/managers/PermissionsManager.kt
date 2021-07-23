@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import android.Manifest
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
@@ -9,6 +10,9 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.USAGE_ACCESS_CODE
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.VPN_CODE
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -16,7 +20,7 @@ import javax.inject.Inject
 open class PermissionsManager @Inject constructor(
     @ApplicationContext
     private val context: Context
-) {
+) : IPermissionsManager {
 
      protected open val permissions = listOf(
         Permission(
@@ -57,6 +61,7 @@ open class PermissionsManager @Inject constructor(
             }
         ),
         Permission(
+
             context.getString(R.string.vpn_permission),
             emptyArray(),
             context.getString(R.string.vpn_permission_description),
@@ -89,10 +94,10 @@ open class PermissionsManager @Inject constructor(
         )
     )
 
-    fun findPermission(requestCode: Int) =
+    override fun findPermission(requestCode: Int) =
         permissions.firstOrNull { it.requestCode == requestCode }
 
-    fun findPermissions(requestCodes: IntArray): List<Permission> {
+    override fun findPermissions(requestCodes: IntArray): List<Permission> {
         val list = mutableListOf<Permission>()
 
         requestCodes.forEach { code ->
@@ -103,22 +108,11 @@ open class PermissionsManager @Inject constructor(
         return list
     }
 
-    fun getDeniedPermissions(onlyRequired: Boolean = true) =
+    override fun getDeniedPermissions(onlyRequired: Boolean) =
         permissions.filter {
             (if (onlyRequired)
                 it.category == Permission.Category.Required
             else
                 true) && !it.checkPermission(it, context)
         }
-
-    companion object {
-        @RequiresApi(Build.VERSION_CODES.M)
-        const val CALL_CODE = 34
-        @RequiresApi(Build.VERSION_CODES.M)
-        const val SMS_CODE = 22
-        @RequiresApi(Build.VERSION_CODES.M)
-        const val DRAW_OVERLAYS_CODE = 356
-        const val VPN_CODE = 248
-        const val USAGE_ACCESS_CODE = 854
-    }
 }

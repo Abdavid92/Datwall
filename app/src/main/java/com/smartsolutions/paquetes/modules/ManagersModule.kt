@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.modules
 
 import android.os.Build
 import com.smartsolutions.paquetes.managers.*
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import dagger.Lazy
 import dagger.Module
 import dagger.Provides
@@ -29,7 +30,7 @@ class ManagersModule {
     fun providePermissionsManager(
         impl: Lazy<PermissionsManagerM>,
         legacyImpl: Lazy<PermissionsManager>
-    ): PermissionsManager {
+    ): IPermissionsManager {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             impl.get()
         else
