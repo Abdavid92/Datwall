@@ -1,14 +1,12 @@
 package com.smartsolutions.paquetes
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
@@ -47,6 +45,10 @@ class DatwallApplication : Application() {
     @Inject
     lateinit var changeNetworkCallback: Lazy<ChangeNetworkCallback>
 
+
+    @Inject
+    lateinit var notificationHelper: NotificationHelper
+
     /**
      * Indica si los datos móbiles están encendidos.
      * */
@@ -66,7 +68,7 @@ class DatwallApplication : Application() {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            createNotificationChannels()
+            notificationHelper.createNotificationChannels()
 
         //Registro los callbacks
         registerCallbacks()
@@ -92,30 +94,4 @@ class DatwallApplication : Application() {
         }
     }
 
-    /**
-     * Crea los canales de las notificaciones solo en android 8 en adelante.
-     * */
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannels() {
-        ContextCompat.getSystemService(this, NotificationManager::class.java)?.let { notificationManager ->
-
-            //Canal principal
-            val mainChannel = NotificationChannel(
-                NotificationChannels.MAIN_CHANNEL_ID,
-                getString(R.string.main_notification_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-
-            notificationManager.createNotificationChannel(mainChannel)
-
-            //Canal de alertas y mensajes
-            val alertChannel = NotificationChannel(
-                NotificationChannels.ALERT_CHANNEL_ID,
-                getString(R.string.alert_notification_channel_name),
-                NotificationManager.IMPORTANCE_HIGH
-            )
-
-            notificationManager.createNotificationChannel(alertChannel)
-        }
-    }
 }

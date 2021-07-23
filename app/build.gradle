@@ -40,6 +40,9 @@ android {
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner "com.smartsolutions.paquetes.HiltTestRunner"
     }
+    buildFeatures {
+        viewBinding true
+    }
 
     buildFeatures.dataBinding = true
 
@@ -108,6 +111,7 @@ dependencies {
 
     //Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation "androidx.hilt:hilt-work:1.0.0"
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"

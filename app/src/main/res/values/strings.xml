@@ -92,4 +92,5 @@
     <string name="btn_close">Cerrar</string>
     <string name="btn_retry">Reintentar</string>
     <string name="begin_activation_title">Iniciando activación</string>
+    <string name="update_notification_title">Mis Datos - Descargando actualización</string>
 </resources>

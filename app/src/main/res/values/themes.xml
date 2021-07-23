@@ -15,6 +15,6 @@
     </style>
 
     <style name="BottomSheetDialog." parent="Theme.MaterialComponents.BottomSheetDialog">
-        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerRadius">20dp</item>
     </style>
 </resources>

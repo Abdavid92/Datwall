@@ -1,9 +1,6 @@
 package com.smartsolutions.paquetes.ui
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -11,24 +8,26 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.annotations.Networks
-import com.smartsolutions.paquetes.managers.MiCubacelManager
+import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.managers.SynchronizationManager
-import com.smartsolutions.paquetes.repositories.models.MiCubacelAccount
-import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.ui.firewall.LogActivity
-import com.smartsolutions.paquetes.ui.setup.SetupActivity
+import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
+import com.smartsolutions.paquetes.serverApis.models.AndroidApp
+import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
+const val EXTRA_FRAGMENT = "extra_fragment"
+const val FRAGMENT_UPDATE_DIALOG = "fragment_update_dialog"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Inject
     lateinit var synchronizationManager: SynchronizationManager
+
+    @Inject
+    lateinit var updateManager: IUpdateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +45,58 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        startActivity(Intent(this, SetupActivity::class.java))
+        //startActivity(Intent(this, SetupActivity::class.java))
+
+        handleIntent()
+
     }
+
+
+    private fun handleIntent(){
+        intent.action?.let { action ->
+            if (action == ACTION_OPEN_FRAGMENT){
+                intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
+                    when(extra) {
+                        FRAGMENT_UPDATE_DIALOG -> {
+                            testDownload()
+                        }
+                        else -> {
+
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    fun testDownload() {
+
+        val androidApp = AndroidApp(
+            12,
+            "Covid",
+            "Jefferson.covid19.world.data",
+            1,
+            4,
+            "4.2.0",
+            AndroidApp.UpdatePriority.High,
+            "Se mejoro mucho esto de las actualizaciones\nAhora todo funciona mucho mejor\nClaro por lo menos en las pruebas que hemos realizado",
+            ApplicationStatus.DISCONTINUED,
+            false,
+            trialPeriod = 12,
+            12,
+            "",
+            "",
+            "",
+            ""
+        )
+        //archive.apklis.cu/application/apk/Jefferson.covid19.world.data-v4.apk
+
+        val dialog = UpdateFragment(androidApp)
+
+        dialog.show(supportFragmentManager, "UpdateDialog")
+
+    }
+
+
 }
