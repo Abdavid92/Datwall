@@ -39,6 +39,8 @@ class SinglePermissionFragment private constructor(
 
     private lateinit var permission: Permission
 
+    private var granted = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -78,6 +80,7 @@ class SinglePermissionFragment private constructor(
     }
 
     private fun notifyResult(granted: Boolean) {
+        this.granted = granted
         if (granted)
             callback?.onGranted()
         else
@@ -113,6 +116,13 @@ class SinglePermissionFragment private constructor(
                 notifyResult(permission.checkPermission(permission, it))
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (!granted)
+            callback?.onDenied()
     }
 
     companion object {

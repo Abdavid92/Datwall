@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.settings.PackagesConfigurationFragment">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/packages_configuration_summary"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_start_configuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_packages_configuration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/summary"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/result_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btn_start_configuration"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textAlignment="center"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        tools:text="Resultado de la operación" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

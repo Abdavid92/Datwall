@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui.firewall
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.databinding.FirewallFragmentBinding
+import com.smartsolutions.paquetes.databinding.FragmentFirewallBinding
 import com.smartsolutions.paquetes.managers.IconManager
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.ui.ApplicationFragment
@@ -21,7 +20,7 @@ class FirewallFragment : ApplicationFragment() {
 
     private val viewModel by viewModels<FirewallViewModel>()
 
-    private lateinit var binding: FirewallFragmentBinding
+    private lateinit var binding: FragmentFirewallBinding
 
     @Inject
     lateinit var iconManager: IconManager
@@ -30,7 +29,7 @@ class FirewallFragment : ApplicationFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.firewall_fragment, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_firewall, container, false)
         return binding.root
     }
 

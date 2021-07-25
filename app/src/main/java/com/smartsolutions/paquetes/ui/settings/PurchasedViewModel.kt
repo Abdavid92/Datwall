@@ -145,12 +145,6 @@ class PurchasedViewModel @Inject constructor(
         }
         return "30$"
     }
-    
-    private fun checkDeviceApp() {
-        if (deviceApp == null)
-            throw Exception("DeviceApp is null. First call property beginActivationResult " +
-                    "or method initDeviceAppAndActivation()")
-    }
 
     fun handleUssdResultFailure(failure: Result.Failure<Unit>, fragmentManager: FragmentManager) {
         if (failure.throwable is USSDRequestException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -168,5 +162,11 @@ class PurchasedViewModel @Inject constructor(
             failure.throwable.message,
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    private fun checkDeviceApp() {
+        if (deviceApp == null)
+            throw Exception("DeviceApp is null. First call property beginActivationResult " +
+                    "or method initDeviceAppAndActivation()")
     }
 }

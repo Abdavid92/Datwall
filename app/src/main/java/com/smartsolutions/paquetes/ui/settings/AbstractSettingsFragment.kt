@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.ui.settings
 
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import kotlin.reflect.KClass
 
 abstract class AbstractSettingsFragment : Fragment {
 
@@ -10,7 +11,7 @@ abstract class AbstractSettingsFragment : Fragment {
      * Si el argumento next no es null, indica que se debe instanciar un fragmento diferente al
      * predeterminado.
      * */
-    protected var listener: ((next: AbstractSettingsFragment?) -> Unit)? = null
+    protected var listener: ((next: KClass<out AbstractSettingsFragment>?) -> Unit)? = null
 
     constructor(): super()
 
@@ -22,9 +23,15 @@ abstract class AbstractSettingsFragment : Fragment {
      * */
     abstract fun isRequired(): Boolean
 
-    fun setOnCompletedListener(listener: (next: AbstractSettingsFragment?) -> Unit):
+    fun setOnCompletedListener(listener: (next: KClass<out AbstractSettingsFragment>?) -> Unit):
             AbstractSettingsFragment {
         this.listener = listener
         return this
+    }
+
+    enum class SettingsResult {
+        Success,
+        Failed,
+        Incomplete
     }
 }

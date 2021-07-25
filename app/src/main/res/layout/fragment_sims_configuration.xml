@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.settings.SimsConfigurationFragment">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/sims_configuration_summary"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/data_sim_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/summary"
+        android:text="Linea predeterminada para datos"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/data_sim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/data_sim_label" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/voice_sim_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/data_sim"
+        android:text="Linea predeterminada para llamadas"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/voice_sim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/voice_sim_label" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/voice_sim"
+        android:text="@string/btn_save" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,7 +21,7 @@
         android:id="@+id/navigation_firewall"
         android:name="com.smartsolutions.paquetes.ui.firewall.FirewallFragment"
         android:label="@string/title_firewall"
-        tools:layout="@layout/firewall_fragment" />
+        tools:layout="@layout/fragment_firewall" />
 
     <fragment
         android:id="@+id/navigation_notifications"

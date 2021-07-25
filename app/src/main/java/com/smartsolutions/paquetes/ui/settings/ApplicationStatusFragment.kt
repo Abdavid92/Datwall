@@ -80,7 +80,7 @@ class ApplicationStatusFragment :
             message.text = "El tiempo de prueba ha caducado. Para continuar debe comprar la app."
 
             enableBtnAction("Comprar") {
-                listener?.invoke(/*TODO:Fragmento de compra*/ null)
+                listener?.invoke(PurchasedFragment::class)
             }
         }
     }

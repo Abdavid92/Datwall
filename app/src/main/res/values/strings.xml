@@ -67,7 +67,7 @@
     <string name="terms_and_conditions">
         Estos son los términos y condiciones para usar la aplicación.
         Por favor, lea detenidamente este documento antes de realizar la compra.
-        <hr/>
+        <hr />
         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias dolor exercitationem reprehenderit repudiandae voluptas? Ab eum expedita explicabo hic impedit molestiae reiciendis repudiandae! Blanditiis consectetur deserunt dolores, placeat quisquam
         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt dolores facere maiores, minus nesciunt, non numquam quam ratione saepe sequi temporibus veritatis. Accusamus eveniet facere impedit libero placeat quas
         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam aliquid atque aut deleniti, eaque fuga fugit in molestiae mollitia non, officiis optio quibusdam quos repellat sed sequi, sint soluta tempore!
@@ -78,7 +78,7 @@
         Una vez realizada la transferencia con éxito, la aplicación se activará automáticamente.
         No suspenda ni fuerze la detención de la misma. No debe realizar la transferencia por otra vía que no sea la indicada.
     </string>
-    <string name="debit_card_number">Número de tarjeta: <br/>%s</string>
+    <string name="debit_card_number">Número de tarjeta: <br />%s</string>
     <string name="btn_back">Atras</string>
     <string name="copy_to_clipboard">Copiar al portapapeles</string>
 
@@ -92,4 +92,13 @@
     <string name="btn_close">Cerrar</string>
     <string name="btn_retry">Reintentar</string>
     <string name="begin_activation_title">Iniciando activación</string>
+    <string name="sims_configuration_summary">
+        A continuación, debe establecer las lineas predeterminadas para datos y llamadas.
+    </string>
+    <string name="btn_save">Guardar</string>
+    <string name="start_accessibility_service_title">Servicio de accesibilidad</string>
+    <string name="start_accessibility_service_summary">Es necesarió encender el servicio de accesibilidad para poder efectuar esta operación.</string>
+    <string name="open_settings">Abrir ajustes</string>
+    <string name="packages_configuration_summary">Vamos a configurar los paquetes disponibles para la linea actual.</string>
+    <string name="start_packages_configuration">Iniciar configuración</string>
 </resources>

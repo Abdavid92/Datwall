@@ -65,10 +65,10 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
             .setOnClickListener(::ussdTranfer)
 
         beginActivation()
-        registerUssdResultObserver(view)
+        registerUssdResultObserver()
     }
 
-    private fun registerUssdResultObserver(view: View) {
+    private fun registerUssdResultObserver() {
         viewModel.ussdTranferenceResult.observe(viewLifecycleOwner) {
             if (it.isSuccess) {
 
@@ -100,7 +100,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         btnClose.setOnClickListener {
             dialog.hide()
             //TODO: Temp
-            listener?.invoke(null)
+            listener?.invoke(ApplicationStatusFragment::class)
         }
 
         val btnRetry = view.findViewById<Button>(R.id.btn_retry)

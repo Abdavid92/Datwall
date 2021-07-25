@@ -242,7 +242,7 @@ class USSDHelper @Inject constructor(
     private fun callPermissionGranted(): Boolean =
         ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
 
-    private fun accessibilityServiceEnabled(): Boolean {
+    fun accessibilityServiceEnabled(): Boolean {
         val pref = Settings.Secure
             .getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
 

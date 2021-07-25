@@ -144,7 +144,11 @@ class SimManager @Inject constructor(
 
             list.forEach {
                 if (installedSims.contains(it))
-                    finalList.add(it)
+                    finalList.add(it.apply {
+                        installedSims.getOrNull(installedSims.indexOf(it))?.let { foundSim ->
+                            this.icon = foundSim.icon
+                        }
+                    })
             }
             return@map finalList
         }
