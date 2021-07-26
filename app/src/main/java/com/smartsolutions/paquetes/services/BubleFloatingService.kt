@@ -210,7 +210,7 @@ class BubbleFloatingService : Service() {
     private fun setTheme(access: Boolean) {
         val isDark = uiHelper.isUIDarkTheme()
 
-        if (isDark){
+        if (!isDark){
             imageUpload.setImageResource(R.drawable.ic_upload_dark)
             imageDownload.setImageResource(R.drawable.ic_download_dark)
         }else {
