@@ -212,10 +212,10 @@ class SimManager @Inject constructor(
 
         val sim = Sim(id, 0, NETWORK_NONE)
 
-        val phone = subscriptionInfo.number
-
-        if (phone.isNotBlank())
-            sim.phone = phone
+        subscriptionInfo.number?.let { phone ->
+            if (phone.isNotBlank())
+                sim.phone = phone
+        }
 
         simRepository.create(sim)
 
