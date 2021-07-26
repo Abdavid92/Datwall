@@ -50,42 +50,42 @@ object NetworkUtils {
      * @see PERIOD_WEEK
      * @see PERIOD_MONTH
      * */
-    fun getTimePeriod(@Period trafficPeriod: Int): Array<Long> {
+    fun getTimePeriod(@Period trafficPeriod: Int): Pair<Long, Long> {
         return when (trafficPeriod) {
-            0 -> {
-                arrayOf(
-                        getZeroHour(Date()).time,
-                        System.currentTimeMillis()
+            PERIOD_TODAY -> {
+                Pair(
+                    getZeroHour(Date()).time,
+                    System.currentTimeMillis()
                 )
             }
-            1 -> {
+            PERIOD_YESTERDAY -> {
                 var yesterday = DateUtils.addDays(Date(), -1)
                 yesterday = DateUtils.setHours(yesterday, 23)
                 yesterday = DateUtils.setMinutes(yesterday, 59)
                 yesterday = DateUtils.setSeconds(yesterday, 59)
 
-                arrayOf(
-                        getZeroHour(yesterday).time,
-                        yesterday.time
+                Pair(
+                    getZeroHour(yesterday).time,
+                    yesterday.time
                 )
             }
-            2 -> {
+            PERIOD_WEEK -> {
                 val calendar = Calendar.getInstance()
                 calendar.firstDayOfWeek = Calendar.MONDAY
                 calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
 
-                arrayOf(
-                        getZeroHour(calendar.time).time,
-                        System.currentTimeMillis()
+                Pair(
+                    getZeroHour(calendar.time).time,
+                    System.currentTimeMillis()
                 )
             }
-            3 -> {
+            PERIOD_MONTH -> {
                 val  calendar = Calendar.getInstance()
                 calendar.set(Calendar.DAY_OF_MONTH, 1)
 
-                arrayOf(
-                        getZeroHour(calendar.time).time,
-                        System.currentTimeMillis()
+                Pair(
+                    getZeroHour(calendar.time).time,
+                    System.currentTimeMillis()
                 )
             }
             else -> {

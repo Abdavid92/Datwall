@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.ui.ACTION_OPEN_FRAGMENT
@@ -23,7 +24,7 @@ class NotificationHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    private val notificationManager = ContextCompat.getSystemService(context, NotificationManager::class.java) ?: throw NullPointerException()
+    private val notificationManager = NotificationManagerCompat.from(context)
 
 
     fun buildNotification(channelId: String): NotificationCompat.Builder {
@@ -78,8 +79,11 @@ class NotificationHelper @Inject constructor(
         val mainChannel = NotificationChannel(
             MAIN_CHANNEL_ID,
             context.getString(R.string.main_notification_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_LOW
         )
+
+        mainChannel.setShowBadge(false)
+        mainChannel.enableVibration(false)
 
         notificationManager.createNotificationChannel(mainChannel)
 

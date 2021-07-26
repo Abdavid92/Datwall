@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -12,6 +13,7 @@ import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
+import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -48,6 +50,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         //startActivity(Intent(this, SetupActivity::class.java))
 
         handleIntent()
+
+        startService(Intent(this, BubbleFloatingService::class.java))
 
     }
 
