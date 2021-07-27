@@ -6,6 +6,8 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import androidx.core.content.ContextCompat
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
@@ -22,7 +24,7 @@ import javax.inject.Inject
  * callbacks y sembrar la base de datos.
  * */
 @HiltAndroidApp
-class DatwallApplication : Application() {
+class DatwallApplication : Application(), Configuration.Provider {
 
     /**
      * Observador
@@ -49,6 +51,9 @@ class DatwallApplication : Application() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
     /**
      * Indica si los datos móbiles están encendidos.
      * */
@@ -74,6 +79,12 @@ class DatwallApplication : Application() {
         registerCallbacks()
     }
 
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+
     /**
      * Registra los callbacks de la aplicación.
      * */
@@ -93,5 +104,4 @@ class DatwallApplication : Application() {
             }
         }
     }
-
 }

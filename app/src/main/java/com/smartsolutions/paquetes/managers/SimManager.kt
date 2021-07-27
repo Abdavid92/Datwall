@@ -144,7 +144,11 @@ class SimManager @Inject constructor(
 
             list.forEach {
                 if (installedSims.contains(it))
-                    finalList.add(it)
+                    finalList.add(it.apply {
+                        installedSims.getOrNull(installedSims.indexOf(it))?.let { foundSim ->
+                            this.icon = foundSim.icon
+                        }
+                    })
             }
             return@map finalList
         }
@@ -208,10 +212,10 @@ class SimManager @Inject constructor(
 
         val sim = Sim(id, 0, NETWORK_NONE)
 
-        val phone = subscriptionInfo.number
-
-        if (phone.isNotBlank())
-            sim.phone = phone
+        subscriptionInfo.number?.let { phone ->
+            if (phone.isNotBlank())
+                sim.phone = phone
+        }
 
         simRepository.create(sim)
 

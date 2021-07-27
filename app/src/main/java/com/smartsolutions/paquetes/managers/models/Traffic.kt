@@ -5,10 +5,7 @@ import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RequiresApi
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.managers.NetworkUtils
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -18,7 +15,18 @@ import com.smartsolutions.paquetes.repositories.models.Sim
  * para una aplicación como para todas la aplicaciones,
  * dependiendo si uid es distinto de cero.
  * */
-@Entity(tableName = "traffic", foreignKeys = [ForeignKey(entity = Sim::class, parentColumns = ["id"], childColumns = ["sim_id"])])
+@Entity(
+    tableName = "traffic", 
+    foreignKeys = [
+        ForeignKey(
+            entity = Sim::class, 
+            parentColumns = ["id"], 
+            childColumns = ["sim_id"])
+    ],
+    indices = [
+        Index("sim_id", unique = false)
+    ]
+)
 open class Traffic(
     /**
      * Uid de la aplicación que pertenece el tráfico de datos.

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sim_networks">
+        <item>Seleccione una opción…</item>
+        <item>Paquetes de todas la redes</item>
+        <item>Paquetes solo de la red 3G</item>
+        <item>Paquetes solo de la red 4G</item>
+    </string-array>
+</resources>

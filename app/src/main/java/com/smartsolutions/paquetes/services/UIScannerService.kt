@@ -30,6 +30,18 @@ class UIScannerService : AccessibilityService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+
+
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+
+
+        return super.onUnbind(intent)
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
 
         val response = event.text.toTypedArray()

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_horizontal_margin">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/sim_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/sim_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        tools:text="Label se la linea"/>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

@@ -97,6 +97,17 @@ class DataPackageManager @Inject constructor(
         }
     }
 
+    override suspend fun setDataPackagesManualConfiguration(network: String) {
+        val defaultSim = simManager.getDefaultVoiceSim().apply {
+            this.network = network
+
+            //Fecha en la que se configuró esta linea.
+            this.setupDate = System.currentTimeMillis()
+        }
+
+        simRepository.update(defaultSim)
+    }
+
     @Throws(IllegalStateException::class, MissingPermissionException::class, UnprocessableRequestException::class)
     override suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim) {
 
