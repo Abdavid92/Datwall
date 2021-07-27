@@ -34,6 +34,14 @@ interface IDataPackageManager {
     suspend fun configureDataPackages()
 
     /**
+     * Configura los paquetes de datos usando el tipo de red dado. Este método
+     * elige la linea predeterminada para llamadas para realizar la configuración.
+     *
+     * @param network - Tipo de red a asignar a la linea.
+     * */
+    suspend fun setDataPackagesManualConfiguration(network: String)
+
+    /**
      * Compra un paquete de datos.
      *
      * @param dataPackage - Paquete que se va a intentar comprar.

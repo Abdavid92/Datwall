@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
@@ -40,7 +41,7 @@ class PackagesConfigurationViewModel @Inject constructor(
             try {
                 dataPackageManager.configureDataPackages()
 
-                _configurationResult.postValue(Result.Success(simManager.getDefaultDataSim()))
+                _configurationResult.postValue(Result.Success(simManager.getDefaultVoiceSim()))
             } catch (e: USSDRequestException) {
                 _configurationResult.postValue(Result.Failure(e))
 
@@ -96,6 +97,14 @@ class PackagesConfigurationViewModel @Inject constructor(
             USSDHelper.CONNECTION_TIMEOUT -> {
 
             }
+        }
+    }
+
+    fun setManualConfiguration(@Networks network: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataPackageManager.setDataPackagesManualConfiguration(network)
+
+            _configurationResult.postValue(Result.Success(simManager.getDefaultVoiceSim()))
         }
     }
 }
