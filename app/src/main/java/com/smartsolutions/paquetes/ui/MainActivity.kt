@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun handleIntent(){
         intent.action?.let { action ->
-            if (action == ACTION_OPEN_FRAGMENT){
+            if (action == ACTION_OPEN_FRAGMENT) {
                 intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
                     when(extra) {
                         FRAGMENT_UPDATE_DIALOG -> {
@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 }
             }
-
         }
     }
 

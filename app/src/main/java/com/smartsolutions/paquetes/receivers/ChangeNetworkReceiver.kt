@@ -18,7 +18,7 @@ import javax.inject.Inject
  * */
 class ChangeNetworkReceiver @Inject constructor(
     private val changeNetworkHelper: IChangeNetworkHelper
-) : BroadcastReceiver() {
+) : AbstractBroadcastReceiver() {
 
     /**
      * Instancia de NetworkInfo que contiene la información relacionada con

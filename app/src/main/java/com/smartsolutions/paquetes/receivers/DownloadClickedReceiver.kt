@@ -15,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DownloadClicked : BroadcastReceiver() {
+class DownloadClickedReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var updateManager: IUpdateManager

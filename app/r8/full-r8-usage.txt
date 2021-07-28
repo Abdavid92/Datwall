@@ -20566,7 +20566,7 @@ com.smartsolutions.paquetes.managers.DataPackageManager:
     public void setBuyMode(com.smartsolutions.paquetes.managers.contracts.IDataPackageManager$ConnectionMode)
     public java.lang.Object setDataPackagesManualConfiguration(java.lang.String,kotlin.coroutines.Continuation)
 com.smartsolutions.paquetes.managers.DataPackageManager_Factory
-com.smartsolutions.paquetes.managers.DatwallManager
+com.smartsolutions.paquetes.DatwallManager
 com.smartsolutions.paquetes.managers.DatwallManager_Factory
 com.smartsolutions.paquetes.managers.IconManager:
     public void delete(java.lang.String,long)

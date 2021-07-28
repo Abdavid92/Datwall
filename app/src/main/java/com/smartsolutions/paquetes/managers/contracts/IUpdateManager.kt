@@ -28,7 +28,7 @@ interface IUpdateManager {
      *
      * @param intervalInHours - Intervalo en horas.
      * */
-    fun scheduleFindUpdate(intervalInHours: Long)
+    fun scheduleUpdateApplicationStatusWorker(intervalInHours: Long)
 
     /**
      * Descarga directa usando la url dada.

@@ -20,7 +20,7 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DownloadFileReceive : BroadcastReceiver() {
+class DownloadFileReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var updateManager: IUpdateManager

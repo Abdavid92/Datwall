@@ -5,7 +5,7 @@
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -32,14 +32,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
+        <activity android:name=".ui.FragmentContainerActivity"></activity>
 
         <service
             android:name=".services.BubbleFloatingService"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
 
         <receiver
-            android:name=".receivers.DownloadClicked"
+            android:name=".receivers.DownloadClickedReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -58,7 +59,7 @@
         </provider>
 
         <receiver
-            android:name=".receivers.DownloadFileReceive"
+            android:name=".receivers.DownloadFileReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -106,9 +107,7 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.net.VpnService" />
             </intent-filter>
-        </service>
-
-        <!-- Receivers -->
+        </service> <!-- Receivers -->
         <receiver
             android:name=".receivers.PackageMonitorReceiver"
             android:enabled="true"

@@ -25,7 +25,7 @@ import javax.inject.Inject
  * */
 class TrafficRegistration @Inject constructor(
     @ApplicationContext
-    private val context: Context,
+    private val context: Context
 ) {
 
     /**
@@ -40,6 +40,8 @@ class TrafficRegistration @Inject constructor(
 
         val request = PeriodicWorkRequestBuilder<TrafficRegistrationWorker>(1000, TimeUnit.MILLISECONDS)
             .addTag(TRAFFIC_REGISTRATION_TAG)
+
+        stopRegistration()
 
         WorkManager.getInstance(context)
             .enqueue(request.build())

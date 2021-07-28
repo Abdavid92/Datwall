@@ -59,7 +59,7 @@ class UpdateManager @Inject constructor(
     }
 
 
-    override fun scheduleFindUpdate(intervalInHours: Long) {
+    override fun scheduleUpdateApplicationStatusWorker(intervalInHours: Long) {
 
         val request = PeriodicWorkRequestBuilder<UpdateApplicationStatusWorker>(
             intervalInHours,
