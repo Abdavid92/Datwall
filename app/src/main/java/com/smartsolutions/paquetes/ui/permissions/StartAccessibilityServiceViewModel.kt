@@ -2,19 +2,14 @@ package com.smartsolutions.paquetes.ui.permissions
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.helpers.AccessibilityServiceHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class StartAccessibilityServiceViewModel @Inject constructor(
     application: Application,
-    private val ussdHelper: USSDHelper
+    private val accessibilityServiceHelper: AccessibilityServiceHelper
 ) : AndroidViewModel(application) {
 
     var listener: SinglePermissionFragment.SinglePermissionCallback? = null
@@ -27,7 +22,7 @@ class StartAccessibilityServiceViewModel @Inject constructor(
 
 
     fun openAccessibilityServicesActivity() {
-        ussdHelper.openAccessibilityServicesActivity()
+        accessibilityServiceHelper.openAccessibilityServicesActivity()
         settingWasOpen = true
     }
 
@@ -35,7 +30,7 @@ class StartAccessibilityServiceViewModel @Inject constructor(
 
         //TODO: Pendiente a cambios
         if (settingWasOpen) {
-            if (ussdHelper.accessibilityServiceEnabled())
+            if (accessibilityServiceHelper.accessibilityServiceEnabled())
                 listener?.onGranted()
             else
                 listener?.onDenied()

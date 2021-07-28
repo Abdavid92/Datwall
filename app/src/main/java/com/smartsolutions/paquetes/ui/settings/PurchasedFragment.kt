@@ -62,7 +62,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         view.findViewById<Button>(R.id.btn_ussd_tranfer)
             .setOnClickListener(::ussdTranfer)
 
-        //beginActivation()
+        beginActivation()
         registerUssdResultObserver()
     }
 

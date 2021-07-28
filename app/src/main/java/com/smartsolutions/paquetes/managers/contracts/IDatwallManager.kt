@@ -10,9 +10,6 @@ interface IDatwallManager {
 
     /**
      * Enciende el servicio de accesibilidad.
-     *
-     * @return true si se logró encender, vincular con el sistema
-     * y está listo para funcionar.
      * */
-    suspend fun startAccessibilityService(): Boolean
+    suspend fun startAccessibilityService()
 }

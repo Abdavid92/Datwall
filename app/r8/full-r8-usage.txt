@@ -21282,6 +21282,7 @@ com.smartsolutions.paquetes.serverApis.models.JwtData:
     public final com.smartsolutions.paquetes.serverApis.models.JwtData copy(java.lang.String,java.lang.String,int,java.lang.String,java.lang.String)
     public static synthetic com.smartsolutions.paquetes.serverApis.models.JwtData copy$default(com.smartsolutions.paquetes.serverApis.models.JwtData,java.lang.String,java.lang.String,int,java.lang.String,java.lang.String,int,java.lang.Object)
 com.smartsolutions.paquetes.serverApis.models.Result:
+    public final java.lang.Throwable getThrowableOrNull()
     public final boolean isFailure()
 com.smartsolutions.paquetes.serverApis.modules.BindingsModule
 com.smartsolutions.paquetes.serverApis.modules.WebApisModule_ProvideISmartSolutionsAppsFactory:
@@ -33049,6 +33050,7 @@ androidx.core.view.accessibility.AccessibilityViewCommand$CommandArguments:
     public android.os.Bundle mBundle
 androidx.core.widget.AutoScrollHelper:
     public boolean mExclusive
+androidx.core.widget.AutoSizeableTextView
 androidx.core.widget.CompoundButtonCompat:
     public static java.lang.reflect.Field sButtonDrawableField
     public static boolean sButtonDrawableFieldFetched

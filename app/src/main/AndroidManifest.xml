@@ -103,10 +103,12 @@
         <service
             android:name=".services.FirewallService"
             android:permission="android.permission.BIND_VPN_SERVICE">
-            <intent-filter>
+            <intent-filter android:priority="9999">
                 <action android:name="android.net.VpnService" />
             </intent-filter>
-        </service> <!-- Receivers -->
+        </service>
+
+        <!-- Receivers -->
         <receiver
             android:name=".receivers.PackageMonitorReceiver"
             android:enabled="true"

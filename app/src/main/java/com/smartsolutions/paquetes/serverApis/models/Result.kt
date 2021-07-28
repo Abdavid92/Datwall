@@ -19,6 +19,13 @@ abstract class Result<T> {
             throw (this as Failure<T>).throwable
     }
 
+    fun getThrowableOrNull(): Throwable? {
+        if (isFailure) {
+            return (this as Failure).throwable
+        }
+        return null
+    }
+
     class Success<T>(
         val value: T
     ) : Result<T>()

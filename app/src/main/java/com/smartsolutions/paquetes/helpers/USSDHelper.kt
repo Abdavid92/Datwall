@@ -22,10 +22,6 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -37,7 +33,8 @@ import kotlin.jvm.Throws
  * */
 class USSDHelper @Inject constructor(
     @ApplicationContext
-    private val context: Context
+    private val context: Context,
+    private val accessibilityServiceHelper: AccessibilityServiceHelper
 ) {
 
     /**
@@ -76,18 +73,6 @@ class USSDHelper @Inject constructor(
         } else {
             sendUSSDRequestLegacy(ussd)!!
         }
-    }
-
-    /**
-     * Abre las configuraciones del dispositivo para activar los servicios de
-     * accesibilidad.
-     * */
-    fun openAccessibilityServicesActivity() {
-
-        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        context.startActivity(intent)
     }
 
     @SuppressLint("MissingPermission")
@@ -171,7 +156,8 @@ class USSDHelper @Inject constructor(
             .setData(Uri.parse("tel:" + Uri.encode(ussd)))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        val accessibilityServiceEnabled = accessibilityServiceEnabled()
+        val accessibilityServiceEnabled = accessibilityServiceHelper
+            .accessibilityServiceEnabled()
 
         //Si se quiere leer la respuesta.
         if (readResponse) {
@@ -248,24 +234,6 @@ class USSDHelper @Inject constructor(
     private fun callPermissionGranted(): Boolean =
         ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) ==
                 PackageManager.PERMISSION_GRANTED
-
-    fun accessibilityServiceEnabled(): Boolean {
-        val pref = Settings.Secure
-            .getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-
-        val serviceName = UIScannerService::class.qualifiedName
-
-        val systemContainService = pref != null &&
-                pref.contains(context.packageName + "/" + serviceName)
-
-        val serviceALive = (context.applicationContext as DatwallApplication)
-            .uiScannerServiceEnabled
-
-        val serviceReady = (context.applicationContext as DatwallApplication)
-            .uiScannerServiceReady
-
-        return systemContainService && serviceALive && serviceReady
-    }
 
     companion object {
         /**

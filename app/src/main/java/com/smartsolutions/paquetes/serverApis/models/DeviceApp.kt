@@ -14,17 +14,23 @@ data class DeviceApp(
     /**
      * Id.
      * */
+    @SerializedName("id")
     var id: String,
+
     /**
      * Si fue comprada.
      * */
+    @SerializedName("purchased")
     @JsonAdapter(BooleanConverter::class)
     var purchased: Boolean,
+
     /**
      * Si ha sido restaurada
      * */
+    @SerializedName("restored")
     @JsonAdapter(BooleanConverter::class)
     var restored: Boolean,
+
     /**
      * Si aún está en período de prueba. Esta propiedad
      * no es segura.
@@ -36,36 +42,45 @@ data class DeviceApp(
     @SerializedName("trial_period")
     @JsonAdapter(BooleanConverter::class)
     val trialPeriod: Boolean,
+
     /**
      * Última consulta.
      * */
     @SerializedName("last_query")
     @JsonAdapter(DateConverter::class)
     val lastQuery: Date,
+
     /**
      * Transacción de compra.
      * */
+    @SerializedName("transaction")
     var transaction: String?,
+
     /**
      * Teléfono que compró.
      * */
+    @SerializedName("phone")
     var phone: String?,
+
     /**
      * Si está en espera de confirmación de compra.
      * */
     @SerializedName("waiting_purchase")
     @JsonAdapter(BooleanConverter::class)
     var waitingPurchase: Boolean,
-    @SerializedName("device_id")
+
     /**
      * Id del dispositivo relacionado.
      * */
+    @SerializedName("device_id")
     val deviceId: String,
+
     /**
      * Nombre de paquete de la aplicación relacionada.
      * */
     @SerializedName("android_app_package_name")
     val androidAppPackageName: String,
+
     /**
      * Fecha en la que se registró esta aplicación en el dispositivo.
      * Esta fecha se usa para verificar el periodo de prueba y los

@@ -6,15 +6,21 @@ data class Device(
     /**
      * Identificador único del dispositivo.
      * */
+    @SerializedName("id")
     var id: String,
+
     /**
      * Marca.
      * */
+    @SerializedName("manufacturer")
     var manufacturer: String,
+
     /**
      * Modelo.
      * */
+    @SerializedName("model")
     var model: String,
+
     /**
      * Version del sistema.
      * */
