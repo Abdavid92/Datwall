@@ -26,6 +26,15 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textAlignment="center" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_cancel"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        app:layout_constraintTop_toBottomOf="@id/summary"
+        app:layout_constraintEnd_toStartOf="@id/btn_open_settings" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_open_settings"
         android:layout_width="wrap_content"

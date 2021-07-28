@@ -5,6 +5,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 
@@ -48,5 +52,50 @@ class USSDHelperTest {
         val result = pref != null &&
                 pref.contains(context.packageName + "/" + serviceName)
 
+    }
+
+    val firstList = mutableListOf<Int>()
+    val secondList = mutableListOf<Int>()
+
+    @Test
+    fun testFlows() {
+
+        val flow = MutableSharedFlow<Int>()
+
+        runBlocking {
+            flow.emit(1)
+        }
+
+        GlobalScope.launch {
+            flow.collect {
+                val result = it
+
+                firstList.add(result)
+            }
+        }
+
+        runBlocking {
+            flow.emit(2)
+        }
+
+        GlobalScope.launch {
+            flow.collect {
+                val result = it
+
+                secondList.add(result)
+            }
+        }
+
+        runBlocking {
+
+            flow.emit(3)
+
+            //assertEquals(2, firstList.size)
+            assertEquals(1, secondList.size)
+
+            flow.emit(4)
+
+            print(null)
+        }
     }
 }

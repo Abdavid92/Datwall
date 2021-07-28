@@ -41,22 +41,34 @@ class StartAccessibilityServiceFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.listener = listener
+        if (this.listener != null)
+            viewModel.listener = this.listener
+        else
+            this.listener = viewModel.listener
 
         view.findViewById<Button>(R.id.btn_open_settings)
             .setOnClickListener {
                 viewModel.openAccessibilityServicesActivity()
+            }
+
+        view.findViewById<Button>(R.id.btn_cancel)
+            .setOnClickListener {
+                listener?.onDenied()
+                closeFragment()
             }
     }
 
     override fun onResume() {
         super.onResume()
 
-        if (viewModel.checkAccessibilityService()) {
-            parentFragmentManager.beginTransaction()
-                .detach(this)
-                .commit()
-        }
+        if (viewModel.checkAccessibilityService(this))
+            closeFragment()
+    }
+
+    fun closeFragment() {
+        parentFragmentManager.beginTransaction()
+            .detach(this)
+            .commit()
     }
 
     companion object {

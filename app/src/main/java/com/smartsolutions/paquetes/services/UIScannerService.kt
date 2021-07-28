@@ -6,7 +6,11 @@ import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
 
 /**
@@ -20,6 +24,11 @@ class UIScannerService : AccessibilityService() {
      * */
     private var waitingUssdCodeResult = false
 
+    override fun onCreate() {
+        super.onCreate()
+        setServiceStatusLive(true)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         when (intent?.action) {
@@ -32,14 +41,7 @@ class UIScannerService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-
-
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-
-
-        return super.onUnbind(intent)
+        setServiceStatus(true)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -69,8 +71,10 @@ class UIScannerService : AccessibilityService() {
 
     private fun tryCloseDialog(event: AccessibilityEvent) {
         var nodes = event.source
-            .findAccessibilityNodeInfosByText(getString(android.R.string.cancel)
-                .toUpperCase(Locale.ROOT))
+            .findAccessibilityNodeInfosByText(
+                getString(android.R.string.cancel)
+                    .uppercase(Locale.ROOT)
+            )
 
         if (nodes.isEmpty())
             nodes = event.source
@@ -104,7 +108,25 @@ class UIScannerService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
+        setServiceStatusLive(false)
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        setServiceStatusLive(false)
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        setServiceStatus(false)
+        return super.onUnbind(intent)
+    }
+
+    private fun setServiceStatus(ready: Boolean) {
+        (application as DatwallApplication).uiScannerServiceReady = ready
+    }
+
+    private fun setServiceStatusLive(aLive: Boolean) {
+        (application as DatwallApplication).uiScannerServiceEnabled = aLive
     }
 
     companion object {

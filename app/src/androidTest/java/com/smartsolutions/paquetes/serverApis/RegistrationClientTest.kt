@@ -53,7 +53,8 @@ class RegistrationClientTest {
                 phone = null,
                 waitingPurchase = false,
                 deviceId = deviceId,
-                androidAppPackageName = packageName
+                androidAppPackageName = packageName,
+                createdAt = java.util.Date()
             )
 
             device.deviceApps = listOf(deviceApp)

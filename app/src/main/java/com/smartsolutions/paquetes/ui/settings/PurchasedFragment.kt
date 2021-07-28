@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.ui.settings
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -10,10 +11,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.serverApis.models.Result
-import com.smartsolutions.paquetes.ui.permissions.PermissionsFragment
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.ConnectException
 
@@ -64,7 +62,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         view.findViewById<Button>(R.id.btn_ussd_tranfer)
             .setOnClickListener(::ussdTranfer)
 
-        beginActivation()
+        //beginActivation()
         registerUssdResultObserver()
     }
 

@@ -17,15 +17,19 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlin.jvm.Throws
 
 /**
@@ -167,12 +171,14 @@ class USSDHelper @Inject constructor(
             .setData(Uri.parse("tel:" + Uri.encode(ussd)))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
+        val accessibilityServiceEnabled = accessibilityServiceEnabled()
+
         //Si se quiere leer la respuesta.
         if (readResponse) {
             return suspendCancellableCoroutine {
 
                 //Si el servicio de accesibilidad está apagado lanzo un error.
-                if (!accessibilityServiceEnabled()) {
+                if (!accessibilityServiceEnabled) {
                     it.resumeWithException(USSDRequestException(
                         ACCESSIBILITY_SERVICE_UNAVAILABLE,
                     errorMessages[ACCESSIBILITY_SERVICE_UNAVAILABLE]))
@@ -249,8 +255,16 @@ class USSDHelper @Inject constructor(
 
         val serviceName = UIScannerService::class.qualifiedName
 
-        return pref != null &&
+        val systemContainService = pref != null &&
                 pref.contains(context.packageName + "/" + serviceName)
+
+        val serviceALive = (context.applicationContext as DatwallApplication)
+            .uiScannerServiceEnabled
+
+        val serviceReady = (context.applicationContext as DatwallApplication)
+            .uiScannerServiceReady
+
+        return systemContainService && serviceALive && serviceReady
     }
 
     companion object {

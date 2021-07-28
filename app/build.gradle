@@ -30,7 +30,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.smartsolutions.paquetes"
+        applicationId "com.smartsolutions.datwall"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
@@ -56,7 +56,7 @@ android {
             buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfreeapp.com/api/\""
         }
         debug {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "SECRET_KEY", secretKey
             buildConfigField "int", "TOKEN_DURATION", tokenDuration

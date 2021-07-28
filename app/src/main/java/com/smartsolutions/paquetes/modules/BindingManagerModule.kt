@@ -10,7 +10,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(ServiceComponent::class, ViewModelComponent::class, SingletonComponent::class)
+@InstallIn(SingletonComponent::class)
 interface BindingManagerModule {
 
     @Binds

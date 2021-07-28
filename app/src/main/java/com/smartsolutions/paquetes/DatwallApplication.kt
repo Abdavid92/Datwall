@@ -15,6 +15,9 @@ import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,6 +61,32 @@ class DatwallApplication : Application(), Configuration.Provider {
      * Indica si los datos móbiles están encendidos.
      * */
     var dataMobileOn = false
+
+    /**
+     * Flows que registran el cambio de estado del servicio de accesibilidad.
+     * Indica si el servicio está encendido.
+     * */
+    private val _uiScannerServiceEnabledFlow = MutableSharedFlow<Boolean>()
+    val uiScannerServiceEnabledFlow = _uiScannerServiceEnabledFlow.asSharedFlow()
+    var uiScannerServiceEnabled = false
+        set(value) {
+            field = value
+            GlobalScope.launch {
+                _uiScannerServiceEnabledFlow.emit(field)
+            }
+        }
+    /**
+     * Indica si el servicio está listo para trabajar.
+     * */
+    private val _uiScannerServiceReadyFlow = MutableSharedFlow<Boolean>()
+    val uiScannerServiceReadyFlow = _uiScannerServiceReadyFlow.asSharedFlow()
+    var uiScannerServiceReady = false
+        set(value) {
+            field = value
+            GlobalScope.launch {
+                _uiScannerServiceReadyFlow.emit(field)
+            }
+        }
 
     override fun onCreate() {
         super.onCreate()

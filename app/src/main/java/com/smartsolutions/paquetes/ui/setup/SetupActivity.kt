@@ -18,7 +18,7 @@ class SetupActivity : AppCompatActivity(R.layout.activity_setup) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportFragmentManager.beginTransaction()
-            .add(R.id.setup_container, PackagesConfigurationFragment.newInstance())
+            .add(R.id.setup_container, PurchasedFragment())
             .commit()
     }
 }
