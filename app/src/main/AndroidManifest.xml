@@ -32,12 +32,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
-
         <!-- Activities -->
         <activity
             android:name=".ui.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_splash"
+            android:label="@string/app_name"
             android:theme="@style/Theme.Datwall.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,38 +44,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".ui.FragmentContainerActivity" />
-
         <activity android:name=".ui.setup.SetupActivity" />
-
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/app_name"/>
-
+            android:label="@string/app_name" />
         <activity
             android:name=".ui.firewall.LogActivity"
             android:label="@string/log_activity_title"
             android:parentActivityName=".ui.MainActivity" />
-
         <activity android:name=".ui.firewall.AskActivity" />
-
         <activity
             android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeScreenTheme" />
-
-        <!-- Services -->
+            android:theme="@style/WelcomeScreenTheme" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
-
         <service
             android:name=".services.BubbleFloatingService"
             android:enabled="true"
             android:exported="false" />
-
         <service
             android:name=".services.UIScannerService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -88,16 +77,13 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
-
         <service
             android:name=".services.FirewallService"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter android:priority="9999">
                 <action android:name="android.net.VpnService" />
             </intent-filter>
-        </service>
-
-        <!-- Receivers -->
+        </service> <!-- Receivers -->
         <receiver
             android:name=".receivers.DownloadFileReceiver"
             android:enabled="true"
@@ -106,7 +92,6 @@
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".receivers.DownloadClickedReceiver"
             android:enabled="true"
@@ -115,7 +100,6 @@
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".receivers.PackageMonitorReceiver"
             android:enabled="true"
@@ -128,7 +112,6 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".receivers.SmsReceiver"
             android:enabled="true"
@@ -137,9 +120,7 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
-        </receiver>
-
-        <!--Providers-->
+        </receiver> <!-- Providers -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.smartsolutions.paquetes.provider"
@@ -149,7 +130,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
     </application>
 
 </manifest>

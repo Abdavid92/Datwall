@@ -31,6 +31,11 @@ interface IUpdateManager {
     fun scheduleUpdateApplicationStatusWorker(intervalInHours: Long)
 
     /**
+     * Indica si ya fué registrado el worker de actualización de estado.
+     * */
+    fun wasScheduleUpdateApplicationStatusWorker(): Boolean
+
+    /**
      * Descarga directa usando la url dada.
      *
      * @param url - Url de descarga.

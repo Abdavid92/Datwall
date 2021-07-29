@@ -2,6 +2,8 @@ package com.smartsolutions.paquetes.watcher
 
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,11 +20,32 @@ class ChangeNetworkCallback @Inject constructor(
     private val changeNetworkHelper: IChangeNetworkHelper
 ): ConnectivityManager.NetworkCallback() {
 
+    /**
+     * Indica si el callback ya fué registrado.
+     * */
+    var isRegistered = false
+        private set
+
     override fun onAvailable(network: Network) {
         changeNetworkHelper.setDataMobileStateOn()
     }
 
     override fun onLost(network: Network) {
         changeNetworkHelper.setDataMobileStateOff()
+    }
+
+    fun register(connectivityManager: ConnectivityManager) {
+        /*El Transport del request es de tipo cellular para escuchar los cambios de
+         * redes móbiles solamente.*/
+        val request = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+
+        connectivityManager.registerNetworkCallback(request.build(), this)
+        isRegistered = true
+    }
+
+    fun unregister(connectivityManager: ConnectivityManager) {
+        connectivityManager.unregisterNetworkCallback(this)
+        isRegistered = false
     }
 }

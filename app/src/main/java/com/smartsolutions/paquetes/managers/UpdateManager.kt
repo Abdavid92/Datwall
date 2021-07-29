@@ -77,6 +77,13 @@ class UpdateManager @Inject constructor(
         workManager.enqueue(request)
     }
 
+    override fun wasScheduleUpdateApplicationStatusWorker(): Boolean {
+        val workManager = WorkManager.getInstance(context)
+
+        return workManager.getWorkInfosByTag(updateApplicationStatusWorkerTag)
+            .get().size > 0
+    }
+
 
     override fun downloadUpdate(url: Uri): Long {
 

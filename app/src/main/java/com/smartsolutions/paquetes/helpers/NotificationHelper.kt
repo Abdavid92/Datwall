@@ -97,6 +97,11 @@ class NotificationHelper @Inject constructor(
         notificationManager.createNotificationChannel(alertChannel)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun areCreatedNotificationChannels(): Boolean {
+        return notificationManager.getNotificationChannel(MAIN_CHANNEL_ID) != null &&
+                notificationManager.getNotificationChannel(ALERT_CHANNEL_ID) != null
+    }
 
     /**
      * Constantes que contienen datos sobre los canales de notificaciones

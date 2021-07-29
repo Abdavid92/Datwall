@@ -22,6 +22,7 @@ import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -95,19 +96,17 @@ class DatwallKernel @Inject constructor(
             val filter = IntentFilter()
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
 
-            changeNetworkReceiver.get().register(context, filter)
+            if (!changeNetworkReceiver.get().isRegister) {
+                changeNetworkReceiver.get().register(context, filter)
+            }
         } else {
-            /* Si el sdk es api 23 o mayor se registra un callback de tipo
-             * NetworkCallback en el ConnectivityManager para escuchar los cambios de redes.
-             **/
-            ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.let {
-
-                /*El Transport del request es de tipo cellular para escuchar los cambios de
-                * redes móbiles solamente.*/
-                val request = NetworkRequest.Builder()
-                    .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-
-                it.registerNetworkCallback(request.build(), changeNetworkCallback.get())
+            if (!changeNetworkCallback.get().isRegistered) {
+                /* Si el sdk es api 23 o mayor se registra un callback de tipo
+                 * NetworkCallback en el ConnectivityManager para escuchar los cambios de redes.
+                 **/
+                ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.let {
+                    changeNetworkCallback.get().register(it)
+                }
             }
         }
     }
@@ -116,11 +115,13 @@ class DatwallKernel @Inject constructor(
      * Registra los workers.
      * */
     fun registerWorkers() {
-        updateApplicationStatusJob = GlobalScope.launch {
-            context.dataStore.data.collect {
-                val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 24
+        updateApplicationStatusJob = GlobalScope.launch(Dispatchers.Default) {
+            if (!updateManager.wasScheduleUpdateApplicationStatusWorker()) {
+                context.dataStore.data.collect {
+                    val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 24
 
-                updateManager.scheduleUpdateApplicationStatusWorker(interval)
+                    updateManager.scheduleUpdateApplicationStatusWorker(interval)
+                }
             }
         }
     }
@@ -129,21 +130,26 @@ class DatwallKernel @Inject constructor(
      * Crea los canales de notificaciones.
      * */
     fun createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            !notificationHelper.areCreatedNotificationChannels()
+        ) {
             notificationHelper.createNotificationChannels()
+        }
     }
 
     /**
      * Sincroniza la base de datos y enciende el Watcher.
      * */
     fun synchronizeDatabaseAndStartWatcher() {
-        GlobalScope.launch {
-            /*Fuerzo la sincronización de la base de datos para
-            * garantizar la integridad de los datos. Esto no sobrescribe
-            * los valores de acceso existentes.*/
-            packageMonitor.forceSynchronization {
-                //Después de sembrar la base de datos, inicio el observador
-                watcher.start()
+        if (!watcher.running) {
+            GlobalScope.launch {
+            /* Fuerzo la sincronización de la base de datos para
+             * garantizar la integridad de los datos. Esto no sobrescribe
+             * los valores de acceso existentes.*/
+                packageMonitor.forceSynchronization {
+                    //Después de sembrar la base de datos, inicio el observador
+                    watcher.start()
+                }
             }
         }
     }
@@ -157,7 +163,7 @@ class DatwallKernel @Inject constructor(
     }
 
     /**
-     * Inicia la actividad principal
+     * Inicia la actividad principal.
      * */
     fun startMainActivity() {
         ContextCompat.startActivity(

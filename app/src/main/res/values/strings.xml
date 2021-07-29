@@ -104,7 +104,4 @@
     <string name="automatic_mode">Automático (Recomendado)</string>
     <string name="manual_mode">Manual (Use esta opción solo si está seguro de lo que hace.)</string>
     <string name="invalid_network_option">Por favor, seleccione una opción válida</string>
-    <string name="title_activity_splash">FullscreenActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
