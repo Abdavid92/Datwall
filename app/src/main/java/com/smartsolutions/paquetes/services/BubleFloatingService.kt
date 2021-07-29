@@ -134,7 +134,7 @@ class BubbleFloatingService : Service() {
         iconApp = cardBubble.findViewById(R.id.app_icon)
         valueApp = cardBubble.findViewById(R.id.app_value)
         unitApp = cardBubble.findViewById(R.id.unit_app)
-        background = cardBubble.findViewById(R.id.lin_background)
+        background = cardBubble.findViewById(R.id.lin_background_bubble)
         closeImage = closeView.findViewById(R.id.image_close)
         closeImage.setImageResource(R.drawable.ic_close_red)
         closeView.findViewById<LinearLayout>(R.id.lin_background).setOnClickListener {
@@ -201,7 +201,7 @@ class BubbleFloatingService : Service() {
     }
 
     private fun setTheme() {
-        background.background = getBackgroundResource()
+        background.setBackgroundResource(getBackgroundResource())
 
         val color = uiHelper.getTextColorByTheme()
 
@@ -209,11 +209,20 @@ class BubbleFloatingService : Service() {
         unitApp.setTextColor(color)
     }
 
-    private fun getBackgroundResource(): Drawable?{
+    private fun getBackgroundResource(): Int{
+        val isDark = uiHelper.isUIDarkTheme()
         return if (app?.access == true) {
-            uiHelper.getDrawableResourceByTheme("background_green_borderless_card")
+           if (isDark){
+               R.drawable.background_green_borderless_card_dark
+           }else {
+               R.drawable.background_green_borderless_card_light
+           }
         } else {
-            uiHelper.getDrawableResourceByTheme("background_red_borderless_card")
+            if (isDark){
+                R.drawable.background_red_borderless_card_dark
+            }else {
+                R.drawable.background_red_borderless_card_light
+            }
         }
     }
 
@@ -310,7 +319,7 @@ class BubbleFloatingService : Service() {
 
         imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
 
-        backgroundMenu.background = getBackgroundResource()
+        //backgroundMenu.setBackgroundResource(getBackgroundResource())
 
         val color = uiHelper.getTextColorByTheme()
 
