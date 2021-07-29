@@ -15,6 +15,7 @@ import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
+import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.PresentationActivity
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
@@ -27,6 +28,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class DatwallKernel @Inject constructor(
@@ -48,9 +50,14 @@ class DatwallKernel @Inject constructor(
      * Función principal que maqueta e inicia todos los servicios de la aplicación
      * y la actividad principal.
      * */
-    suspend fun main() {
-        if (isFirstTime()) {
-            context.startActivity(Intent(context, PresentationActivity::class.java))
+    fun main(skipPresentation: Boolean = false) {
+        if (isFirstTime() && !skipPresentation) {
+            context.startActivity(
+                Intent(context, PresentationActivity::class.java)
+                    .addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK
+                    )
+            )
         } else {
             val missingPermissions = missingSomePermission()
 
@@ -70,8 +77,12 @@ class DatwallKernel @Inject constructor(
     /**
      * Indica si es la primera vez que se abre la aplicación.
      * */
-    suspend fun isFirstTime(): Boolean {
-        return activationManager.getSavedDeviceApp() == null
+    fun isFirstTime(): Boolean {
+        var isFirst = false
+        runBlocking {
+            isFirst = activationManager.getSavedDeviceApp() == null
+        }
+        return isFirst
     }
 
     /**
@@ -85,7 +96,32 @@ class DatwallKernel @Inject constructor(
      * Pide los permisos faltantes.
      * */
     fun requestPermissions(permissions: List<Permission>) {
+        val requestCodes = mutableListOf<Int>()
 
+        permissions.forEach {
+            requestCodes.add(it.requestCode)
+        }
+
+        val intent = Intent(context, FragmentContainerActivity::class.java).apply {
+            action = FragmentContainerActivity.ACTION_OPEN_FRAGMENT
+            putExtra(
+                FragmentContainerActivity.EXTRA_FRAGMENT,
+                FragmentContainerActivity.EXTRA_FRAGMENT_PERMISSIONS
+            )
+            putExtra(
+                FragmentContainerActivity.EXTRA_PERMISSIONS_REQUESTS_CODES,
+                requestCodes.toIntArray()
+            )
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK
+            )
+        }
+
+        ContextCompat.startActivity(
+            context,
+            intent,
+            null
+        )
     }
 
     /**
@@ -168,7 +204,10 @@ class DatwallKernel @Inject constructor(
     fun startMainActivity() {
         ContextCompat.startActivity(
             context,
-            Intent(context, MainActivity::class.java),
+            Intent(context, MainActivity::class.java)
+                .addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK
+                ),
             null
         )
     }

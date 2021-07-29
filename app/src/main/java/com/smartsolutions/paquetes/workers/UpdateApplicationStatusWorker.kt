@@ -1,21 +1,14 @@
 package com.smartsolutions.paquetes.workers
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import androidx.hilt.work.HiltWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
-import com.smartsolutions.paquetes.ui.ACTION_OPEN_FRAGMENT
-import com.smartsolutions.paquetes.ui.EXTRA_FRAGMENT
-import com.smartsolutions.paquetes.ui.FRAGMENT_UPDATE_DIALOG
-import com.smartsolutions.paquetes.ui.MainActivity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope

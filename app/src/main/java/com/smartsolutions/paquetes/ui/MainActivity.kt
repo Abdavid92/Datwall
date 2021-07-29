@@ -20,10 +20,6 @@ import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
-const val EXTRA_FRAGMENT = "extra_fragment"
-const val FRAGMENT_UPDATE_DIALOG = "fragment_update_dialog"
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -98,6 +94,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         dialog.show(supportFragmentManager, "UpdateDialog")
 
+    }
+
+    companion object {
+        const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
+        const val EXTRA_FRAGMENT = "extra_fragment"
+        const val FRAGMENT_UPDATE_DIALOG = "fragment_update_dialog"
     }
 
 

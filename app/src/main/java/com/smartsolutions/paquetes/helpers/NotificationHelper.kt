@@ -10,11 +10,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.ui.ACTION_OPEN_FRAGMENT
-import com.smartsolutions.paquetes.ui.EXTRA_FRAGMENT
-import com.smartsolutions.paquetes.ui.FRAGMENT_UPDATE_DIALOG
 import com.smartsolutions.paquetes.ui.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -60,8 +56,8 @@ class NotificationHelper @Inject constructor(
                             context,
                             123,
                             Intent(context, MainActivity::class.java).apply {
-                                action = ACTION_OPEN_FRAGMENT
-                                putExtra(EXTRA_FRAGMENT, FRAGMENT_UPDATE_DIALOG)
+                                action = MainActivity.ACTION_OPEN_FRAGMENT
+                                putExtra(MainActivity.EXTRA_FRAGMENT, MainActivity.FRAGMENT_UPDATE_DIALOG)
                             },
                             PendingIntent.FLAG_UPDATE_CURRENT
                         )

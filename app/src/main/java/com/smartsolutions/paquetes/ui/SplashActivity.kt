@@ -11,10 +11,19 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivitySplashBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
+
+    @Inject
+    lateinit var kernel: DatwallKernel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,5 +32,12 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
         windowInsetsController.hide(
             WindowInsetsCompat.Type.systemBars()
         )
+
+        kernel.main(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        kernel.main(true)
     }
 }
