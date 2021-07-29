@@ -7,8 +7,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Color
+import android.graphics.Bitmap
 import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
@@ -31,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class BubbleFloatingService : Service() {
 
@@ -53,11 +53,12 @@ class BubbleFloatingService : Service() {
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
     private val paramsClose = getParams(WindowManager.LayoutParams.MATCH_PARENT)
-    private val paramsMenu = getParams(WindowManager.LayoutParams.MATCH_PARENT)
 
     private lateinit var cardBubble: View
     private lateinit var closeView: View
-    private lateinit var menuBubble: View
+    private lateinit var menuLeft: View
+    private lateinit var menuRight: View
+    private lateinit var currentMenu: View
 
     private val receiverChangeAppWatcher = ReceiverChangeAppWatcher()
     private val receiverTickWatcher = ReceiverTickWatcher()
@@ -67,16 +68,12 @@ class BubbleFloatingService : Service() {
     private lateinit var unitApp: TextView
     private lateinit var background: LinearLayout
     private lateinit var closeImage: ImageView
-    private lateinit var iconAppMenu: ImageView
-    private lateinit var switchAccess: Switch
-    private lateinit var downloadValue: TextView
-    private lateinit var uploadValue: TextView
-    private lateinit var backgroundMenu: LinearLayout
-    private lateinit var imageUpload: ImageView
-    private lateinit var imageDownload: ImageView
 
 
     private var app: App? = null
+    private var bitmapIcon: Bitmap? = null
+    private var traffic: Traffic = Traffic()
+    private var isShowMenu = false
 
     var delayTransparency = 0
     var ticks = 4
@@ -120,7 +117,6 @@ class BubbleFloatingService : Service() {
 
         cardBubble = layoutInflater.inflate(R.layout.buble_floating_layout, null, false)
         closeView = layoutInflater.inflate(R.layout.bubble_close_floating_layout, null, false)
-        menuBubble = layoutInflater.inflate(R.layout.bubble_menu_floating_layout, null, false)
 
         setOnTouch()
         initializeViews()
@@ -144,16 +140,8 @@ class BubbleFloatingService : Service() {
         closeView.findViewById<LinearLayout>(R.id.lin_background).setOnClickListener {
             hideClose()
         }
-        iconAppMenu = menuBubble.findViewById(R.id.image_app_icon)
-        switchAccess = menuBubble.findViewById(R.id.switch_access)
-        downloadValue = menuBubble.findViewById(R.id.value_download_app)
-        uploadValue = menuBubble.findViewById(R.id.value_upload_app)
-        backgroundMenu = menuBubble.findViewById(R.id.lin_background)
-        menuBubble.findViewById<LinearLayout>(R.id.lin_back).setOnClickListener {
-            hideMenu()
-        }
-        imageDownload = menuBubble.findViewById(R.id.image_download)
-        imageUpload = menuBubble.findViewById(R.id.image_upload)
+        menuLeft = cardBubble.findViewById(R.id.menu_left)
+        menuRight = cardBubble.findViewById(R.id.menu_right)
     }
 
 
@@ -176,7 +164,12 @@ class BubbleFloatingService : Service() {
                     }
                     hideClose()
                     if (moving < 10) {
-                        showMenu()
+                        if (!isShowMenu){
+                            showMenu()
+                        }else {
+                            hideMenu(currentMenu)
+                        }
+
                     }
                     moving = 0
                 }
@@ -207,59 +200,31 @@ class BubbleFloatingService : Service() {
         }
     }
 
-    private fun setTheme(access: Boolean) {
-        val isDark = uiHelper.isUIDarkTheme()
+    private fun setTheme() {
+        background.background = getBackgroundResource()
 
-        if (!isDark){
-            imageUpload.setImageResource(R.drawable.ic_upload_dark)
-            imageDownload.setImageResource(R.drawable.ic_download_dark)
-        }else {
-            imageUpload.setImageResource(R.drawable.ic_upload_light)
-            imageDownload.setImageResource(R.drawable.ic_download_light)
-        }
-
-        val resource = if (access) {
-            if (!isDark) {
-                R.drawable.background_green_light_bordeless_card
-            } else {
-                R.drawable.background_green_dark_bordeless_card
-            }
-        } else {
-            if (!isDark) {
-                R.drawable.background_red_light_bordeless_card
-            } else {
-                R.drawable.background_red_dark_bordeless_card
-            }
-        }
-
-        background.setBackgroundResource(resource)
-        backgroundMenu.setBackgroundResource(resource)
-
-        val color = if (isDark) {
-            Color.WHITE
-        } else {
-            Color.BLACK
-        }
+        val color = uiHelper.getTextColorByTheme()
 
         valueApp.setTextColor(color)
         unitApp.setTextColor(color)
-        downloadValue.setTextColor(color)
-        uploadValue.setTextColor(color)
-        switchAccess.setTextColor(color)
+    }
+
+    private fun getBackgroundResource(): Drawable?{
+        return if (app?.access == true) {
+            uiHelper.getDrawableResourceByTheme("background_green_borderless_card")
+        } else {
+            uiHelper.getDrawableResourceByTheme("background_red_borderless_card")
+        }
     }
 
     private fun setTraffic(app: App) {
         val period = NetworkUtils.getTimePeriod(NetworkUtils.PERIOD_TODAY)
-        val value: Traffic
         runBlocking {
-            value = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
+            traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }
 
-        valueApp.text = "${value.totalBytes.getValue().value.toInt()}"
-        unitApp.text = value.totalBytes.getValue().dataUnit.name
-
-        uploadValue.text = "${Math.round(value.txBytes.getValue().value * 100.0)/100.0} ${value.txBytes.getValue().dataUnit.name}"
-        downloadValue.text = "${Math.round(value.rxBytes.getValue().value * 100.0)/100.0} ${value.rxBytes.getValue().dataUnit.name}"
+        valueApp.text = "${traffic.totalBytes.getValue().value.toInt()}"
+        unitApp.text = traffic.totalBytes.getValue().dataUnit.name
     }
 
 
@@ -320,34 +285,65 @@ class BubbleFloatingService : Service() {
 
 
     private fun showMenu(){
-        try {
-            menuBubble.visibility = View.VISIBLE
-            menuBubble.scaleX = 0f
-            menuBubble.scaleY = 0f
-            windowManager.addView(menuBubble, paramsMenu)
-            menuBubble.animate().scaleX(1f).scaleY(1f)
-        }catch (e: Exception){
-            hideMenu()
+        isShowMenu = true
+        currentMenu = getViewSideMenu()
+        currentMenu.scaleX = 0f
+        currentMenu.scaleY = 0f
+        currentMenu.visibility = View.VISIBLE
+
+        setValuesMenu(currentMenu)
+        currentMenu.animate().scaleX(1f).scaleY(1f)
+    }
+
+    private fun setValuesMenu(menu: View) {
+        val iconAppMenu: ImageView = menu.findViewById(R.id.image_app_icon)
+        val switchAccess: Switch = menu.findViewById(R.id.switch_access)
+        val downloadValue: TextView = menu.findViewById(R.id.value_download_app)
+        val uploadValue: TextView = menu.findViewById(R.id.value_upload_app)
+        val backgroundMenu: LinearLayout = menu.findViewById(R.id.lin_background)
+        val imageDownload: ImageView = menu.findViewById(R.id.image_download)
+        val imageUpload: ImageView = menu.findViewById(R.id.image_upload)
+
+        iconAppMenu.setImageBitmap(bitmapIcon)
+
+        imageDownload.setImageDrawable( uiHelper.getImageResourceByTheme("ic_download"))
+
+        imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
+
+        backgroundMenu.background = getBackgroundResource()
+
+        val color = uiHelper.getTextColorByTheme()
+
+        downloadValue.setTextColor(color)
+        uploadValue.setTextColor(color)
+        switchAccess.setTextColor(color)
+
+        uploadValue.text =
+            "${Math.round(traffic.txBytes.getValue().value * 100.0) / 100.0} ${traffic.txBytes.getValue().dataUnit.name}"
+        downloadValue.text =
+            "${Math.round(traffic.rxBytes.getValue().value * 100.0) / 100.0} ${traffic.rxBytes.getValue().dataUnit.name}"
+    }
+
+    private fun getViewSideMenu(): View {
+        val width = getScreenWidth()/2
+        val pos = IntArray(2)
+        cardBubble.getLocationOnScreen(pos)
+        val x = pos[0]
+        return if (x >= width){
+            menuLeft
+        }else {
+            menuRight
         }
     }
 
-    private fun hideMenu(){
-        try {
-            menuBubble.animate().scaleY(0f).scaleX(0f)
-                .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        menuBubble.visibility = View.GONE
-                        menuBubble.animate().setListener(null)
-                        try {
-                            windowManager.removeView(menuBubble)
-                        }catch (e: Exception){
-
-                        }
-                    }
-                })
-        }catch (e: Exception){
-
-        }
+    private fun hideMenu(view: View){
+        isShowMenu = false
+        view.animate().scaleX(0f).setListener(object : AnimatorListenerAdapter(){
+            override fun onAnimationEnd(animation: Animator?) {
+                view.animate().setListener(null)
+                view.visibility = View.GONE
+            }
+        })
     }
 
 
@@ -379,17 +375,14 @@ class BubbleFloatingService : Service() {
 
                     app = appIntent
 
-                    setTheme(appIntent.access)
+                    setTheme()
 
-                    switchAccess.isChecked = appIntent.access
-
-                    val bitmap = iconManager.get(
+                    bitmapIcon = iconManager.get(
                         appIntent.packageName,
                         appIntent.version
                     )
 
-                    iconApp.setImageBitmap(bitmap)
-                    iconAppMenu.setImageBitmap(bitmap)
+                    iconApp.setImageBitmap(bitmapIcon)
 
                     setTraffic(appIntent)
                 }
@@ -412,7 +405,7 @@ class BubbleFloatingService : Service() {
             if (ticks >= 5) {
                 ticks = -1
                 app?.let {
-                    setTheme(it.access)
+                    setTheme()
                     setTraffic(it)
                 }
             }

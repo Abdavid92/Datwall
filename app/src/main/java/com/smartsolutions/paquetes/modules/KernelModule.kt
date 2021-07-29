@@ -17,7 +17,6 @@ import javax.inject.Singleton
 class KernelModule {
 
     @Provides
-    @Singleton
     fun provideKernel(@ApplicationContext context: Context): DatwallKernel {
         return (context as DatwallApplication).kernel
     }

@@ -8,11 +8,13 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
+import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
@@ -33,6 +35,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     @Inject
     lateinit var updateManager: IUpdateManager
 
+    @Inject
+    lateinit var kernel: DatwallKernel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,7 +54,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        startActivity(Intent(this, SetupActivity::class.java))
+        //startActivity(Intent(this, SetupActivity::class.java))
+
+        kernel.synchronizeDatabaseAndStartWatcher()
+
+        startService(Intent(this, BubbleFloatingService::class.java))
 
         //handleIntent()
     }
