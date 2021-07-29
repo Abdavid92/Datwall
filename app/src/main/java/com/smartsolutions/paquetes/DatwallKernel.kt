@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes
 
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -13,10 +14,12 @@ import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
+import com.smartsolutions.paquetes.services.DatwallService
+import com.smartsolutions.paquetes.ui.MainActivity
+import com.smartsolutions.paquetes.ui.PresentationActivity
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
-import com.smartsolutions.paquetes.workers.TrafficRegistration
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.GlobalScope
@@ -33,7 +36,6 @@ class DatwallKernel @Inject constructor(
     private val updateManager: IUpdateManager,
     private val changeNetworkReceiver: Lazy<ChangeNetworkReceiver>,
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
-    private val trafficRegistration: TrafficRegistration,
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
     private val watcher: Watcher
@@ -41,8 +43,27 @@ class DatwallKernel @Inject constructor(
 
     private var updateApplicationStatusJob: Job? = null
 
-    fun main() {
+    /**
+     * Función principal que maqueta e inicia todos los servicios de la aplicación
+     * y la actividad principal.
+     * */
+    suspend fun main() {
+        if (isFirstTime()) {
+            context.startActivity(Intent(context, PresentationActivity::class.java))
+        } else {
+            val missingPermissions = missingSomePermission()
 
+            if (missingPermissions.isNotEmpty())
+                requestPermissions(missingPermissions)
+            else {
+                createNotificationChannels()
+                synchronizeDatabaseAndStartWatcher()
+                registerBroadcastsAndCallbacks()
+                registerWorkers()
+                startServices()
+                startMainActivity()
+            }
+        }
     }
 
     /**
@@ -66,6 +87,9 @@ class DatwallKernel @Inject constructor(
 
     }
 
+    /**
+     * Registra los broadcasts y los callbacks.
+     * */
     fun registerBroadcastsAndCallbacks() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             val filter = IntentFilter()
@@ -88,9 +112,10 @@ class DatwallKernel @Inject constructor(
         }
     }
 
+    /**
+     * Registra los workers.
+     * */
     fun registerWorkers() {
-        trafficRegistration.startRegistration()
-
         updateApplicationStatusJob = GlobalScope.launch {
             context.dataStore.data.collect {
                 val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 24
@@ -100,11 +125,17 @@ class DatwallKernel @Inject constructor(
         }
     }
 
+    /**
+     * Crea los canales de notificaciones.
+     * */
     fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             notificationHelper.createNotificationChannels()
     }
 
+    /**
+     * Sincroniza la base de datos y enciende el Watcher.
+     * */
     fun synchronizeDatabaseAndStartWatcher() {
         GlobalScope.launch {
             /*Fuerzo la sincronización de la base de datos para
@@ -115,5 +146,24 @@ class DatwallKernel @Inject constructor(
                 watcher.start()
             }
         }
+    }
+
+    /**
+     * Inicia los servicios.
+     * */
+    fun startServices() {
+        context.startService(Intent(context, DatwallService::class.java))
+        //TODO: Iniciar la burbuja flotante
+    }
+
+    /**
+     * Inicia la actividad principal
+     * */
+    fun startMainActivity() {
+        ContextCompat.startActivity(
+            context,
+            Intent(context, MainActivity::class.java),
+            null
+        )
     }
 }

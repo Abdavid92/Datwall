@@ -11,4 +11,9 @@
     <color name="reed">#F34F4F</color>
     <color name="background_dark">#3C3C3C</color>
     <color name="background_light">#F6F6F6</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color>
 </resources>

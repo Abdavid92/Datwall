@@ -143,7 +143,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         //Si el modo dinámico está activado
         launch {
             dataStore.data.collect {
-                if (it[PreferencesKeys.DYNAMIC_FIREWALL_ON] == true) {
+                if (it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] == true) {
                     val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
 
                     //Registro del receptor

@@ -38,7 +38,7 @@ class ChangeNetworkHelper @Inject constructor(
 
         launch {
             context.dataStore.data.collect {
-                firewallOn = it[PreferencesKeys.FIREWALL_ON] == true
+                firewallOn = it[PreferencesKeys.ENABLED_FIREWALL] == true
             }
         }
     }

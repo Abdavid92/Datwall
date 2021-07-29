@@ -12,14 +12,8 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.services.FirewallService
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * Utilidades para el vpn
@@ -56,7 +50,7 @@ object VpnConnectionUtils {
     fun startVpn(context: Context): Intent? {
         GlobalScope.launch {
             context.dataStore.edit {
-                it[PreferencesKeys.FIREWALL_ON] = true
+                it[PreferencesKeys.ENABLED_FIREWALL] = true
             }
         }
 
@@ -85,7 +79,7 @@ object VpnConnectionUtils {
     fun stopVpn(context: Context) {
         GlobalScope.launch {
             context.dataStore.edit {
-                it[PreferencesKeys.FIREWALL_ON] = false
+                it[PreferencesKeys.ENABLED_FIREWALL] = false
             }
         }
 

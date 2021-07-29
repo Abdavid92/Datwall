@@ -16,16 +16,16 @@ object PreferencesKeys {
      * Indica si el cortafuegos debe ser encendido o no.
      * Esta clave es de tipo Boolean.
      * */
-    val FIREWALL_ON = booleanPreferencesKey("firewall_on")
+    val ENABLED_FIREWALL = booleanPreferencesKey("enabled_firewall")
 
     /**
      * Indica si el modo dinámico esta encencido o no.
      * Esta clave es de tipo Boolean.
      * */
-    val DYNAMIC_FIREWALL_ON = booleanPreferencesKey("dynamic_firewall_on")
+    val ENABLED_DYNAMIC_FIREWALL = booleanPreferencesKey("enabled_dynamic_firewall")
 
     /**
-     * Modo de compra de los paquertes de datos.
+     * Modo de compra de los paquetes de datos.
      * */
     val BUY_MODE = stringPreferencesKey("buy_mode")
 
@@ -49,6 +49,9 @@ object PreferencesKeys {
      * */
     val DEVICE_ID = stringPreferencesKey("device_id")
 
+    /**
+     * Indica si se está esperando la confirmación de la compra.
+     * */
     val WAITING_PURCHASED = booleanPreferencesKey("waiting_purchased")
 
     /**
@@ -70,4 +73,9 @@ object PreferencesKeys {
      * Intervalo en el cual se verificará el estado de la app.
      */
     val INTERVAL_UPDATE_SYNCHRONIZATION = longPreferencesKey("interval_update_synchronization")
+
+    /**
+     * Indica si la burbuja flotante está abilitada.
+     * */
+    val ENABLED_BUBBLE_FLOATING = booleanPreferencesKey("enabled_bubble_floating")
 }
