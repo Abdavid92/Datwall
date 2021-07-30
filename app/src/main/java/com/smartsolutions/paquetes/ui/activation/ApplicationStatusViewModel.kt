@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.ui.settings
+package com.smartsolutions.paquetes.ui.activation
 
 import androidx.lifecycle.ViewModel
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager

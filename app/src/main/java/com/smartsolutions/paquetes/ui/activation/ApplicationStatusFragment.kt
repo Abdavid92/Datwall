@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.ui.settings
+package com.smartsolutions.paquetes.ui.activation
 
 import android.os.Bundle
 import android.view.View
@@ -9,6 +9,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

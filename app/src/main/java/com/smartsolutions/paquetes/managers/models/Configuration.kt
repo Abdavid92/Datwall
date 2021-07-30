@@ -14,10 +14,10 @@ data class Configuration(
     /**
      * Fragmento que va a manejar esta configuración.
      * */
-    val fragment: Provider<AbstractSettingsFragment>,
+    val fragment: Provider<out AbstractSettingsFragment>,
     /**
      * Indica si está completada o no. Osea si está configuración se completo
      * correctamente o si se dañó o borró.
      * */
-    val completed: () -> Boolean
+    val completed: suspend () -> Boolean
 )

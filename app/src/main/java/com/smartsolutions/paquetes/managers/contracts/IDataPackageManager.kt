@@ -42,6 +42,12 @@ interface IDataPackageManager {
     suspend fun setDataPackagesManualConfiguration(network: String)
 
     /**
+     * Indica si los paquetes de datos están configurados para la linea predeterminada
+     * para voz.
+     * */
+    suspend fun isConfiguredDataPackages(): Boolean
+
+    /**
      * Compra un paquete de datos.
      *
      * @param dataPackage - Paquete que se va a intentar comprar.

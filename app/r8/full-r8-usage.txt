@@ -20111,7 +20111,7 @@ com.smartsolutions.paquetes.BuildConfig
 com.smartsolutions.paquetes.DaggerDatwallApplication_HiltComponents_SingletonC$ActivityRetainedCImpl$ActivityCImpl$FragmentCI$ViewWithFragmentCBuilder
 com.smartsolutions.paquetes.DaggerDatwallApplication_HiltComponents_SingletonC$ActivityRetainedCImpl$ActivityCImpl$FragmentCI$ViewWithFragmentCI
 com.smartsolutions.paquetes.DaggerDatwallApplication_HiltComponents_SingletonC$ActivityRetainedCImpl$ActivityCImpl$FragmentCI:
-    public void injectApplicationStatusFragment(com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment)
+    public void injectApplicationStatusFragment(com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment)
     public void injectPackagesConfigurationFragment(com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment)
     public void injectSimsConfigurationFragment(com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment)
     public void injectStartAccessibilityServiceFragment(com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment)
@@ -21549,17 +21549,17 @@ com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment:
     public abstract boolean isRequired()
     protected final void setListener(kotlin.jvm.functions.Function1)
     public final com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment setOnCompletedListener(kotlin.jvm.functions.Function1)
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$onDeprecated$1
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$onDiscontinued$1
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$onFailed$1
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$onPurchased$1
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$onTrialPeriod$1
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$onTrialPeriod$2
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$special$$inlined$viewModels$default$1
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment$special$$inlined$viewModels$default$2
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$onDeprecated$1
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$onDiscontinued$1
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$onFailed$1
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$onPurchased$1
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$onTrialPeriod$1
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$onTrialPeriod$2
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$special$$inlined$viewModels$default$1
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment$special$$inlined$viewModels$default$2
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment_GeneratedInjector
-com.smartsolutions.paquetes.ui.settings.ApplicationStatusViewModel:
+com.smartsolutions.paquetes.ui.activation.ApplicationStatusViewModel:
     public final void getApplicationStatus(com.smartsolutions.paquetes.managers.contracts.IActivationManager$ApplicationStatusListener)
 com.smartsolutions.paquetes.ui.settings.ApplicationStatusViewModel_Factory
 com.smartsolutions.paquetes.ui.settings.ApplicationStatusViewModel_HiltModules$BindsModule
@@ -21610,17 +21610,17 @@ com.smartsolutions.paquetes.ui.settings.PackagesConfigurationViewModel_HiltModul
     public static com.smartsolutions.paquetes.ui.settings.PackagesConfigurationViewModel_HiltModules_KeyModule_ProvideFactory create()
     public synthetic bridge java.lang.Object get()
     public java.lang.String get()
-com.smartsolutions.paquetes.ui.settings.PurchasedFragment:
+com.smartsolutions.paquetes.ui.activation.PurchasedFragment:
     private final void beginActivation()
-    private static final void beginActivation$lambda-6(androidx.appcompat.app.AlertDialog,com.smartsolutions.paquetes.ui.settings.PurchasedFragment,android.view.View)
-    private static final void beginActivation$lambda-7(android.widget.ProgressBar,android.widget.TextView,com.smartsolutions.paquetes.ui.settings.PurchasedFragment,android.widget.Button,android.widget.Button,android.view.View)
-    private static final void beginActivation$lambda-8(android.widget.ProgressBar,androidx.appcompat.app.AlertDialog,com.smartsolutions.paquetes.ui.settings.PurchasedFragment,android.widget.Button,android.widget.Button,android.widget.TextView,com.smartsolutions.paquetes.serverApis.models.Result)
+    private static final void beginActivation$lambda-6(androidx.appcompat.app.AlertDialog,com.smartsolutions.paquetes.ui.activation.PurchasedFragment,android.view.View)
+    private static final void beginActivation$lambda-7(android.widget.ProgressBar,android.widget.TextView,com.smartsolutions.paquetes.ui.activation.PurchasedFragment,android.widget.Button,android.widget.Button,android.view.View)
+    private static final void beginActivation$lambda-8(android.widget.ProgressBar,androidx.appcompat.app.AlertDialog,com.smartsolutions.paquetes.ui.activation.PurchasedFragment,android.widget.Button,android.widget.Button,android.widget.TextView,com.smartsolutions.paquetes.serverApis.models.Result)
     public boolean isRequired()
-com.smartsolutions.paquetes.ui.settings.PurchasedViewModel$initDeviceAppAndActivation$1
-com.smartsolutions.paquetes.ui.settings.PurchasedViewModel:
-    public static final synthetic com.smartsolutions.paquetes.serverApis.models.DeviceApp access$getDeviceApp$p(com.smartsolutions.paquetes.ui.settings.PurchasedViewModel)
-    public static final synthetic androidx.lifecycle.MutableLiveData access$get_beginActivationResult$p(com.smartsolutions.paquetes.ui.settings.PurchasedViewModel)
-    public static final synthetic void access$setDeviceApp$p(com.smartsolutions.paquetes.ui.settings.PurchasedViewModel,com.smartsolutions.paquetes.serverApis.models.DeviceApp)
+com.smartsolutions.paquetes.ui.activation.PurchasedViewModel$initDeviceAppAndActivation$1
+com.smartsolutions.paquetes.ui.activation.PurchasedViewModel:
+    public static final synthetic com.smartsolutions.paquetes.serverApis.models.DeviceApp access$getDeviceApp$p(com.smartsolutions.paquetes.ui.activation.PurchasedViewModel)
+    public static final synthetic androidx.lifecycle.MutableLiveData access$get_beginActivationResult$p(com.smartsolutions.paquetes.ui.activation.PurchasedViewModel)
+    public static final synthetic void access$setDeviceApp$p(com.smartsolutions.paquetes.ui.activation.PurchasedViewModel,com.smartsolutions.paquetes.serverApis.models.DeviceApp)
     public final androidx.lifecycle.LiveData getBeginActivationResult()
     public final java.lang.String getDebitCardNumber()
     public final java.lang.String getPrice()
@@ -35357,14 +35357,14 @@ com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment:
 com.smartsolutions.paquetes.ui.settings.PackagesConfigurationViewModel:
     public final androidx.lifecycle.MutableLiveData _configurationResult
     public final com.smartsolutions.paquetes.managers.contracts.IDataPackageManager dataPackageManager
-com.smartsolutions.paquetes.ui.settings.PurchasedFragment:
+com.smartsolutions.paquetes.ui.activation.PurchasedFragment:
     public static void <clinit>()
-com.smartsolutions.paquetes.ui.settings.PurchasedViewModel$transferCreditByUSSD$1$1
-com.smartsolutions.paquetes.ui.settings.PurchasedViewModel:
+com.smartsolutions.paquetes.ui.activation.PurchasedViewModel$transferCreditByUSSD$1$1
+com.smartsolutions.paquetes.ui.activation.PurchasedViewModel:
     public final androidx.lifecycle.MutableLiveData _beginActivationResult
     public boolean cardCopied
     public com.smartsolutions.paquetes.serverApis.models.DeviceApp deviceApp
-    public static final synthetic com.smartsolutions.paquetes.managers.contracts.IActivationManager access$getActivationManager$p(com.smartsolutions.paquetes.ui.settings.PurchasedViewModel)
+    public static final synthetic com.smartsolutions.paquetes.managers.contracts.IActivationManager access$getActivationManager$p(com.smartsolutions.paquetes.ui.activation.PurchasedViewModel)
 com.smartsolutions.paquetes.ui.settings.SimsConfigurationViewModel:
     public final androidx.lifecycle.MutableLiveData _sims
 com.smartsolutions.paquetes.ui.setup.SetupActivity:

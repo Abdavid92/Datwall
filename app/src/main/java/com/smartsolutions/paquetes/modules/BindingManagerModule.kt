@@ -5,8 +5,6 @@ import com.smartsolutions.paquetes.managers.contracts.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ServiceComponent
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -39,4 +37,7 @@ interface BindingManagerModule {
 
     @Binds
     fun bindIUpdateManager(impl: UpdateManager): IUpdateManager
+
+    @Binds
+    fun bindIConfigurationManager(impl: ConfigurationManager): IConfigurationManager
 }

@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.modules
 
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.helpers.ChangeNetworkHelper
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import dagger.Binds
@@ -12,5 +13,5 @@ import dagger.hilt.components.SingletonComponent
 interface ChangeNetworkHelperModule {
 
     @Binds
-    fun bindIChangeNetworkHelper(impl: ChangeNetworkHelper): IChangeNetworkHelper
+    fun bindIChangeNetworkHelper(impl: DatwallKernel): IChangeNetworkHelper
 }

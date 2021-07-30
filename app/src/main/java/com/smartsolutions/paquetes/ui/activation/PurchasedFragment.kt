@@ -1,21 +1,19 @@
-package com.smartsolutions.paquetes.ui.settings
+package com.smartsolutions.paquetes.ui.activation
 
 import android.os.Bundle
 import android.view.View
 import android.widget.*
-import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
-import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.serverApis.models.Result
+import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.ConnectException
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) {
@@ -27,10 +25,10 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<MaterialButton>(R.id.purchase)
+        view.findViewById<Button>(R.id.purchase)
             .setOnClickListener {
 
-                if (view.findViewById<MaterialCheckBox>(R.id.accept_terms_conditions).isChecked) {
+                if (view.findViewById<CheckBox>(R.id.accept_terms_conditions).isChecked) {
                     showPurchaseOptions()
                 } else {
                     Toast.makeText(
@@ -172,13 +170,13 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
 
         dialog.show()
 
-        view.findViewById<AppCompatButton>(R.id.btn_transfermovil)
+        view.findViewById<Button>(R.id.btn_transfermovil)
             .setOnClickListener {
                 dialog.hide()
                 showTransfermovilLayout()
             }
 
-        view.findViewById<AppCompatButton>(R.id.btn_ussd)
+        view.findViewById<Button>(R.id.btn_ussd)
             .setOnClickListener {
                 dialog.hide()
                 showUssdLayout()

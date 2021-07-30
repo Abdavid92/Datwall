@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".ui.settings.ApplicationStatusFragment">
+    tools:context=".ui.activation.ApplicationStatusFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/message"

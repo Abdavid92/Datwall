@@ -4,10 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.ui.settings.ApplicationStatusFragment
-import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
-import com.smartsolutions.paquetes.ui.settings.PurchasedFragment
-import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
+import com.smartsolutions.paquetes.ui.activation.PurchasedFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

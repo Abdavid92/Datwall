@@ -1,37 +1,38 @@
 package com.smartsolutions.paquetes
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
-import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
+import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
+import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
-import com.smartsolutions.paquetes.managers.models.Permission
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
-import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.PresentationActivity
+import com.smartsolutions.paquetes.ui.SplashActivity
+import com.smartsolutions.paquetes.ui.activation.ActivationActivity
+import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
+import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,14 +42,14 @@ class DatwallKernel @Inject constructor(
     private val context: Context,
     private val activationManager: IActivationManager,
     private val permissionManager: IPermissionsManager,
+    private val configurationManager: IConfigurationManager,
     private val updateManager: IUpdateManager,
     private val changeNetworkReceiver: Lazy<ChangeNetworkReceiver>,
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
-    private val watcher: Watcher,
-    private val exceptionsController: ExceptionsController
-) {
+    private val watcher: Watcher
+) : IChangeNetworkHelper {
 
     private var updateApplicationStatusJob: Job? = null
 
@@ -56,25 +57,24 @@ class DatwallKernel @Inject constructor(
      * Función principal que maqueta e inicia todos los servicios de la aplicación
      * y la actividad principal.
      * */
-    @MainThread
-    fun mainInForeground(activity: Activity) {
+    suspend fun mainInForeground(activity: Activity) {
 
-        registerExceptionsController()
+        createNotificationChannels()
 
-        if (isFirstTime()) {
-            context.startActivity(
-                Intent(context, PresentationActivity::class.java)
-                    .addFlags(
-                        Intent.FLAG_ACTIVITY_NEW_TASK
-                    )
-            )
-        } else {
-            val missingPermissions = missingSomePermission()
-
-            if (missingPermissions.isNotEmpty())
-                requestPermissions(missingPermissions)
-            else {
-                createNotificationChannels()
+        when {
+            isFirstTime() -> {
+                openActivity(PresentationActivity::class.java)
+            }
+            missingSomePermission() -> {
+                openPermissionsActivity()
+            }
+            !isActivate() -> {
+                openActivationActivity()
+            }
+            missingSomeConfiguration() -> {
+                openSetupActivity()
+            }
+            else -> {
                 synchronizeDatabaseAndStartWatcher()
                 registerBroadcastsAndCallbacks()
                 registerWorkers()
@@ -82,79 +82,108 @@ class DatwallKernel @Inject constructor(
                 startMainActivity()
             }
         }
+        activity.finish()
     }
 
-    fun mainInBackground() {
+    suspend fun mainInBackground() {
 
+        if (isInForeground())
+            return
+
+        createNotificationChannels()
+
+        when {
+            missingSomePermission() -> {
+                notify(
+                    context.getString(R.string.missing_permmissions_title_notification),
+                    context.getString(R.string.missing_permmissions_description_notification)
+                )
+            }
+            !isActivate() -> {
+                notify(
+                    context.getString(R.string.generic_needed_action_title_notification),
+                    context.getString(R.string.generic_needed_action_description_notification)
+                )
+            }
+            missingSomeConfiguration() -> {
+                notify(
+                    context.getString(R.string.missing_configuration_title_notification),
+                    context.getString(R.string.missing_configuration_description_notification)
+                )
+            }
+            else -> {
+                synchronizeDatabaseAndStartWatcher()
+                registerBroadcastsAndCallbacks()
+                registerWorkers()
+                startServices()
+            }
+        }
+    }
+
+    override fun setDataMobileStateOn() {
+        TODO("Not yet implemented")
+    }
+
+    override fun setDataMobileStateOff() {
+        TODO("Not yet implemented")
     }
 
     /**
      * Indica si es la primera vez que se abre la aplicación.
      * */
-    fun isFirstTime(): Boolean {
-        return runBlocking {
-            val wasOpen = context.dataStore.data
-                .firstOrNull()
-                ?.get(PreferencesKeys.APP_WAS_OPEN) == true
+    private suspend fun isFirstTime(): Boolean {
+        val wasOpen = context.dataStore.data
+            .firstOrNull()
+            ?.get(PreferencesKeys.APP_WAS_OPEN) == true
 
-            context.dataStore.edit {
-                it[PreferencesKeys.APP_WAS_OPEN] = true
-            }
-
-            return@runBlocking !wasOpen
+        context.dataStore.edit {
+            it[PreferencesKeys.APP_WAS_OPEN] = true
         }
+
+        return !wasOpen
+    }
+
+    private suspend fun isActivate(): Boolean {
+        val status = activationManager.canWork().second
+
+        return status != IActivationManager.ApplicationStatuses.Discontinued &&
+                status != IActivationManager.ApplicationStatuses.Unknown
+    }
+
+    private fun openActivationActivity() {
+        openActivity(ActivationActivity::class.java)
     }
 
     /**
      * Indica si falta alguna configuración importante.
      * */
-    fun missingSomeConfiguration(): Boolean {
+    private suspend fun missingSomeConfiguration(): Boolean {
+        return configurationManager.getIncompletedConfigurations()
+            .isNotEmpty()
+    }
 
+    private fun openSetupActivity() {
+        openActivity(SetupActivity::class.java)
     }
 
     /**
      * Indica si falta algún permiso.
      * */
-    fun missingSomePermission(): List<Permission> {
-        return permissionManager.getDeniedPermissions()
+    private fun missingSomePermission(): Boolean {
+        return permissionManager.getDeniedPermissions().isNotEmpty()
     }
 
     /**
      * Pide los permisos faltantes.
      * */
-    fun requestPermissions(permissions: List<Permission>) {
-        val requestCodes = mutableListOf<Int>()
-
-        permissions.forEach {
-            requestCodes.add(it.requestCode)
-        }
-
-        val intent = Intent(context, FragmentContainerActivity::class.java).apply {
-            action = FragmentContainerActivity.ACTION_OPEN_FRAGMENT
-            putExtra(
-                FragmentContainerActivity.EXTRA_FRAGMENT,
-                FragmentContainerActivity.EXTRA_FRAGMENT_PERMISSIONS
-            )
-            putExtra(
-                FragmentContainerActivity.EXTRA_PERMISSIONS_REQUESTS_CODES,
-                requestCodes.toIntArray()
-            )
-            addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK
-            )
-        }
-
-        ContextCompat.startActivity(
-            context,
-            intent,
-            null
-        )
+    private fun openPermissionsActivity() {
+        openActivity(PermissionsActivity::class.java)
     }
 
     /**
      * Registra los broadcasts y los callbacks.
      * */
-    fun registerBroadcastsAndCallbacks() {
+    private fun registerBroadcastsAndCallbacks() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             val filter = IntentFilter()
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
@@ -177,7 +206,7 @@ class DatwallKernel @Inject constructor(
     /**
      * Registra los workers.
      * */
-    fun registerWorkers() {
+    private fun registerWorkers() {
         updateApplicationStatusJob = GlobalScope.launch(Dispatchers.Default) {
             if (!updateManager.wasScheduleUpdateApplicationStatusWorker()) {
                 context.dataStore.data.collect {
@@ -192,7 +221,7 @@ class DatwallKernel @Inject constructor(
     /**
      * Crea los canales de notificaciones.
      * */
-    fun createNotificationChannels() {
+    private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             !notificationHelper.areCreatedNotificationChannels()
         ) {
@@ -203,16 +232,14 @@ class DatwallKernel @Inject constructor(
     /**
      * Sincroniza la base de datos y enciende el Watcher.
      * */
-    fun synchronizeDatabaseAndStartWatcher() {
+    private suspend fun synchronizeDatabaseAndStartWatcher() {
         if (!watcher.running) {
-            GlobalScope.launch {
             /* Fuerzo la sincronización de la base de datos para
              * garantizar la integridad de los datos. Esto no sobrescribe
              * los valores de acceso existentes.*/
-                packageMonitor.forceSynchronization {
-                    //Después de sembrar la base de datos, inicio el observador
-                    watcher.start()
-                }
+            packageMonitor.forceSynchronization {
+                //Después de sembrar la base de datos, inicio el observador
+                watcher.start()
             }
         }
     }
@@ -220,27 +247,55 @@ class DatwallKernel @Inject constructor(
     /**
      * Inicia los servicios.
      * */
-    fun startServices() {
+    private fun startServices() {
         context.startService(Intent(context, DatwallService::class.java))
-        //TODO: Iniciar la burbuja flotante
     }
 
     /**
      * Inicia la actividad principal.
      * */
-    fun startMainActivity() {
+    private fun startMainActivity() {
+        openActivity(MainActivity::class.java)
+    }
+
+    private fun openActivity(activity: Class<out Activity>) {
         ContextCompat.startActivity(
             context,
-            Intent(context, MainActivity::class.java)
-                .addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                ),
+            Intent(context, activity)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             null
         )
     }
 
-    fun registerExceptionsController() {
-        if (!exceptionsController.isRegistered)
-            exceptionsController.register()
+    private fun isInForeground(): Boolean {
+        val activityManager = ContextCompat.getSystemService(
+            context,
+            ActivityManager::class.java
+        ) ?: return false
+
+        return activityManager.runningAppProcesses.any {
+            it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+                    it.processName == context.packageName
+        }
+    }
+
+    private fun notify(title: String, description: String) {
+        notificationHelper.notify(
+            NotificationHelper.ALERT_NOTIFICATION_ID,
+            notificationHelper.buildNotification(
+                NotificationHelper.ALERT_CHANNEL_ID
+            ).apply {
+                setContentTitle(title)
+                setContentText(description)
+                setContentIntent(
+                    PendingIntent.getActivity(
+                        context,
+                        0,
+                        Intent(context, SplashActivity::class.java),
+                        0
+                    )
+                )
+            }.build()
+        )
     }
 }

@@ -17,20 +17,17 @@ import javax.inject.Inject
 
 
 class NotificationHelper @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext
+    private val context: Context
 ) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
 
-    fun buildNotification(channelId: String): NotificationCompat.Builder {
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationCompat.Builder(context, channelId)
-        } else {
-            NotificationCompat.Builder(context)
-        }
-
-        return builder
+    ///TODO: El ícono está sujeto a cambios
+    fun buildNotification(channelId: String, icon: Int = R.drawable.ic_error): NotificationCompat.Builder {
+        return NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(icon)
     }
 
 

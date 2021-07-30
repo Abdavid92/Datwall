@@ -108,6 +108,15 @@ class DataPackageManager @Inject constructor(
         simRepository.update(defaultSim)
     }
 
+    override suspend fun isConfiguredDataPackages(): Boolean {
+        return try {
+            simManager.getDefaultVoiceSim()
+                .network != Networks.NETWORK_NONE
+        } catch (e: IllegalStateException) {
+            false
+        }
+    }
+
     @Throws(IllegalStateException::class, MissingPermissionException::class, UnprocessableRequestException::class)
     override suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim) {
 

@@ -10,9 +10,12 @@ import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sims_configuration) {
+class SimsConfigurationFragment @Inject constructor(
+
+): AbstractSettingsFragment(R.layout.fragment_sims_configuration) {
 
     private val viewModel by viewModels<SimsConfigurationViewModel>()
 

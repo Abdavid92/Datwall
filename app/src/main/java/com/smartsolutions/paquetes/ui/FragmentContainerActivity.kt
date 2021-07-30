@@ -32,6 +32,9 @@ class FragmentContainerActivity : AppCompatActivity() {
                             ?: throw NullPointerException()
                     )
                 }
+                EXTRA_FRAGMENT_ACTIVATION -> {
+
+                }
                 else -> {
                     finish()
                 }
@@ -62,5 +65,6 @@ class FragmentContainerActivity : AppCompatActivity() {
         const val EXTRA_FRAGMENT = "extra_fragment"
         const val EXTRA_FRAGMENT_PERMISSIONS = "extra_fragment_permissions"
         const val EXTRA_PERMISSIONS_REQUESTS_CODES = "extra_permissions_request_codes"
+        const val EXTRA_FRAGMENT_ACTIVATION = "extra_fragment_activation"
     }
 }

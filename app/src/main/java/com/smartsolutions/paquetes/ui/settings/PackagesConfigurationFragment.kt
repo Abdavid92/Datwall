@@ -13,10 +13,12 @@ import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBind
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.serverApis.models.Result
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class PackagesConfigurationFragment :
-    AbstractSettingsFragment() {
+class PackagesConfigurationFragment @Inject constructor(
+
+) : AbstractSettingsFragment() {
 
     private val viewModel by viewModels<PackagesConfigurationViewModel>()
 

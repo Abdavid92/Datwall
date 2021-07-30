@@ -32,8 +32,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
-
-        <!-- Activities -->
+        <activity android:name=".ui.activation.ActivationActivity"></activity>
+        <activity android:name=".ui.permissions.PermissionsActivity" /> <!-- Activities -->
         <activity
             android:name=".ui.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -57,9 +57,7 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeScreenTheme" />
-
-        <!-- Services -->
+            android:theme="@style/WelcomeScreenTheme" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:enabled="true"
@@ -86,9 +84,7 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.net.VpnService" />
             </intent-filter>
-        </service>
-
-        <!-- Receivers -->
+        </service> <!-- Receivers -->
         <receiver
             android:name=".receivers.BootCompletedReceiver"
             android:enabled="true">
@@ -132,9 +128,7 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
-        </receiver>
-
-        <!-- Providers -->
+        </receiver> <!-- Providers -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.smartsolutions.paquetes.provider"
