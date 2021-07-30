@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
+import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -304,6 +305,13 @@ class BubbleFloatingService : Service() {
         currentMenu.animate().scaleX(1f).scaleY(1f)
     }
 
+    private fun bubbleInModeMenu(){
+        valueApp.visibility = View.GONE
+        unitApp.visibility = View.GONE
+        val initialWidth = iconApp.layoutParams.width
+        val width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics)
+    }
+
     private fun setValuesMenu(menu: View) {
         val iconAppMenu: ImageView = menu.findViewById(R.id.image_app_icon)
         val switchAccess: Switch = menu.findViewById(R.id.switch_access)
@@ -406,7 +414,7 @@ class BubbleFloatingService : Service() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (delayTransparency < 3) {
                 delayTransparency++
-            } else if (delayTransparency == 3) {
+            } else if (delayTransparency == 3 && !isShowMenu) {
                 setTransparency(true)
                 delayTransparency++
             }
