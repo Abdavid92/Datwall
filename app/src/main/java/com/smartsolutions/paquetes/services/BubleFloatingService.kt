@@ -8,8 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.graphics.PixelFormat
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
@@ -29,8 +29,7 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -303,13 +302,40 @@ class BubbleFloatingService : Service() {
 
         setValuesMenu(currentMenu)
         currentMenu.animate().scaleX(1f).scaleY(1f)
+
+    }
+
+
+    private fun bubbleTransformationMode(){
+        valueApp.visibility = View.GONE
+        unitApp.visibility = View.GONE
+
+
     }
 
     private fun bubbleInModeMenu(){
         valueApp.visibility = View.GONE
         unitApp.visibility = View.GONE
-        val initialWidth = iconApp.layoutParams.width
-        val width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics)
+        var initialRadius = iconApp.layoutParams.width
+
+        val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
+        val dif = radius - initialRadius
+
+        if (dif > 0) {
+            val delay = 100 / dif
+
+            GlobalScope.launch(Dispatchers.IO) {
+                while (initialRadius < radius) {
+                    initialRadius++
+                    withContext(Dispatchers.Main) {
+                        iconApp.layoutParams.width = initialRadius
+                        iconApp.layoutParams.height = initialRadius
+                        iconApp.requestLayout()
+                    }
+                }
+            }
+        }
+
     }
 
     private fun setValuesMenu(menu: View) {
