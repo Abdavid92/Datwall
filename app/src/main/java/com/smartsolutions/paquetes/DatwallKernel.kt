@@ -4,10 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import androidx.core.content.ContextCompat
+import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
@@ -30,7 +29,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class DatwallKernel @Inject constructor(
     @ApplicationContext
     private val context: Context,
@@ -41,7 +42,8 @@ class DatwallKernel @Inject constructor(
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
-    private val watcher: Watcher
+    private val watcher: Watcher,
+    private val exceptionsController: ExceptionsController
 ) {
 
     private var updateApplicationStatusJob: Job? = null
@@ -50,7 +52,10 @@ class DatwallKernel @Inject constructor(
      * Función principal que maqueta e inicia todos los servicios de la aplicación
      * y la actividad principal.
      * */
-    fun main(skipPresentation: Boolean = false) {
+    fun mainInForeground(skipPresentation: Boolean = false) {
+
+        registerExceptionsController()
+
         if (isFirstTime() && !skipPresentation) {
             context.startActivity(
                 Intent(context, PresentationActivity::class.java)
@@ -74,15 +79,17 @@ class DatwallKernel @Inject constructor(
         }
     }
 
+    fun mainInBackground() {
+
+    }
+
     /**
      * Indica si es la primera vez que se abre la aplicación.
      * */
     fun isFirstTime(): Boolean {
-        var isFirst = false
-        runBlocking {
-            isFirst = activationManager.getSavedDeviceApp() == null
+        return runBlocking {
+            activationManager.getSavedDeviceApp() == null
         }
-        return isFirst
     }
 
     /**
@@ -210,5 +217,10 @@ class DatwallKernel @Inject constructor(
                 ),
             null
         )
+    }
+
+    fun registerExceptionsController() {
+        if (!exceptionsController.isRegistered)
+            exceptionsController.register()
     }
 }

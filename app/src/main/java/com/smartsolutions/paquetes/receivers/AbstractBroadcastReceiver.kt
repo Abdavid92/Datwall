@@ -10,8 +10,10 @@ abstract class AbstractBroadcastReceiver : BroadcastReceiver() {
         private set
 
     fun register(context: Context, filter: IntentFilter) {
-        context.registerReceiver(this, filter)
-        isRegister = true
+        if (!isRegister) {
+            context.registerReceiver(this, filter)
+            isRegister = true
+        }
     }
 
     fun unregister(context: Context) {

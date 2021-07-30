@@ -35,13 +35,15 @@ class ChangeNetworkCallback @Inject constructor(
     }
 
     fun register(connectivityManager: ConnectivityManager) {
-        /*El Transport del request es de tipo cellular para escuchar los cambios de
-         * redes móbiles solamente.*/
-        val request = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+        if (!isRegistered) {
+            /*El Transport del request es de tipo cellular para escuchar los cambios de
+             * redes móbiles solamente.*/
+            val request = NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
 
-        connectivityManager.registerNetworkCallback(request.build(), this)
-        isRegistered = true
+            connectivityManager.registerNetworkCallback(request.build(), this)
+            isRegistered = true
+        }
     }
 
     fun unregister(connectivityManager: ConnectivityManager) {

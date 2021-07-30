@@ -32,9 +32,6 @@ class DatwallApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-    @Inject
-    lateinit var kernel: DatwallKernel
-
     /**
      * Indica si los datos móbiles están encendidos.
      * */
@@ -49,7 +46,6 @@ class DatwallApplication : Application(), Configuration.Provider {
      * Indica si el servicio está listo para trabajar.
      * */
     var uiScannerServiceReady = false
-
 
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()

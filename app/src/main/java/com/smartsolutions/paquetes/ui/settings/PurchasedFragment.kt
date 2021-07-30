@@ -10,10 +10,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.serverApis.models.Result
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.ConnectException
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) {
