@@ -13,6 +13,11 @@ val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "s
 object PreferencesKeys {
 
     /**
+     * Indica si es ya la aplicación fué abierta anteriormente.
+     * */
+    val APP_WAS_OPEN = booleanPreferencesKey("app_was_open")
+
+    /**
      * Indica si el cortafuegos debe ser encendido o no.
      * Esta clave es de tipo Boolean.
      * */

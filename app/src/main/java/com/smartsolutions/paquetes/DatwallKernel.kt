@@ -1,11 +1,14 @@
 package com.smartsolutions.paquetes
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
+import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
@@ -26,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -52,11 +56,12 @@ class DatwallKernel @Inject constructor(
      * Función principal que maqueta e inicia todos los servicios de la aplicación
      * y la actividad principal.
      * */
-    fun mainInForeground(skipPresentation: Boolean = false) {
+    @MainThread
+    fun mainInForeground(activity: Activity) {
 
         registerExceptionsController()
 
-        if (isFirstTime() && !skipPresentation) {
+        if (isFirstTime()) {
             context.startActivity(
                 Intent(context, PresentationActivity::class.java)
                     .addFlags(
@@ -88,8 +93,23 @@ class DatwallKernel @Inject constructor(
      * */
     fun isFirstTime(): Boolean {
         return runBlocking {
-            activationManager.getSavedDeviceApp() == null
+            val wasOpen = context.dataStore.data
+                .firstOrNull()
+                ?.get(PreferencesKeys.APP_WAS_OPEN) == true
+
+            context.dataStore.edit {
+                it[PreferencesKeys.APP_WAS_OPEN] = true
+            }
+
+            return@runBlocking !wasOpen
         }
+    }
+
+    /**
+     * Indica si falta alguna configuración importante.
+     * */
+    fun missingSomeConfiguration(): Boolean {
+
     }
 
     /**
