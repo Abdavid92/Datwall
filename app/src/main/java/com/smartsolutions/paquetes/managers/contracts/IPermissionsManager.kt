@@ -39,5 +39,6 @@ interface IPermissionsManager {
         const val DRAW_OVERLAYS_CODE = 356
         const val VPN_CODE = 248
         const val USAGE_ACCESS_CODE = 854
+        const val VPN_PERMISSION_KEY = "vpn_permissions_key"
     }
 }

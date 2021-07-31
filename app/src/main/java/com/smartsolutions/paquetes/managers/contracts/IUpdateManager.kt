@@ -31,6 +31,11 @@ interface IUpdateManager {
     fun scheduleUpdateApplicationStatusWorker(intervalInHours: Long)
 
     /**
+     * Cancela los workers si estaban registrados
+     */
+    fun cancelUpdateApplicationStatusWorker()
+
+    /**
      * Indica si ya fué registrado el worker de actualización de estado.
      * */
     fun wasScheduleUpdateApplicationStatusWorker(): Boolean

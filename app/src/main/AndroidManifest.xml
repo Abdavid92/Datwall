@@ -32,7 +32,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
-        <activity android:name=".ui.activation.ActivationActivity"></activity>
+        <activity android:name=".ui.exceptions.ExceptionsActivity"></activity>
+        <activity android:name=".ui.activation.ActivationActivity" />
         <activity android:name=".ui.permissions.PermissionsActivity" /> <!-- Activities -->
         <activity
             android:name=".ui.SplashActivity"

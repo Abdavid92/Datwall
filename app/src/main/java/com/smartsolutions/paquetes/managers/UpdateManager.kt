@@ -20,6 +20,7 @@ import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
@@ -34,13 +35,12 @@ import kotlin.Exception
 
 
 private const val updateApplicationStatusWorkerTag = "update_application_status_worker_tag"
-private const val TYPE_DIR_UPDATES = "Updates"
-private const val FILE_PROVIDER_AUTHORITY = "com.smartsolutions.paquetes.provider"
 
 class UpdateManager @Inject constructor(
     @ApplicationContext
     val context: Context,
-    val activationManager: IActivationManager
+    val activationManager: IActivationManager,
+    private val localFileHelper: LocalFileHelper
 ) : IUpdateManager {
 
     private val downloadManager = ContextCompat
@@ -77,6 +77,11 @@ class UpdateManager @Inject constructor(
         workManager.enqueue(request)
     }
 
+    override fun cancelUpdateApplicationStatusWorker(){
+        val workManager = WorkManager.getInstance(context)
+        workManager.cancelAllWorkByTag(updateApplicationStatusWorkerTag)
+    }
+
     override fun wasScheduleUpdateApplicationStatusWorker(): Boolean {
         val workManager = WorkManager.getInstance(context)
 
@@ -94,7 +99,7 @@ class UpdateManager @Inject constructor(
             .setDescription(url.lastPathSegment)
             .setDestinationInExternalFilesDir(
                 context,
-                TYPE_DIR_UPDATES,
+                LocalFileHelper.TYPE_DIR_UPDATES,
                 url.lastPathSegment
             )
 
@@ -213,15 +218,7 @@ class UpdateManager @Inject constructor(
 
 
     override fun foundIfDownloaded(url: Uri): Uri? {
-        val file = File(context.getExternalFilesDir(TYPE_DIR_UPDATES), url.lastPathSegment ?: " ")
-
-        if (file.exists()){
-            try {
-                return FileProvider.getUriForFile(context, FILE_PROVIDER_AUTHORITY, file)
-            }catch (e: Exception){
-            }
-        }
-        return null
+        return localFileHelper.findFileTemporal(url.lastPathSegment ?: " ", LocalFileHelper.TYPE_DIR_UPDATES)?.first
     }
 
     override fun isDownloaded(id: Long): Boolean {

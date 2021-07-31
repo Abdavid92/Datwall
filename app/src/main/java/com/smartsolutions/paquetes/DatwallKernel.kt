@@ -8,17 +8,24 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
+import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
+import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
+import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
+import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
+import com.smartsolutions.paquetes.services.FirewallService
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.PresentationActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
@@ -28,6 +35,7 @@ import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
+import com.smartsolutions.paquetes.workers.TrafficRegistration
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -35,6 +43,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Singleton
 class DatwallKernel @Inject constructor(
@@ -48,10 +57,25 @@ class DatwallKernel @Inject constructor(
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
-    private val watcher: Watcher
-) : IChangeNetworkHelper {
+    private val watcher: Watcher,
+    private val trafficRegistration: TrafficRegistration,
+    private val networkUtil: NetworkUtil
+) : IChangeNetworkHelper, CoroutineScope {
+
+
 
     private var updateApplicationStatusJob: Job? = null
+    private var bubbleOn = false
+    private var firewallOn = false
+
+    init {
+        launch {
+            context.dataStore.data.collect {
+                bubbleOn = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
+                firewallOn = it[PreferencesKeys.ENABLED_FIREWALL] == true
+            }
+        }
+    }
 
     /**
      * Función principal que maqueta e inicia todos los servicios de la aplicación
@@ -65,7 +89,7 @@ class DatwallKernel @Inject constructor(
             isFirstTime() -> {
                 openActivity(PresentationActivity::class.java)
             }
-            missingSomePermission() -> {
+            /*missingSomePermission() -> {
                 openPermissionsActivity()
             }
             !isActivate() -> {
@@ -73,7 +97,7 @@ class DatwallKernel @Inject constructor(
             }
             missingSomeConfiguration() -> {
                 openSetupActivity()
-            }
+            }*/
             else -> {
                 synchronizeDatabaseAndStartWatcher()
                 registerBroadcastsAndCallbacks()
@@ -121,11 +145,29 @@ class DatwallKernel @Inject constructor(
     }
 
     override fun setDataMobileStateOn() {
-        TODO("Not yet implemented")
+        (context as DatwallApplication).dataMobileOn = true
+
+        if (firewallOn) {
+            startFirewall()
+        }
+        trafficRegistration.startRegistration()
+
+        if (networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G) {
+            launch {
+                context.dataStore.edit {
+                    it[PreferencesKeys.ENABLED_LTE] = true
+                }
+            }
+        }
     }
 
     override fun setDataMobileStateOff() {
-        TODO("Not yet implemented")
+        (context as DatwallApplication).dataMobileOn = false
+
+        if (firewallOn) {
+          stopFirewall()
+        }
+        trafficRegistration.stopRegistration()
     }
 
     /**
@@ -258,6 +300,108 @@ class DatwallKernel @Inject constructor(
         openActivity(MainActivity::class.java)
     }
 
+
+    fun stopAllDatwall(){
+        if (watcher.isActive){
+            watcher.stop()
+        }
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+
+            if (changeNetworkReceiver.get().isRegister) {
+                changeNetworkReceiver.get().unregister(context)
+            }
+        } else {
+            if (changeNetworkCallback.get().isRegistered) {
+                ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.let {
+                    changeNetworkCallback.get().unregister(it)
+                }
+            }
+        }
+
+        updateManager.cancelUpdateApplicationStatusWorker()
+
+        context.stopService(Intent(context, DatwallService::class.java))
+
+        trafficRegistration.stopRegistration()
+        stopBubbleFloating()
+        stopFirewall()
+
+    }
+
+
+    fun startFirewall(){
+        val permission = permissionManager.findPermission(IPermissionsManager.VPN_CODE)
+        if (permission?.checkPermission?.invoke(permission, context) == true) {
+            try {
+                context.startService(Intent(context, FirewallService::class.java))
+            }catch (e: Exception){
+
+            }
+        }else {
+            throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
+        }
+    }
+
+
+    fun startBubbleFloating(){
+        val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val permission = permissionManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
+            if (permission?.checkPermission?.invoke(permission, context) == true){
+                true
+            }else {
+                throw MissingPermissionException(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+            }
+        } else {
+            true
+        }
+
+        if (isGranted) {
+            try {
+                context.startService(Intent(context, BubbleFloatingService::class.java))
+            }catch (e: Exception){
+
+            }
+        }
+    }
+
+
+    fun stopBubbleFloating(turnOf: Boolean = false){
+        if (turnOf){
+            launch {
+                context.dataStore.edit {
+                    it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = false
+                }
+            }
+        }
+        try {
+            context.stopService(Intent(context, BubbleFloatingService::class.java))
+        }catch (e: Exception){
+
+        }
+    }
+
+
+    fun stopFirewall(turnOf: Boolean = false){
+        if (turnOf){
+            launch {
+                context.dataStore.edit {
+                    it[PreferencesKeys.ENABLED_FIREWALL] = false
+                }
+            }
+        }
+
+        try {
+            context.startService(
+                Intent(context, FirewallService::class.java)
+                    .setAction(FirewallService.ACTION_STOP_FIREWALL_SERVICE)
+            )
+        }catch (e: Exception) {
+
+        }
+    }
+
+
     private fun openActivity(activity: Class<out Activity>) {
         ContextCompat.startActivity(
             context,
@@ -267,7 +411,7 @@ class DatwallKernel @Inject constructor(
         )
     }
 
-    private fun isInForeground(): Boolean {
+    fun isInForeground(): Boolean {
         val activityManager = ContextCompat.getSystemService(
             context,
             ActivityManager::class.java
@@ -291,11 +435,16 @@ class DatwallKernel @Inject constructor(
                     PendingIntent.getActivity(
                         context,
                         0,
-                        Intent(context, SplashActivity::class.java),
+                        Intent(context, SplashActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         0
                     )
                 )
             }.build()
         )
     }
+
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 }

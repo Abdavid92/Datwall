@@ -1,10 +1,11 @@
 package com.smartsolutions.paquetes.ui
 
+import android.R.attr
+import android.content.Intent
+import android.widget.Toast
 import com.smartsolutions.paquetes.R
-import com.stephentuso.welcome.BasicPage
-import com.stephentuso.welcome.TitlePage
-import com.stephentuso.welcome.WelcomeActivity
-import com.stephentuso.welcome.WelcomeConfiguration
+import com.stephentuso.welcome.*
+
 
 //TODO: Los íconos están pendiente a cambios
 class PresentationActivity : WelcomeActivity() {
@@ -36,4 +37,18 @@ class PresentationActivity : WelcomeActivity() {
             ))
             .build()
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST) {
+
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Canceled", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 }

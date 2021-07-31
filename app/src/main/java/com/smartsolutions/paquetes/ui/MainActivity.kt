@@ -2,6 +2,8 @@ package com.smartsolutions.paquetes.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -46,9 +48,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        startActivity(Intent(this, SetupActivity::class.java))
+        //startActivity(Intent(this, SetupActivity::class.java))
 
-        //handleIntent()
+        handleIntent()
     }
 
 

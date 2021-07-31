@@ -8,6 +8,7 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
@@ -32,6 +33,9 @@ class DatwallApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var exceptionsController: ExceptionsController
+
     /**
      * Indica si los datos móbiles están encendidos.
      * */
@@ -46,6 +50,15 @@ class DatwallApplication : Application(), Configuration.Provider {
      * Indica si el servicio está listo para trabajar.
      * */
     var uiScannerServiceReady = false
+
+
+    override fun onCreate() {
+        super.onCreate()
+        if (!exceptionsController.isRegistered) {
+            exceptionsController.register()
+        }
+    }
+
 
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()

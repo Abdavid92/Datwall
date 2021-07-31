@@ -111,4 +111,10 @@
     <string name="generic_needed_action_description_notification">Toque aquí para resolver los problemas.</string>
     <string name="missing_configuration_title_notification">Configuraciones Pendientes</string>
     <string name="missing_configuration_description_notification">Toque quí para realizar las configuraciones faltantes.</string>
+    <string name="generic_error_title_notification">Error Desconocido</string>
+    <string name="generic_error_description_notification">Toque aqui para ver el error</string>
+    <string name="stoped_missing_overlay_permissions_title_notification">Se denegó Permiso de Sobreponerse</string>
+    <string name="stoped_missing_overlay_permissions_description_notification">Sin este permiso el cortafuegos o la burbuja flotante no pueden funcionar y se han detenidos</string>
+    <string name="stoped_missing_vpn_permissions_title_notification">Se Denegó Permiso de VPN</string>
+    <string name="stoped_missing_vpn_permissions_description_notification">Sin este permiso no puede funcionar el cortafuegos, por lo tanto se ha detenido</string>
 </resources>
