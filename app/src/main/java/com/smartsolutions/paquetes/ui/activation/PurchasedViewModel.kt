@@ -38,7 +38,9 @@ class PurchasedViewModel @Inject constructor(
     private val _beginActivationResult = MutableLiveData<Result<Unit>>()
     val beginActivationResult: LiveData<Result<Unit>>
         get() {
-            initDeviceAppAndActivation()
+            if (_beginActivationResult.value == null) {
+                initDeviceAppAndActivation()
+            }
             return _beginActivationResult
         }
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
+import android.util.Base64
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
@@ -92,7 +93,7 @@ class ActivationManager @Inject constructor(
                 ?.firstOrNull { it.androidAppPackageName == packageName }
                 ?.let { deviceApp ->
                     context.dataStore.edit {
-                        it[PreferencesKeys.DEVICE_APP] = gson.toJson(deviceApp)
+                        it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
                     }
                 }
         }
@@ -131,7 +132,7 @@ class ActivationManager @Inject constructor(
         if (result.isSuccess) {
             result.getOrNull()?.let { deviceApp ->
                 context.dataStore.edit {
-                    it[PreferencesKeys.DEVICE_APP] = gson.toJson(deviceApp)
+                    it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
                 }
             }
         }
@@ -145,7 +146,7 @@ class ActivationManager @Inject constructor(
             ?.get(PreferencesKeys.DEVICE_APP)
             ?.let {
                 try {
-                    return gson.fromJson(it, DeviceApp::class.java)
+                    return gson.fromJson(decrypt(it), DeviceApp::class.java)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -194,7 +195,7 @@ class ActivationManager @Inject constructor(
         //Temp: NO es la implementación definitiva.
         context.dataStore.edit {
             it[PreferencesKeys.WAITING_PURCHASED] = true
-            it[PreferencesKeys.DEVICE_APP] = gson.toJson(deviceApp)
+            it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
         }
         return Result.Success(Unit)
     }
@@ -227,10 +228,11 @@ class ActivationManager @Inject constructor(
         }
 
        try {
-            val deviceApp = gson.fromJson(
-                context.dataStore.data.first()[PreferencesKeys.DEVICE_APP],
+           val data = context.dataStore.data.first()[PreferencesKeys.DEVICE_APP]
+           val deviceApp = gson.fromJson(
+                decrypt(data),
                 DeviceApp::class.java
-            )
+           )
 
            val androidApp = deviceApp.androidApp
            val price = androidApp.price.toString()
@@ -249,7 +251,7 @@ class ActivationManager @Inject constructor(
            deviceApp.waitingPurchase = false
 
            context.dataStore.edit {
-               it[PreferencesKeys.DEVICE_APP] = gson.toJson(deviceApp)
+               it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
                it[PreferencesKeys.WAITING_PURCHASED] = false
                scheduleWorker()
            }
@@ -382,9 +384,14 @@ class ActivationManager @Inject constructor(
         val time = savedDeviceApp.lastQuery.time + (60000 * 5)
         val current = System.currentTimeMillis()
 
-        val date = Date(time)
-        val dateCurrent = Date(current)
-
         return time > current
+    }
+
+    private fun encrypt(data: String?): String {
+        return String(Base64.encode(data?.toByteArray(), Base64.DEFAULT))
+    }
+
+    private fun decrypt(data: String?): String {
+        return String(Base64.decode(data, Base64.DEFAULT))
     }
 }

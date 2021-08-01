@@ -147,7 +147,8 @@ class DatwallKernel @Inject constructor(
         val status = activationManager.canWork().second
 
         return status != IActivationManager.ApplicationStatuses.Discontinued &&
-                status != IActivationManager.ApplicationStatuses.Unknown
+                status != IActivationManager.ApplicationStatuses.Unknown &&
+                status != IActivationManager.ApplicationStatuses.Deprecated
     }
 
     private fun openActivationActivity() {

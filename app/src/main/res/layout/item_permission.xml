@@ -14,13 +14,13 @@
         tools:text="Descripción del permiso" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_cancel"
+        android:id="@+id/btn_jump"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/btn_grant"
         app:layout_constraintTop_toBottomOf="@id/description"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:text="@string/btn_cancel" />
+        android:text="@string/jump" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_grant"

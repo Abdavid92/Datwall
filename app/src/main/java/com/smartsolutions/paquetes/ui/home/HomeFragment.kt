@@ -6,7 +6,6 @@ import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.ui.ApplicationFragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.PermissionsManager
-import com.smartsolutions.paquetes.ui.permissions.PermissionsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -32,9 +31,5 @@ class HomeFragment : ApplicationFragment() {
         val codes = permissionsManager.getDeniedPermissions(false).map {
             it.requestCode
         }
-
-        parentFragmentManager.beginTransaction()
-            .add(R.id.container, PermissionsFragment.newInstance(codes.toIntArray()))
-            .commit()
     }
 }

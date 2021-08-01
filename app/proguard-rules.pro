@@ -30,3 +30,16 @@
 -keepclassmembers,allowobfuscation class * {
 @com.google.gson.annotations.SerializedName <fields>;
 }
+
+-keep,allowobfuscation class * extends com.google.gson.JsonDeserializer
+-keep,allowobfuscation class * extends com.google.gson.JsonSerializer
+
+-keepattributes InnerClasses
+
+-keep class io.jsonwebtoken.** { *; }
+-keepnames class io.jsonwebtoken.* { *; }
+-keepnames interface io.jsonwebtoken.* { *; }
+
+-keep class org.bouncycastle.** { *; }
+-keepnames class org.bouncycastle.** { *; }
+-dontwarn org.bouncycastle.**

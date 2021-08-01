@@ -27,7 +27,7 @@ open class PermissionsManager @Inject constructor(
             context.getString(R.string.usage_access_permission),
             emptyArray(),
             context.getString(R.string.usage_access_permission_description),
-            Permission.Category.Optional,
+            Permission.Category.Required,
             USAGE_ACCESS_CODE,
             checkPermission = { context ->
                 val applicationInfo = context.packageManager

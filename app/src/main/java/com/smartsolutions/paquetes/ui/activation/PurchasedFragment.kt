@@ -73,7 +73,10 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
                 listener?.invoke(null)
 
             } else {
-                viewModel.handleUssdResultFailure(it as Result.Failure, childFragmentManager)
+                //viewModel.handleUssdResultFailure(it as Result.Failure, childFragmentManager)
+                it.getThrowableOrNull()?.let { throwable ->
+                    throw throwable
+                }
             }
         }
     }
@@ -97,8 +100,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         val btnClose = view.findViewById<Button>(R.id.btn_close)
         btnClose.setOnClickListener {
             dialog.hide()
-            //TODO: Temp
-            listener?.invoke(ApplicationStatusFragment::class)
+            listener?.invoke(null)
         }
 
         val btnRetry = view.findViewById<Button>(R.id.btn_retry)

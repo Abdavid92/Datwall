@@ -2,6 +2,8 @@ package com.smartsolutions.paquetes.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.smartsolutions.paquetes.DatwallKernel
@@ -28,8 +30,12 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
             WindowInsetsCompat.Type.systemBars()
         )
 
-        GlobalScope.launch(Dispatchers.Default) {
-            kernel.mainInForeground(this@SplashActivity)
-        }
+        val handler = Handler(Looper.getMainLooper())
+
+        handler.postDelayed({
+            GlobalScope.launch(Dispatchers.Default) {
+                kernel.mainInForeground(this@SplashActivity)
+            }
+        }, 2000)
     }
 }

@@ -11,9 +11,22 @@ import moe.feng.common.stepperview.IStepperAdapter
 import moe.feng.common.stepperview.VerticalStepperItemView
 
 class StepperAdapter(
-    private val permissions: List<Permission>,
-    private val fragment: PermissionsFragment
+    permissions: List<Permission>,
+    private val activity: PermissionsActivity
 ) : IStepperAdapter {
+
+    private val permissions: List<Permission> = listOf(
+        *permissions.toTypedArray(),
+        Permission(
+            "Permisos completados",
+            emptyArray(),
+            "Ya han sido concedidos todos los permisos necesarios. Puede continuar",
+            Permission.Category.Required,
+            0,
+            { return@Permission true },
+            {}
+        )
+    )
 
     override fun getTitle(position: Int): CharSequence {
         return permissions[position].name
@@ -34,19 +47,25 @@ class StepperAdapter(
         view.findViewById<MaterialTextView>(R.id.description)
             .text = permission.description
 
-        view.findViewById<AppCompatButton>(R.id.btn_grant).setOnClickListener {
-            permissions[position].apply {
-                requestPermissionFragment(fragment)
+        view.findViewById<AppCompatButton>(R.id.btn_grant).apply {
+            if (position == permissions.size - 1) {
+                setOnClickListener { activity.nextStep() }
+                text = activity.getString(R.string.btn_continue)
+            } else {
+                setOnClickListener {
+                    permissions[position].apply {
+                        requestPermissionActivity(activity)
+                    }
+                }
             }
         }
 
-        view.findViewById<AppCompatButton>(R.id.btn_cancel).apply {
+        view.findViewById<AppCompatButton>(R.id.btn_jump).apply {
             if (permission.category == Permission.Category.Required)
                 visibility = View.GONE
             else {
-                text = context?.getString(R.string.jump)
                 setOnClickListener {
-                    fragment.nextStep()
+                    activity.nextStep()
                 }
             }
         }

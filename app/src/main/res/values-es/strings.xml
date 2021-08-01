@@ -111,4 +111,5 @@
     <string name="generic_needed_action_description_notification">Toque aquí para resolver los problemas.</string>
     <string name="missing_configuration_title_notification">Configuraciones Pendientes</string>
     <string name="missing_configuration_description_notification">Toque quí para realizar las configuraciones faltantes.</string>
+    <string name="btn_later">Más tarde</string>
 </resources>

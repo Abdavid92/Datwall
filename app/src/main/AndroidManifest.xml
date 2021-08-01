@@ -32,13 +32,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
-        <activity android:name=".ui.activation.ActivationActivity"></activity>
-        <activity android:name=".ui.permissions.PermissionsActivity" /> <!-- Activities -->
+
+        <!-- Activities -->
+        <activity android:name=".ui.activation.ActivationActivity" />
+        <activity android:name=".ui.permissions.PermissionsActivity" />
         <activity
             android:name=".ui.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Datwall.Fullscreen">
+            android:theme="@style/Theme.Datwall.Fullscreen"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -57,7 +61,9 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeScreenTheme" /> <!-- Services -->
+            android:theme="@style/WelcomeScreenTheme"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:enabled="true"

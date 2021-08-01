@@ -10,9 +10,6 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
 import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.managers.PacketManager
-import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,7 +61,7 @@ class SinglePermissionFragment private constructor(
         view.findViewById<MaterialTextView>(R.id.description)
             .text = permission.description
 
-        view.findViewById<AppCompatButton>(R.id.btn_cancel).apply {
+        view.findViewById<AppCompatButton>(R.id.btn_jump).apply {
             if (permission.category == Permission.Category.Required)
                 this.visibility = View.GONE
             else {
