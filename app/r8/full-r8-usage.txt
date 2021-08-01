@@ -33183,6 +33183,7 @@ androidx.core.view.accessibility.AccessibilityViewCommand$CommandArguments:
     public android.os.Bundle mBundle
 androidx.core.widget.AutoScrollHelper:
     public boolean mExclusive
+androidx.core.widget.AutoSizeableTextView
 androidx.core.widget.CompoundButtonCompat:
     public static java.lang.reflect.Field sButtonDrawableField
     public static boolean sButtonDrawableFieldFetched

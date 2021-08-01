@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ActivationActivity : AppCompatActivity(R.layout.activity_activation) {
+class ActivationActivity : AppCompatActivity(R.layout.activity_activation), OnCompletedListener {
 
     @Inject
     lateinit var kernel: Lazy<DatwallKernel>
@@ -21,14 +21,17 @@ class ActivationActivity : AppCompatActivity(R.layout.activity_activation) {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         supportFragmentManager.beginTransaction()
-            .add(
-                R.id.container,
-                ApplicationStatusFragment()
-                    .setOnCompletedListener {
-                        GlobalScope.launch {
-                            kernel.get().mainInForeground(this@ActivationActivity)
-                        }
-                    }
-            ).commit()
+            .add(R.id.container, ApplicationStatusFragment())
+            .commit()
     }
+
+    override fun onCompleted() {
+        GlobalScope.launch {
+            kernel.get().mainInForeground(this@ActivationActivity)
+        }
+    }
+}
+
+interface OnCompletedListener {
+    fun onCompleted()
 }

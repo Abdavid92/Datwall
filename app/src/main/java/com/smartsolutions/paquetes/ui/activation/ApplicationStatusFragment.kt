@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
@@ -18,17 +19,13 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ApplicationStatusFragment :
-    AbstractSettingsFragment(R.layout.fragment_application_status),
+    Fragment(R.layout.fragment_application_status),
     IActivationManager.ApplicationStatusListener
 {
 
     private val viewModel by viewModels<ApplicationStatusViewModel>()
 
     private lateinit var binding: FragmentApplicationStatusBinding
-
-    override fun isRequired(): Boolean {
-        return true
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +51,7 @@ class ApplicationStatusFragment :
             binding.waiting = true
         }
         binding.btnLater.setOnClickListener {
-            listener?.invoke(null)
+            complete()
         }
     }
 
@@ -67,7 +64,7 @@ class ApplicationStatusFragment :
 
         binding.message.text = msgText
         enableBtnAction {
-            listener?.invoke(null)
+            complete()
         }
     }
 
@@ -95,7 +92,7 @@ class ApplicationStatusFragment :
             binding.message.text = "Licencia en periodo de prueba. Días restantes: $days"
 
             enableBtnAction {
-                listener?.invoke(null)
+                complete()
             }
         } else {
             binding.message.text = "El tiempo de prueba ha caducado. Para continuar debe comprar la app."
@@ -122,5 +119,12 @@ class ApplicationStatusFragment :
         binding.btnAction.text = text
         binding.btnAction.setOnClickListener(listener)
         binding.waiting = false
+    }
+
+    fun complete() {
+        activity?.let {
+            if (it is OnCompletedListener)
+                it.onCompleted()
+        }
     }
 }

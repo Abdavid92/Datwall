@@ -4,11 +4,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
@@ -16,11 +14,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.net.ConnectException
 
 @AndroidEntryPoint
-class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) {
+class PurchasedFragment : Fragment(R.layout.fragment_purchased) {
 
     private val viewModel by viewModels<PurchasedViewModel>()
-
-    override fun isRequired() = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,6 +58,15 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         view.findViewById<Button>(R.id.btn_ussd_tranfer)
             .setOnClickListener(::ussdTranfer)
 
+        view.findViewById<Button>(R.id.btn_continue)
+            .setOnClickListener {
+                complete()
+            }
+        view.findViewById<Button>(R.id.btn_transfermovil_continue)
+            .setOnClickListener {
+                complete()
+            }
+
         beginActivation()
         registerUssdResultObserver()
     }
@@ -70,7 +75,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         viewModel.ussdTranferenceResult.observe(viewLifecycleOwner) {
             if (it.isSuccess) {
 
-                listener?.invoke(null)
+                complete()
 
             } else {
                 //viewModel.handleUssdResultFailure(it as Result.Failure, childFragmentManager)
@@ -100,7 +105,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
         val btnClose = view.findViewById<Button>(R.id.btn_close)
         btnClose.setOnClickListener {
             dialog.hide()
-            listener?.invoke(null)
+            complete()
         }
 
         val btnRetry = view.findViewById<Button>(R.id.btn_retry)
@@ -210,5 +215,12 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
 
         view?.findViewById<ConstraintLayout>(R.id.ussd_layout)
             ?.visibility = View.GONE
+    }
+
+    fun complete() {
+        activity?.let {
+            if (it is OnCompletedListener)
+                it.onCompleted()
+        }
     }
 }
