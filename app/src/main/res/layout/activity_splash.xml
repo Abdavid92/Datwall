@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="?attr/fullscreenBackgroundColor"
     android:theme="@style/ThemeOverlay.Datwall.FullscreenContainer"
+    android:fitsSystemWindows="true"
     tools:context=".ui.SplashActivity">
 
     <TextView

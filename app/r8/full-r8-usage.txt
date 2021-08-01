@@ -20889,8 +20889,6 @@ com.smartsolutions.paquetes.managers.ActivationManager$isInTrialPeriod$1
 com.smartsolutions.paquetes.managers.ActivationManager:
     public java.lang.Object isInTrialPeriod(kotlin.coroutines.Continuation)
 com.smartsolutions.paquetes.managers.ActivationManager_Factory
-com.smartsolutions.paquetes.managers.ConfigurationManager:
-    public com.smartsolutions.paquetes.managers.models.Configuration[] getRequiredConfigurations()
 com.smartsolutions.paquetes.managers.ConfigurationManager_Factory
 com.smartsolutions.paquetes.managers.DataPackageManager$WhenMappings
 com.smartsolutions.paquetes.managers.DataPackageManager$buyDataPackageForMiCubacel$1
@@ -20999,8 +20997,8 @@ com.smartsolutions.paquetes.managers.contracts.IActivationManager:
     public abstract java.lang.Object isInTrialPeriod(kotlin.coroutines.Continuation)
     public abstract java.lang.Object isWaitingPurchased(kotlin.coroutines.Continuation)
 com.smartsolutions.paquetes.managers.contracts.IConfigurationManager:
-    public abstract com.smartsolutions.paquetes.managers.models.Configuration[] getConfigurations()
-    public abstract com.smartsolutions.paquetes.managers.models.Configuration[] getRequiredConfigurations()
+    public abstract java.lang.Object getConfigurations(kotlin.coroutines.Continuation)
+    public abstract java.lang.Object getRequiredConfigurations(kotlin.coroutines.Continuation)
 com.smartsolutions.paquetes.managers.contracts.IDataPackageManager:
     public abstract java.lang.Object buyDataPackage(com.smartsolutions.paquetes.repositories.models.DataPackage,com.smartsolutions.paquetes.repositories.models.Sim,kotlin.coroutines.Continuation)
     public abstract com.smartsolutions.paquetes.managers.contracts.IDataPackageManager$ConnectionMode getBuyMode()
@@ -21046,8 +21044,6 @@ com.smartsolutions.paquetes.managers.models.Configuration:
     public final kotlin.jvm.functions.Function1 component3()
     public final com.smartsolutions.paquetes.managers.models.Configuration copy(boolean,javax.inject.Provider,kotlin.jvm.functions.Function1)
     public static synthetic com.smartsolutions.paquetes.managers.models.Configuration copy$default(com.smartsolutions.paquetes.managers.models.Configuration,boolean,javax.inject.Provider,kotlin.jvm.functions.Function1,int,java.lang.Object)
-    public final javax.inject.Provider getFragment()
-    public final boolean getRequired()
 com.smartsolutions.paquetes.managers.models.DataUnitBytes$DataValue:
     public final double component1()
     public final com.smartsolutions.paquetes.managers.models.DataUnitBytes$DataUnit component2()
@@ -21581,6 +21577,8 @@ com.smartsolutions.paquetes.serverApis.models.JwtData:
     public final java.lang.String component5()
     public final com.smartsolutions.paquetes.serverApis.models.JwtData copy(java.lang.String,java.lang.String,int,java.lang.String,java.lang.String)
     public static synthetic com.smartsolutions.paquetes.serverApis.models.JwtData copy$default(com.smartsolutions.paquetes.serverApis.models.JwtData,java.lang.String,java.lang.String,int,java.lang.String,java.lang.String,int,java.lang.Object)
+com.smartsolutions.paquetes.serverApis.models.Result:
+    public final java.lang.Throwable getThrowableOrNull()
 com.smartsolutions.paquetes.serverApis.modules.BindingsModule
 com.smartsolutions.paquetes.serverApis.modules.WebApisModule_ProvideISmartSolutionsAppsFactory:
     private final javax.inject.Provider clientProvider
@@ -21729,8 +21727,6 @@ com.smartsolutions.paquetes.ui.activation.ActivationActivity_MembersInjector:
     public static dagger.MembersInjector create(javax.inject.Provider)
     public void injectMembers(com.smartsolutions.paquetes.ui.activation.ActivationActivity)
     public synthetic bridge void injectMembers(java.lang.Object)
-com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment:
-    public boolean isRequired()
 com.smartsolutions.paquetes.ui.activation.ApplicationStatusViewModel_Factory
 com.smartsolutions.paquetes.ui.activation.ApplicationStatusViewModel_HiltModules$BindsModule
 com.smartsolutions.paquetes.ui.activation.ApplicationStatusViewModel_HiltModules$KeyModule:
@@ -21750,10 +21746,6 @@ com.smartsolutions.paquetes.ui.activation.Hilt_ApplicationStatusFragment:
 com.smartsolutions.paquetes.ui.activation.Hilt_PurchasedFragment:
     void <init>()
     public synthetic bridge dagger.hilt.internal.GeneratedComponentManager componentManager()
-com.smartsolutions.paquetes.ui.activation.PurchasedFragment:
-    public boolean isRequired()
-com.smartsolutions.paquetes.ui.activation.PurchasedViewModel:
-    public final void handleUssdResultFailure(com.smartsolutions.paquetes.serverApis.models.Result$Failure,androidx.fragment.app.FragmentManager)
 com.smartsolutions.paquetes.ui.activation.PurchasedViewModel_Factory
 com.smartsolutions.paquetes.ui.activation.PurchasedViewModel_HiltModules$BindsModule
 com.smartsolutions.paquetes.ui.activation.PurchasedViewModel_HiltModules$KeyModule:
@@ -21877,8 +21869,6 @@ com.smartsolutions.paquetes.ui.permissions.PermissionsViewModel_HiltModules_KeyM
     public static com.smartsolutions.paquetes.ui.permissions.PermissionsViewModel_HiltModules_KeyModule_ProvideFactory create()
     public synthetic bridge java.lang.Object get()
     public java.lang.String get()
-com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment$Companion:
-    public static synthetic com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment newInstance$default(com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment$Companion,int,com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment$SinglePermissionCallback,int,java.lang.Object)
 com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment:
     public final void setPermissionsManager(com.smartsolutions.paquetes.managers.contracts.IPermissionsManager)
 com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragmentKt
@@ -21903,10 +21893,6 @@ com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceViewModel_Hi
     public static com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceViewModel_HiltModules_KeyModule_ProvideFactory create()
     public synthetic bridge java.lang.Object get()
     public java.lang.String get()
-com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment$SettingsResult
-com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment:
-    public abstract boolean isRequired()
-    protected final void setListener(kotlin.jvm.functions.Function1)
 com.smartsolutions.paquetes.ui.settings.Hilt_PackagesConfigurationFragment:
     void <init>(int)
     public synthetic bridge dagger.hilt.internal.GeneratedComponentManager componentManager()
@@ -21917,8 +21903,6 @@ com.smartsolutions.paquetes.ui.settings.Hilt_UpdateFragment:
     public synthetic bridge dagger.hilt.internal.GeneratedComponentManager componentManager()
 com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment$Companion:
     public final com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment newInstance()
-com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment:
-    public boolean isRequired()
 com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment_Factory$InstanceHolder
 com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment_Factory
 com.smartsolutions.paquetes.ui.settings.PackagesConfigurationViewModel_Factory
@@ -21934,8 +21918,6 @@ com.smartsolutions.paquetes.ui.settings.PackagesConfigurationViewModel_HiltModul
     public java.lang.String get()
 com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment$Companion:
     public final com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment newInstance()
-com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment:
-    public boolean isRequired()
 com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment_Factory$InstanceHolder
 com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment_Factory
 com.smartsolutions.paquetes.ui.settings.SimsConfigurationViewModel_Factory
@@ -21959,8 +21941,6 @@ com.smartsolutions.paquetes.ui.settings.UpdateFragment_MembersInjector:
     public synthetic bridge void injectMembers(java.lang.Object)
 com.smartsolutions.paquetes.ui.setup.Hilt_SetupActivity:
     public synthetic bridge dagger.hilt.internal.GeneratedComponentManager componentManager()
-com.smartsolutions.paquetes.ui.setup.SetupActivity:
-    private final com.smartsolutions.paquetes.ui.setup.SetupViewModel getViewModel()
 com.smartsolutions.paquetes.ui.setup.SetupViewModel_Factory
 com.smartsolutions.paquetes.ui.setup.SetupViewModel_HiltModules$BindsModule
 com.smartsolutions.paquetes.ui.setup.SetupViewModel_HiltModules$KeyModule:
@@ -33183,7 +33163,6 @@ androidx.core.view.accessibility.AccessibilityViewCommand$CommandArguments:
     public android.os.Bundle mBundle
 androidx.core.widget.AutoScrollHelper:
     public boolean mExclusive
-androidx.core.widget.AutoSizeableTextView
 androidx.core.widget.CompoundButtonCompat:
     public static java.lang.reflect.Field sButtonDrawableField
     public static boolean sButtonDrawableFieldFetched
@@ -35336,7 +35315,7 @@ com.smartsolutions.paquetes.managers.UpdateManager$getStatusDownload$1$6:
 com.smartsolutions.paquetes.managers.UpdateManager$saveIdDownload$1$1:
     public int label
 com.smartsolutions.paquetes.managers.contracts.IConfigurationManager:
-    public abstract java.lang.Object getIncompletedConfigurations(kotlin.coroutines.Continuation)
+    public abstract java.lang.Object getUncompletedConfigurations(boolean,kotlin.coroutines.Continuation)
 com.smartsolutions.paquetes.managers.contracts.IDataPackageManager:
     public abstract java.lang.Object configureDataPackages(kotlin.coroutines.Continuation)
     public abstract java.lang.Object isConfiguredDataPackages(kotlin.coroutines.Continuation)
@@ -35480,7 +35459,6 @@ com.smartsolutions.paquetes.ui.settings.PackagesConfigurationViewModel$configure
 com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment:
     public static final com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment$Companion Companion
 com.smartsolutions.paquetes.ui.setup.SetupActivity:
-    public final kotlin.Lazy viewModel$delegate
     public static void <clinit>()
 com.smartsolutions.paquetes.watcher.ChangeType
 com.smartsolutions.paquetes.watcher.PackageMonitor$WhenMappings

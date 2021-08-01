@@ -20,8 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--printconfiguration "r8/full-r8-config.txt"
--printusage "r8/full-r8-usage.txt"
+#-printconfiguration "r8/full-r8-config.txt"
+#-printusage "r8/full-r8-usage.txt"
 
 -keepclassmembers class * extends com.stephentuso.welcome.WelcomeActivity {
     public static java.lang.String welcomeKey();

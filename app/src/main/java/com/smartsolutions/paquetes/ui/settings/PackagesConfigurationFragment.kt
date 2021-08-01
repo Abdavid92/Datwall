@@ -24,8 +24,6 @@ class PackagesConfigurationFragment @Inject constructor(
 
     private lateinit var binding: FragmentPackagesConfigurationBinding
 
-    override fun isRequired(): Boolean = true
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,7 +45,7 @@ class PackagesConfigurationFragment @Inject constructor(
             binding.btnStartConfiguration.setOnClickListener {
                 if (binding.automatic == true) {
                     viewModel.configureDataPackages(
-                        listener,
+                        this,
                         childFragmentManager
                     )
                 } else {
@@ -70,6 +68,7 @@ class PackagesConfigurationFragment @Inject constructor(
             }
 
         binding.manualMode.setOnCheckedChangeListener(this::manualModeChange)
+        binding.btnContinue.setOnClickListener { complete() }
 
         viewModel.configurationResult.observe(viewLifecycleOwner) {
 

@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
@@ -148,7 +149,9 @@ class PurchasedViewModel @Inject constructor(
     }
 
     fun handleUssdResultFailure(failure: Result.Failure<Unit>, fragmentManager: FragmentManager) {
-        if (failure.throwable is USSDRequestException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (failure.throwable is USSDRequestException &&
+            failure.throwable.errorCode == USSDHelper.DENIED_CALL_PERMISSION &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
             permissionManager.findPermission(IPermissionsManager.CALL_CODE)?.let {
                 if (!it.checkPermission(it, getApplication())) {
@@ -156,13 +159,13 @@ class PurchasedViewModel @Inject constructor(
                         .show(fragmentManager, null)
                 }
             }
+        } else {
+            Toast.makeText(
+                getApplication(),
+                failure.throwable.message,
+                Toast.LENGTH_SHORT
+            ).show()
         }
-        
-        Toast.makeText(
-            getApplication(),
-            failure.throwable.message,
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     private fun checkDeviceApp() {

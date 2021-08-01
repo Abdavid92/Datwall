@@ -19,15 +19,13 @@ class SimsConfigurationFragment @Inject constructor(
 
     private val viewModel by viewModels<SimsConfigurationViewModel>()
 
-    override fun isRequired(): Boolean = true
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val dataSim = view.findViewById<AppCompatSpinner>(R.id.data_sim)
         val voiceSim = view.findViewById<AppCompatSpinner>(R.id.voice_sim)
 
-        viewModel.getSims(listener, childFragmentManager).observe(viewLifecycleOwner) {
+        viewModel.getSims(this, childFragmentManager).observe(viewLifecycleOwner) {
             dataSim.adapter = Adapter(it)
             voiceSim.adapter = Adapter(it)
         }
@@ -38,7 +36,7 @@ class SimsConfigurationFragment @Inject constructor(
                     dataSim.selectedItem as Sim,
                     voiceSim.selectedItem as Sim
                 )
-                listener?.invoke(null)
+                complete()
             }
     }
 

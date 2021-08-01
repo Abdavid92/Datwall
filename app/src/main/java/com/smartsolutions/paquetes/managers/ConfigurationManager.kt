@@ -7,7 +7,6 @@ import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -18,15 +17,23 @@ class ConfigurationManager @Inject constructor(
     private val dataPackageManager: IDataPackageManager
 ) : IConfigurationManager {
 
-    override val configurations = runBlocking {
-        fillConfigurations()
+    private var configurations: Array<Configuration>? = null
+
+    override suspend fun getConfigurations(): Array<Configuration> {
+        if (configurations == null)
+            configurations = fillConfigurations()
+        return configurations!!
     }
 
-    override val requiredConfigurations: Array<Configuration>
-        get() = configurations.filter { it.required }.toTypedArray()
+    override suspend fun getRequiredConfigurations(): Array<Configuration> {
+        return getConfigurations().filter { it.require }.toTypedArray()
+    }
 
-    override suspend fun getIncompletedConfigurations(): Array<Configuration> =
-        configurations.filter { !it.completed.invoke() }.toTypedArray()
+    override suspend fun getUncompletedConfigurations(onlyRequires: Boolean): Array<Configuration> =
+        if (onlyRequires)
+            getRequiredConfigurations().filter { !it.completed.invoke() }.toTypedArray()
+        else
+            getConfigurations().filter { !it.completed.invoke() }.toTypedArray()
 
     private suspend fun fillConfigurations(): Array<Configuration> {
         val list = mutableListOf<Configuration>()

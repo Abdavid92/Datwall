@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.databinding.FragmentApplicationStatusBinding
@@ -15,11 +13,12 @@ import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
+import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ApplicationStatusFragment :
-    Fragment(R.layout.fragment_application_status),
+    AbstractSettingsFragment(R.layout.fragment_application_status),
     IActivationManager.ApplicationStatusListener
 {
 
@@ -119,12 +118,5 @@ class ApplicationStatusFragment :
         binding.btnAction.text = text
         binding.btnAction.setOnClickListener(listener)
         binding.waiting = false
-    }
-
-    fun complete() {
-        activity?.let {
-            if (it is OnCompletedListener)
-                it.onCompleted()
-        }
     }
 }

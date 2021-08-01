@@ -10,7 +10,6 @@ import android.net.ConnectivityManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
-import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
@@ -121,11 +120,11 @@ class DatwallKernel @Inject constructor(
     }
 
     override fun setDataMobileStateOn() {
-        TODO("Not yet implemented")
+
     }
 
     override fun setDataMobileStateOff() {
-        TODO("Not yet implemented")
+
     }
 
     /**
@@ -159,7 +158,7 @@ class DatwallKernel @Inject constructor(
      * Indica si falta alguna configuración importante.
      * */
     private suspend fun missingSomeConfiguration(): Boolean {
-        return configurationManager.getIncompletedConfigurations()
+        return configurationManager.getUncompletedConfigurations()
             .isNotEmpty()
     }
 

@@ -10,11 +10,12 @@ import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
+import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.ConnectException
 
 @AndroidEntryPoint
-class PurchasedFragment : Fragment(R.layout.fragment_purchased) {
+class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) {
 
     private val viewModel by viewModels<PurchasedViewModel>()
 
@@ -78,10 +79,7 @@ class PurchasedFragment : Fragment(R.layout.fragment_purchased) {
                 complete()
 
             } else {
-                //viewModel.handleUssdResultFailure(it as Result.Failure, childFragmentManager)
-                it.getThrowableOrNull()?.let { throwable ->
-                    throw throwable
-                }
+                viewModel.handleUssdResultFailure(it as Result.Failure, childFragmentManager)
             }
         }
     }
@@ -215,12 +213,5 @@ class PurchasedFragment : Fragment(R.layout.fragment_purchased) {
 
         view?.findViewById<ConstraintLayout>(R.id.ussd_layout)
             ?.visibility = View.GONE
-    }
-
-    fun complete() {
-        activity?.let {
-            if (it is OnCompletedListener)
-                it.onCompleted()
-        }
     }
 }

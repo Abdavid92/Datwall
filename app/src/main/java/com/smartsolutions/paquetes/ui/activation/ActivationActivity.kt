@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
@@ -30,8 +31,4 @@ class ActivationActivity : AppCompatActivity(R.layout.activity_activation), OnCo
             kernel.get().mainInForeground(this@ActivationActivity)
         }
     }
-}
-
-interface OnCompletedListener {
-    fun onCompleted()
 }

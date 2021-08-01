@@ -36,6 +36,6 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
             GlobalScope.launch(Dispatchers.Default) {
                 kernel.mainInForeground(this@SplashActivity)
             }
-        }, 2000)
+        }, 1500)
     }
 }
