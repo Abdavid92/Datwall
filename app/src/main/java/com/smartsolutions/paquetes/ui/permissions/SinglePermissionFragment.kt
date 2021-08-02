@@ -8,11 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
+import androidx.fragment.app.viewModels
 import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.managers.PacketManager
-import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,20 +32,17 @@ class SinglePermissionFragment private constructor(
     private val callback: SinglePermissionCallback?
 ): BottomSheetDialogFragment() {
 
-    @Inject
-    lateinit var permissionsManager: IPermissionsManager
-
-    private lateinit var permission: Permission
-
-    private var granted = false
+    private val viewModel by viewModels<SinglePermissionViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val requestCode = arguments?.getInt(ARG_REQUEST_CODE)
 
-        permission = permissionsManager.findPermission(requestCode ?: 0)
-            ?: throw IllegalArgumentException()
+        viewModel.initPermission(requestCode)
+
+        if (viewModel.callback == null)
+            viewModel.callback = callback
     }
 
     override fun onCreateView(
@@ -59,13 +54,13 @@ class SinglePermissionFragment private constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<MaterialTextView>(R.id.permission_name)
-            .text = permission.name
+            .text = viewModel.permission.name
 
         view.findViewById<MaterialTextView>(R.id.description)
-            .text = permission.description
+            .text = viewModel.permission.description
 
-        view.findViewById<AppCompatButton>(R.id.btn_cancel).apply {
-            if (permission.category == Permission.Category.Required)
+        view.findViewById<AppCompatButton>(R.id.btn_jump).apply {
+            if (viewModel.permission.category == Permission.Category.Required)
                 this.visibility = View.GONE
             else {
                 setOnClickListener {
@@ -76,15 +71,18 @@ class SinglePermissionFragment private constructor(
         }
 
         view.findViewById<AppCompatButton>(R.id.btn_grant)
-            .setOnClickListener { permission.requestPermissionFragment(permission, this) }
+            .setOnClickListener {
+                viewModel.permission
+                    .requestPermissionFragment(viewModel.permission, this)
+            }
     }
 
     private fun notifyResult(granted: Boolean) {
-        this.granted = granted
+        viewModel.granted = granted
         if (granted)
-            callback?.onGranted()
+            viewModel.callback?.onGranted()
         else
-            callback?.onDenied()
+            viewModel.callback?.onDenied()
 
         this.dismiss()
     }
@@ -96,7 +94,7 @@ class SinglePermissionFragment private constructor(
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == permission.requestCode) {
+        if (requestCode == viewModel.permission.requestCode) {
             var granted = true
 
             grantResults.forEach {
@@ -111,9 +109,9 @@ class SinglePermissionFragment private constructor(
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == permission.requestCode) {
+        if (requestCode == viewModel.permission.requestCode) {
             context?.let {
-                notifyResult(permission.checkPermission(permission, it))
+                notifyResult(viewModel.permission.checkPermission(viewModel.permission, it))
             }
         }
     }
@@ -121,13 +119,16 @@ class SinglePermissionFragment private constructor(
     override fun onDestroy() {
         super.onDestroy()
 
-        if (!granted)
-            callback?.onDenied()
+        if (!viewModel.granted)
+            viewModel.callback?.onDenied()
     }
 
     companion object {
 
-        fun newInstance(requestCode: Int, callback: SinglePermissionCallback? = null): SinglePermissionFragment =
+        fun newInstance(
+            requestCode: Int,
+            callback: SinglePermissionCallback? = null
+        ): SinglePermissionFragment =
             SinglePermissionFragment(callback).apply {
                 arguments = Bundle().apply {
                     putInt(ARG_REQUEST_CODE, requestCode)

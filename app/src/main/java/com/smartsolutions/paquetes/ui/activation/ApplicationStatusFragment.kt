@@ -1,15 +1,19 @@
 package com.smartsolutions.paquetes.ui.activation
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
+import com.smartsolutions.paquetes.databinding.FragmentApplicationStatusBinding
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
+import com.smartsolutions.paquetes.ui.settings.UpdateFragment
+import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,22 +24,33 @@ class ApplicationStatusFragment :
 
     private val viewModel by viewModels<ApplicationStatusViewModel>()
 
-    private lateinit var message: MaterialTextView
-    private lateinit var btnAction: MaterialButton
+    private lateinit var binding: FragmentApplicationStatusBinding
 
-    override fun isRequired(): Boolean {
-        return true
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentApplicationStatusBinding.inflate(
+            inflater,
+            container,
+            false
+        )
+
+        binding.waiting = false
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        message = view.findViewById(R.id.message)
-        btnAction = view.findViewById(R.id.btn_action)
-
-        btnAction.setOnClickListener {
+        binding.btnAction.setOnClickListener {
             viewModel.getApplicationStatus(this)
-            it.isEnabled = false
+            binding.waiting = true
+        }
+        binding.btnLater.setOnClickListener {
+            complete()
         }
     }
 
@@ -46,14 +61,14 @@ class ApplicationStatusFragment :
             msgText += " Sin embargo la aplicación ha sido descontinuada, por lo que no recibirá más actualizaciones."
         }
 
-        message.text = msgText
+        binding.message.text = msgText
         enableBtnAction {
-            listener?.invoke(null)
+            complete()
         }
     }
 
     override fun onDiscontinued(deviceApp: DeviceApp) {
-        message.text = "La app ha sido descontinuada y no puede ser utilizada."
+        binding.message.text = "La app ha sido descontinuada y no puede ser utilizada."
 
         enableBtnAction("Cerrar") {
             activity?.finishAffinity()
@@ -61,10 +76,11 @@ class ApplicationStatusFragment :
     }
 
     override fun onDeprecated(deviceApp: DeviceApp) {
-        message.text = "Loco actualiza que estas en la pre-historia."
+        binding.message.text = "Loco actualiza que estas en la pre-historia."
 
         enableBtnAction("Actualizar") {
-            listener?.invoke(null /*TODO:Fragmento de actualización*/)
+            UpdateFragment(deviceApp.androidApp)
+                .show(childFragmentManager, null)
         }
     }
 
@@ -72,32 +88,35 @@ class ApplicationStatusFragment :
         if (isTrialPeriod) {
             val days = deviceApp.androidApp.trialPeriod - deviceApp.daysInUse()
 
-            message.text = "Licencia en periodo de prueba. Días restantes: $days"
+            binding.message.text = "Licencia en periodo de prueba. Días restantes: $days"
 
             enableBtnAction {
-                listener?.invoke(null)
+                complete()
             }
         } else {
-            message.text = "El tiempo de prueba ha caducado. Para continuar debe comprar la app."
+            binding.message.text = "El tiempo de prueba ha caducado. Para continuar debe comprar la app."
 
             enableBtnAction("Comprar") {
-                listener?.invoke(PurchasedFragment::class)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.container, PurchasedFragment())
+                    .commit()
             }
+            binding.btnLater.visibility = View.VISIBLE
         }
     }
 
     override fun onFailed(th: Throwable) {
-        message.text = "Ocurrió un error: " + th.message
+        binding.message.text = "Ocurrió un error: " + th.message
 
         enableBtnAction("Reintentar") {
             viewModel.getApplicationStatus(this)
-            it.isEnabled = false
+            binding.waiting = true
         }
     }
 
     private fun enableBtnAction(text: String = "Continuar", listener: (view: View) -> Unit) {
-        btnAction.text = text
-        btnAction.setOnClickListener(listener)
-        btnAction.isEnabled = true
+        binding.btnAction.text = text
+        binding.btnAction.setOnClickListener(listener)
+        binding.waiting = false
     }
 }

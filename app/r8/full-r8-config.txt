@@ -145,6 +145,19 @@
 -keepclassmembers,allowobfuscation class * {
 @com.google.gson.annotations.SerializedName <fields>;
 }
+
+-keep,allowobfuscation class * extends com.google.gson.JsonDeserializer
+-keep,allowobfuscation class * extends com.google.gson.JsonSerializer
+
+-keepattributes InnerClasses
+
+-keep class io.jsonwebtoken.** { *; }
+-keepnames class io.jsonwebtoken.* { *; }
+-keepnames interface io.jsonwebtoken.* { *; }
+
+-keep class org.bouncycastle.** { *; }
+-keepnames class org.bouncycastle.** { *; }
+-dontwarn org.bouncycastle.**
 # End of content from C:\Users\Abel\StudioProjects\Datwall\app\proguard-rules.pro
 # The proguard configuration file for the following section is C:\Users\Abel\StudioProjects\Datwall\app\build\intermediates\aapt_proguard_file\debug\aapt_rules.txt
 -keep class androidx.core.app.CoreComponentFactory { <init>(); }
@@ -163,18 +176,23 @@
 -keep class androidx.work.impl.foreground.SystemForegroundService { <init>(); }
 -keep class androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver { <init>(); }
 -keep class com.smartsolutions.paquetes.DatwallApplication { <init>(); }
--keep class com.smartsolutions.paquetes.receivers.DownloadClicked { <init>(); }
--keep class com.smartsolutions.paquetes.receivers.DownloadFileReceive { <init>(); }
+-keep class com.smartsolutions.paquetes.receivers.BootCompletedReceiver { <init>(); }
+-keep class com.smartsolutions.paquetes.receivers.DownloadClickedReceiver { <init>(); }
+-keep class com.smartsolutions.paquetes.receivers.DownloadFileReceiver { <init>(); }
 -keep class com.smartsolutions.paquetes.receivers.PackageMonitorReceiver { <init>(); }
 -keep class com.smartsolutions.paquetes.receivers.SmsReceiver { <init>(); }
 -keep class com.smartsolutions.paquetes.services.BubbleFloatingService { <init>(); }
 -keep class com.smartsolutions.paquetes.services.DatwallService { <init>(); }
 -keep class com.smartsolutions.paquetes.services.FirewallService { <init>(); }
 -keep class com.smartsolutions.paquetes.services.UIScannerService { <init>(); }
+-keep class com.smartsolutions.paquetes.ui.FragmentContainerActivity { <init>(); }
 -keep class com.smartsolutions.paquetes.ui.MainActivity { <init>(); }
 -keep class com.smartsolutions.paquetes.ui.PresentationActivity { <init>(); }
+-keep class com.smartsolutions.paquetes.ui.SplashActivity { <init>(); }
+-keep class com.smartsolutions.paquetes.ui.activation.ActivationActivity { <init>(); }
 -keep class com.smartsolutions.paquetes.ui.firewall.AskActivity { <init>(); }
 -keep class com.smartsolutions.paquetes.ui.firewall.LogActivity { <init>(); }
+-keep class com.smartsolutions.paquetes.ui.permissions.PermissionsActivity { <init>(); }
 -keep class com.smartsolutions.paquetes.ui.setup.SetupActivity { <init>(); }
 -keep class android.widget.Space { <init>(android.content.Context, android.util.AttributeSet); }
 
@@ -742,18 +760,22 @@
 }
 
 # End of content from C:\Users\Abel\.gradle\caches\transforms-3\fd6466b47379a3e3abe9d70e0466ce66\transformed\transition-1.3.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\c59ab1ddf56cc82e7282873393b74528\transformed\core-1.3.2\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\3ec4af88c2ca02113b779bbef9e97c64\transformed\core-1.6.0\proguard.txt
 # Never inline methods, but allow shrinking and obfuscation.
 -keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.ViewCompat$Api* {
   <methods>;
 }
--keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.WindowInsetsCompat$Impl* {
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.WindowInsetsCompat$*Impl* {
   <methods>;
 }
--keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.WindowInsetsCompat$BuilderImpl* {
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.app.NotificationCompat$*$Api*Impl {
   <methods>;
 }
-# End of content from C:\Users\Abel\.gradle\caches\transforms-3\c59ab1ddf56cc82e7282873393b74528\transformed\core-1.3.2\proguard.txt
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.os.UserHandleCompat$Api*Impl {
+  <methods>;
+}
+
+# End of content from C:\Users\Abel\.gradle\caches\transforms-3\3ec4af88c2ca02113b779bbef9e97c64\transformed\core-1.6.0\proguard.txt
 # The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\287827849480133a5e8aa2fb1b94bcc4\transformed\jetified-lifecycle-viewmodel-savedstate-2.3.1\proguard.txt
 -keepclassmembers,allowobfuscation class * extends androidx.lifecycle.ViewModel {
     <init>(androidx.lifecycle.SavedStateHandle);
@@ -816,14 +838,14 @@
 # Also this rule prevents registerIn from being inlined.
 -keepclassmembers class androidx.lifecycle.ReportFragment$LifecycleCallbacks { *; }
 # End of content from C:\Users\Abel\.gradle\caches\transforms-3\f5e8c03616c3c439a7a29c0986c9a8d4\transformed\lifecycle-runtime-2.3.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\f93d62b9f8b4bab688cab222e08788bc\transformed\versionedparcelable-1.1.0\proguard.txt
--keep public class * implements androidx.versionedparcelable.VersionedParcelable
+# The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\0b591457226de169074d2213270bad6b\transformed\versionedparcelable-1.1.1\proguard.txt
+-keep class * implements androidx.versionedparcelable.VersionedParcelable
 -keep public class android.support.**Parcelizer { *; }
 -keep public class androidx.**Parcelizer { *; }
 -keep public class androidx.versionedparcelable.ParcelImpl
 
-# End of content from C:\Users\Abel\.gradle\caches\transforms-3\f93d62b9f8b4bab688cab222e08788bc\transformed\versionedparcelable-1.1.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\8e8f66d9a74d39f86557fa0cef39cd1e\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
+# End of content from C:\Users\Abel\.gradle\caches\transforms-3\0b591457226de169074d2213270bad6b\transformed\versionedparcelable-1.1.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\c7c562eed2f96ccc3661025b34dda78d\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
 -keep,allowobfuscation @interface androidx.annotation.Keep
 -keep @androidx.annotation.Keep class * {*;}
 
@@ -839,7 +861,11 @@
     @androidx.annotation.Keep <init>(...);
 }
 
-# End of content from C:\Users\Abel\.gradle\caches\transforms-3\8e8f66d9a74d39f86557fa0cef39cd1e\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
+-keepclassmembers,allowobfuscation class * {
+  @androidx.annotation.DoNotInline <methods>;
+}
+
+# End of content from C:\Users\Abel\.gradle\caches\transforms-3\c7c562eed2f96ccc3661025b34dda78d\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
 # The proguard configuration file for the following section is C:\Users\Abel\.gradle\caches\transforms-3\1f8f5b920bb82d4b00ba2e8425c30392\transformed\jetified-annotation-experimental-1.1.0\proguard.txt
 # Copyright (C) 2020 The Android Open Source Project
 #

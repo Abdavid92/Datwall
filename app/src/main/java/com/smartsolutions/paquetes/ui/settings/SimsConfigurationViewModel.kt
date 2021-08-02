@@ -25,7 +25,7 @@ class SimsConfigurationViewModel @Inject constructor(
     private val _sims = MutableLiveData<List<Sim>>()
 
     fun getSims(
-        listener: ((next: KClass<out AbstractSettingsFragment>?) -> Unit)?,
+        fragment: AbstractSettingsFragment,
         fragmentManager: FragmentManager
     ): LiveData<List<Sim>> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -41,7 +41,7 @@ class SimsConfigurationViewModel @Inject constructor(
                                 }
 
                                 override fun onDenied() {
-                                    listener?.invoke(null)
+                                    fragment.complete()
                                 }
                             }
                         ).show(fragmentManager, null)

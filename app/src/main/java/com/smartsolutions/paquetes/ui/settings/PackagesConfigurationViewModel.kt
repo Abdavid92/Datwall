@@ -34,7 +34,7 @@ class PackagesConfigurationViewModel @Inject constructor(
         get() = _configurationResult
 
     fun configureDataPackages(
-        listener: ((next: KClass<out AbstractSettingsFragment>?) -> Unit)?,
+        fragment: AbstractSettingsFragment,
         fragmentManager: FragmentManager
     ) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -46,7 +46,7 @@ class PackagesConfigurationViewModel @Inject constructor(
                 _configurationResult.postValue(Result.Failure(e))
 
                 withContext(Dispatchers.Main) {
-                    handleException(e, listener, fragmentManager)
+                    handleException(e, fragment, fragmentManager)
                 }
             }
         }
@@ -54,7 +54,7 @@ class PackagesConfigurationViewModel @Inject constructor(
 
     private fun handleException(
         e: USSDRequestException,
-        listener: ((next: KClass<out AbstractSettingsFragment>?) -> Unit)?,
+        fragment: AbstractSettingsFragment,
         fragmentManager: FragmentManager
     ) {
         when (e.errorCode) {
@@ -68,7 +68,7 @@ class PackagesConfigurationViewModel @Inject constructor(
                             }
 
                             override fun onDenied() {
-                                listener?.invoke(null)
+                                fragment.complete()
                             }
 
                         }
@@ -88,7 +88,7 @@ class PackagesConfigurationViewModel @Inject constructor(
                         }
 
                         override fun onDenied() {
-                            listener?.invoke(null)
+                            fragment.complete()
                         }
 
                     }

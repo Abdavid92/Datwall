@@ -116,4 +116,5 @@
     <string name="stoped_missing_overlay_permissions_description_notification">Sin este permiso el cortafuegos o la burbuja flotante no pueden funcionar y se han detenidos</string>
     <string name="stoped_missing_vpn_permissions_title_notification">Se Denegó Permiso de VPN</string>
     <string name="stoped_missing_vpn_permissions_description_notification">Sin este permiso no puede funcionar el cortafuegos, por lo tanto se ha detenido</string>
+    <string name="btn_later">Más tarde</string>
 </resources>

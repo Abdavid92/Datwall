@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.FrameLayout
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.ui.permissions.PermissionsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.NullPointerException
 
@@ -48,7 +47,7 @@ class FragmentContainerActivity : AppCompatActivity() {
 
     private fun openPermissions(requestCodes: IntArray) {
 
-        val fragment = PermissionsFragment.newInstance(
+        /*val fragment = PermissionsFragment.newInstance(
             requestCodes,
             object : PermissionsFragment.PermissionFragmentCallback {
                 override fun onFinished() {
@@ -56,7 +55,7 @@ class FragmentContainerActivity : AppCompatActivity() {
                 }
             })
 
-        supportFragmentManager.beginTransaction().add(R.id.fragment_container, fragment).commit()
+        supportFragmentManager.beginTransaction().add(R.id.fragment_container, fragment).commit()*/
     }
 
 

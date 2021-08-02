@@ -8,14 +8,29 @@ import com.smartsolutions.paquetes.ui.activation.PurchasedFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SetupActivity : AppCompatActivity(R.layout.activity_setup) {
+class SetupActivity : AppCompatActivity(R.layout.activity_setup), OnCompletedListener {
 
     private val viewModel by viewModels<SetupViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.beginTransaction()
-            .add(R.id.setup_container, PurchasedFragment())
-            .commit()
+
+        viewModel.configurations.observe(this) {
+            nextOrComplete()
+        }
+    }
+
+    override fun onCompleted() {
+        nextOrComplete()
+    }
+
+    private fun nextOrComplete() {
+        if (viewModel.hasNextConfiguration()) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.setup_container, viewModel.nextConfiguration()!!.fragment.get())
+                .commit()
+        } else {
+            viewModel.continueWithRun(this)
+        }
     }
 }

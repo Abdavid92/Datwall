@@ -145,7 +145,7 @@ public class LiteVpnConnection extends BaseVpnConnection {
         this.running = false;
         try {
             mInterface.close();
-        } catch (IOException ignored) {
+        } catch (Exception ignored) {
 
         }
         mInterface = null;

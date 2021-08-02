@@ -9,10 +9,7 @@ import android.widget.Button
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
@@ -51,7 +48,7 @@ class StartAccessibilityServiceFragment : BottomSheetDialogFragment() {
                 viewModel.openAccessibilityServicesActivity()
             }
 
-        view.findViewById<Button>(R.id.btn_cancel)
+        view.findViewById<Button>(R.id.btn_jump)
             .setOnClickListener {
                 listener?.onDenied()
                 closeFragment()

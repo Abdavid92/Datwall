@@ -2,8 +2,6 @@ package com.smartsolutions.paquetes.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -21,7 +19,6 @@ import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragm
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @AndroidEntryPoint

@@ -28,8 +28,6 @@ interface IPermissionsManager {
         }
     }
 
-    //fun getRequestCodes(permissions: Array<String>): IntArray
-
     companion object {
         @RequiresApi(Build.VERSION_CODES.M)
         const val CALL_CODE = 34

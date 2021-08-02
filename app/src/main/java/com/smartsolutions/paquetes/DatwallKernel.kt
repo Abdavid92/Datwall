@@ -77,69 +77,71 @@ class DatwallKernel @Inject constructor(
         }
     }
 
+    private val defaultDispatcher = Dispatchers.Default
+
     /**
      * Función principal que maqueta e inicia todos los servicios de la aplicación
      * y la actividad principal.
      * */
-    suspend fun mainInForeground(activity: Activity) {
+    fun mainInForeground(activity: Activity) {
+        GlobalScope.launch(defaultDispatcher) {
+            createNotificationChannels()
 
-        createNotificationChannels()
-
-        when {
-            isFirstTime() -> {
-                openActivity(PresentationActivity::class.java)
+            when {
+                missingSomePermission() -> {
+                    openPermissionsActivity()
+                }
+                !isActivate() -> {
+                    openActivationActivity()
+                }
+                missingSomeConfiguration() -> {
+                    openSetupActivity()
+                }
+                else -> {
+                    synchronizeDatabaseAndStartWatcher()
+                    registerBroadcastsAndCallbacks()
+                    registerWorkers()
+                    startServices()
+                    startMainActivity()
+                }
             }
-            /*missingSomePermission() -> {
-                openPermissionsActivity()
-            }
-            !isActivate() -> {
-                openActivationActivity()
-            }
-            missingSomeConfiguration() -> {
-                openSetupActivity()
-            }*/
-            else -> {
-                synchronizeDatabaseAndStartWatcher()
-                registerBroadcastsAndCallbacks()
-                registerWorkers()
-                startServices()
-                startMainActivity()
-            }
+            activity.finish()
         }
-        activity.finish()
     }
 
-    suspend fun mainInBackground() {
+    fun mainInBackground() {
 
         if (isInForeground())
             return
 
-        createNotificationChannels()
+        GlobalScope.launch(defaultDispatcher) {
+            createNotificationChannels()
 
-        when {
-            missingSomePermission() -> {
-                notify(
-                    context.getString(R.string.missing_permmissions_title_notification),
-                    context.getString(R.string.missing_permmissions_description_notification)
-                )
-            }
-            !isActivate() -> {
-                notify(
-                    context.getString(R.string.generic_needed_action_title_notification),
-                    context.getString(R.string.generic_needed_action_description_notification)
-                )
-            }
-            missingSomeConfiguration() -> {
-                notify(
-                    context.getString(R.string.missing_configuration_title_notification),
-                    context.getString(R.string.missing_configuration_description_notification)
-                )
-            }
-            else -> {
-                synchronizeDatabaseAndStartWatcher()
-                registerBroadcastsAndCallbacks()
-                registerWorkers()
-                startServices()
+            when {
+                missingSomePermission() -> {
+                    notify(
+                        context.getString(R.string.missing_permmissions_title_notification),
+                        context.getString(R.string.missing_permmissions_description_notification)
+                    )
+                }
+                !isActivate() -> {
+                    notify(
+                        context.getString(R.string.generic_needed_action_title_notification),
+                        context.getString(R.string.generic_needed_action_description_notification)
+                    )
+                }
+                missingSomeConfiguration() -> {
+                    notify(
+                        context.getString(R.string.missing_configuration_title_notification),
+                        context.getString(R.string.missing_configuration_description_notification)
+                    )
+                }
+                else -> {
+                    synchronizeDatabaseAndStartWatcher()
+                    registerBroadcastsAndCallbacks()
+                    registerWorkers()
+                    startServices()
+                }
             }
         }
     }
@@ -173,7 +175,7 @@ class DatwallKernel @Inject constructor(
     /**
      * Indica si es la primera vez que se abre la aplicación.
      * */
-    private suspend fun isFirstTime(): Boolean {
+    /*private suspend fun isFirstTime(): Boolean {
         val wasOpen = context.dataStore.data
             .firstOrNull()
             ?.get(PreferencesKeys.APP_WAS_OPEN) == true
@@ -183,13 +185,14 @@ class DatwallKernel @Inject constructor(
         }
 
         return !wasOpen
-    }
+    }*/
 
     private suspend fun isActivate(): Boolean {
         val status = activationManager.canWork().second
 
         return status != IActivationManager.ApplicationStatuses.Discontinued &&
-                status != IActivationManager.ApplicationStatuses.Unknown
+                status != IActivationManager.ApplicationStatuses.Unknown &&
+                status != IActivationManager.ApplicationStatuses.Deprecated
     }
 
     private fun openActivationActivity() {
@@ -200,7 +203,7 @@ class DatwallKernel @Inject constructor(
      * Indica si falta alguna configuración importante.
      * */
     private suspend fun missingSomeConfiguration(): Boolean {
-        return configurationManager.getIncompletedConfigurations()
+        return configurationManager.getUncompletedConfigurations()
             .isNotEmpty()
     }
 

@@ -1,9 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.permissions.PermissionsActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/secondary_toolbar" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_help"
+        android:layout_gravity="end"
+        style="@style/Widget.AppCompat.Button.Borderless" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <moe.feng.common.stepperview.VerticalStepperView
+            android:id="@+id/steppers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:step_normal_color="?attr/colorPrimary"
+            app:step_activated_color="?attr/colorAccent"
+            app:step_show_summary_always="true"
+            app:step_enable_animation="true" />
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

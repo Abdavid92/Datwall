@@ -78,6 +78,15 @@
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             tools:text="Resultado de la operación" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/btn_continue"
+            android:enabled="@{network != null &amp;&amp; network != Networks.NETWORK_NONE}" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

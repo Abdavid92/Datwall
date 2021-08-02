@@ -15,7 +15,7 @@ object PreferencesKeys {
     /**
      * Indica si es ya la aplicación fué abierta anteriormente.
      * */
-    val APP_WAS_OPEN = booleanPreferencesKey("app_was_open")
+    //val APP_WAS_OPEN = booleanPreferencesKey("app_was_open")
 
     /**
      * Indica si el cortafuegos debe ser encendido o no.
