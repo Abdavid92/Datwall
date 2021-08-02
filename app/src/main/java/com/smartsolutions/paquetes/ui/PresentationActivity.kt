@@ -1,21 +1,10 @@
 package com.smartsolutions.paquetes.ui
 
-import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.stephentuso.welcome.*
-import dagger.Lazy
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
 //TODO: Los íconos están pendiente a cambios
-@AndroidEntryPoint
 class PresentationActivity : WelcomeActivity() {
-
-    @Inject
-    lateinit var kernel: Lazy<DatwallKernel>
 
     override fun configuration(): WelcomeConfiguration {
         return WelcomeConfiguration.Builder(this)
@@ -43,12 +32,5 @@ class PresentationActivity : WelcomeActivity() {
                 getString(R.string.page_3_description)
             ))
             .build()
-    }
-
-    override fun completeWelcomeScreen() {
-        runBlocking {
-            kernel.get().mainInForeground(this@PresentationActivity)
-        }
-        super.completeWelcomeScreen()
     }
 }

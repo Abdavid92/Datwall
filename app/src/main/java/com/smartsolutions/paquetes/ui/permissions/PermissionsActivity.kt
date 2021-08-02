@@ -11,6 +11,9 @@ import com.smartsolutions.paquetes.managers.models.Permission
 import dagger.hilt.android.AndroidEntryPoint
 import moe.feng.common.stepperview.VerticalStepperView
 
+/**
+ * Actividad de los permisos.
+ * */
 @AndroidEntryPoint
 class PermissionsActivity : AppCompatActivity(R.layout.activity_permissions) {
 

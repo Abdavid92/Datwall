@@ -46,8 +46,6 @@ class SetupViewModel @Inject constructor(
     }
 
     fun continueWithRun(activity: SetupActivity) {
-        viewModelScope.launch {
-            kernel.mainInForeground(activity)
-        }
+        kernel.mainInForeground(activity)
     }
 }

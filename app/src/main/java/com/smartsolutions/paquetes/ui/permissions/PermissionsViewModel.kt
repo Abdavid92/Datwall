@@ -18,8 +18,6 @@ class PermissionsViewModel @Inject constructor(
     val permissions = permissionsManager.getDeniedPermissions(false)
 
     fun finish(permissionsActivity: PermissionsActivity) {
-        viewModelScope.launch(Dispatchers.Default) {
-            kernel.mainInForeground(permissionsActivity)
-        }
+        kernel.mainInForeground(permissionsActivity)
     }
 }

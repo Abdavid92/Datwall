@@ -27,8 +27,6 @@ class ActivationActivity : AppCompatActivity(R.layout.activity_activation), OnCo
     }
 
     override fun onCompleted() {
-        GlobalScope.launch {
-            kernel.get().mainInForeground(this@ActivationActivity)
-        }
+        kernel.get().mainInForeground(this)
     }
 }
