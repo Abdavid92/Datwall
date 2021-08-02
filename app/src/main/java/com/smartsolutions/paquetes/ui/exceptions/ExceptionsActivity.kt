@@ -3,11 +3,13 @@ package com.smartsolutions.paquetes.ui.exceptions
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Process
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
+import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
@@ -39,19 +41,29 @@ class ExceptionsActivity : AppCompatActivity() {
         sendReport.setOnClickListener {
             localFileHelper.sendFileByEmail(
                 "smartsolutions.apps.cuba@gmail.com",
-                "Informe de Error",
+                "Informe de Error Datwall",
                 editUserInformation.text.toString(),
-                exceptionFile?.first
+                exceptionFile?.second
             )
         }
+
         closeApp.setOnClickListener {
-            finishAffinity()
-            exitProcess(0)
+            close()
         }
+
         restart.setOnClickListener {
-            finishAffinity()
             startActivity(Intent(this, SplashActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            finish()
         }
+    }
+
+    override fun onBackPressed() {
+        close()
+    }
+
+    private fun close() {
+        Process.killProcess(Process.myPid())
+        exitProcess(10)
     }
 }

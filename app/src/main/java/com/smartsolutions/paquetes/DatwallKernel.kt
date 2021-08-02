@@ -325,8 +325,7 @@ class DatwallKernel @Inject constructor(
 
         trafficRegistration.stopRegistration()
         stopBubbleFloating()
-        stopFirewall()
-
+        //stopFirewall()
     }
 
 

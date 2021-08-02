@@ -127,7 +127,7 @@ class LocalFileHelper @Inject constructor(
     fun sendFileByEmail(emailAddress: String, subject: String, body: String, attachment: Uri? = null){
         val email = Intent(Intent.ACTION_SEND).apply {
             type = "*/*"
-            putExtra(Intent.EXTRA_EMAIL, emailAddress)
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, body)
             attachment?.let {
@@ -140,6 +140,18 @@ class LocalFileHelper @Inject constructor(
         if (email.resolveActivity(context.packageManager) != null) {
             context.startActivity(email)
         }
+    }
+
+    fun sendFileByEmail(emailAddress: String, subject: String, body: String, attachment: String?){
+        val email = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, "$body \n\n\n\n\n\n $attachment")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        context.startActivity(email)
     }
 
 

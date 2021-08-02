@@ -21,6 +21,7 @@ import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragm
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -51,6 +52,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         //startActivity(Intent(this, SetupActivity::class.java))
 
         handleIntent()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            throw IllegalStateException()
+        }, 3000)
     }
 
 

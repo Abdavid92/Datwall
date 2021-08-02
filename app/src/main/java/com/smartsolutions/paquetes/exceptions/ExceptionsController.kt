@@ -5,8 +5,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.core.os.ProcessCompat
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
@@ -21,6 +23,7 @@ import java.io.StringWriter
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 class ExceptionsController @Inject constructor(
     @ApplicationContext
@@ -99,6 +102,15 @@ class ExceptionsController @Inject constructor(
                 )
             }
         }
+
+        closeThread(t)
+    }
+
+
+    private fun closeThread(t: Thread) {
+        t.interrupt()
+        Process.killProcess(Process.myPid())
+        exitProcess(10)
     }
 
 
