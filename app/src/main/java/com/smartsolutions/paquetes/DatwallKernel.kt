@@ -9,15 +9,12 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
 import android.provider.Settings
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
-import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
@@ -27,7 +24,6 @@ import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.services.FirewallService
 import com.smartsolutions.paquetes.ui.MainActivity
-import com.smartsolutions.paquetes.ui.PresentationActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
@@ -40,7 +36,6 @@ import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -62,9 +57,11 @@ class DatwallKernel @Inject constructor(
     private val networkUtil: NetworkUtil
 ) : IChangeNetworkHelper, CoroutineScope {
 
-
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     private var updateApplicationStatusJob: Job? = null
+    private val defaultDispatcher = Dispatchers.Default
     private var bubbleOn = false
     private var firewallOn = false
 
@@ -76,8 +73,6 @@ class DatwallKernel @Inject constructor(
             }
         }
     }
-
-    private val defaultDispatcher = Dispatchers.Default
 
     /**
      * Función principal que maqueta e inicia todos los servicios de la aplicación
@@ -171,21 +166,6 @@ class DatwallKernel @Inject constructor(
         }
         trafficRegistration.stopRegistration()
     }
-
-    /**
-     * Indica si es la primera vez que se abre la aplicación.
-     * */
-    /*private suspend fun isFirstTime(): Boolean {
-        val wasOpen = context.dataStore.data
-            .firstOrNull()
-            ?.get(PreferencesKeys.APP_WAS_OPEN) == true
-
-        context.dataStore.edit {
-            it[PreferencesKeys.APP_WAS_OPEN] = true
-        }
-
-        return !wasOpen
-    }*/
 
     private suspend fun isActivate(): Boolean {
         val status = activationManager.canWork().second
@@ -445,8 +425,4 @@ class DatwallKernel @Inject constructor(
             }.build()
         )
     }
-
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
 }
