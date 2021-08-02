@@ -52,10 +52,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         //startActivity(Intent(this, SetupActivity::class.java))
 
         handleIntent()
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            throw IllegalStateException()
-        }, 3000)
     }
 
 
