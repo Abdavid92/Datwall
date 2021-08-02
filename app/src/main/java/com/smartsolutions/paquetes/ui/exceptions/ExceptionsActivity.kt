@@ -63,6 +63,7 @@ class ExceptionsActivity : AppCompatActivity() {
     }
 
     private fun close() {
+        finishAffinity()
         Process.killProcess(Process.myPid())
         exitProcess(10)
     }
