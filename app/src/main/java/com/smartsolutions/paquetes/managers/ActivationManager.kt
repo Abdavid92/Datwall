@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.NetworkInterface
-import java.util.Date
+import java.util.*
 import javax.inject.Inject
 import kotlin.NoSuchElementException
 
@@ -93,9 +93,9 @@ class ActivationManager @Inject constructor(
             result.getOrNull()
                 ?.deviceApps
                 ?.firstOrNull { it.androidAppPackageName == packageName }
-                ?.let { deviceApp ->
+                ?.let { onlineDeviceApp ->
                     context.dataStore.edit {
-                        it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
+                        it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(onlineDeviceApp))
                     }
                 }
         }
@@ -132,9 +132,9 @@ class ActivationManager @Inject constructor(
         val result = registrationClient.getOrRegisterDeviceApp(deviceApp.id, deviceApp)
 
         if (result.isSuccess) {
-            result.getOrNull()?.let { deviceApp ->
+            result.getOrNull()?.let { onlineDeviceApp ->
                 context.dataStore.edit {
-                    it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
+                    it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(onlineDeviceApp))
                 }
             }
         }
@@ -168,6 +168,8 @@ class ActivationManager @Inject constructor(
                     val status = processApplicationStatus(deviceApp)
 
                     when (status.second) {
+                        IActivationManager.ApplicationStatuses.TooMuchOld ->
+                            listener.onTooMuchOld(deviceApp)
                         IActivationManager.ApplicationStatuses.Purchased ->
                             listener.onPurchased(deviceApp)
                         IActivationManager.ApplicationStatuses.TrialPeriod ->
@@ -207,8 +209,6 @@ class ActivationManager @Inject constructor(
         if (key.isEmpty() || key.isBlank() || key.length != 4 || price - price != 0){
             return Result.Failure(IllegalArgumentException())
         }
-
-        //beginActivation(deviceApp)
 
         if (context.dataStore.data.first()[PreferencesKeys.WAITING_PURCHASED] == false)
             throw IllegalStateException("First call the method beginActivation()")
@@ -272,8 +272,11 @@ class ActivationManager @Inject constructor(
     private fun processApplicationStatus(deviceApp: DeviceApp): Pair<Boolean, IActivationManager.ApplicationStatuses> {
         var canWork = false
         val statuses: IActivationManager.ApplicationStatuses
-
+        
         when {
+            deviceAppMuchOld(deviceApp) -> {
+                statuses = IActivationManager.ApplicationStatuses.TooMuchOld
+            }
             deviceApp.androidApp.status == ApplicationStatus.DISCONTINUED &&
                     !deviceApp.purchased -> {
                 statuses = IActivationManager.ApplicationStatuses.Discontinued
@@ -291,6 +294,18 @@ class ActivationManager @Inject constructor(
             }
         }
         return Pair(canWork, statuses)
+    }
+
+    private fun deviceAppMuchOld(deviceApp: DeviceApp): Boolean {
+        val calendar = Calendar.getInstance().apply {
+            time = deviceApp.lastQuery
+        }
+
+        val currentCalendar = Calendar.getInstance()
+
+        val isBigger = calendar <= currentCalendar
+
+        return isBigger && calendar.get(Calendar.MONTH) != currentCalendar.get(Calendar.MONTH)
     }
 
     private fun readTransaction(body: String): String {

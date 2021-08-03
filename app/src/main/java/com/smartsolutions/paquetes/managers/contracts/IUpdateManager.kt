@@ -17,7 +17,10 @@ interface IUpdateManager {
 
     /**
      * Busca una actualización en el servidor. Si la encuentra,
-     * la guarda en el dataStore.
+     * la guarda en el dataStore. Este método se vale del [IActivationManager]
+     * para buscar la actualización. Por lo tanto, si logra obtener el deviceApp
+     * del servidor, este se actualizará en el dataStore aunque no se encuentre
+     * una actualización en el mismo.
      *
      * @return [AndroidApp] si encontró una actualización.
      * */

@@ -26,7 +26,7 @@ interface IActivationManager {
      * Obtiene la aplicación instalada en este dispòsitivo.
      * Primero busca en el dataStore y revisa que no tenga una
      * antiguedad de más de cinco minutos. Si lo tiene, lo baja del servidor,
-     * los guarda en el dataStore y lo retorna.
+     * lo guarda en el dataStore y lo retorna.
      *
      * @param ignoreCache - Indica si se debe ignorar el deviceApp guardado y buscarlo
      * en el servidor.
@@ -96,6 +96,11 @@ interface IActivationManager {
          * */
         fun onTrialPeriod(deviceApp: DeviceApp, isTrialPeriod: Boolean)
         /**
+         * El deviceApp está demasiado viejo. Hay que conectar al servidor para
+         * actualizarlo.
+         * */
+        fun onTooMuchOld(deviceApp: DeviceApp)
+        /**
          * Falló la conexión.
          * */
         fun onFailed(th: Throwable)
@@ -126,5 +131,9 @@ interface IActivationManager {
          * Desconocido.
          * */
         Unknown,
+        /**
+         * DeviceApp demasiado antiguo.
+         * */
+        TooMuchOld,
     }
 }

@@ -12,7 +12,9 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.firewall.VpnConnectionUtils
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
+import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
@@ -32,6 +34,7 @@ import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
 import com.smartsolutions.paquetes.workers.TrafficRegistration
+import com.stephentuso.welcome.WelcomeSharedPreferencesHelper
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -54,7 +57,8 @@ class DatwallKernel @Inject constructor(
     private val packageMonitor: PackageMonitor,
     private val watcher: Watcher,
     private val trafficRegistration: TrafficRegistration,
-    private val networkUtil: NetworkUtil
+    private val networkUtil: NetworkUtil,
+    private val legacyConfiguration: LegacyConfigurationHelper
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -67,6 +71,7 @@ class DatwallKernel @Inject constructor(
 
     init {
         launch {
+
             context.dataStore.data.collect {
                 bubbleOn = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
                 firewallOn = it[PreferencesKeys.ENABLED_FIREWALL] == true
@@ -79,6 +84,8 @@ class DatwallKernel @Inject constructor(
      * y la actividad principal.
      * */
     fun mainInForeground(activity: Activity) {
+        setLegacyConfiguration()
+
         GlobalScope.launch(defaultDispatcher) {
             createNotificationChannels()
 
@@ -86,7 +93,7 @@ class DatwallKernel @Inject constructor(
                 missingSomePermission() -> {
                     openPermissionsActivity()
                 }
-                !isActivate() -> {
+                !isRegisteredAndValid() -> {
                     openActivationActivity()
                 }
                 missingSomeConfiguration() -> {
@@ -109,6 +116,8 @@ class DatwallKernel @Inject constructor(
         if (isInForeground())
             return
 
+        setLegacyConfiguration()
+
         GlobalScope.launch(defaultDispatcher) {
             createNotificationChannels()
 
@@ -119,7 +128,7 @@ class DatwallKernel @Inject constructor(
                         context.getString(R.string.missing_permmissions_description_notification)
                     )
                 }
-                !isActivate() -> {
+                !isRegisteredAndValid() -> {
                     notify(
                         context.getString(R.string.generic_needed_action_title_notification),
                         context.getString(R.string.generic_needed_action_description_notification)
@@ -141,16 +150,38 @@ class DatwallKernel @Inject constructor(
         }
     }
 
+    /**
+     * Establece las configuraciones del cortafuegos y la burbuja flotante
+     * usando la versión anterior.
+     *
+     * Este método se eliminará en versiones posteriores.
+     * */
+    @Deprecated("Se eliminará en próximas versiones")
+    private fun setLegacyConfiguration() {
+        if (!legacyConfiguration.isConfigurationRestored()) {
+            legacyConfiguration.setFirewallLegacyConfiguration()
+            legacyConfiguration.setBubbleFloatingLegacyConfiguration()
+        }
+    }
+
+    /**
+     * Se invoca cuando se encienden los datos móbiles.
+     * */
     override fun setDataMobileStateOn() {
         (context as DatwallApplication).dataMobileOn = true
 
-        if (firewallOn) {
-            startFirewall()
-        }
         trafficRegistration.startRegistration()
 
-        if (networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G) {
-            launch {
+        launch {
+            if (firewallOn) {
+                startFirewall()
+            }
+
+            if (bubbleOn) {
+                startBubbleFloating()
+            }
+
+            if (networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G) {
                 context.dataStore.edit {
                     it[PreferencesKeys.ENABLED_LTE] = true
                 }
@@ -158,21 +189,34 @@ class DatwallKernel @Inject constructor(
         }
     }
 
+    /**
+     * Se invoca cuendo se apagan los datos móbiles.
+     * */
     override fun setDataMobileStateOff() {
         (context as DatwallApplication).dataMobileOn = false
 
         if (firewallOn) {
           stopFirewall()
         }
+
+        if (bubbleOn) {
+            stopBubbleFloating()
+        }
+
         trafficRegistration.stopRegistration()
     }
 
-    private suspend fun isActivate(): Boolean {
+    /**
+     * Indica si la aplicación ya está registrada en el servidor y
+     * no está obsoleta o descontinuada.
+     * */
+    private suspend fun isRegisteredAndValid(): Boolean {
         val status = activationManager.canWork().second
 
         return status != IActivationManager.ApplicationStatuses.Discontinued &&
                 status != IActivationManager.ApplicationStatuses.Unknown &&
-                status != IActivationManager.ApplicationStatuses.Deprecated
+                status != IActivationManager.ApplicationStatuses.Deprecated &&
+                status != IActivationManager.ApplicationStatuses.TooMuchOld
     }
 
     private fun openActivationActivity() {
@@ -283,7 +327,9 @@ class DatwallKernel @Inject constructor(
         openActivity(MainActivity::class.java)
     }
 
-
+    /**
+     * Detiene todos los servicios y trabajos de la aplicación.
+     * */
     fun stopAllDatwall(){
         if (watcher.isActive){
             watcher.stop()
@@ -308,25 +354,25 @@ class DatwallKernel @Inject constructor(
 
         trafficRegistration.stopRegistration()
         stopBubbleFloating()
-        //stopFirewall()
+        stopFirewall()
     }
 
+    suspend fun startFirewall() {
+        if (activationManager.canWork().first) {
+            val permission = permissionManager.findPermission(IPermissionsManager.VPN_CODE)
+            if (permission?.checkPermission?.invoke(permission, context) == true) {
+                try {
+                    context.startService(Intent(context, FirewallService::class.java))
+                } catch (e: Exception) {
 
-    fun startFirewall(){
-        val permission = permissionManager.findPermission(IPermissionsManager.VPN_CODE)
-        if (permission?.checkPermission?.invoke(permission, context) == true) {
-            try {
-                context.startService(Intent(context, FirewallService::class.java))
-            }catch (e: Exception){
-
+                }
+            } else {
+                throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
             }
-        }else {
-            throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
         }
     }
 
-
-    fun startBubbleFloating(){
+    suspend fun startBubbleFloating(){
         val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val permission = permissionManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
             if (permission?.checkPermission?.invoke(permission, context) == true){
@@ -338,7 +384,7 @@ class DatwallKernel @Inject constructor(
             true
         }
 
-        if (isGranted) {
+        if (isGranted && activationManager.canWork().first) {
             try {
                 context.startService(Intent(context, BubbleFloatingService::class.java))
             }catch (e: Exception){
@@ -346,7 +392,6 @@ class DatwallKernel @Inject constructor(
             }
         }
     }
-
 
     fun stopBubbleFloating(turnOf: Boolean = false){
         if (turnOf){
@@ -362,7 +407,6 @@ class DatwallKernel @Inject constructor(
 
         }
     }
-
 
     fun stopFirewall(turnOf: Boolean = false){
         if (turnOf){
@@ -382,7 +426,6 @@ class DatwallKernel @Inject constructor(
 
         }
     }
-
 
     private fun openActivity(activity: Class<out Activity>) {
         ContextCompat.startActivity(

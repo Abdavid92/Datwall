@@ -20,12 +20,16 @@ import kotlin.coroutines.CoroutineContext
 
 @HiltWorker
 class UpdateApplicationStatusWorker @AssistedInject constructor(
-    @Assisted private val context: Context,
-    @Assisted params: WorkerParameters,
+    @Assisted
+    private val context: Context,
+    @Assisted
+    params: WorkerParameters,
     private val updateManager: IUpdateManager,
     private val notificationHelper: NotificationHelper
 ) : Worker(context, params), CoroutineScope {
 
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     override fun doWork(): Result {
         launch {
@@ -59,13 +63,4 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
 
         return Result.success()
     }
-
-
-
-
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
-
-
 }

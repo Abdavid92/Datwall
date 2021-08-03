@@ -1,7 +1,12 @@
 package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
+import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -61,6 +66,10 @@ class LegacyConfigurationHelper @Inject constructor(
         return result
     }
 
+    /**
+     * Establece en el SharedPreferences que la configuración de la base de datos
+     * ya fué restaurada.
+     * */
     @Deprecated("Se eliminará en próximas versiones")
     fun setDbConfigurationRestored(restored: Boolean) {
         preferences.edit()
@@ -68,9 +77,50 @@ class LegacyConfigurationHelper @Inject constructor(
             .apply()
     }
 
+    /**
+     * Indica si la configuración de la base de datos
+     * ya fué restaurada.
+     * */
     @Deprecated("Se eliminará en próximas versiones")
     fun isConfigurationRestored(): Boolean {
         return preferences.getBoolean(DB_CONFIGURATION_RESTORED, false)
+    }
+
+    /**
+     * Establece en el dataStore la configuración del cortafuegos de la versión anterior.
+     * */
+    @Deprecated("Se eliminará en próximas versiones")
+    fun setFirewallLegacyConfiguration() {
+        val preferences = context.getSharedPreferences(
+            "com.smartsolutions.paquetes_preferences",
+            Context.MODE_PRIVATE
+        )
+
+        GlobalScope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.ENABLED_FIREWALL] = preferences
+                    .getBoolean("firewall_running", false)
+            }
+        }
+    }
+
+    /**
+     * Establece en el dataStore la configuración de la burbuja
+     * flotante de la versión anterior.
+     * */
+    @Deprecated("Se eliminará en próximas versiones")
+    fun setBubbleFloatingLegacyConfiguration() {
+        val preferences = context.getSharedPreferences(
+            "com.smartsolutions.paquetes_preferences",
+            Context.MODE_PRIVATE
+        )
+
+        GlobalScope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = preferences
+                    .getBoolean("widget_floating", false)
+            }
+        }
     }
 
     companion object {

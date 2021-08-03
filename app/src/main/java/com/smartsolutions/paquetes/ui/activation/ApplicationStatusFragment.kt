@@ -105,6 +105,10 @@ class ApplicationStatusFragment :
         }
     }
 
+    override fun onTooMuchOld(deviceApp: DeviceApp) {
+
+    }
+
     override fun onFailed(th: Throwable) {
         binding.message.text = "Ocurrió un error: " + th.message
 
