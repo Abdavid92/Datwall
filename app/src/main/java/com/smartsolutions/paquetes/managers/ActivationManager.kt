@@ -15,6 +15,7 @@ import com.smartsolutions.paquetes.workers.ActivationWorker
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
@@ -40,7 +41,8 @@ class ActivationManager @Inject constructor(
     private val registrationClient: IRegistrationClient,
     private val ussdHelper: USSDHelper,
     private val gson: Gson,
-    private val simManager: ISimManager
+    private val simManager: ISimManager,
+    private val legacyConfiguration: LegacyConfigurationHelper
 ) : IActivationManager {
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
@@ -71,8 +73,8 @@ class ActivationManager @Inject constructor(
 
         val deviceApp = DeviceApp(
             id = DeviceApp.buildDeviceAppId(packageName, deviceId),
-            purchased = false,
-            restored = false,
+            purchased = legacyConfiguration.isPurchased(),
+            restored = legacyConfiguration.isPurchased(),
             trialPeriod = true,
             lastQuery = Date(System.currentTimeMillis()),
             transaction = null,
@@ -116,8 +118,8 @@ class ActivationManager @Inject constructor(
 
         val deviceApp = DeviceApp(
             id = DeviceApp.buildDeviceAppId(packageName, deviceId),
-            purchased = false,
-            restored = false,
+            purchased = legacyConfiguration.isPurchased(),
+            restored = legacyConfiguration.isPurchased(),
             trialPeriod = true,
             lastQuery = Date(System.currentTimeMillis()),
             transaction = null,

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import javax.inject.Inject
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 @Singleton
 class PackageMonitor @Inject constructor(
     private val packageManager: PackageManager,
-    private val appRepository: IAppRepository
+    private val appRepository: IAppRepository,
+    private val legacyConfiguration: LegacyConfigurationHelper
 ) {
 
     private var sequenceNumber: Int = 0
@@ -159,8 +161,38 @@ class PackageMonitor @Inject constructor(
         appRepository.create(appsToAdd)
         appRepository.update(appsToUpdate)
         appRepository.delete(appsToDelete)
+
+        restoreOldConfiguration()
+
         //Por último ejecuto la tarea que se pasó como parámetro.
         task?.invoke()
+    }
+
+    /**
+     * Restaura las configuraciones de la versión anterior.
+     * */
+    @Deprecated("En la próxima versión se eliminara la retro-compatibilidad")
+    private suspend fun restoreOldConfiguration() {
+        if (!legacyConfiguration.isConfigurationRestored()) {
+
+            val apps = appRepository.all()
+                .filter { !it.access }
+
+            val updateApps = mutableListOf<App>()
+
+            legacyConfiguration.getLegacyRules().forEach { packageName ->
+                apps.firstOrNull { it.packageName == packageName }?.let {
+                    updateApps.add(it.apply {
+                        access = true
+                    })
+                }
+            }
+
+            if (updateApps.isNotEmpty())
+                appRepository.update(updateApps)
+
+            legacyConfiguration.setDbConfigurationRestored(true)
+        }
     }
 
     private fun versionNotEquals(version: Long, info: PackageInfo): Boolean {
