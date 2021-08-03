@@ -107,9 +107,12 @@ class DatwallService : Service(), CoroutineScope {
 
     private fun updateNotification(rxBytes: Long, txBytes: Long) {
         notificationBuilder.setSmallIcon(R.drawable.ic_bubble_notification)
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            notificationBuilder.style = Notification.DecoratedCustomViewStyle()
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             notificationBuilder.setCustomContentView(contentView)
+            notificationBuilder.setCustomBigContentView(contentView)
         }else {
             notificationBuilder.setContent(contentView)
         }
