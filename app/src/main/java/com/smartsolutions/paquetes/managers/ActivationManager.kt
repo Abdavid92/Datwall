@@ -269,6 +269,11 @@ class ActivationManager @Inject constructor(
         return context.dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
     }
 
+    /**
+     * Procesa el estado de el deviceApp.
+     *
+     * @return [Pair] con una Boolean indicando si se puede trabajar y la razón.
+     * */
     private fun processApplicationStatus(deviceApp: DeviceApp): Pair<Boolean, IActivationManager.ApplicationStatuses> {
         var canWork = false
         val statuses: IActivationManager.ApplicationStatuses
@@ -296,6 +301,9 @@ class ActivationManager @Inject constructor(
         return Pair(canWork, statuses)
     }
 
+    /**
+     * Indica si el deviceApp tiene más de un mes de antiguedad.
+     * */
     private fun deviceAppMuchOld(deviceApp: DeviceApp): Boolean {
         val calendar = Calendar.getInstance().apply {
             time = deviceApp.lastQuery

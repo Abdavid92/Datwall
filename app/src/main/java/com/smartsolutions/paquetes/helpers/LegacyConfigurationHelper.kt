@@ -67,13 +67,13 @@ class LegacyConfigurationHelper @Inject constructor(
     }
 
     /**
-     * Establece en el SharedPreferences que la configuración de la base de datos
+     * Establece en el SharedPreferences que la configuración
      * ya fué restaurada.
      * */
     @Deprecated("Se eliminará en próximas versiones")
-    fun setDbConfigurationRestored(restored: Boolean) {
+    fun setConfigurationRestored() {
         preferences.edit()
-            .putBoolean(DB_CONFIGURATION_RESTORED, restored)
+            .putBoolean(DB_CONFIGURATION_RESTORED, true)
             .apply()
     }
 

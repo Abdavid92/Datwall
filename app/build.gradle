@@ -57,8 +57,8 @@ android {
             buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfreeapp.com/api/\""
         }
         debug {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "SECRET_KEY", secretKey
             buildConfigField "int", "TOKEN_DURATION", tokenDuration
@@ -104,6 +104,7 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation "androidx.datastore:datastore-preferences:1.0.0-beta01"
     implementation "androidx.work:work-runtime-ktx:2.5.0"
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
     //Three party libraries
     implementation 'moe.feng.common:material-stepper-view:0.2.5'
@@ -115,7 +116,6 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     implementation "androidx.hilt:hilt-work:1.0.0"
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
     kapt "androidx.hilt:hilt-compiler:1.0.0"
 

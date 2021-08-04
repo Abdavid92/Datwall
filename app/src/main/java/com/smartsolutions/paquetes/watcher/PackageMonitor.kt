@@ -3,7 +3,6 @@ package com.smartsolutions.paquetes.watcher
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -191,7 +190,7 @@ class PackageMonitor @Inject constructor(
             if (updateApps.isNotEmpty())
                 appRepository.update(updateApps)
 
-            legacyConfiguration.setDbConfigurationRestored(true)
+            legacyConfiguration.setConfigurationRestored(true)
         }
     }
 
