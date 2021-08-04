@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/card_bubble_floating"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/lin_background_bubble"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="11dp"
-    app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true">
+    android:background="@drawable/background_red_borderless_card_dark"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <include
+        android:id="@+id/menu_left"
+        layout="@layout/bubble_menu_floating_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/lin_background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/background_red_dark_bordeless_card"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -25,7 +36,7 @@
             android:paddingLeft="4dp"
             android:paddingTop="2dp"
             android:paddingRight="4dp"
-            app:srcCompat="@drawable/ic_launcher_foreground" />
+            app:srcCompat="@drawable/ic_close_red" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -56,4 +67,15 @@
         </LinearLayout>
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+
+    <include
+        android:id="@+id/menu_right"
+        layout="@layout/bubble_menu_floating_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="gone" />
+
+</LinearLayout>
