@@ -12,6 +12,7 @@ import android.graphics.Matrix
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
@@ -19,6 +20,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
@@ -30,6 +32,7 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import java.lang.RuntimeException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -121,7 +124,7 @@ class BubbleFloatingService : Service() {
         setOnTouch()
         initializeViews()
 
-        windowManager.addView(cardBubble, params)
+        addView(cardBubble, params)
 
         runBlocking(Dispatchers.IO) {
             app = appRepository.get(applicationContext.packageName)
@@ -240,7 +243,7 @@ class BubbleFloatingService : Service() {
     private fun showClose(){
         try {
             closeImage.alpha = 0f
-            windowManager.addView(closeView, paramsClose)
+            addView(closeView, paramsClose)
             closeImage.animate().alpha(1f).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     closeImage.animate().setListener(null)
@@ -302,41 +305,25 @@ class BubbleFloatingService : Service() {
 
         setValuesMenu(currentMenu)
         currentMenu.animate().scaleX(1f).scaleY(1f)
-
+        animationMenu(true)
     }
 
 
-    private fun bubbleTransformationMode(){
-        valueApp.visibility = View.GONE
-        unitApp.visibility = View.GONE
-
-
-    }
-
-    private fun bubbleInModeMenu(){
-        valueApp.visibility = View.GONE
-        unitApp.visibility = View.GONE
-        var initialRadius = iconApp.layoutParams.width
-
-        val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
-        val dif = radius - initialRadius
-
-        if (dif > 0) {
-            val delay = 100 / dif
-
-            GlobalScope.launch(Dispatchers.IO) {
-                while (initialRadius < radius) {
-                    initialRadius++
-                    withContext(Dispatchers.Main) {
-                        iconApp.layoutParams.width = initialRadius
-                        iconApp.layoutParams.height = initialRadius
-                        iconApp.requestLayout()
-                    }
-                }
-            }
+    private fun animationMenu(show: Boolean){
+        val radius = if (show) {
+            valueApp.visibility = View.GONE
+            unitApp.visibility = View.GONE
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
+        }else {
+            valueApp.visibility = View.VISIBLE
+            unitApp.visibility = View.VISIBLE
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35f, resources.displayMetrics).toInt()
         }
 
+        iconApp.layoutParams.height = radius
+        iconApp.layoutParams.width = radius
     }
+
 
     private fun setValuesMenu(menu: View) {
         val iconAppMenu: ImageView = menu.findViewById(R.id.image_app_icon)
@@ -381,10 +368,11 @@ class BubbleFloatingService : Service() {
 
     private fun hideMenu(view: View){
         isShowMenu = false
-        view.animate().scaleX(0f).setListener(object : AnimatorListenerAdapter(){
+        view.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter(){
             override fun onAnimationEnd(animation: Animator?) {
                 view.animate().setListener(null)
                 view.visibility = View.GONE
+                animationMenu(false)
             }
         })
     }
@@ -491,6 +479,20 @@ class BubbleFloatingService : Service() {
             val displayMetrics = DisplayMetrics()
             windowManager.getDefaultDisplay().getMetrics(displayMetrics)
             displayMetrics.heightPixels
+        }
+    }
+
+
+    private fun addView(view: View, params: WindowManager.LayoutParams){
+        try {
+            windowManager.addView(view, params)
+        }catch (e: Exception){
+
+            if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                throw MissingPermissionException(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+            }
+
+            throw e
         }
     }
 
