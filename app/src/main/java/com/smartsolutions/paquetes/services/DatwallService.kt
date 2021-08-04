@@ -17,7 +17,9 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.watcher.Watcher
@@ -31,6 +33,7 @@ import kotlinx.coroutines.launch
 import java.lang.NullPointerException
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToLong
 
 @AndroidEntryPoint
 class DatwallService : Service(), CoroutineScope {
@@ -45,6 +48,9 @@ class DatwallService : Service(), CoroutineScope {
 
     @Inject
     lateinit var notificationHelper: NotificationHelper
+
+    @Inject
+    lateinit var uiHelper: UIHelper
 
     private lateinit var notificationBuilder: Notification.Builder
     private lateinit var notificationManager: NotificationManager
@@ -107,7 +113,7 @@ class DatwallService : Service(), CoroutineScope {
 
 
     private fun updateNotification(rxBytes: Long, txBytes: Long) {
-        notificationBuilder.setSmallIcon(R.drawable.ic_bubble_notification)
+        notificationBuilder.setSmallIcon(getIcon( rxBytes + txBytes))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             notificationBuilder.style = Notification.DecoratedCustomViewStyle()
         }
@@ -120,6 +126,32 @@ class DatwallService : Service(), CoroutineScope {
         notificationManager.notify(NotificationHelper.MAIN_NOTIFICATION_ID, notificationBuilder.build())
     }
 
+
+    private fun getIcon(totalBytes: Long): Int {
+        val traffic = DataUnitBytes(totalBytes).getValue()
+
+        val name = when (traffic.dataUnit) {
+            DataUnitBytes.DataUnit.B -> {
+                return R.drawable.traficc_0_kb
+            }
+            DataUnitBytes.DataUnit.KB -> {
+                if (traffic.value > 999) {
+                    return R.drawable.traficc_1_quot_0_mb
+                }
+                "traficc_${traffic.value.roundToLong()}_kb"
+            }
+            DataUnitBytes.DataUnit.MB -> {
+                val values = traffic.value.toString().split(".")
+                "traficc_${values[0]}_quot_${values[1]}_mb"
+            }
+            else -> {
+                return R.drawable.ic_bubble_notification
+            }
+
+        }
+
+        return uiHelper.getResource(name) ?: R.drawable.ic_bubble_notification
+    }
 
 
 
