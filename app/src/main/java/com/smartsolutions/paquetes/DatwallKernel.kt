@@ -12,7 +12,6 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.firewall.VpnConnectionUtils
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.helpers.NetworkUtil
@@ -22,6 +21,7 @@ import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
+import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.services.FirewallService
@@ -33,7 +33,6 @@ import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
-import com.smartsolutions.paquetes.workers.TrafficRegistration2
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -55,10 +54,9 @@ class DatwallKernel @Inject constructor(
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
     private val watcher: Watcher,
-    private val trafficRegistration: TrafficRegistration,
     private val networkUtil: NetworkUtil,
-    private val legacyConfiguration: LegacyConfigurationHelper
-    private val trafficRegistration: TrafficRegistration2
+    private val legacyConfiguration: LegacyConfigurationHelper,
+    private val trafficRegistration: TrafficRegistrationReceiver
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -170,7 +168,7 @@ class DatwallKernel @Inject constructor(
     override fun setDataMobileStateOn() {
         (context as DatwallApplication).dataMobileOn = true
 
-        trafficRegistration.startRegistration()
+        trafficRegistration.register()
 
         launch {
             if (firewallOn) {
@@ -203,7 +201,7 @@ class DatwallKernel @Inject constructor(
             stopBubbleFloating()
         }
 
-        trafficRegistration.stopRegistration()
+        trafficRegistration.unregister()
     }
 
     /**
@@ -253,6 +251,8 @@ class DatwallKernel @Inject constructor(
      * Registra los broadcasts y los callbacks.
      * */
     private fun registerBroadcastsAndCallbacks() {
+        /* En apis 22 o menor se registra un receiver para escuchar los cambios de redes.
+         **/
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             val filter = IntentFilter()
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
@@ -261,10 +261,10 @@ class DatwallKernel @Inject constructor(
                 changeNetworkReceiver.get().register(context, filter)
             }
         } else {
+            /* Si el sdk es api 23 o mayor se registra un callback de tipo
+             * NetworkCallback en el ConnectivityManager para escuchar los cambios de redes.
+             **/
             if (!changeNetworkCallback.get().isRegistered) {
-                /* Si el sdk es api 23 o mayor se registra un callback de tipo
-                 * NetworkCallback en el ConnectivityManager para escuchar los cambios de redes.
-                 **/
                 ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.let {
                     changeNetworkCallback.get().register(it)
                 }
@@ -306,10 +306,10 @@ class DatwallKernel @Inject constructor(
             /* Fuerzo la sincronización de la base de datos para
              * garantizar la integridad de los datos. Esto no sobrescribe
              * los valores de acceso existentes.*/
-            packageMonitor.forceSynchronization {
-                //Después de sembrar la base de datos, inicio el observador
-                watcher.start()
-            }
+            packageMonitor.forceSynchronization()
+
+            //Después de sembrar la base de datos, inicio el observador
+            watcher.start()
         }
     }
 
@@ -352,12 +352,12 @@ class DatwallKernel @Inject constructor(
 
         context.stopService(Intent(context, DatwallService::class.java))
 
-        trafficRegistration.stopRegistration()
+        trafficRegistration.unregister()
         stopBubbleFloating()
         stopFirewall()
     }
 
-    suspend fun startFirewall() {
+    private suspend fun startFirewall() {
         if (activationManager.canWork().first) {
             val permission = permissionManager.findPermission(IPermissionsManager.VPN_CODE)
             if (permission?.checkPermission?.invoke(permission, context) == true) {
@@ -372,7 +372,7 @@ class DatwallKernel @Inject constructor(
         }
     }
 
-    suspend fun startBubbleFloating(){
+    private suspend fun startBubbleFloating(){
         val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val permission = permissionManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
             if (permission?.checkPermission?.invoke(permission, context) == true){

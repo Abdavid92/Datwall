@@ -119,7 +119,7 @@ class PackageMonitor @Inject constructor(
      *
      * @param task - Función a ejecutar cuando termina el proceso de sincronización
      * */
-    suspend fun forceSynchronization(task: (() -> Unit)? = null) {
+    suspend fun forceSynchronization(/*task: (() -> Unit)? = null*/) {
         //Obtengo las aplicaciones instaladas
         val installedPackages = packageManager.getInstalledPackages(0)
 
@@ -164,11 +164,11 @@ class PackageMonitor @Inject constructor(
         restoreOldConfiguration()
 
         //Por último ejecuto la tarea que se pasó como parámetro.
-        task?.invoke()
+        //task?.invoke()
     }
 
     /**
-     * Restaura las configuraciones de la versión anterior.
+     * Restaura las configuraciones de la versión anterior de la aplicación.
      * */
     @Deprecated("En la próxima versión se eliminara la retro-compatibilidad")
     private suspend fun restoreOldConfiguration() {
@@ -190,7 +190,7 @@ class PackageMonitor @Inject constructor(
             if (updateApps.isNotEmpty())
                 appRepository.update(updateApps)
 
-            legacyConfiguration.setConfigurationRestored(true)
+            legacyConfiguration.setConfigurationRestored()
         }
     }
 

@@ -38,30 +38,34 @@ class LegacyConfigurationHelper @Inject constructor(
     fun getLegacyRules(): List<String> {
         val db = context.openOrCreateDatabase("rules.db", Context.MODE_PRIVATE, null)
 
-        val cursor = db.query(
-            "apps",
-            arrayOf("package_name"),
-            "data_access = ?",
-            arrayOf("1"),
-            null,
-            null,
-            null
-        )
-
         val result = mutableListOf<String>()
 
-        if (cursor.moveToFirst()) {
-            var packageName = cursor.getString(cursor.getColumnIndex("package_name"))
+        try {
+            val cursor = db.query(
+                "apps",
+                arrayOf("package_name"),
+                "data_access = ?",
+                arrayOf("1"),
+                null,
+                null,
+                null
+            )
 
-            result.add(packageName)
-
-            while (cursor.moveToNext()) {
-                packageName = cursor.getString(cursor.getColumnIndex("package_name"))
+            if (cursor.moveToFirst()) {
+                var packageName = cursor.getString(cursor.getColumnIndex("package_name"))
 
                 result.add(packageName)
+
+                while (cursor.moveToNext()) {
+                    packageName = cursor.getString(cursor.getColumnIndex("package_name"))
+
+                    result.add(packageName)
+                }
             }
+            cursor.close()
+        } catch (e: Exception) {
+
         }
-        cursor.close()
 
         return result
     }

@@ -1,8 +1,8 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.workers.TrafficRegistration
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
+import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.repositories.TrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -49,7 +49,7 @@ class NetworkUsageManagerLegacy @Inject constructor(
         val traffic = Traffic(0, 0L, 0L, simId)
         traffic.startTime = start
         traffic.endTime = finish
-        trafficRepository.getByUid(TrafficRegistration.GENERAL_TRAFFIC_UID, simId, start, finish).forEach {
+        trafficRepository.getByUid(TrafficRegistrationReceiver.GENERAL_TRAFFIC_UID, simId, start, finish).forEach {
             traffic += it
         }
         /*trafficRepository.getByTime(simId, start, finish).forEach {

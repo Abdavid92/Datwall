@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.workers
+package com.smartsolutions.paquetes.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,7 +7,6 @@ import android.content.IntentFilter
 import android.net.TrafficStats
 import android.os.Build
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.work.*
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
@@ -16,20 +15,20 @@ import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.watcher.Watcher
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.*
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 /**
- * Programa un trabajo que se lanza cada un segundo para registrar el tráfico de red.
+ * Receiver que registra el tráfico de datos de la red movil.
+ * Se debe registrar cuando los datos móbiles se han encendido y una vez
+ * apagados se debe quitar el registro. Lanza un broadcast con el tráfico
+ * detectado en el último segundo para poder obtener el ancho de banda de la red.
  * */
-class TrafficRegistration2 @Inject constructor(
+@AndroidEntryPoint
+class TrafficRegistrationReceiver @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val networkUtil: NetworkUtil,
@@ -37,31 +36,47 @@ class TrafficRegistration2 @Inject constructor(
     private val simManager: ISimManager,
     private val trafficRepository: ITrafficRepository,
     private val appRepository: IAppRepository
-): CoroutineScope {
+) : BroadcastReceiver() {
 
-    private val tickBroadcastReceiver = TickBroadcastReceiver()
+    var isRegistered = false
+        private set
 
     /**
      * Inicia el registro del tráfico de red. Si el dispositivo
      * no es compatible con la clase [TrafficStats], el trabajo de registro
      * no se iniciará y por lo tanto no se registrará ningún trafico.
      * */
-    fun startRegistration() {
+    fun register() {
         if (TrafficStats.getTotalRxBytes() == TrafficStats.UNSUPPORTED.toLong()) {
             return
         }
 
-        tickBroadcastReceiver.register(context)
+        if (!isRegistered) {
+            LocalBroadcastManager.getInstance(context)
+                .registerReceiver(this, IntentFilter(Watcher.ACTION_TICKTOCK))
+            isRegistered = true
+        }
     }
 
     /**
      * Detiene el registro de red.
      * */
-    fun stopRegistration() {
-        tickBroadcastReceiver.unregister(context)
+    fun unregister(){
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
+        isRegistered = false
         traffics.clear()
     }
 
+    override fun onReceive(context: Context?, intent: Intent?) {
+        if (intent?.action == Watcher.ACTION_TICKTOCK) {
+            GlobalScope.launch {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+                    takeLollipopTraffic()
+
+                registerTraffic()
+            }
+        }
+    }
 
     private suspend fun takeLollipopTraffic(){
         val simId = simManager.getDefaultDataSim().id
@@ -148,54 +163,28 @@ class TrafficRegistration2 @Inject constructor(
         }
     }
 
-
-    inner class TickBroadcastReceiver: BroadcastReceiver(){
-
-        private var isRegistered = false
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == Watcher.ACTION_TICKTOCK) {
-                launch {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-                        takeLollipopTraffic()
-
-                    registerTraffic()
-                }
-            }
-        }
-
-
-        fun register(context: Context) {
-            if (!isRegistered) {
-                LocalBroadcastManager.getInstance(context)
-                    .registerReceiver(this, IntentFilter(Watcher.ACTION_TICKTOCK))
-                isRegistered = true
-            }
-        }
-
-
-        fun unregister(context: Context){
-            LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
-            isRegistered = false
-        }
-
-    }
-
-
     companion object {
         const val TRAFFIC_REGISTRATION_TAG = "traffic_registration_tag"
         const val GENERAL_TRAFFIC_UID = Int.MIN_VALUE
 
         private var traffics = mutableListOf<Traffic>()
 
+        /**
+         * Broadcast que se lanza cada un segundo para obtener el ancho de banda de la red.
+         * */
         const val ACTION_TRAFFIC_REGISTRATION = "com.smartsolutions.paquetes.action.TRAFFIC_REGISTRATION"
+
+        /**
+         * Extra que contiene los bytes descrgados.
+         * */
         const val EXTRA_TRAFFIC_RX = "com.smartsolutions.paquetes.extra.TRAFFIC_RX"
+
+        /**
+         * Extra que contiene los bytes subidos.
+         * */
         const val EXTRA_TRAFFIC_TX = "com.smartsolutions.paquetes.extra.TRAFFIC_TX"
 
         private var rxBytes = -1L
         private var txBytes = -1L
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default
 }

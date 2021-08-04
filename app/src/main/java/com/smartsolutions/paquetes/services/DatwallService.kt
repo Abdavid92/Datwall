@@ -20,11 +20,9 @@ import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.watcher.Watcher
-import com.smartsolutions.paquetes.workers.TrafficRegistration
-import com.smartsolutions.paquetes.workers.TrafficRegistration2
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -161,9 +159,9 @@ class DatwallService : Service(), CoroutineScope {
 
         override fun onReceive(context: Context?, intent: Intent?) {
 
-            if (intent?.action == TrafficRegistration2.ACTION_TRAFFIC_REGISTRATION){
-                val tx = intent.getLongExtra(TrafficRegistration.EXTRA_TRAFFIC_TX, 0L)
-                val rx = intent.getLongExtra(TrafficRegistration.EXTRA_TRAFFIC_RX, 0L)
+            if (intent?.action == TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION){
+                val tx = intent.getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_TX, 0L)
+                val rx = intent.getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_RX, 0L)
                 updateView()
                 updateNotification(rx, tx)
             }
@@ -175,7 +173,7 @@ class DatwallService : Service(), CoroutineScope {
             if (!isRegistered) {
                 LocalBroadcastManager.getInstance(context).registerReceiver(
                     this,
-                    IntentFilter(TrafficRegistration2.ACTION_TRAFFIC_REGISTRATION)
+                    IntentFilter(TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION)
                 )
                 isRegistered = true
             }
