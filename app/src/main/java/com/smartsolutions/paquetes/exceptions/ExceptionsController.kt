@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
-import androidx.core.os.ProcessCompat
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
