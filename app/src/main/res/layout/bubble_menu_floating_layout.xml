@@ -2,17 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/lin_back"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
 
     <LinearLayout
         android:id="@+id/lin_background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="2dp">
+        android:padding="4dp">
 
 
         <ImageView
@@ -20,6 +22,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:padding="4sp"
+            android:visibility="gone"
             app:srcCompat="@drawable/ic_close_red" />
 
         <LinearLayout
@@ -31,6 +34,7 @@
                 android:id="@+id/switch_access"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="2dp"
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
                 android:text="Acceso a internet  "

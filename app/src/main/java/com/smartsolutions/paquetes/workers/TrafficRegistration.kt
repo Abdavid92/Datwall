@@ -1,8 +1,10 @@
 package com.smartsolutions.paquetes.workers
 
 import android.content.Context
+import android.content.Intent
 import android.net.TrafficStats
 import android.os.Build
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtil
@@ -56,7 +58,7 @@ class TrafficRegistration @Inject constructor(
     }
 
     class TrafficRegistrationWorker(
-        context: Context,
+        private val context: Context,
         workerParameters: WorkerParameters
     ) : Worker(context, workerParameters) {
 
@@ -162,6 +164,12 @@ class TrafficRegistration @Inject constructor(
                     /*TODO:Temp*/0,
                     isLte)
 
+                LocalBroadcastManager.getInstance(context).sendBroadcast(
+                    Intent(ACTION_TRAFFIC_REGISTRATION)
+                        .putExtra(EXTRA_TRAFFIC_TX, tx - txBytes)
+                        .putExtra(EXTRA_TRAFFIC_RX, rx - rxBytes)
+                )
+
                 rxBytes = rx
                 txBytes = tx
             }
@@ -179,6 +187,10 @@ class TrafficRegistration @Inject constructor(
         const val GENERAL_TRAFFIC_UID = Int.MIN_VALUE
 
         private var traffics = mutableListOf<Traffic>()
+
+        const val ACTION_TRAFFIC_REGISTRATION = "com.smartsolutions.paquetes.action.TRAFFIC_REGISTRATION"
+        const val EXTRA_TRAFFIC_RX = "com.smartsolutions.paquetes.extra.TRAFFIC_RX"
+        const val EXTRA_TRAFFIC_TX = "com.smartsolutions.paquetes.extra.TRAFFIC_TX"
 
         private var rxBytes = -1L
         private var txBytes = -1L

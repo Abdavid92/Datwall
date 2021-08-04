@@ -26,8 +26,9 @@ class NotificationHelper @Inject constructor(
 
     ///TODO: El ícono está sujeto a cambios
     fun buildNotification(channelId: String, icon: Int = R.drawable.ic_error): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(icon)
+        return NotificationCompat.Builder(context, channelId).apply {
+            setSmallIcon(icon)
+        }
     }
 
 

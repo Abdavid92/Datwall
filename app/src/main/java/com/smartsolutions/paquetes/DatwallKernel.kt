@@ -33,8 +33,7 @@ import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
 import com.smartsolutions.paquetes.watcher.PackageMonitor
 import com.smartsolutions.paquetes.watcher.Watcher
-import com.smartsolutions.paquetes.workers.TrafficRegistration
-import com.stephentuso.welcome.WelcomeSharedPreferencesHelper
+import com.smartsolutions.paquetes.workers.TrafficRegistration2
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -59,6 +58,7 @@ class DatwallKernel @Inject constructor(
     private val trafficRegistration: TrafficRegistration,
     private val networkUtil: NetworkUtil,
     private val legacyConfiguration: LegacyConfigurationHelper
+    private val trafficRegistration: TrafficRegistration2
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
