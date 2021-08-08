@@ -1,14 +1,20 @@
 package com.smartsolutions.paquetes.managers
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.os.Build
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -43,6 +49,31 @@ class IconManager @Inject constructor(
         }
     }
 
+    override fun get(packageName: String): Bitmap? {
+        return try {
+            val info = packageManager.getPackageInfo(packageName, 0)
+            val version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                info.longVersionCode
+            } else {
+                info.versionCode.toLong()
+            }
+
+            get(packageName, version)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
+    }
+
+    override fun getAsync(packageName: String, callback: (img: Bitmap) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            get(packageName)?.let {
+                withContext(Dispatchers.Main) {
+                    callback(it)
+                }
+            }
+        }
+    }
+
     /**
      * Obtiene el ícono de la aplicación actualizado a la versión pasada como argumento
      *
@@ -52,18 +83,54 @@ class IconManager @Inject constructor(
      *
      * @return Ícono de la aplicación
      * */
-    override fun get(packageName: String, versionCode: Long): Bitmap {
+    override fun get(packageName: String, versionCode: Long): Bitmap? {
+        getImageFile(packageName, versionCode)?.let {
+            //Si obtengo el file, construyo el bitmap
+            return BitmapFactory.decodeFile(it.path)
+        }
+        //Sino retorno null
+        return null
+    }
+
+    override fun getAsync(packageName: String, versionCode: Long, callback: (img: Bitmap) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            get(packageName, versionCode)?.let {
+                withContext(Dispatchers.Main) {
+                    callback(it)
+                }
+            }
+        }
+    }
+
+    override fun getImageFile(packageName: String, versionCode: Long): File? {
         //Instancio un file
         val iconFile = File(this.cacheDir, makeIconName(packageName, versionCode))
 
         //Si el file no existe es porque o no se ha creado el ícono o tiene una versión diferente
         if (!iconFile.exists()) {
-            //Creo o actualizo el ícono
-            saveOrUpdate(packageName, versionCode)
+            try {
+                //Creo o actualizo el ícono
+                saveOrUpdate(packageName, versionCode)
+            } catch (e: PackageManager.NameNotFoundException) {
+                return null
+            }
         }
 
-        //Y después construyo el bitmap
-        return BitmapFactory.decodeFile(iconFile.path)
+        return iconFile
+    }
+
+    override fun getImageFileAsync(
+        packageName: String,
+        versionCode: Long,
+        callback: (img: File) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            getImageFile(packageName, versionCode)?.let {
+                withContext(Dispatchers.Main) {
+                    callback(it)
+                }
+            }
+        }
     }
 
     /**

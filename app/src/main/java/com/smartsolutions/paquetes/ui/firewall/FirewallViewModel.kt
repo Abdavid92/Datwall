@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.ui.firewall
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.smartsolutions.paquetes.managers.IconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -14,13 +15,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FirewallViewModel @Inject constructor(
-    private val appRepository: IAppRepository
+    private val appRepository: IAppRepository,
+    private val iconManager: IconManager
 ) : ViewModel() {
 
     private val appsToUpdate = mutableListOf<IApp>()
 
     fun getApps() = appRepository.flowByGroup()
-        .asLiveData(viewModelScope.coroutineContext)
+        .asLiveData(Dispatchers.IO)
 
     fun updateApp(app: IApp) {
         if (!appsToUpdate.contains(app)) {

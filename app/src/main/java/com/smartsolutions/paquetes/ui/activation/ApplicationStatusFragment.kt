@@ -46,8 +46,8 @@ class ApplicationStatusFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnAction.setOnClickListener {
-            viewModel.getApplicationStatus(this)
-            binding.waiting = true
+            if (viewModel.getApplicationStatus(this))
+                binding.waiting = true
         }
         binding.btnLater.setOnClickListener {
             complete()

@@ -51,6 +51,7 @@ abstract class BaseAppRepository(
 
         if (specialGroup != null) {
             appGroup.apply {
+                packageName = specialGroup.packageName
                 name = specialGroup.name!!
                 access = specialGroup.access
                 allowAnnotations = specialGroup.allowAnnotations

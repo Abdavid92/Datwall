@@ -118,4 +118,8 @@
     <string name="stoped_missing_vpn_permissions_title_notification">Se Denegó Permiso de VPN</string>
     <string name="stoped_missing_vpn_permissions_description_notification">Sin este permiso no puede funcionar el cortafuegos, por lo tanto se ha detenido</string>
     <string name="btn_later">Más tarde</string>
+    <string name="allowed_apps">Aplicaciones permitidas (%d)</string>
+    <string name="blocked_apps">Aplicaciones bloqueadas (%d)</string>
+    <string name="apps_count">Aplicaciones: %d</string>
+    <string name="warning_title">Advertencia</string>
 </resources>

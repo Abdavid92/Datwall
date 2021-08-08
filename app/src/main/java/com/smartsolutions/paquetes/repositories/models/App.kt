@@ -18,7 +18,7 @@ class App(
      * */
     @PrimaryKey
     @ColumnInfo(name = "package_name")
-    var packageName: String,
+    override var packageName: String,
     /**
      * Identificador único (uid)
      * */
@@ -125,7 +125,7 @@ class App(
      * */
     override fun accessHashCode(): Long {
         val access = if (this.access) 1 else 0
-        val tempAccess = if (this.access) 1 else 0
+        val tempAccess = if (this.tempAccess) 1 else 0
 
         return "$access$tempAccess".toLong()
     }

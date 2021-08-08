@@ -53,6 +53,7 @@ class AppRepository @Inject constructor(
         else {
             //Sino creo un grupo y lo retorno
             val appGroup = AppGroup(
+                "",
                 uid,
                 "",
             apps.toMutableList(),
@@ -108,6 +109,7 @@ class AppRepository @Inject constructor(
                 appGroup.add(app)
             } else {
                 appGroup = AppGroup(
+                    app.packageName,
                     app.uid,
                     "",
                     mutableListOf(app),

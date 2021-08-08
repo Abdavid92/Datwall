@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.repositories.models
 import android.os.Parcelable
 
 interface IApp: Parcelable {
+    var packageName: String
     var uid: Int
     var name: String
     var access: Boolean

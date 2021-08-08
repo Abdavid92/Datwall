@@ -54,7 +54,7 @@ class DatwallApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        if (!exceptionsController.isRegistered) {
+        if (!BuildConfig.DEBUG && !exceptionsController.isRegistered) {
             exceptionsController.register()
         }
     }

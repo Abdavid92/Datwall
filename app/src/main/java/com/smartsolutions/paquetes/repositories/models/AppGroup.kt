@@ -8,6 +8,10 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class AppGroup(
     /**
+     * Nombre de paquete
+     * */
+    override var packageName: String,
+    /**
      * Identificador único (uid)
      * */
     override var uid: Int,
@@ -92,7 +96,7 @@ class AppGroup(
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<App> = apps.subList(fromIndex, toIndex)
 
     /**
-     * Obtiene un número construido con basandose en el acceso permanente y temporal
+     * Obtiene un número construido basandose en el acceso permanente y temporal
      * de las aplicaciones del grupo. Este número se usa en el firewall para identificar diferencias
      * de acceso entre dos listas de aplicaciones y grupos.
      * */
