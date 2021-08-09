@@ -117,4 +117,8 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
     suspend fun updateSimID(){
         simId = simManager.getDefaultDataSim().id
     }
+
+    companion object {
+        const val GENERAL_TRAFFIC_UID = Int.MIN_VALUE
+    }
 }

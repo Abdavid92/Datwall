@@ -21,6 +21,7 @@ import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
+import com.smartsolutions.paquetes.receivers.TrafficRegistrationNewReceiver
 import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
@@ -56,7 +57,7 @@ class DatwallKernel @Inject constructor(
     private val watcher: Watcher,
     private val networkUtil: NetworkUtil,
     private val legacyConfiguration: LegacyConfigurationHelper,
-    private val trafficRegistration: TrafficRegistrationReceiver
+    private val trafficRegistration: TrafficRegistrationNewReceiver
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -188,7 +189,7 @@ class DatwallKernel @Inject constructor(
     }
 
     /**
-     * Se invoca cuendo se apagan los datos móbiles.
+     * Se invoca cuando se apagan los datos móbiles.
      * */
     override fun setDataMobileStateOff() {
         (context as DatwallApplication).dataMobileOn = false

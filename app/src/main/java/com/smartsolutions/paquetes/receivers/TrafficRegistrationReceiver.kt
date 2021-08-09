@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtil
+import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
@@ -96,7 +97,7 @@ class TrafficRegistrationReceiver @Inject constructor(
         }
 
         processLollipopTraffic(
-            GENERAL_TRAFFIC_UID,
+           NetworkUsageManager.GENERAL_TRAFFIC_UID,
             simId,
             TrafficStats.getMobileRxBytes(),
             TrafficStats.getMobileTxBytes(),
@@ -164,8 +165,6 @@ class TrafficRegistrationReceiver @Inject constructor(
     }
 
     companion object {
-        const val TRAFFIC_REGISTRATION_TAG = "traffic_registration_tag"
-        const val GENERAL_TRAFFIC_UID = Int.MIN_VALUE
 
         private var traffics = mutableListOf<Traffic>()
 

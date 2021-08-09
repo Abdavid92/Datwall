@@ -8,9 +8,8 @@ import android.os.Build
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang.time.DateUtils
-import java.util.ArrayList
+import java.util.*
 
 @RequiresApi(23)
 @SuppressLint("HardwareIds")
