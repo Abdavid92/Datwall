@@ -42,10 +42,27 @@ class TrafficRegistrationNewReceiver @Inject constructor(
     var isRegistered = false
         private set
 
-
+    /**
+     * Tiempo de Inicio que se usará a partir de Android 6 con NetworkStatsManager para comenzar
+     * a recopilar los datos
+     */
     private val startTime = System.currentTimeMillis() - DateUtils.MILLIS_PER_HOUR
+
+    /**
+     * Lista de todas las apps instaladas que se actualizan dinamicamente mediante un flow en una
+     * corroutina. Se usa para obtener el consumo de cada app
+     */
     private var apps = listOf<App>()
+
+    /**
+     * Lista donde se guarda el trafico obtenido para poder compararlo con el siguiente y así sacar
+     * la diferencia
+     */
     private var lastTraffics = mutableListOf<Traffic>()
+
+    /**
+     * Indica la hora en que se realizó la ultima comparación y se obtuvo el ultimo trafico
+     */
     private var lastTime = 0L
 
 
@@ -84,11 +101,15 @@ class TrafficRegistrationNewReceiver @Inject constructor(
         }
     }
 
-
+    /**
+     * Se encarga de obtener el trafico segun la version de Android y catalogarlo segun el tipo de
+     * app que sea, national, international o free
+     */
     private suspend fun registerTraffic(start: Long) {
         val international = Traffic()
         val national = Traffic()
-        var free = 0L
+
+        //TODO Falta por agregar un campo a el modelo App que permita marcarla como Free
 
         getTrafficsToRegister(start).forEach { traffic ->
             apps.firstOrNull { it.uid == traffic.uid }?.let { app ->
@@ -111,9 +132,9 @@ class TrafficRegistrationNewReceiver @Inject constructor(
         )
     }
 
-
     /**
-     * Obtiene el trafico desde el ultimo tiempo solicitado y segun la linea y la version de Android
+     * Obtiene solamente el trafico realizado desde el ultimo tiempo solicitado y segun la linea
+     * y la version de Android
      */
     private suspend fun getTrafficsToRegister(start: Long): List<Traffic> {
         val toRegister = mutableListOf<Traffic>()
@@ -161,9 +182,10 @@ class TrafficRegistrationNewReceiver @Inject constructor(
         return toRegister
     }
 
-
-
-
+    /**
+     * Se encarga de obtener el trafico general y guardarlo en Lollipop y de enviar el broadcast
+     * para los demas servicios de la app
+     */
     private suspend fun getGeneralTrafficAndSendBroadcast(start: Long) {
         val rx = TrafficStats.getMobileRxBytes()
         val tx = TrafficStats.getMobileTxBytes()
@@ -206,14 +228,13 @@ class TrafficRegistrationNewReceiver @Inject constructor(
 
 
     companion object {
-
         /**
          * Broadcast que se lanza cada un segundo para obtener el ancho de banda de la red.
          * */
         const val ACTION_TRAFFIC_REGISTRATION = "com.smartsolutions.paquetes.action.TRAFFIC_REGISTRATION"
 
         /**
-         * Extra que contiene los bytes descrgados.
+         * Extra que contiene los bytes descargados.
          * */
         const val EXTRA_TRAFFIC_RX = "com.smartsolutions.paquetes.extra.TRAFFIC_RX"
 
