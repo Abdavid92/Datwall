@@ -83,6 +83,8 @@ class TrafficRegistrationNewReceiver @Inject constructor(
     }
 
     fun unregister() {
+        lastTraffics.clear()
+        lastTime = 0L
         LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
         isRegistered = false
     }
@@ -90,12 +92,15 @@ class TrafficRegistrationNewReceiver @Inject constructor(
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Watcher.ACTION_TICKTOCK) {
+            launch {
+                getGeneralTrafficAndSendBroadcast()
+            }
             val currentTime = System.currentTimeMillis()
             if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
+                val start = lastTime
+                lastTime = currentTime
                 launch {
-                    getGeneralTrafficAndSendBroadcast(lastTime)
-                    registerTraffic(lastTime)
-                    lastTime = currentTime
+                    registerTraffic(start)
                 }
             }
         }
@@ -186,7 +191,7 @@ class TrafficRegistrationNewReceiver @Inject constructor(
      * Se encarga de obtener el trafico general y guardarlo en Lollipop y de enviar el broadcast
      * para los demas servicios de la app
      */
-    private suspend fun getGeneralTrafficAndSendBroadcast(start: Long) {
+    private suspend fun getGeneralTrafficAndSendBroadcast() {
         val rx = TrafficStats.getMobileRxBytes()
         val tx = TrafficStats.getMobileTxBytes()
 
@@ -204,7 +209,7 @@ class TrafficRegistrationNewReceiver @Inject constructor(
                     tx - txBytes,
                     simManager.getDefaultDataSim().id
                 ).apply {
-                    startTime = start
+                    startTime = System.currentTimeMillis() - DateUtils.MILLIS_PER_SECOND
                     endTime = System.currentTimeMillis()
                 }
                 trafficRepository.create(traffic)

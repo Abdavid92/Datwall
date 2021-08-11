@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.ui
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -8,16 +7,12 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
-import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
-import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
