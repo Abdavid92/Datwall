@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.repositories.models
 
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -51,6 +52,10 @@ class AppGroup(
         set(value) {
             apps.forEach { it.access = value }
         }
+
+    override var system: Boolean
+        get() = first { it.packageName == packageName }.system
+        set(value) = throw UnsupportedOperationException()
 
     override val size: Int
         get() = apps.size

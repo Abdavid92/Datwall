@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.databinding.FragmentFirewallBinding
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
@@ -36,10 +37,23 @@ class FirewallFragment : ApplicationFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        var adapter: AppsListAdapter? = null
+
         viewModel.getApps().observe(viewLifecycleOwner, {
-            val adapter = AppsListAdapter(requireContext(), it, iconManager)
-            adapter.onAccessChange = ::onAccessChange
+            adapter = AppsListAdapter(requireContext(), it.filter { iApp -> !iApp.system }, iconManager)
+            adapter?.onAccessChange = ::onAccessChange
             binding.appsList.adapter = adapter
+        })
+
+        binding.search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                adapter?.filter(newText)
+                return true
+            }
         })
     }
 

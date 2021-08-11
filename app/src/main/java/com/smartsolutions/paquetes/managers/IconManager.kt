@@ -8,6 +8,8 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -42,6 +44,8 @@ class IconManager @Inject constructor(
      * */
     private val baseIconName = "icon_"
 
+    private val handler = Handler(Looper.getMainLooper())
+
     init {
         if (!cacheDir.exists()) {
             //Si el directorio de cache de íconos no existe lo creo
@@ -49,7 +53,7 @@ class IconManager @Inject constructor(
         }
     }
 
-    override fun get(packageName: String): Bitmap? {
+    override fun get(packageName: String, size: Int): Bitmap? {
         return try {
             val info = packageManager.getPackageInfo(packageName, 0)
             val version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -58,18 +62,23 @@ class IconManager @Inject constructor(
                 info.versionCode.toLong()
             }
 
-            get(packageName, version)
+            get(packageName, version, size)
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
     }
 
-    override fun getAsync(packageName: String, callback: (img: Bitmap) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            get(packageName)?.let {
+    override fun getAsync(packageName: String, size: Int, callback: (img: Bitmap) -> Unit) {
+        /*GlobalScope.launch(Dispatchers.IO) {
+            get(packageName, size)?.let {
                 withContext(Dispatchers.Main) {
                     callback(it)
                 }
+            }
+        }*/
+        handler.post {
+            get(packageName, size)?.let {
+                callback(it)
             }
         }
     }
@@ -83,8 +92,8 @@ class IconManager @Inject constructor(
      *
      * @return Ícono de la aplicación
      * */
-    override fun get(packageName: String, versionCode: Long): Bitmap? {
-        getImageFile(packageName, versionCode)?.let {
+    override fun get(packageName: String, versionCode: Long, size: Int): Bitmap? {
+        getImageFile(packageName, versionCode, size)?.let {
             //Si obtengo el file, construyo el bitmap
             return BitmapFactory.decodeFile(it.path)
         }
@@ -92,25 +101,35 @@ class IconManager @Inject constructor(
         return null
     }
 
-    override fun getAsync(packageName: String, versionCode: Long, callback: (img: Bitmap) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
+    override fun getAsync(
+        packageName: String,
+        versionCode: Long,
+        size: Int,
+        callback: (img: Bitmap) -> Unit
+    ) {
+        /*GlobalScope.launch(Dispatchers.IO) {
             get(packageName, versionCode)?.let {
                 withContext(Dispatchers.Main) {
                     callback(it)
                 }
             }
+        }*/
+        handler.post {
+            get(packageName, versionCode, size)?.let {
+                callback(it)
+            }
         }
     }
 
-    override fun getImageFile(packageName: String, versionCode: Long): File? {
+    override fun getImageFile(packageName: String, versionCode: Long, size: Int): File? {
         //Instancio un file
-        val iconFile = File(this.cacheDir, makeIconName(packageName, versionCode))
+        val iconFile = File(this.cacheDir, makeIconName(packageName, versionCode, size))
 
         //Si el file no existe es porque o no se ha creado el ícono o tiene una versión diferente
         if (!iconFile.exists()) {
             try {
                 //Creo o actualizo el ícono
-                saveOrUpdate(packageName, versionCode)
+                saveOrUpdate(packageName, versionCode, size)
             } catch (e: PackageManager.NameNotFoundException) {
                 return null
             }
@@ -122,25 +141,31 @@ class IconManager @Inject constructor(
     override fun getImageFileAsync(
         packageName: String,
         versionCode: Long,
+        size: Int,
         callback: (img: File) -> Unit
     ) {
-        GlobalScope.launch(Dispatchers.IO) {
+        /*GlobalScope.launch(Dispatchers.IO) {
             getImageFile(packageName, versionCode)?.let {
                 withContext(Dispatchers.Main) {
                     callback(it)
                 }
             }
+        }*/
+        handler.post {
+            getImageFile(packageName, versionCode, size)?.let {
+                callback(it)
+            }
         }
     }
 
-    /**
-     * Elimina un ícono.
-     * */
     override fun delete(packageName: String, versionCode: Long) {
-        val file = File(cacheDir, makeIconName(packageName, versionCode))
+        val iconName = makeIconName(packageName, versionCode, null)
 
-        if (file.exists())
-            file.delete()
+        cacheDir.listFiles()
+            ?.filter { it.name.contains(iconName) }
+            ?.forEach {
+                it.delete()
+            }
     }
 
     /**
@@ -158,15 +183,15 @@ class IconManager @Inject constructor(
      * @param packageName - Nombre de paquete de la aplicación
      * @param versionCode - Versión de la aplicación
      * */
-    private fun create(packageName: String, versionCode: Long) {
+    private fun create(packageName: String, versionCode: Long, size: Int) {
         //File que contendrá el ícono
-        val file = File(cacheDir, makeIconName(packageName, versionCode))
+        val file = File(cacheDir, makeIconName(packageName, versionCode, size))
 
         if (file.createNewFile()) {
             /*Si logré crear el file, construyo el ícono de la aplicación o uno predeterminado de android
               en caso de que la aplicación no tenga ícono*/
             val icon = try {
-                getResizedBitmap(drawableToBitmap(packageManager.getApplicationIcon(packageName)), 100)
+                getResizedBitmap(drawableToBitmap(packageManager.getApplicationIcon(packageName)), size)
             } catch (e: Exception) {
                 getResizedBitmap(drawableToBitmap(ContextCompat.getDrawable(context, android.R.drawable.sym_def_app_icon)), 100)
             }
@@ -179,56 +204,57 @@ class IconManager @Inject constructor(
     /**
      * Actualiza el ícono de una aplicación
      * */
-    private fun update(packageName: String, versionCode: Long, oldIcon: String) {
+    private fun update(packageName: String, versionCode: Long, size: Int, oldIcon: String) {
         val oldIconFile = File(cacheDir, oldIcon)
 
         if (oldIconFile.exists())
             oldIconFile.delete()
 
-        create(packageName, versionCode)
+        create(packageName, versionCode, size)
     }
 
     /**
      * Guarda o actualiza un ícono.
      * */
-    private fun saveOrUpdate(packageName: String, versionCode: Long) {
+    private fun saveOrUpdate(packageName: String, versionCode: Long, size: Int) {
         //Obtengo la lista de íconos en cache
         cacheDir.list()?.forEach { name ->
 
             if (name.contains("${this.baseIconName}$packageName")) {
                 //Si contiene el nombre de paquete es porque existe pero tiene una versión diferente.
                 //Entonces actualizo el ícono
-                update(packageName, versionCode, name)
+                update(packageName, versionCode, size, name)
                 //Y termino
                 return
             }
         }
         //Sino encontré nada, creo el ícono
-        create(packageName, versionCode)
+        create(packageName, versionCode, size)
     }
 
     /**
      * Contruye el nombre del ícono basado en el nombre de paquete y la versión.
      * */
-    private fun makeIconName(packageName: String, versionCode: Long) = "${this.baseIconName}${packageName}_$versionCode"
+    private fun makeIconName(packageName: String, versionCode: Long, size: Int?) =
+        "${this.baseIconName}${packageName}_${versionCode}_${size ?: ""}"
 
     /**
      * Redimenciona un Bitmap
      *
      * @param image - Imagen a redimencionar
-     * @param maxSize - Tamaño que se le asignará a la imagen
+     * @param size - Tamaño que se le asignará a la imagen
      * @return Imagen redimencionada
      * */
-    private fun getResizedBitmap(image: Bitmap?, maxSize: Int): Bitmap? {
+    private fun getResizedBitmap(image: Bitmap?, size: Int): Bitmap? {
         image?.let {
             var width = image.width
             var height = image.height
             val bitmapRatio = width.toFloat() / height
             if (bitmapRatio > 1) {
-                width = maxSize
+                width = size
                 height = (width / bitmapRatio).toInt()
             } else {
-                height = maxSize
+                height = size
                 width = (height * bitmapRatio).toInt()
             }
             return Bitmap.createScaledBitmap(image, width, height, true)

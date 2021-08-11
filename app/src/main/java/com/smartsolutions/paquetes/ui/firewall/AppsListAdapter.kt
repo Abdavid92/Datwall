@@ -4,18 +4,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.widget.CheckBox
-import android.widget.CompoundButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.diegodobelo.expandingview.ExpandingItem
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.databinding.AnimatedAppGroupItemBinding
 import com.smartsolutions.paquetes.databinding.AppGroupItemBinding
 import com.smartsolutions.paquetes.databinding.AppItemBinding
 import com.smartsolutions.paquetes.databinding.HeaderItemBinding
@@ -34,7 +26,7 @@ private const val HEADER_HOLDER_TYPE = 2
  * */
 class AppsListAdapter(
     private val context: Context,
-    list: List<IApp>,
+    private val list: List<IApp>,
     private val iconManager: IIconManager
 ) : RecyclerView.Adapter<AppsListAdapter.ViewHolder>() {
 
@@ -51,10 +43,17 @@ class AppsListAdapter(
     /**
      * Lista ordenada y con encabezados.
      * */
-    private val list = prepareAppList(context, list)
+    private var finalList = prepareAppList(list)
+
+    /**
+     * Mapa que se usa para guardar el estado de los grupos de aplicaciones.
+     * Se usa como llave el hashCode del grupo y como valor el estado (true) si está
+     * expandido, (false) si está colapsado.
+     * */
+    private val expandedList = mutableMapOf<Int, Boolean>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
+        val layoutInflater = LayoutInflater.from(context)
 
         /*
         * Retorno el ViewHolder correspondiente al tipo de app.
@@ -68,18 +67,13 @@ class AppsListAdapter(
                 ))
             }
             APP_GROUP_HOLDER_TYPE -> {
-                AnimatedAppGroupViewHolder(
-                    layoutInflater.inflate(
-                        R.layout.animated_app_group_item,
+                AppGroupViewHolder(
+                    AppGroupItemBinding.inflate(
+                        layoutInflater,
                         parent,
                         false
                     )
                 )
-                /*AppGroupViewHolder(AppGroupItemBinding.inflate(
-                    layoutInflater,
-                    parent,
-                    false
-                ))*/
             }
             else -> {
                 HeaderViewHolder(HeaderItemBinding.inflate(
@@ -92,7 +86,7 @@ class AppsListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(list[position])
+        holder.bind(finalList[position])
     }
 
     override fun onViewAttachedToWindow(holder: ViewHolder) {
@@ -100,20 +94,35 @@ class AppsListAdapter(
         holder.onAttached()
     }
 
-    override fun getItemCount() = list.size
+    override fun getItemCount() = finalList.size
 
     override fun getItemViewType(position: Int): Int {
         return when {
-            list[position] is App -> APP_HOLDER_TYPE
-            list[position] is AppGroup -> APP_GROUP_HOLDER_TYPE
+            finalList[position] is App -> APP_HOLDER_TYPE
+            finalList[position] is AppGroup -> APP_GROUP_HOLDER_TYPE
             else -> HEADER_HOLDER_TYPE
         }
     }
 
     /**
+     * Filtra la lista usando el nombre de las aplicaciones.
+     * Actualiza la lista con los resultados de la búsqueda.
+     *
+     * @param query - Texto que debe contener el nombre de la aplicación a buscar.
+     * */
+    fun filter(query: String?) {
+        finalList = if (query != null && query.isNotBlank())
+            prepareAppList(list.where { it.name.contains(query, true) })
+        else
+            prepareAppList(list)
+
+        notifyDataSetChanged()
+    }
+
+    /**
      * Ordena la lista de aplicaciones y le agrega encabezados.
      * */
-    private fun prepareAppList(context: Context, apps: List<IApp>): List<IApp> {
+    private fun prepareAppList(apps: List<IApp>): List<IApp> {
         //Resultado final
         val result = mutableListOf<IApp>()
 
@@ -133,7 +142,8 @@ class AppsListAdapter(
                     "",
                     -1,
                     context.getString(R.string.allowed_apps, allowedApps.size),
-                    false,
+                    access = false,
+                    system = false,
                     null,
                     null
                 )
@@ -149,7 +159,8 @@ class AppsListAdapter(
                     "",
                     -1,
                     context.getString(R.string.blocked_apps, blockedApps.size),
-                    false,
+                    access = false,
+                    system = false,
                     null,
                     null
                 )
@@ -157,6 +168,33 @@ class AppsListAdapter(
         }
         result.addAll(blockedApps)
 
+        return result
+    }
+
+    /**
+     * Propiedad de extensión para guardar el estado (expanded o collapse)
+     * de los grupos de aplicaciones.
+     * */
+    private var AppGroup.expanded: Boolean
+        get() = expandedList[this.hashCode()] ?: false
+        set(value) {
+            expandedList[this.hashCode()] = value
+        }
+
+    /**
+     * Método de extensión para buscar instancias de [IApp] en una lista mixta.
+     * */
+    private inline fun List<IApp>.where(predicate: (IApp) -> Boolean): List<IApp> {
+        val result = mutableListOf<IApp>()
+
+        forEach {
+            if (it is AppGroup) {
+                result.addAll(it.filter(predicate))
+            } else {
+                if (predicate(it))
+                    result.add(it)
+            }
+        }
         return result
     }
 
@@ -172,6 +210,7 @@ class AppsListAdapter(
          * en el método [onAttached]
          * */
         private var packageName: String? = null
+
         /**
          * Versión que se usa para cargar el ícono
          * en el método [onAttached]
@@ -189,7 +228,7 @@ class AppsListAdapter(
             setCheckBoxListener(app, binding.access)
 
             binding.backLayout.setOnClickListener {
-                //Temp: Abrir una actividad con los detalles de la app.
+                //TODO: Abrir una actividad con los detalles de la app.
                 Toast.makeText(itemView.context, "Back clicked", Toast.LENGTH_SHORT).show()
             }
         }
@@ -199,12 +238,8 @@ class AppsListAdapter(
             * se carga el ícono.*/
             packageName?.let { packageName ->
                 version?.let { version ->
-                    iconManager.getAsync(packageName, version) {
-                        Glide.with(itemView)
-                            .asBitmap()
-                            .load(it)
-                            .override(iconSize)
-                            .into(binding.icon)
+                    iconManager.getAsync(packageName, version, iconSize) {
+                        binding.icon.setImageBitmap(it)
                     }
                 }
             }
@@ -212,7 +247,7 @@ class AppsListAdapter(
     }
 
     /**
-     * ViewHolder que procesa una instancia de [AppGroup].
+     * ViewHolder que procesa una instancia de [AppGroup]
      * */
     private inner class AppGroupViewHolder(
         private val binding: AppGroupItemBinding
@@ -232,12 +267,19 @@ class AppsListAdapter(
         override fun bind(app: IApp) {
             //Casteo al tipo AppGroup. Si no es este tipo se lanza una excepción
             app as AppGroup
+            packageName = app.packageName
 
             binding.name.text = app.name
             binding.appsCount.text = context.getString(R.string.apps_count, app.size)
-            packageName = app.packageName
 
             setCheckBoxListener(app, binding.access)
+
+            binding.childLayout.visibility = if (app.expanded) View.VISIBLE else View.GONE
+
+            binding.backLayout.setOnClickListener {
+                app.expanded = !app.expanded
+                notifyItemChanged(adapterPosition)
+            }
 
             childAdapter = AppsListAdapter(
                 context,
@@ -253,47 +295,10 @@ class AppsListAdapter(
 
             binding.child.adapter = childAdapter
 
-            /*Evento click en el layout de la vista para abrir o cerrar la lista
-            * anidada. Me guio por el estado de visibilidad del layout y aplico
-            * una animación que está sujeta a cambios.*/
-            binding.backLayout.setOnClickListener {
-                if (binding.childLayout.visibility == View.GONE) {
-                    /*val animation = AnimationUtils
-                        .loadAnimation(itemView.context, R.anim.slide_down)*/
-
-
-                    //binding.childLayout.startAnimation(animation)
-                    binding.arrow.animate()
-                        .rotation(180F)
-                        .duration = 200
-
-                    binding.childLayout.visibility = View.VISIBLE
-                } else {
-                    /*val animation = AnimationUtils
-                        .loadAnimation(itemView.context, R.anim.slide_up)
-                        .apply {
-                            setAnimationListener(object : Animation.AnimationListener {
-                                override fun onAnimationStart(animation: Animation?) {
-
-                                }
-
-                                override fun onAnimationEnd(animation: Animation?) {
-                                    binding.childLayout.visibility = View.GONE
-                                }
-
-                                override fun onAnimationRepeat(animation: Animation?) {
-
-                                }
-                            })
-                        }
-
-                    binding.childLayout.startAnimation(animation)*/
-                    binding.arrow.animate()
-                        .rotation(0F)
-                        .duration = 200
-
-                    binding.childLayout.visibility = View.GONE
-                }
+            if (app.expanded) {
+                binding.arrow.rotation = 180F
+            } else {
+                binding.arrow.rotation = 0F
             }
         }
 
@@ -301,80 +306,18 @@ class AppsListAdapter(
             /*Este método se lanza cuando la view se adjunta a la ventana. Entonces
              * se carga el ícono.*/
             packageName?.let { packageName ->
-                iconManager.getAsync(packageName) { img ->
-                    Glide.with(itemView)
-                        .asBitmap()
-                        .load(img)
-                        .override(iconSize)
-                        .into(binding.icon)
+                iconManager.getAsync(packageName, iconSize) { img ->
+                    binding.icon.setImageBitmap(img)
                 }
             }
         }
 
         override fun onAccessChange(app: IApp) {
             super.onAccessChange(app)
-            /*Notifico en el adaptador anidado que la lista
+            /* Notifico en el adaptador anidado que la lista
              * de aplicaciones anidadas cambiaron*/
-            //childAdapter.notifyDataSetChanged()
             notifyItemChanged(adapterPosition)
         }
-    }
-
-    private inner class AnimatedAppGroupViewHolder(
-        view: View
-    ) : ViewHolder(view) {
-
-        /**
-         * Nombre de paquete que se usa para cargar el ícono
-         * en el método [onAttached]
-         * */
-        private var packageName: String? = null
-
-        override fun bind(app: IApp) {
-            //Casteo al tipo AppGroup. Si no es este tipo se lanza una excepción
-            app as AppGroup
-            packageName = app.packageName
-
-            itemView.findViewById<TextView>(R.id.name)
-                .text = app.name
-            itemView.findViewById<TextView>(R.id.apps_count)
-                .text = context.getString(R.string.apps_count, app.size)
-
-            setCheckBoxListener(app, itemView.findViewById<CheckBox>(R.id.access))
-
-            fillSubList(app)
-        }
-
-        private fun fillSubList(app: AppGroup) {
-            val expandingItem = itemView as ExpandingItem
-
-            app.forEach { childApp ->
-                expandingItem.createSubItem()?.let { view ->
-                    iconManager.getAsync(childApp.packageName, childApp.version) {
-                        Glide.with(itemView)
-                            .asBitmap()
-                            .load(it)
-                            .override(iconSize - 40)
-                            .into(view.findViewById(R.id.icon))
-                    }
-                }
-            }
-        }
-
-        override fun onAttached() {
-            /*Este método se lanza cuando la view se adjunta a la ventana. Entonces
-             * se carga el ícono.*/
-            packageName?.let { packageName ->
-                iconManager.getAsync(packageName) { img ->
-                    Glide.with(itemView)
-                        .asBitmap()
-                        .load(img)
-                        .override(iconSize)
-                        .into(itemView.findViewById(R.id.icon))
-                }
-            }
-        }
-
     }
 
     /**
@@ -389,10 +332,6 @@ class AppsListAdapter(
         override fun bind(app: IApp) {
             binding.headerText.text = app.name
         }
-
-        override fun onAttached() {
-            //Empty
-        }
     }
 
     abstract inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -405,7 +344,9 @@ class AppsListAdapter(
         /**
          * Se llama cuando se adjunta la vista a la ventana.
          * */
-        abstract fun onAttached()
+        open fun onAttached() {
+            //Empty
+        }
 
         /**
          * Asigna el evento onCheckedChange al checkBox y establece la propiedad
@@ -425,13 +366,18 @@ class AppsListAdapter(
          * */
         private fun handleWarningMessages(app: IApp, checkBox: CompoundButton) {
 
+            /*Diálogo que se mostrará cuando exista un mensaje de advertencia.*/
             val dialog = AlertDialog.Builder(itemView.context)
                 .setTitle(R.string.warning_title)
                 .setNegativeButton(R.string.btn_cancel
-                ) { dialog, which ->
+                ) { _,_ ->
+                    /*Si se oprime el botón cancelar se llama al método
+                    * setCheckBoxListener para restablecer el estado anterior del checkBox si
+                    * lanzar el evento de este. Este método utiliza la propiedad access de la app,
+                    * que no se ha cambiado todavía.*/
                     setCheckBoxListener(app, checkBox)
                 }
-                .setPositiveButton(R.string.btn_continue) { dialog, which ->
+                .setPositiveButton(R.string.btn_continue) { _,_ ->
                     app.access = checkBox.isChecked
                     onAccessChange(app)
                 }
@@ -443,13 +389,19 @@ class AppsListAdapter(
                 dialog.setMessage(app.blockedAnnotations)
                     .show()
             } else {
+                /*Si no hay ningún mensaje de advertencia cambio la propiedad access e invoco
+                * al método onAccessChange*/
                 app.access = checkBox.isChecked
                 onAccessChange(app)
             }
         }
 
         /**
-         * Se llama cuando cambia el acceso de una app.
+         * Se llama cuando cambia el acceso de una app. Este método
+         * llama a la propiedad [onAccessChange] del adaptador por
+         * lo que no se debe volver a llamar a dicha propiedad.
+         *
+         * @param app - IApp que se le cambió el acceso.
          * */
         protected open fun onAccessChange(app: IApp) {
             onAccessChange?.invoke(app)
@@ -457,7 +409,10 @@ class AppsListAdapter(
     }
 
     /**
-     * Modelo que se usa para dibujar un encabezado en la lista.
+     * Modelo que se usa para dibujar un encabezado en la lista. Solo
+     * contiene el nombre del encabezado en la propiedad name. Las demas
+     * propiedades están vacias o nulas. El método [accessHashCode] no está
+     * soportado.
      * */
     @Parcelize
     private class HeaderApp(
@@ -465,6 +420,7 @@ class AppsListAdapter(
         override var uid: Int,
         override var name: String,
         override var access: Boolean,
+        override var system: Boolean,
         override var allowAnnotations: String?,
         override var blockedAnnotations: String?
     ) : IApp {

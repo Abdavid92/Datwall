@@ -24,9 +24,13 @@ class SimDelegate @Inject constructor(
     private val context: Context
 ) {
 
-    private val subscriptionManager = ContextCompat.getSystemService(context, SubscriptionManager::class.java)
-        ?: throw NullPointerException()
+    private lateinit var subscriptionManager: SubscriptionManager
 
+    init {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+            subscriptionManager = ContextCompat.getSystemService(context, SubscriptionManager::class.java)
+                ?: throw NullPointerException()
+    }
 
     /**
      *

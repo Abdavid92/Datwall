@@ -54,9 +54,13 @@ class App(
      * */
     var executable: Boolean,
     /**
+     * Indica si este IApp pertenece al sistema.
+     * */
+    override var system: Boolean,
+    /**
      * Indica si el modo dinámico del firewall puede preguntar por
      * esta aplicación cuando entre en primer plano y no
-     * tenge acceso permanente o acseso en primer plano.
+     * tiene acceso permanente o acceso en primer plano.
      * */
     var ask: Boolean,
     /**
@@ -93,6 +97,7 @@ class App(
         false,
         false,
         true,
+        false,
         true,
         false,
         null,

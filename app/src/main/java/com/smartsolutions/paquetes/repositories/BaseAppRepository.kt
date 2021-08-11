@@ -82,6 +82,7 @@ abstract class BaseAppRepository(
         app.packageName = info.packageName
         app.ask = true
         app.executable = isExecutable(info)
+        app.system = isSystem(info)
         app.foregroundAccess = false
         app.internet = hasInternet(info.packageName)
         app.tempAccess = false
@@ -102,6 +103,7 @@ abstract class BaseAppRepository(
         app.version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
         app.name = info.applicationInfo.name ?: "Unknown"
         app.internet = hasInternet(app.packageName)
+        app.system = isSystem(info)
         getSpecialApp(app.packageName)?.let {
             app.allowAnnotations = it.allowAnnotations
             app.blockedAnnotations = it.blockedAnnotations
