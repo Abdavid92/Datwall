@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.watcher
 
+import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
@@ -7,6 +8,7 @@ import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,12 +18,15 @@ import javax.inject.Singleton
  * */
 @Singleton
 class PackageMonitor @Inject constructor(
-    private val packageManager: PackageManager,
+    @ApplicationContext
+    context: Context,
     private val appRepository: IAppRepository,
     private val legacyConfiguration: LegacyConfigurationHelper
 ) {
 
     private var sequenceNumber: Int = 0
+
+    private val packageManager = context.packageManager
 
     /**
      * Obtiene las aplicaciones cambiadas del PackageManager.
