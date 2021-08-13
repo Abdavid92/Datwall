@@ -155,6 +155,21 @@ open class Traffic(
         return 0
     }
 
+    operator fun minus(traffic: Traffic): Traffic {
+        val trafficNew = Traffic(
+            uid,
+            _rxBytes - traffic._rxBytes,
+            _txBytes - traffic._txBytes,
+            simId
+        )
+
+        trafficNew.startTime = startTime
+        trafficNew.endTime = endTime
+        trafficNew.network = network
+
+        return trafficNew
+    }
+
     companion object CREATOR : Parcelable.Creator<Traffic> {
         override fun createFromParcel(parcel: Parcel): Traffic {
             return Traffic(parcel)
