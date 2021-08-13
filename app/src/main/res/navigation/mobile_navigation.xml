@@ -18,10 +18,16 @@
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
+        android:id="@+id/navigation_apps"
+        android:name="com.smartsolutions.paquetes.ui.applications.ApplicationsFragment"
+        android:label="@string/title_applications"
+        tools:layout="@layout/fragment_applications" />
+
+    <!--<fragment
         android:id="@+id/navigation_firewall"
         android:name="com.smartsolutions.paquetes.ui.firewall.FirewallFragment"
         android:label="@string/title_firewall"
-        tools:layout="@layout/fragment_firewall" />
+        tools:layout="@layout/fragment_firewall" />-->
 
     <fragment
         android:id="@+id/navigation_notifications"

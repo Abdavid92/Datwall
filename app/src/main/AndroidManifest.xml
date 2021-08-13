@@ -16,7 +16,6 @@
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -35,7 +34,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
-
         <!-- Activities -->
         <activity android:name=".ui.exceptions.ExceptionsActivity" />
         <activity android:name=".ui.activation.ActivationActivity" />
@@ -44,8 +42,8 @@
             android:name=".ui.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Datwall.Fullscreen"
             android:screenOrientation="portrait"
+            android:theme="@style/Theme.Datwall.Fullscreen"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,8 +59,8 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeScreenTheme"
             android:screenOrientation="portrait"
+            android:theme="@style/WelcomeScreenTheme"
             tools:ignore="LockedOrientationActivity" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"

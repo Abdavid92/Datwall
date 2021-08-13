@@ -12,9 +12,14 @@
         android:title="@string/title_dashboard" />
 
     <item
+        android:id="@+id/navigation_apps"
+        android:icon="@drawable/ic_apps"
+        android:title="@string/title_applications" />
+
+    <!--<item
         android:id="@+id/navigation_firewall"
         android:icon="@drawable/ic_firewall"
-        android:title="@string/title_firewall" />
+        android:title="@string/title_firewall" />-->
 
     <item
         android:id="@+id/navigation_notifications"

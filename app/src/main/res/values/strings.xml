@@ -121,4 +121,6 @@
     <string name="blocked_apps">Aplicaciones bloqueadas (%d)</string>
     <string name="apps_count">Aplicaciones: %d</string>
     <string name="warning_title">Advertencia</string>
+    <string name="page_0_title"><![CDATA[Bienvenido a <b>Mis Datos</b> su app de administración de datos]]></string>
+    <string name="title_applications">Aplicaciones</string>
 </resources>
