@@ -37,27 +37,6 @@ class ApplicationsViewModel @Inject constructor(
      * */
     val appsToUpdate = mutableListOf<IApp>()
 
-    private val _apps = MutableLiveData<List<IApp>>()
-
-    private var filter: AppsFilter? = null
-
-    private var key: String? = null
-
-    init {
-        viewModelScope.launch {
-            getApplication<Application>()
-                .dataStore.data.collect {
-                    filter = AppsFilter.valueOf(
-                        it[PreferencesKeys.APPS_FILTER] ?:
-                        AppsFilter.Alphabetic.name)
-
-                    if (_apps.value != null && key != null) {
-                        _apps.postValue(orderAppsByFilter(key!!, filter!!))
-                    }
-                }
-        }
-    }
-
     /**
      * Confirma la actualización de las aplicaciones pendientes.
      * */
@@ -104,72 +83,6 @@ class ApplicationsViewModel @Inject constructor(
                     else -> throw IllegalArgumentException("Incorrect key")
                 }
             }.asLiveData(Dispatchers.IO)
-    }
-
-    /*fun getApps(key: String): LiveData<List<IApp>> {
-        this.key = key
-        if (_apps.value == null && filter != null) {
-            viewModelScope.launch(Dispatchers.IO) {
-
-                delay(500)
-
-                appRepository.flow().collect { apps ->
-                    _apps.postValue(when (key) {
-                        SectionsPagerAdapter.USER_APPS -> {
-                            orderAppsByFilter(
-                                apps.filter { !it.system },
-                                filter!!
-                            )
-                        }
-                        SectionsPagerAdapter.SYSTEM_APPS -> {
-                            orderAppsByFilter(
-                                apps.filter { it.system },
-                                filter!!
-                            )
-                        }
-                        else -> throw IllegalArgumentException("Incorrect key")
-                    })
-                }
-            }
-        }
-        return _apps
-    }*/
-
-    fun getAppsByFilter(key: String): LiveData<List<IApp>> {
-        return getApplication<Application>()
-            .dataStore
-            .data
-            .map {
-                val filter = AppsFilter.valueOf(
-                    it[PreferencesKeys.APPS_FILTER] ?:
-                    AppsFilter.Alphabetic.name)
-
-                delay(300)
-
-                return@map orderAppsByFilter(key, filter)
-            }.asLiveData(Dispatchers.IO)
-    }
-
-    private suspend fun orderAppsByFilter(key: String, filter: AppsFilter): List<IApp> {
-        return when (key) {
-            SectionsPagerAdapter.USER_APPS -> {
-                orderAppsByFilter(
-                    appRepository
-                        .getAllByGroup()
-                        .filter { !it.system },
-                    filter
-                )
-            }
-            SectionsPagerAdapter.SYSTEM_APPS -> {
-                orderAppsByFilter(
-                    appRepository
-                        .getAllByGroup()
-                        .filter { it.system },
-                    filter
-                )
-            }
-            else -> throw IllegalArgumentException("Incorrect key")
-        }
     }
 
     private fun orderAppsByFilter(apps: List<IApp>, filter: AppsFilter): List<IApp> {
