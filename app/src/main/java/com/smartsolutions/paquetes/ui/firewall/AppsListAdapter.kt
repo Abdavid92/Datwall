@@ -225,11 +225,11 @@ class AppsListAdapter(
             packageName = app.packageName
             version = app.version
 
-            setCheckBoxListener(app, binding.access)
+            //setCheckBoxListener(app, binding.access)
 
-            binding.backLayout.setOnClickListener {
+            binding.backgroundLayout.setOnClickListener {
                 //TODO: Abrir una actividad con los detalles de la app.
-                Toast.makeText(itemView.context, "Back clicked", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Back clicked", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -272,11 +272,11 @@ class AppsListAdapter(
             binding.name.text = app.name
             binding.appsCount.text = context.getString(R.string.apps_count, app.size)
 
-            setCheckBoxListener(app, binding.access)
+            //setCheckBoxListener(app, binding.access)
 
             binding.childLayout.visibility = if (app.expanded) View.VISIBLE else View.GONE
 
-            binding.backLayout.setOnClickListener {
+            binding.backgroundLayout.setOnClickListener {
                 app.expanded = !app.expanded
                 notifyItemChanged(adapterPosition)
             }

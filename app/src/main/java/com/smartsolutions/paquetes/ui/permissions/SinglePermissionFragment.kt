@@ -30,7 +30,9 @@ private const val ARG_REQUEST_CODE = "request_code"
 @AndroidEntryPoint
 class SinglePermissionFragment private constructor(
     private val callback: SinglePermissionCallback?
-): BottomSheetDialogFragment() {
+) : BottomSheetDialogFragment() {
+
+    constructor() : this(null)
 
     private val viewModel by viewModels<SinglePermissionViewModel>()
 

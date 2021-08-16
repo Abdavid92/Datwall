@@ -17,13 +17,21 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:popupTheme="@style/Theme.Datwall.PopupOverlay" />
+            app:popupTheme="@style/Theme.Datwall.PopupOverlay">
+
+            <Button
+                android:id="@+id/btn_filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="filtro" />
+
+        </androidx.appcompat.widget.Toolbar>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabGravity="start" />
+            app:tabGravity="center" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

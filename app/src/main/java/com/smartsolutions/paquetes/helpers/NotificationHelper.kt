@@ -14,7 +14,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.ui.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-
+import javax.inject.Singleton
 
 class NotificationHelper @Inject constructor(
     @ApplicationContext

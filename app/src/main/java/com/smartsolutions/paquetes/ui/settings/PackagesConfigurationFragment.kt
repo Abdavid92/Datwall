@@ -68,7 +68,11 @@ class PackagesConfigurationFragment @Inject constructor(
             }
 
         binding.manualMode.setOnCheckedChangeListener(this::manualModeChange)
-        binding.btnContinue.setOnClickListener { complete() }
+        binding.btnContinue.setOnClickListener {
+            it.isEnabled = false
+            binding.progressContinue.visibility = View.VISIBLE
+            complete()
+        }
 
         viewModel.configurationResult.observe(viewLifecycleOwner) {
 

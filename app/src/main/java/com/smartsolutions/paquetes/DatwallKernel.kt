@@ -92,9 +92,9 @@ class DatwallKernel @Inject constructor(
                 missingSomePermission() -> {
                     openPermissionsActivity()
                 }
-                !isRegisteredAndValid() -> {
+                /*!isRegisteredAndValid() -> {
                     openActivationActivity()
-                }
+                }*/
                 missingSomeConfiguration() -> {
                     openSetupActivity()
                 }

@@ -19,4 +19,7 @@
         <item name="fullscreenTextColor">@color/light_blue_A400</item>
     </style>
 
+    <style name="Theme.Datwall.Transparent">
+        <item name="android:windowBackground">@drawable/transparent_background_dark</item>
+    </style>
 </resources>

@@ -54,11 +54,22 @@ class AppGroup(
         }
 
     override var system: Boolean
-        get() = first { it.packageName == packageName }.system
-        set(value) = throw UnsupportedOperationException()
+        get() = getMasterApp().system
+        set(value) {
+            getMasterApp().system = value
+        }
 
     override val size: Int
         get() = apps.size
+
+    /**
+     * Obtiene la aplicación maestra con la cual se creó el grupo.
+     *
+     * @return [App]
+     * */
+    fun getMasterApp(): App {
+        return first { it.packageName == this.packageName }
+    }
 
     override fun contains(element: App): Boolean = apps.contains(element)
 

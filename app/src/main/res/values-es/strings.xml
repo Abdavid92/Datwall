@@ -124,4 +124,15 @@
     <string name="warning_title">Advertencia</string>
     <string name="page_0_title"><![CDATA[<p>Bienvenido a <b>Mis Datos</b> su app de administración de datos</p>]]></string>
     <string name="title_applications">Aplicaciones</string>
+    <string name="page_user_apps">Usuario</string>
+    <string name="page_system_apps">Sistema</string>
+    <string name="free_apps">Aplicaciones de consumo libre (%d)</string>
+    <string name="national_apps">Aplicaciones de consumo nacional (%d)</string>
+    <string name="international_apps">Aplicaciones de consumo internacional (%d)</string>
+    <string name="vpn_access">Acceso del cortafuegos</string>
+    <string name="ask">Preguntar por acceso en primer plano</string>
+    <string name="traffic_type">Tipo de tráfico de red</string>
+    <string name="traffic_international">Internacional</string>
+    <string name="traffic_national">Nacional</string>
+    <string name="traffic_free">Gratis</string>
 </resources>

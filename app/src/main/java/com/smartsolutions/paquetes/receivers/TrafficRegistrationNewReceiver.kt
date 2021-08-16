@@ -16,6 +16,7 @@ import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -118,12 +119,15 @@ class TrafficRegistrationNewReceiver @Inject constructor(
 
         getTrafficsToRegister(start).forEach { traffic ->
             apps.firstOrNull { it.uid == traffic.uid }?.let { app ->
-                when {
-                    app.national -> {
+                when (app.trafficType) {
+                    TrafficType.International -> {
+                        international += traffic
+                    }
+                    TrafficType.National -> {
                         national += traffic
                     }
-                    else -> {
-                        international += traffic
+                    TrafficType.Free -> {
+                        //Ignored
                     }
                 }
             }

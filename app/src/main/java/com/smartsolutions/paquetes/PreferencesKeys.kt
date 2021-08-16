@@ -83,4 +83,9 @@ object PreferencesKeys {
      * Indica si la burbuja flotante está abilitada.
      * */
     val ENABLED_BUBBLE_FLOATING = booleanPreferencesKey("enabled_bubble_floating")
+
+    /**
+     * Filtro que se usa para ordenar la lista de aplicaciones
+     * */
+    val APPS_FILTER = stringPreferencesKey("apps_filter")
 }

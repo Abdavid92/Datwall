@@ -5,7 +5,8 @@
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -34,7 +35,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
+
         <!-- Activities -->
+        <activity android:name=".ui.applications.AppControlActivity"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/Theme.Datwall.Transparent"/>
         <activity android:name=".ui.exceptions.ExceptionsActivity" />
         <activity android:name=".ui.activation.ActivationActivity" />
         <activity android:name=".ui.permissions.PermissionsActivity" />
@@ -61,7 +66,9 @@
             android:name=".ui.PresentationActivity"
             android:screenOrientation="portrait"
             android:theme="@style/WelcomeScreenTheme"
-            tools:ignore="LockedOrientationActivity" /> <!-- Services -->
+            tools:ignore="LockedOrientationActivity" />
+
+        <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:enabled="true"

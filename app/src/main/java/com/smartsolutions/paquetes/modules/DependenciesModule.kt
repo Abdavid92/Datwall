@@ -12,5 +12,4 @@ object DependenciesModule {
 
     @Provides
     fun provideGson() = Gson()
-
 }

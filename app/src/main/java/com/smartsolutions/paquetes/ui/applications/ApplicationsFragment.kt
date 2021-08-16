@@ -6,9 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,6 +13,10 @@ import dagger.hilt.android.AndroidEntryPoint
 class ApplicationsFragment : Fragment() {
 
     private lateinit var binding: FragmentApplicationsBinding
+
+    private val viewModel by viewModels<ApplicationsViewModel>()
+
+    private var filter = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,13 +33,17 @@ class ApplicationsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val sectionsAdapter = SectionsPagerAdapter(this)
+        val sectionsAdapter = SectionsPagerAdapter(requireContext(), childFragmentManager)
         binding.viewPager.adapter = sectionsAdapter
 
         binding.tabs.setupWithViewPager(binding.viewPager)
-    }
 
-    companion object {
-        fun newInstance() = ApplicationsFragment()
+        binding.btnFilter.setOnClickListener {
+            if (filter >= 2)
+                filter = 0
+            else
+                filter += 1
+            viewModel.setFilter(AppsFilter.values()[filter])
+        }
     }
 }

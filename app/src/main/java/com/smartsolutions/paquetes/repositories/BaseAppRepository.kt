@@ -12,6 +12,7 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.SpecialApp
+import com.smartsolutions.paquetes.repositories.models.TrafficType
 
 abstract class BaseAppRepository(
     private val context: Context,
@@ -23,6 +24,7 @@ abstract class BaseAppRepository(
     private val specialApps: Array<SpecialApp>
     private val specialGroups: Array<SpecialApp>
     private val nationalApps: Array<String>
+    private val freeApps: Array<String>
 
     init {
         var json = context.resources.openRawResource(R.raw.national_apps)
@@ -30,6 +32,12 @@ abstract class BaseAppRepository(
             .readText()
 
         nationalApps = gson.fromJson(json, Array<String>::class.java)
+
+        json = context.resources.openRawResource(R.raw.free_apps)
+            .bufferedReader()
+            .readText()
+
+        freeApps = gson.fromJson(json, Array<String>::class.java)
 
         json = context.resources.openRawResource(R.raw.special_apps)
             .bufferedReader()
@@ -88,7 +96,11 @@ abstract class BaseAppRepository(
         app.tempAccess = false
         app.version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
         app.access = false
-        app.national = isNational(info.packageName)
+        app.trafficType = when {
+            isFree(info.packageName) -> TrafficType.Free
+            isNational(info.packageName) -> TrafficType.National
+            else -> TrafficType.International
+        }
         app.name = info.applicationInfo.loadLabel(packageManager).toString()
         app.uid = info.applicationInfo.uid
 
@@ -112,6 +124,10 @@ abstract class BaseAppRepository(
 
     private fun getSpecialApp(packageName: String): SpecialApp? {
         return specialApps.firstOrNull { it.packageName == packageName }
+    }
+
+    private fun isFree(packageName: String): Boolean {
+        return freeApps.contains(packageName)
     }
 
     private fun isNational(packageName: String): Boolean {

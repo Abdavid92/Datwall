@@ -1,9 +1,6 @@
 package com.smartsolutions.paquetes.repositories.models
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.smartsolutions.paquetes.managers.models.Traffic
 import kotlinx.parcelize.Parcelize
 
@@ -12,6 +9,7 @@ import kotlinx.parcelize.Parcelize
  * */
 @Parcelize
 @Entity(tableName = "apps")
+@TypeConverters(App.TrafficTypeConverter::class)
 class App(
     /**
      * Nombre de paquete
@@ -64,9 +62,10 @@ class App(
      * */
     var ask: Boolean,
     /**
-     * Indica si es una aplicación de consumo nacional
+     * Tipo de tráfico de la aplicación (Por defecto International)
      * */
-    var national: Boolean,
+    @ColumnInfo(name = "traffic_type")
+    var trafficType: TrafficType,
     /**
      * Anotación de advertencia que se muestra cuando se intenta conceder
      * el acceso permanente.
@@ -99,7 +98,7 @@ class App(
         true,
         false,
         true,
-        false,
+        TrafficType.International,
         null,
         null,
         null
@@ -134,4 +133,21 @@ class App(
 
         return "$access$tempAccess".toLong()
     }
+
+    class TrafficTypeConverter {
+
+        @TypeConverter
+        fun fromTrafficType(trafficType: TrafficType): String =
+            trafficType.name
+
+        @TypeConverter
+        fun toTrafficType(name: String): TrafficType =
+            TrafficType.valueOf(name)
+    }
+}
+
+enum class TrafficType {
+    International,
+    National,
+    Free
 }
