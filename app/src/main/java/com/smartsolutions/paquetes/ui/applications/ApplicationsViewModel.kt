@@ -63,6 +63,9 @@ class ApplicationsViewModel @Inject constructor(
     fun getApps(key: String): LiveData<List<IApp>> {
         return appRepository.flowByGroup()
             .combine(getApplication<Application>().dataStore.data) { apps, preferences ->
+
+                delay(500)
+
                 val filter = AppsFilter.valueOf(
                     preferences[PreferencesKeys.APPS_FILTER] ?:
                     AppsFilter.Alphabetic.name)
@@ -100,11 +103,7 @@ class ApplicationsViewModel @Inject constructor(
                 //Aplicaciones bloqueadas
                 val blockedApps = apps.filter { !it.access }
 
-                /*Indica si se deben agregar encabezados. Si una de las listas de aplicaciones
-                 * está vacia, no se agregan encabezados.*/
-                val addHeaders = allowedApps.isNotEmpty() && blockedApps.isNotEmpty()
-
-                if (addHeaders) {
+                if (allowedApps.isNotEmpty()) {
                     //Encabezado de aplicaciones permitidas.
                     finalList.add(HeaderApp.newInstance(
                         getApplication<Application>()
@@ -112,9 +111,9 @@ class ApplicationsViewModel @Inject constructor(
                     )
                 }
 
-                finalList.addAll(allowedApps)
+                finalList.addAll(allowedApps.sortedBy { it.name })
 
-                if (addHeaders) {
+                if (blockedApps.isNotEmpty()) {
                     //Encabezado de aplicaciones bloqueadas
                     finalList.add(
                         HeaderApp.newInstance(
@@ -123,7 +122,7 @@ class ApplicationsViewModel @Inject constructor(
                     )
                 }
 
-                finalList.addAll(blockedApps)
+                finalList.addAll(blockedApps.sortedBy { it.name })
 
                 finalList
             }
@@ -134,38 +133,32 @@ class ApplicationsViewModel @Inject constructor(
                 val nationalApps = getAppsByTrafficType(apps, TrafficType.National)
                 val internationalApps = getAppsByTrafficType(apps, TrafficType.International)
 
-                /*Indica si se deben agregar encabezados. Si las tres
-                listas están vacias, no se agregan encabezados.*/
-                val addHeaders = !(freeApps.isEmpty() &&
-                        nationalApps.isEmpty() &&
-                        internationalApps.isEmpty())
-
-                if (addHeaders && freeApps.isNotEmpty()) {
+                if (freeApps.isNotEmpty()) {
                     finalList.add(HeaderApp.newInstance(
                         getApplication<Application>()
                             .getString(R.string.free_apps, freeApps.size))
                     )
                 }
 
-                finalList.addAll(freeApps)
+                finalList.addAll(freeApps.sortedBy { it.name })
 
-                if (addHeaders && nationalApps.isNotEmpty()) {
+                if (nationalApps.isNotEmpty()) {
                     finalList.add(HeaderApp.newInstance(
                         getApplication<Application>()
                             .getString(R.string.national_apps, nationalApps.size)
                     ))
                 }
 
-                finalList.addAll(nationalApps)
+                finalList.addAll(nationalApps.sortedBy { it.name })
 
-                if (addHeaders && internationalApps.isNotEmpty()) {
+                if (internationalApps.isNotEmpty()) {
                     finalList.add(HeaderApp.newInstance(
                         getApplication<Application>()
                             .getString(R.string.international_apps, internationalApps.size)
                     ))
                 }
 
-                finalList.addAll(internationalApps)
+                finalList.addAll(internationalApps.sortedBy { it.name })
 
                 finalList
             }

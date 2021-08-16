@@ -36,7 +36,7 @@ class AppsListAdapter constructor(
     /**
      * Tamaño de los íconos de las aplicaciones.
      * */
-    private var iconSize: Int = 100
+    private var iconSize: Int = 50
 
     /**
      * Mapa que se usa para guardar el estado de los grupos de aplicaciones.
@@ -241,7 +241,7 @@ class AppsListAdapter constructor(
                 iconManager,
                 app
             ).apply {
-                iconSize = 80
+                iconSize = 40
             }
 
             binding.child.adapter = childAdapter

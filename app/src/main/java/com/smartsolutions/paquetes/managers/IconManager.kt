@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -251,15 +252,22 @@ class IconManager @Inject constructor(
             var height = image.height
             val bitmapRatio = width.toFloat() / height
             if (bitmapRatio > 1) {
-                width = size
+                width = fixSize(size)
                 height = (width / bitmapRatio).toInt()
             } else {
-                height = size
+                height = fixSize(size)
                 width = (height * bitmapRatio).toInt()
             }
             return Bitmap.createScaledBitmap(image, width, height, true)
         }
         return null
+    }
+
+    private fun fixSize(size: Int): Int {
+        val displayMetrics = context.resources.displayMetrics
+        return TypedValue
+            .applyDimension(TypedValue.COMPLEX_UNIT_DIP, size.toFloat(), displayMetrics)
+            .toInt()
     }
 
     /**

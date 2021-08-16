@@ -39,7 +39,7 @@
         <!-- Activities -->
         <activity android:name=".ui.applications.AppControlActivity"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/Theme.Datwall.Transparent"/>
+            android:theme="@style/Transparent"/>
         <activity android:name=".ui.exceptions.ExceptionsActivity" />
         <activity android:name=".ui.activation.ActivationActivity" />
         <activity android:name=".ui.permissions.PermissionsActivity" />

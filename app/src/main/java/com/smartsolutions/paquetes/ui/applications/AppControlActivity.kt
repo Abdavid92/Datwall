@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.ui.applications
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.transition.Transition
 import android.view.View
 import android.widget.CompoundButton
 import androidx.appcompat.app.AlertDialog
@@ -76,7 +77,7 @@ class AppControlActivity : AppCompatActivity() {
         setVpnAccessCheckBoxListener(binding.vpnAccess)
         setAskCheckboxListener(binding.ask)
 
-        showAppControl()
+        addTransitionListener()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -84,10 +85,32 @@ class AppControlActivity : AppCompatActivity() {
         outState.putBoolean(EXTRA_WAS_CHANGES, wasChanges)
     }
 
-    private fun showAppControl() {
-        binding.appControl.animate()
-            .alpha(1F)
-            .startDelay = 500
+    private fun addTransitionListener() {
+        window.sharedElementEnterTransition?.let {
+            it.addListener(object : Transition.TransitionListener {
+                override fun onTransitionStart(transition: Transition?) {
+
+                }
+
+                override fun onTransitionEnd(transition: Transition?) {
+                    binding.appControl.animate()
+                        .alpha(1F)
+                    it.removeListener(this)
+                }
+
+                override fun onTransitionCancel(transition: Transition?) {
+                    it.removeListener(this)
+                }
+
+                override fun onTransitionPause(transition: Transition?) {
+
+                }
+
+                override fun onTransitionResume(transition: Transition?) {
+
+                }
+            })
+        }
     }
 
     fun onSave(view: View) {

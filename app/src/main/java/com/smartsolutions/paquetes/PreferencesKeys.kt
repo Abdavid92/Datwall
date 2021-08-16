@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 
 val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "settings")
+val Context.uiDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_ui")
 
 /**
  * Contiene las claves de las preferencias.
