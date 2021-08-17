@@ -266,5 +266,15 @@
       <option name="name" value="injected_offline_android-gradle-plugin-4.2.1" />
       <option name="url" value="file:/$PROJECT_DIR$/../../Repository/android-gradle-plugin-4.2.1/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_android_gradle_plugin_7_0_0_Untested" />
+      <option name="name" value="injected_offline_android_gradle_plugin_7_0_0_Untested" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/android_gradle_plugin_7_0_0_Untested/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_com" />
+      <option name="name" value="injected_offline_com" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/com/" />
+    </remote-repository>
   </component>
 </project>
