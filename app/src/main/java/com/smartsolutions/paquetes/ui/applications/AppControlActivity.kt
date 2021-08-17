@@ -13,7 +13,6 @@ import android.view.View
 import android.widget.CompoundButton
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
-import com.slapin.blurview.BlurView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityAppControlBinding
 import com.smartsolutions.paquetes.helpers.UIHelper

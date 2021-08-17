@@ -118,6 +118,10 @@ class PlaceHolderFragment : Fragment(),
             adapter?.updateApp(app)
     }
 
+    override fun onQueryApp(query: String?) {
+        adapter?.search(query)
+    }
+
     override fun onDetach() {
         super.onDetach()
         viewModel.commitUpdateApps()
@@ -136,9 +140,5 @@ class PlaceHolderFragment : Fragment(),
 
             return fragment
         }
-    }
-
-    override fun onQueryApp(query: String?) {
-        adapter?.search(query)
     }
 }

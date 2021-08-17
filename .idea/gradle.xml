@@ -4,11 +4,10 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="testRunner" value="GRADLE" />
+        <option name="testRunner" value="PLATFORM" />
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../graddle-home/gradle-7.1.1" />
-        <option name="gradleJvm" value="11" />
+        <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-7.1.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />

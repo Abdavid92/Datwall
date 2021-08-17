@@ -32,12 +32,4 @@
         app:navGraph="@navigation/mobile_navigation"
         tools:ignore="FragmentTagUsage" />
 
-    <com.slapin.blurview.BlurView
-        android:id="@+id/blur"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:bvBlurRadius="25"
-        android:visibility="gone"
-        android:alpha="0"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

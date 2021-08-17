@@ -1,14 +1,11 @@
 package com.smartsolutions.paquetes.ui
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.slapin.blurview.BlurView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.managers.SynchronizationManager
@@ -27,8 +24,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     @Inject
     lateinit var updateManager: IUpdateManager
 
-    private lateinit var blurView: BlurView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,31 +37,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
         ))
+
         //setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        blurView = findViewById(R.id.blur)
-
         handleIntent()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (blurView.visibility != View.GONE) {
-            blurView.visibility = View.GONE
-            setBlurAlpha(0F)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        blurView.visibility = View.VISIBLE
-        setBlurAlpha(1F)
-    }
-
-    private fun setBlurAlpha(alpha: Float) {
-        blurView.animate()
-            .alpha(alpha)
     }
 
     private fun handleIntent(){

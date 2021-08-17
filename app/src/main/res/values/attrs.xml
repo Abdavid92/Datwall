@@ -1,7 +1,5 @@
 <resources>
     <declare-styleable name="FullscreenAttrs">
-        <attr name="fullscreenBackgroundColor" format="color" />
-        <attr name="fullscreenTextColor" format="color" />
         <attr name="splash_icon" format="reference" />
     </declare-styleable>
 </resources>
