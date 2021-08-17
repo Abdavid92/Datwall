@@ -135,4 +135,7 @@
     <string name="traffic_international">Internacional</string>
     <string name="traffic_national">Nacional</string>
     <string name="traffic_free">Gratis</string>
+    <string name="filter">Filtro</string>
+    <string name="search">Buscar</string>
+    <string name="dialog_filter_title">Ordenar lista por...</string>
 </resources>

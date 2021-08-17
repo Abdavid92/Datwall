@@ -7,11 +7,13 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.AppGroupItemBinding
 import com.smartsolutions.paquetes.databinding.AppItemBinding
 import com.smartsolutions.paquetes.databinding.HeaderItemBinding
+import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -22,9 +24,10 @@ private const val APP_GROUP_HOLDER_TYPE = 1
 private const val HEADER_HOLDER_TYPE = 2
 
 class AppsListAdapter constructor(
-    private val activity: Activity,
+    private val fragment: Fragment,
     private val launcher: ActivityResultLauncher<App>,
     private val iconManager: IIconManager,
+    private var appsFilter: AppsFilter,
     private var list: List<IApp>
 ) : RecyclerView.Adapter<AppsListAdapter.AbstractViewHolder>() {
 
@@ -44,6 +47,8 @@ class AppsListAdapter constructor(
      * expandido, (false) si está colapsado.
      * */
     private val expandedList = mutableMapOf<Int, Boolean>()
+
+    private val uiHelper = UIHelper(fragment.requireContext())
 
     /**
      * Retorna el tipo de viewHolder que se debe instanciar.
@@ -105,7 +110,7 @@ class AppsListAdapter constructor(
      *
      * @param query - Texto que debe contener el nombre de la aplicación a buscar.
      * */
-    fun filter(query: String?) {
+    fun search(query: String?) {
         finalList = if (query != null && query.isNotBlank()) {
             list.where { it.name.contains(query, true) }.toMutableList()
         } else {
@@ -119,7 +124,8 @@ class AppsListAdapter constructor(
      *
      * @param list - Lista de aplicaciones.
      * */
-    fun updateList(list: List<IApp>) {
+    fun updateList(filter: AppsFilter, list: List<IApp>) {
+        this.appsFilter = filter
         this.list = list
         this.finalList = list.toMutableList()
         expandedList.clear()
@@ -128,11 +134,23 @@ class AppsListAdapter constructor(
     }
 
     fun updateApp(app: IApp) {
-        val index = finalList.indexOf(app)
+        var index = finalList.indexOf(app)
 
         if (index != -1) {
             finalList[index] = app
             notifyItemChanged(index)
+        } else if (app is App) {
+            finalList.filterIsInstance<AppGroup>()
+                .forEach { appGroup ->
+
+                    index = appGroup.indexOf(app)
+
+                    if (index != -1) {
+                        appGroup[index] = app
+
+                        notifyItemChanged(finalList.indexOf(appGroup))
+                    }
+                }
         }
     }
 
@@ -191,7 +209,7 @@ class AppsListAdapter constructor(
             binding.backgroundLayout.setOnClickListener {
 
                 val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    activity,
+                    fragment.requireActivity(),
                     Pair(binding.backgroundLayout, VIEW_NAME_HEADER_LAYOUT),
                     Pair(binding.icon, VIEW_NAME_HEADER_IMAGE),
                     Pair(binding.name, VIEW_NAME_HEADER_NAME),
@@ -204,6 +222,20 @@ class AppsListAdapter constructor(
             //Carga el ícono asíncronamente
             iconManager.getAsync(app.packageName, app.version, iconSize) {
                 binding.icon.setImageBitmap(it)
+            }
+
+            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+                if (fragment is OnAppAccessChangeListener) {
+                    fragment.onAppAccessChange(app, false)
+                }
+            }
+
+            if (appsFilter == AppsFilter.InternetAccess) {
+                binding.launch.visibility = View.GONE
+                binding.vpnAccess.visibility = View.VISIBLE
+            } else {
+                binding.launch.visibility = View.VISIBLE
+                binding.vpnAccess.visibility = View.INVISIBLE
             }
         }
     }
@@ -228,6 +260,12 @@ class AppsListAdapter constructor(
             binding.appsCount
                 .text = itemView.context.getString(R.string.apps_count, app.size)
 
+            if (appsFilter == AppsFilter.InternetAccess) {
+                binding.vpnAccess.visibility = View.VISIBLE
+            } else {
+                binding.vpnAccess.visibility = View.INVISIBLE
+            }
+
             binding.childLayout.visibility = if (app.expanded) View.VISIBLE else View.GONE
 
             binding.backgroundLayout.setOnClickListener {
@@ -236,15 +274,22 @@ class AppsListAdapter constructor(
             }
 
             childAdapter = AppsListAdapter(
-                activity,
+                fragment,
                 launcher,
                 iconManager,
+                appsFilter,
                 app
             ).apply {
                 iconSize = 40
             }
 
             binding.child.adapter = childAdapter
+
+            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+                if (fragment is OnAppAccessChangeListener) {
+                    fragment.onAppAccessChange(app, true)
+                }
+            }
 
             if (app.expanded) {
                 binding.arrow.rotation = 180F
@@ -261,5 +306,9 @@ class AppsListAdapter constructor(
     abstract inner class AbstractViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         abstract fun bind(app: IApp)
+    }
+
+    interface OnAppAccessChangeListener {
+        fun onAppAccessChange(app: IApp, updateList: Boolean)
     }
 }

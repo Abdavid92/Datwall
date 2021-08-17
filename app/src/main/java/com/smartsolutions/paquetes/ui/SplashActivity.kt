@@ -37,7 +37,7 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
 
         val handler = Handler(Looper.getMainLooper())
 
-        /*Después de 1500 milisegundos intento iniciar la PresentationActivity.
+        /*Después de 1000 milisegundos intento iniciar la PresentationActivity.
         * Si tiene éxito, espero el resultado en el onActivityResult. Sino,
         * inicio el kernel.*/
         handler.postDelayed({
@@ -45,7 +45,7 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
                     .show(savedInstanceState)) {
                 kernel.mainInForeground(this)
             }
-        }, 1500)
+        }, 1000)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

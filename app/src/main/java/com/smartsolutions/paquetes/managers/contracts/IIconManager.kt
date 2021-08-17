@@ -99,6 +99,6 @@ interface IIconManager {
     fun deleteAll()
 
     companion object {
-        const val DEFAULT_IMAGE_SIZE = 100
+        const val DEFAULT_IMAGE_SIZE = 50
     }
 }

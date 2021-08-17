@@ -5,16 +5,12 @@ import android.annotation.SuppressLint
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.net.ConnectivityManager
-import android.os.Build
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import dagger.Lazy
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
-import kotlin.reflect.KProperty
 
 @RequiresApi(23)
 @SuppressLint("HardwareIds")
@@ -24,19 +20,11 @@ abstract class AbstractNetworkUsage(
     simManager: ISimManager
 ) : NetworkUsageManager(simManager) {
 
-    private var subscriberId = object : Lazy<String?> {
-
-        private var instance: String? = null
-
-        override fun get(): String? {
-            if (instance == null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                instance = try {
-                    telephonyManager.subscriberId
-                } catch (e: SecurityException) {
-                    throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
-                }
-            }
-            return instance
+    private val subscriberId by lazy {
+        try {
+            telephonyManager.subscriberId
+        } catch (e: SecurityException) {
+            throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
         }
     }
 
@@ -63,7 +51,7 @@ abstract class AbstractNetworkUsage(
         val buckets: MutableList<NetworkStats.Bucket> = ArrayList()
         try {
 
-            val networkStats = networkStatsManager.querySummary(ConnectivityManager.TYPE_MOBILE, subscriberId.get(), start, finish)
+            val networkStats = networkStatsManager.querySummary(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
 
             while (networkStats.hasNextBucket()) {
 
@@ -90,7 +78,7 @@ abstract class AbstractNetworkUsage(
         }
 
         return try {
-            val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId.get(), start, finish)
+            val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
 
             generalCache.add(BucketCache(simId, System.currentTimeMillis(), start, finish, result))
 

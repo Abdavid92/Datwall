@@ -5,15 +5,23 @@ import android.content.Context
 import android.content.res.Configuration.*
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.util.TypedValue
+import android.widget.CompoundButton
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.repositories.models.IApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlin.Exception
 
 
 class UIHelper @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext
+    private val context: Context
 ) {
 
     /**
@@ -104,5 +112,85 @@ class UIHelper @Inject constructor(
         }
     }
 
+    /**
+     * Obtiene los colores del tema aplicado.
+     *
+     * @param resId - Id del atributo del color a obtener. Ej: R.attr.colorPrimary
+     *
+     * @return [Int] Color resuelto o null si no se pudo resolver.
+     * */
+    @ColorInt
+    fun getColorTheme(@AttrRes resId: Int): Int? {
+        val theme = context.theme
 
+        val colorTypedValue = TypedValue()
+        theme.resolveAttribute(resId, colorTypedValue, true)
+
+        if (colorTypedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
+                colorTypedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            return ContextCompat.getColor(context, colorTypedValue.resourceId)
+        }
+        return null
+    }
+
+    /**
+     * Asigna el evento onCheckedChange al checkBox y establece la propiedad
+     * [CompoundButton.isChecked] de manera segura sin lanzar el evento
+     * accidentalmente. Si la app tiene mensajes de advertencia, se muestran en
+     * un alertDialog antes de asignarle el nuevo valor.
+     *
+     * @param app - App que se le cambiará el acceso.
+     * @param checkBox - CheckBox que se le asignará el evento.
+     * @param callback - Se lanza cuando se cambia el acceso de la app.
+     * */
+    fun setVpnAccessCheckBoxListener(
+        app: IApp,
+        checkBox: CompoundButton,
+        callback: (() -> Unit)? = null
+    ) {
+        checkBox.setOnCheckedChangeListener(null)
+        checkBox.isChecked = app.access
+        checkBox.setOnCheckedChangeListener { _,_ ->
+            handleWarningMessages(app, checkBox, callback)
+        }
+    }
+
+    /**
+     * Maneja los mensajes de advertencia si los hay y cambia el acceso a la app.
+     * */
+    private fun handleWarningMessages(
+        app: IApp,
+        checkBox: CompoundButton,
+        callback: (() -> Unit)?
+    ) {
+
+        //Diálogo que se mostrará cuando exista un mensaje de advertencia
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(R.string.warning_title)
+            .setNegativeButton(R.string.btn_cancel
+            ) { _,_ ->
+                /*Si se oprime el botón cancelar se llama al método
+                * setCheckBoxListener para restablecer el estado anterior del checkBox sin
+                * lanzar el evento de este. Este método utiliza la propiedad access de la app,
+                * que no se ha cambiado todavía.*/
+                setVpnAccessCheckBoxListener(app, checkBox, callback)
+            }
+            .setPositiveButton(R.string.btn_continue) { _,_ ->
+                app.access = checkBox.isChecked
+                callback?.invoke()
+            }
+
+        if (checkBox.isChecked && app.allowAnnotations != null) {
+            dialog.setMessage(app.allowAnnotations)
+                .show()
+        } else if (!checkBox.isChecked && app.blockedAnnotations != null) {
+            dialog.setMessage(app.blockedAnnotations)
+                .show()
+        } else {
+            /*Si no hay ningún mensaje de advertencia cambio la propiedad access y
+            * notifico que hubo cambios.*/
+            app.access = checkBox.isChecked
+            callback?.invoke()
+        }
+    }
 }

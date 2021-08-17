@@ -14,9 +14,10 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="ThemeOverlay.Datwall.FullscreenContainer" parent="">
-        <item name="fullscreenBackgroundColor">@color/light_blue_900</item>
-        <item name="fullscreenTextColor">@color/light_blue_A400</item>
+    <style name="Theme.Datwall.Fullscreen">
+        <item name="android:windowBackground">?attr/colorPrimaryVariant</item>
+        <item name="splash_icon">@drawable/splash_screen_dark</item>
     </style>
 
+    <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 </resources>

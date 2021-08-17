@@ -6,34 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:elevation="@dimen/card_view_elevation"
-        app:cardCornerRadius="@dimen/card_view_radius">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?android:attr/windowBackground"
-            android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:menu="@menu/main_menu"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/Theme.MaterialComponents.DayNight"
-            tools:title="@string/app_name"/>
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-    </com.google.android.material.card.MaterialCardView>-->
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
         android:layout_width="0dp"
@@ -59,5 +31,13 @@
         app:layout_constrainedHeight="true"
         app:navGraph="@navigation/mobile_navigation"
         tools:ignore="FragmentTagUsage" />
+
+    <com.slapin.blurview.BlurView
+        android:id="@+id/blur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:bvBlurRadius="25"
+        android:visibility="gone"
+        android:alpha="0"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,38 +1,61 @@
 package com.smartsolutions.paquetes.ui.applications
 
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.transition.Transition
 import android.view.View
 import android.widget.CompoundButton
-import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
+import com.slapin.blurview.BlurView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityAppControlBinding
+import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
-import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+/**
+ * Nombres de las transiciones
+ * */
 const val VIEW_NAME_HEADER_IMAGE = "control:header:image"
 const val VIEW_NAME_HEADER_NAME = "control:header:name"
 const val VIEW_NAME_HEADER_PACKAGE_NAME = "control:header:package_name"
 const val VIEW_NAME_HEADER_LAYOUT = "control:header:layout"
 
+/**
+ * Actividad que contiene los controles de una [App]
+ * */
 @AndroidEntryPoint
 class AppControlActivity : AppCompatActivity() {
 
+    /**
+     * Enlace a la vista.
+     * */
     private lateinit var binding: ActivityAppControlBinding
 
+    /**
+     * Aplicación.
+     * */
     private var app: App? = null
 
+    /**
+     * Indica si hubo cambios en la aplicación.
+     * */
     private var wasChanges = false
 
     @Inject
     lateinit var iconManager: IIconManager
+
+    private var uiHelper = UIHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +63,9 @@ class AppControlActivity : AppCompatActivity() {
         binding = ActivityAppControlBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        /*
+         * Se establece los nombres de las transiciones para activar las animaciones.
+         * */
         ViewCompat.setTransitionName(binding.appInfo, VIEW_NAME_HEADER_LAYOUT)
         ViewCompat.setTransitionName(binding.icon, VIEW_NAME_HEADER_IMAGE)
         ViewCompat.setTransitionName(binding.name, VIEW_NAME_HEADER_NAME)
@@ -47,10 +73,14 @@ class AppControlActivity : AppCompatActivity() {
 
         app = intent.getParcelableExtra(EXTRA_APP)
 
-        wasChanges = savedInstanceState?.getBoolean(EXTRA_WAS_CHANGES) ?: false
+        savedInstanceState?.let {
+            wasChanges = it.getBoolean(EXTRA_WAS_CHANGES, false)
+            showControlPanel()
+        }
 
         loadData()
 
+        //Evento click del fondo para cerrar la actvidad.
         binding.backgroundLayout.setOnClickListener { onBackPressed() }
         binding.appInfo.setOnClickListener {
             //Empty para evitar el onCLick del background
@@ -59,6 +89,7 @@ class AppControlActivity : AppCompatActivity() {
             //Empty para evitar el onCLick del background
         }
 
+        /*Selecciono el RadioButton correspondiente al trafficType de la app.*/
         when (app?.trafficType) {
             TrafficType.International -> binding.trafficInternational.isChecked = true
             TrafficType.National -> binding.trafficNational.isChecked = true
@@ -71,10 +102,16 @@ class AppControlActivity : AppCompatActivity() {
                 R.id.traffic_national -> app?.trafficType = TrafficType.National
                 R.id.traffic_free -> app?.trafficType = TrafficType.Free
             }
+            //Indico que hubo cambios
             wasChanges = true
         }
 
-        setVpnAccessCheckBoxListener(binding.vpnAccess)
+        app?.let {
+            //Asigno el evento del checkBox del vpn
+            uiHelper.setVpnAccessCheckBoxListener(it, binding.vpnAccess) {
+                wasChanges = true
+            }
+        }
         setAskCheckboxListener(binding.ask)
 
         addTransitionListener()
@@ -93,8 +130,8 @@ class AppControlActivity : AppCompatActivity() {
                 }
 
                 override fun onTransitionEnd(transition: Transition?) {
-                    binding.appControl.animate()
-                        .alpha(1F)
+                    /*Cuando la transición termina muestro el panel de control*/
+                    showControlPanel()
                     it.removeListener(this)
                 }
 
@@ -115,14 +152,22 @@ class AppControlActivity : AppCompatActivity() {
 
     fun onSave(view: View) {
         if (wasChanges) {
+            /*Si hubo cambios establezco el resultado en ok e
+            * inserto la app con los cambios.*/
             setResult(
                 RESULT_OK,
                 Intent().putExtra(EXTRA_APP, app)
             )
         } else {
+            //Sino establezco el resultado en canceled
             setResult(RESULT_CANCELED)
         }
         onBackPressed()
+    }
+
+    private fun showControlPanel() {
+        binding.appControl.animate()
+            .alpha(1F)
     }
 
     private fun loadData() {
@@ -138,54 +183,6 @@ class AppControlActivity : AppCompatActivity() {
         checkBox.isChecked = app?.ask ?: false
         checkBox.setOnCheckedChangeListener { _, isChecked ->
             app?.ask = isChecked
-            wasChanges = true
-        }
-    }
-
-    /**
-     * Asigna el evento onCheckedChange al checkBox y establece la propiedad
-     * [CompoundButton.isChecked] de manera segura sin lanzar el evento
-     * accidentalmente.
-     * */
-    private fun setVpnAccessCheckBoxListener(checkBox: CompoundButton) {
-        checkBox.setOnCheckedChangeListener(null)
-        checkBox.isChecked = app?.access ?: false
-        checkBox.setOnCheckedChangeListener { _,_ ->
-            handleWarningMessages(app, checkBox)
-        }
-    }
-
-    /**
-     * Maneja los mensajes de advertencia si los hay y cambia el acceso a la app.
-     * */
-    private fun handleWarningMessages(app: IApp?, checkBox: CompoundButton) {
-
-        //Diálogo que se mostrará cuando exista un mensaje de advertencia
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.warning_title)
-            .setNegativeButton(R.string.btn_cancel
-            ) { _,_ ->
-                /*Si se oprime el botón cancelar se llama al método
-                * setCheckBoxListener para restablecer el estado anterior del checkBox si
-                * lanzar el evento de este. Este método utiliza la propiedad access de la app,
-                * que no se ha cambiado todavía.*/
-                setVpnAccessCheckBoxListener(checkBox)
-            }
-            .setPositiveButton(R.string.btn_continue) { _,_ ->
-                app?.access = checkBox.isChecked
-                wasChanges = true
-            }
-
-        if (checkBox.isChecked && app?.allowAnnotations != null) {
-            dialog.setMessage(app.allowAnnotations)
-                .show()
-        } else if (!checkBox.isChecked && app?.blockedAnnotations != null) {
-            dialog.setMessage(app.blockedAnnotations)
-                .show()
-        } else {
-            /*Si no hay ningún mensaje de advertencia cambio la propiedad access y
-            * notifico que hubo cambios.*/
-            app?.access = checkBox.isChecked
             wasChanges = true
         }
     }

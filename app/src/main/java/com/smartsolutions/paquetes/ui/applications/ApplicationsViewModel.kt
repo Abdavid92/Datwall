@@ -35,7 +35,17 @@ class ApplicationsViewModel @Inject constructor(
     /**
      * Lista de aplicaciones pendientes a actualizar.
      * */
-    val appsToUpdate = mutableListOf<IApp>()
+    private val appsToUpdate = mutableListOf<IApp>()
+
+    fun addAppToUpdate(app: IApp) {
+        val index = appsToUpdate.indexOf(app)
+
+        if (index != -1) {
+            appsToUpdate[index] = app
+        } else {
+            appsToUpdate.add(app)
+        }
+    }
 
     /**
      * Confirma la actualización de las aplicaciones pendientes.
@@ -60,7 +70,7 @@ class ApplicationsViewModel @Inject constructor(
         }
     }
 
-    fun getApps(key: String): LiveData<List<IApp>> {
+    fun getApps(key: String): LiveData<Pair<AppsFilter, List<IApp>>> {
         return appRepository.flowByGroup()
             .combine(getApplication<Application>().dataStore.data) { apps, preferences ->
 
@@ -68,20 +78,20 @@ class ApplicationsViewModel @Inject constructor(
 
                 val filter = AppsFilter.valueOf(
                     preferences[PreferencesKeys.APPS_FILTER] ?:
-                    AppsFilter.Alphabetic.name)
+                    AppsFilter.InternetAccess.name)
 
                 return@combine when (key) {
                     SectionsPagerAdapter.USER_APPS -> {
-                        orderAppsByFilter(
+                        Pair(filter, orderAppsByFilter(
                             apps.filter { !it.system },
                             filter
-                        )
+                        ))
                     }
                     SectionsPagerAdapter.SYSTEM_APPS -> {
-                        orderAppsByFilter(
+                        Pair(filter, orderAppsByFilter(
                             apps.filter { it.system },
                             filter
-                        )
+                        ))
                     }
                     else -> throw IllegalArgumentException("Incorrect key")
                 }

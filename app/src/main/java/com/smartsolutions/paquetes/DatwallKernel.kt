@@ -100,9 +100,9 @@ class DatwallKernel @Inject constructor(
                 }
                 else -> {
                     synchronizeDatabaseAndStartWatcher()
+                    startServices()
                     registerBroadcastsAndCallbacks()
                     registerWorkers()
-                    startServices()
                     startMainActivity()
                 }
             }
@@ -141,9 +141,9 @@ class DatwallKernel @Inject constructor(
                 }
                 else -> {
                     synchronizeDatabaseAndStartWatcher()
+                    startServices()
                     registerBroadcastsAndCallbacks()
                     registerWorkers()
-                    startServices()
                 }
             }
         }
@@ -318,7 +318,13 @@ class DatwallKernel @Inject constructor(
      * Inicia los servicios.
      * */
     private fun startServices() {
-        context.startService(Intent(context, DatwallService::class.java))
+        val datwallServiceIntent = Intent(context, DatwallService::class.java)
+
+        if (isInForeground()) {
+            context.startService(datwallServiceIntent)
+        } else {
+            ContextCompat.startForegroundService(context, datwallServiceIntent)
+        }
     }
 
     /**

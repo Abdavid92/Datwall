@@ -113,6 +113,7 @@ dependencies {
     implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
     implementation 'com.stephentuso:welcome:1.4.1'
     implementation 'org.apache:commons-lang:2.4'
+    implementation 'com.github.sergei-lapin:BlurView:1.0.0'
 
     //Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"

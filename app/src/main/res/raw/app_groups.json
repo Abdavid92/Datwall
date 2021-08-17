@@ -8,7 +8,7 @@
     "name": "Servicios de Google",
     "packageName": "com.google.android.gms",
     "access": true,
-    "blockedAnnotations": "Si bloqueas este grupo, algunas aplicaciones que dependan de estos serivios pueden no funcionar."
+    "blockedAnnotations": "Si bloqueas este grupo, algunas aplicaciones que dependan de estos servicios pueden no funcionar."
   },
   {
     "name": "Servicios de descargas",

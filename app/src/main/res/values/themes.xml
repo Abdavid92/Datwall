@@ -18,15 +18,11 @@
         <item name="cornerRadius">20dp</item>
     </style>
 
-    <style name="Theme.Datwall.Fullscreen" parent="Theme.Datwall">
+    <style name="Theme.Datwall.Fullscreen">
         <item name="android:actionBarStyle">@style/Widget.Theme.Datwall.ActionBar.Fullscreen</item>
         <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
-    </style>
-
-    <style name="ThemeOverlay.Datwall.FullscreenContainer" parent="">
-        <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
-        <item name="fullscreenTextColor">@color/light_blue_A200</item>
+        <item name="android:windowBackground">?attr/colorOnPrimary</item>
+        <item name="splash_icon">@drawable/splash_screen</item>
     </style>
 
     <style name="Theme.Datwall.NoActionBar">
@@ -34,7 +30,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar" />
 
     <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 

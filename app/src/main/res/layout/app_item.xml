@@ -10,19 +10,20 @@
     </data>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/background_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
-        android:layout_margin="8dp">
+        android:layout_margin="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/background_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true">
+            android:padding="8dp">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/icon"
@@ -45,7 +46,7 @@
                 app:layout_constraintBottom_toTopOf="@id/package_name"
                 app:layout_constraintStart_toEndOf="@id/icon"
                 app:layout_constraintTop_toTopOf="@id/icon"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/vpn_access"
                 app:layout_constrainedWidth="true"
                 tools:text="Nombre" />
 
@@ -60,9 +61,25 @@
                 app:layout_constraintBottom_toBottomOf="@id/icon"
                 app:layout_constraintStart_toEndOf="@id/icon"
                 app:layout_constraintTop_toBottomOf="@id/name"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/vpn_access"
                 app:layout_constrainedWidth="true"
                 tools:text="Nombre de paquete" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/launch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/ic_launch" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/vpn_access"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="invisible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

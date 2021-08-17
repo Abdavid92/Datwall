@@ -4,20 +4,28 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsPlaceholderBinding
+import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.repositories.models.IApp
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val ARG_KEY = "arg_key"
 
 @AndroidEntryPoint
-class PlaceHolderFragment : Fragment() {
+class PlaceHolderFragment : Fragment(),
+    AppsListAdapter.OnAppAccessChangeListener,
+    ApplicationsFragment.OnQueryAppListener
+{
 
     private lateinit var binding: FragmentApplicationsPlaceholderBinding
 
@@ -42,9 +50,8 @@ class PlaceHolderFragment : Fragment() {
             }
         }
     ) {
-        if (it != null) {
-            viewModel.appsToUpdate.add(it)
-            adapter?.updateApp(it)
+        it?.let { app ->
+            onAppAccessChange(app, true)
         }
     }
 
@@ -69,7 +76,17 @@ class PlaceHolderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.refresh.isRefreshing = true
+        val uiHelper = UIHelper(requireContext())
+
+        binding.refresh.apply {
+            uiHelper.getColorTheme(R.attr.colorOnPrimary)?.let {
+                setProgressBackgroundColorSchemeColor(it)
+            }
+            uiHelper.getColorTheme(R.attr.colorAccent)?.let {
+                setColorSchemeColors(it)
+            }
+            isRefreshing = true
+        }
 
         binding.refresh.setOnRefreshListener {
             if(!viewModel.commitUpdateApps()) {
@@ -79,17 +96,26 @@ class PlaceHolderFragment : Fragment() {
 
         viewModel.getApps(key).observe(viewLifecycleOwner) {
             if (adapter != null) {
-                adapter!!.updateList(it)
+                binding.appsList.recycledViewPool.clear()
+                adapter!!.updateList(it.first, it.second)
             } else {
                 adapter = AppsListAdapter(
-                    requireActivity(),
+                    this,
                     appControlLauncher,
                     viewModel.iconManager.get(),
-                    it)
+                    it.first,
+                    it.second)
+
                 binding.appsList.adapter = adapter
             }
             binding.refresh.isRefreshing = false
         }
+    }
+
+    override fun onAppAccessChange(app: IApp, updateList: Boolean) {
+        viewModel.addAppToUpdate(app)
+        if (updateList)
+            adapter?.updateApp(app)
     }
 
     override fun onDetach() {
@@ -110,5 +136,9 @@ class PlaceHolderFragment : Fragment() {
 
             return fragment
         }
+    }
+
+    override fun onQueryApp(query: String?) {
+        adapter?.search(query)
     }
 }
