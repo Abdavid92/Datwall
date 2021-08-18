@@ -8,11 +8,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
-import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.internal.DoubleCheck
 import javax.inject.Inject
-import javax.inject.Provider
 
 class WatcherUtils @Inject constructor(
     @ApplicationContext
@@ -22,17 +19,9 @@ class WatcherUtils @Inject constructor(
     private val usageStatsManager = ContextCompat
         .getSystemService(context, UsageStatsManager::class.java)
 
-    private val activityManager = object : Lazy<ActivityManager> {
-
-        private var instance: ActivityManager? = null
-
-        override fun get(): ActivityManager {
-            if (instance == null)
-                instance = ContextCompat.getSystemService(context, ActivityManager::class.java)
-                    ?: throw NullPointerException()
-
-            return instance!!
-        }
+    private val activityManager by lazy {
+        ContextCompat.getSystemService(context, ActivityManager::class.java)
+            ?: throw NullPointerException()
     }
 
     private val packageManager = context.packageManager
@@ -46,8 +35,7 @@ class WatcherUtils @Inject constructor(
 
     private fun getLollipopLastApp(): String? {
         val tasks = try {
-            activityManager.get()
-                .getRecentTasks(1, ActivityManager.RECENT_IGNORE_UNAVAILABLE)
+            activityManager.getRecentTasks(1, ActivityManager.RECENT_IGNORE_UNAVAILABLE)
         } catch (e: SecurityException) {
             emptyList<ActivityManager.RecentTaskInfo>()
         }

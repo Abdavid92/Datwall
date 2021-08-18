@@ -13,6 +13,7 @@ import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.ui.firewall.AppsListAdapter
+import com.smartsolutions.paquetes.uiDataStore
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class ApplicationsViewModel @Inject constructor(
     application: Application,
     private val appRepository: IAppRepository,
-    val iconManager: Lazy<IIconManager>
+    val iconManager: IIconManager
 ) : AndroidViewModel(application) {
 
     /**
@@ -64,7 +65,7 @@ class ApplicationsViewModel @Inject constructor(
     fun setFilter(filter: AppsFilter) {
         viewModelScope.launch {
             getApplication<Application>()
-                .dataStore.edit {
+                .uiDataStore.edit {
                     it[PreferencesKeys.APPS_FILTER] = filter.name
                 }
         }
@@ -72,7 +73,7 @@ class ApplicationsViewModel @Inject constructor(
 
     fun getApps(key: String): LiveData<Pair<AppsFilter, List<IApp>>> {
         return appRepository.flowByGroup()
-            .combine(getApplication<Application>().dataStore.data) { apps, preferences ->
+            .combine(getApplication<Application>().uiDataStore.data) { apps, preferences ->
 
                 delay(500)
 

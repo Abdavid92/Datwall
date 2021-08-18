@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.ui.applications
 
-import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -133,6 +132,12 @@ class AppsListAdapter constructor(
         notifyDataSetChanged()
     }
 
+    /**
+     * Actualiza el ViewHolder de una app en la lista. Si la app está dentro
+     * de un grupo, actualiza el ViewHolder del grupo.
+     *
+     * @param app
+     * */
     fun updateApp(app: IApp) {
         var index = finalList.indexOf(app)
 
@@ -225,8 +230,8 @@ class AppsListAdapter constructor(
             }
 
             uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
-                if (fragment is OnAppAccessChangeListener) {
-                    fragment.onAppAccessChange(app, false)
+                if (fragment is OnAppChangeListener) {
+                    fragment.onAppChange(app)
                 }
             }
 
@@ -286,8 +291,9 @@ class AppsListAdapter constructor(
             binding.child.adapter = childAdapter
 
             uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
-                if (fragment is OnAppAccessChangeListener) {
-                    fragment.onAppAccessChange(app, true)
+                if (fragment is OnAppChangeListener) {
+                    fragment.onAppChange(app)
+                    updateApp(app)
                 }
             }
 
@@ -308,7 +314,13 @@ class AppsListAdapter constructor(
         abstract fun bind(app: IApp)
     }
 
-    interface OnAppAccessChangeListener {
-        fun onAppAccessChange(app: IApp, updateList: Boolean)
+    /**
+     * Listener para escuchar los cambios de las apps.
+     * */
+    interface OnAppChangeListener {
+        /**
+         * Se invoca cuando una app cambia.
+         * */
+        fun onAppChange(app: IApp)
     }
 }

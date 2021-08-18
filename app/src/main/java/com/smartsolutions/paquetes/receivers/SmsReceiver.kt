@@ -102,10 +102,7 @@ class SmsReceiver : BroadcastReceiver() {
                     }
                 }
             }
-            return if (slot == -1)
-                slot
-            else
-                slot
+            return slot
         } catch (e: Exception) {
 
         }

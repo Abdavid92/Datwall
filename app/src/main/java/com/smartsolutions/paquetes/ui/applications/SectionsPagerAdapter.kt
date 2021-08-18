@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui.applications
 
 import android.content.Context
+import androidx.annotation.StringDef
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -33,3 +34,7 @@ class SectionsPagerAdapter(
         const val SYSTEM_APPS = "system_apps"
     }
 }
+
+@StringDef(SectionsPagerAdapter.USER_APPS, SectionsPagerAdapter.SYSTEM_APPS)
+@Retention(AnnotationRetention.SOURCE)
+annotation class FragmentAppsKey

@@ -4,12 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
@@ -21,20 +19,37 @@ import dagger.hilt.android.AndroidEntryPoint
 
 private const val ARG_KEY = "arg_key"
 
+/**
+ * Fragmento del control de las aplicaciones.
+ * */
 @AndroidEntryPoint
 class PlaceHolderFragment : Fragment(),
-    AppsListAdapter.OnAppAccessChangeListener,
+    AppsListAdapter.OnAppChangeListener,
     ApplicationsFragment.OnQueryAppListener
 {
 
+    /**
+     * Enlace a la vista.
+     * */
     private lateinit var binding: FragmentApplicationsPlaceholderBinding
 
     private val viewModel by viewModels<ApplicationsViewModel>()
 
+    /**
+     * Adaptador de la lista de aplicaciones.
+     * */
     private var adapter: AppsListAdapter? = null
 
+    /**
+     * Clave que indica cuál es la lista de aplicaciones a crear.
+     * Las claves admitidas son [SectionsPagerAdapter.USER_APPS] y
+     * [SectionsPagerAdapter.SYSTEM_APPS].
+     * */
     private lateinit var key: String
 
+    /**
+     * Launcher que lanza la [AppControlActivity] y espera el resultado.
+     * */
     private val appControlLauncher = registerForActivityResult(
         object : ActivityResultContract<App, App?>() {
 
@@ -51,7 +66,8 @@ class PlaceHolderFragment : Fragment(),
         }
     ) {
         it?.let { app ->
-            onAppAccessChange(app, true)
+            onAppChange(app)
+            adapter?.updateApp(app)
         }
     }
 
@@ -76,8 +92,10 @@ class PlaceHolderFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //Helper de la ui con métodos de utilidades
         val uiHelper = UIHelper(requireContext())
 
+        //Aplico los colores del tema al SwipeRefreshLayout
         binding.refresh.apply {
             uiHelper.getColorTheme(R.attr.colorOnPrimary)?.let {
                 setProgressBackgroundColorSchemeColor(it)
@@ -96,13 +114,15 @@ class PlaceHolderFragment : Fragment(),
 
         viewModel.getApps(key).observe(viewLifecycleOwner) {
             if (adapter != null) {
+                /*Se debe borrar la cache del RecyclerView para forzar la actualización
+                * de todos los ViewHolders.*/
                 binding.appsList.recycledViewPool.clear()
                 adapter!!.updateList(it.first, it.second)
             } else {
                 adapter = AppsListAdapter(
                     this,
                     appControlLauncher,
-                    viewModel.iconManager.get(),
+                    viewModel.iconManager,
                     it.first,
                     it.second)
 
@@ -112,12 +132,16 @@ class PlaceHolderFragment : Fragment(),
         }
     }
 
-    override fun onAppAccessChange(app: IApp, updateList: Boolean) {
+    /**
+     * Se invoca cuando se cambian las propiedades de una app.
+     * */
+    override fun onAppChange(app: IApp) {
         viewModel.addAppToUpdate(app)
-        if (updateList)
-            adapter?.updateApp(app)
     }
 
+    /**
+     * Se invoca cuando se está buscando una app.
+     * */
     override fun onQueryApp(query: String?) {
         adapter?.search(query)
     }
@@ -129,7 +153,7 @@ class PlaceHolderFragment : Fragment(),
 
     companion object {
 
-        fun newInstance(key: String): Fragment {
+        fun newInstance(@FragmentAppsKey key: String): Fragment {
             val fragment = PlaceHolderFragment()
 
             val args = Bundle().apply {
