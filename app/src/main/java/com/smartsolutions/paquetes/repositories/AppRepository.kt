@@ -64,6 +64,10 @@ class AppRepository @Inject constructor(
         }
     }
 
+    override suspend fun get(uid: IntArray): List<App> {
+        return dao.get(uid)
+    }
+
     override suspend fun getAllByGroup(): List<IApp> = convertToListIApp(dao.apps())
 
     override suspend fun create(app: App) = dao.create(app)

@@ -28,6 +28,9 @@ interface IAppDao {
     @Query("SELECT * FROM apps WHERE uid = :uid")
     fun get(uid: Int): List<App>
 
+    @Query("SELECT * FROM apps WHERE uid IN (:uid)")
+    fun get(uid: IntArray): List<App>
+
     @Insert
     suspend fun create(app: App)
 

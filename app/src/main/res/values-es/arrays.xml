@@ -14,4 +14,15 @@
         <item>Año</item>
         <item>Paquete</item>
     </string-array>
+
+     <integer-array name="colors_chart">
+        <item>@color/red</item>
+        <item>@color/blue</item>
+        <item>@color/orange</item>
+        <item>@color/yellow</item>
+        <item>@color/green_light</item>
+        <item>@color/magent</item>
+        <item>@color/purple</item>
+        <item>@color/gray_400</item>
+    </integer-array>
 </resources>

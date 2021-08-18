@@ -1,8 +1,8 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.data.DataPackagesContract
+import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -183,7 +183,7 @@ class UserDataBytesManager @Inject constructor(
      *
      **/
     private fun fixTrafficByTime (bytes: Long) : Long {
-        return if (NetworkUtils.isInDiscountHour(System.currentTimeMillis(), System.currentTimeMillis())){
+        return if (NetworkUsageUtils.isInDiscountHour(System.currentTimeMillis(), System.currentTimeMillis())){
             bytes / 2
         }else {
             bytes

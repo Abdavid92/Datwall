@@ -8,7 +8,7 @@ import android.net.TrafficStats
 import android.os.Build
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.annotations.Networks
-import com.smartsolutions.paquetes.helpers.NetworkUtil
+import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
@@ -32,7 +32,7 @@ import javax.inject.Inject
 class TrafficRegistrationReceiver @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val networkUtil: NetworkUtil,
+    private val networkUtils: NetworkUtils,
     private val userDataBytesManager: IUserDataBytesManager,
     private val simManager: ISimManager,
     private val trafficRepository: ITrafficRepository,
@@ -81,7 +81,7 @@ class TrafficRegistrationReceiver @Inject constructor(
 
     private suspend fun takeLollipopTraffic(){
         val simId = simManager.getDefaultDataSim().id
-        val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
+        val isLte = networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
 
         val trafficsToAdd = mutableListOf<Traffic>()
 
@@ -145,7 +145,7 @@ class TrafficRegistrationReceiver @Inject constructor(
         } else {
             val rx = TrafficStats.getMobileRxBytes()
             val tx = TrafficStats.getMobileTxBytes()
-            val isLte = networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
+            val isLte = networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
 
             userDataBytesManager.registerTraffic(
                 rx - rxBytes,

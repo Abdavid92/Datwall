@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.models.App
@@ -100,7 +101,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
      * */
     suspend fun getAppUsageDayByHour(uid: Int, day : Date) : List<Pair<Long, Traffic>>{
         val pairList: ArrayList<Pair<Long, Traffic>> = ArrayList()
-        var date = NetworkUtils.getZeroHour(day)
+        var date = NetworkUsageUtils.getZeroHour(day)
 
         while (DateUtils.isSameDay(date, day) && date.time <= System.currentTimeMillis()){
             val start = date.time

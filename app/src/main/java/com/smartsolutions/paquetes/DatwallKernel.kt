@@ -14,7 +14,7 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
-import com.smartsolutions.paquetes.helpers.NetworkUtil
+import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
@@ -22,7 +22,6 @@ import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.receivers.TrafficRegistrationNewReceiver
-import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.services.FirewallService
@@ -55,7 +54,7 @@ class DatwallKernel @Inject constructor(
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
     private val watcher: Watcher,
-    private val networkUtil: NetworkUtil,
+    private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
     private val trafficRegistration: TrafficRegistrationNewReceiver
 ) : IChangeNetworkHelper, CoroutineScope {
@@ -180,7 +179,7 @@ class DatwallKernel @Inject constructor(
                 startBubbleFloating()
             }
 
-            if (networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G) {
+            if (networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G) {
                 context.dataStore.edit {
                     it[PreferencesKeys.ENABLED_LTE] = true
                 }

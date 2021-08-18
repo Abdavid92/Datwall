@@ -7,25 +7,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.viewModels
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.PercentFormatter
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsagePlaceHolderBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.models.Traffic
+import com.smartsolutions.paquetes.repositories.models.TrafficType
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlin.math.roundToInt
 
 private const val FRAGMENT_TYPE = "fragment_type"
+@AndroidEntryPoint
 class UsageHolderFragment : Fragment() {
 
-    private var type: String? = null
+    private var type: Int? = null
     private lateinit var binding: FragmentUsagePlaceHolderBinding
     private lateinit var uiHelper: UIHelper
+
+    private val viewModel by viewModels<UsageViewModel> ()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            type = it.getString(FRAGMENT_TYPE)
+            type = it.getInt(FRAGMENT_TYPE)
         }
     }
 
@@ -43,13 +55,16 @@ class UsageHolderFragment : Fragment() {
 
         uiHelper = UIHelper(requireContext())
 
-        showPieChart(listOf(
-            Pair("Caca", 100L),
-            Pair("Pipi", 350L),
-            Pair("Viento", 127L),
-            Pair("Diarrea", 563L),
-            Pair("Colico", 675L)
-        ))
+        type?.let {
+            viewModel.getUsage(TrafficType.values()[it]).observe(viewLifecycleOwner, {
+                val total =  DataUnitBytes(it.first).getValue()
+                binding.textTotalValue.text = "${total.value.roundToInt()} ${total.dataUnit}"
+
+                runBlocking {
+                    showPieChart(viewModel.processTrafficChart(it.second))
+                }
+            })
+        }
 
     }
 
@@ -61,34 +76,31 @@ class UsageHolderFragment : Fragment() {
             entries.add(PieEntry(it.second.toFloat(), it.first))
         }
 
-        val pieData = PieData(PieDataSet(entries, "Consumo").apply {
+        val pieData = PieData(PieDataSet(entries, "").apply {
             valueTextSize = 11f
-            colors = mutableListOf(
-                Color.RED,
-                Color.YELLOW,
-                Color.BLUE,
-                Color.GREEN,
-                Color.CYAN
-            )
+            colors = resources.getIntArray(R.array.colors_chart).toMutableList()
         })
+
+        pieData.setValueFormatter(PercentFormatter())
 
         binding.pieChart.data = pieData
         binding.pieChart.description.text = "en MB"
         binding.pieChart.description.textColor = uiHelper.getTextColorByTheme()
         binding.pieChart.isDrawHoleEnabled = false
-        binding.pieChart.legend.isEnabled = false
+        binding.pieChart.legend.textColor = uiHelper.getTextColorByTheme()
         binding.pieChart.setEntryLabelTextSize(11f)
         binding.pieChart.setEntryLabelColor(Color.BLACK)
-        binding.pieChart.animateY(1400, Easing.EaseInOutCubic);
-        binding.pieChart.invalidate()
+        binding.pieChart.animateY(1000, Easing.EaseInOutCubic)
+        binding.pieChart.setUsePercentValues(true)
+        binding.pieChart.postInvalidate()
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(type: String) =
+        fun newInstance(type: TrafficType) =
             UsageHolderFragment().apply {
                 arguments = Bundle().apply {
-                    putString(FRAGMENT_TYPE, type)
+                    putInt(FRAGMENT_TYPE, type.ordinal)
                 }
             }
     }

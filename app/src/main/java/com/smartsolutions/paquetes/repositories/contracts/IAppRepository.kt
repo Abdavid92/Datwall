@@ -53,6 +53,8 @@ interface IAppRepository {
      * */
     suspend fun get(uid: Int): IApp?
 
+    suspend fun get(uid: IntArray): List<App>
+
     /**
      * Obtiene todas la aplicaciones organizadas por grupo
      * */

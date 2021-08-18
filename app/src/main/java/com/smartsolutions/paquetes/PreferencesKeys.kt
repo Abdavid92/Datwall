@@ -89,4 +89,9 @@ object PreferencesKeys {
      * Filtro que se usa para ordenar la lista de aplicaciones
      * */
     val APPS_FILTER = stringPreferencesKey("apps_filter")
+
+    /**
+     * Opcion de periodo de tiempo en el cual mostrar el consumo
+     */
+    val USAGE_PERIOD = intPreferencesKey("usage_option")
 }
