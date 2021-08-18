@@ -137,4 +137,8 @@
     <string name="filter">Filtro</string>
     <string name="search">Buscar</string>
     <string name="dialog_filter_title">Ordenar lista por...</string>
+    <string name="tab_international">Internacional</string>
+    <string name="tab_national">Nacional</string>
+    <string name="tab_free">Gratis</string>
+    <string name="title_usage">Consumo</string>
 </resources>

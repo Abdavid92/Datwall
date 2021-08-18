@@ -11,6 +11,7 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="appBarLayoutStyle">@style/Theme.Datwall.AppBar</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -30,7 +31,15 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar" />
+    <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
+        <item name="background">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Theme.Datwall.AppBar">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
+    </style>
 
     <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
