@@ -6,6 +6,10 @@
         android:icon="@drawable/ic_home_black_24dp"
         android:title="@string/title_home" />
 
+    <item android:id="@+id/navigation_usage"
+        android:icon="@drawable/ic_chart"
+        android:title="@string/title_usage"/>
+
     <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_dashboard_black_24dp"
@@ -15,11 +19,6 @@
         android:id="@+id/navigation_apps"
         android:icon="@drawable/ic_apps"
         android:title="@string/title_applications" />
-
-    <!--<item
-        android:id="@+id/navigation_firewall"
-        android:icon="@drawable/ic_firewall"
-        android:title="@string/title_firewall" />-->
 
     <item
         android:id="@+id/navigation_notifications"

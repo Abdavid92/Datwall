@@ -5,4 +5,13 @@
         <item>Acceso a internet</item>
         <item>Tipo de tráfico</item>
     </string-array>
+
+    <string-array name="usage_options">
+        <item>Hoy</item>
+        <item>Ayer</item>
+        <item>Semana</item>
+        <item>Mes</item>
+        <item>Año</item>
+        <item>Paquete</item>
+    </string-array>
 </resources>
