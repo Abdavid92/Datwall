@@ -54,7 +54,7 @@ class UsageFragment : Fragment() {
 
         }
 
-        val adapter = FragmentPageAdapter(requireContext(), this)
+        val adapter = FragmentPageAdapter(this)
         binding.pager.adapter = adapter
 
         TabLayoutMediator(binding.tabs, binding.pager){ tab, position ->

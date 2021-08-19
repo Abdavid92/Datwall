@@ -79,7 +79,7 @@ class UsageViewModel @Inject constructor(
 
         if (list.size > 8) {
             list.subList(0, 7).forEach {
-                data.add(Pair(it.name.split(" ")[0], it.traffic!!.totalBytes.bytes))
+                data.add(Pair(it.name, it.traffic!!.totalBytes.bytes))
             }
 
             var total = 0L

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -83,12 +84,17 @@ class UsageHolderFragment : Fragment() {
 
         pieData.setValueFormatter(PercentFormatter())
 
+        pieData.setDrawValues(false)
+
         binding.pieChart.data = pieData
         binding.pieChart.description.text = "en MB"
         binding.pieChart.description.textColor = uiHelper.getTextColorByTheme()
         binding.pieChart.isDrawHoleEnabled = false
         binding.pieChart.legend.textColor = uiHelper.getTextColorByTheme()
+        binding.pieChart.setDrawRoundedSlices(true)
+        binding.pieChart.setUsePercentValues(true)
         binding.pieChart.setEntryLabelTextSize(11f)
+        binding.pieChart.setDrawEntryLabels(false)
         binding.pieChart.setEntryLabelColor(Color.BLACK)
         binding.pieChart.animateY(1000, Easing.EaseInOutCubic)
         binding.pieChart.setUsePercentValues(true)
