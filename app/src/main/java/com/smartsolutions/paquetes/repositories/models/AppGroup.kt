@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.repositories.models
 
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -122,5 +121,37 @@ class AppGroup(
             code += it.accessHashCode().toString()
         }
         return code.toLong()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AppGroup
+
+        if (packageName != other.packageName) return false
+        if (uid != other.uid) return false
+        if (name != other.name) return false
+        if (apps != other.apps) return false
+        if (allowAnnotations != other.allowAnnotations) return false
+        if (blockedAnnotations != other.blockedAnnotations) return false
+        if (access != other.access) return false
+        if (system != other.system) return false
+        if (size != other.size) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = packageName.hashCode()
+        result = 31 * result + uid
+        result = 31 * result + name.hashCode()
+        result = 31 * result + apps.hashCode()
+        result = 31 * result + (allowAnnotations?.hashCode() ?: 0)
+        result = 31 * result + (blockedAnnotations?.hashCode() ?: 0)
+        result = 31 * result + access.hashCode()
+        result = 31 * result + system.hashCode()
+        result = 31 * result + size
+        return result
     }
 }

@@ -7,6 +7,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.AppGroupItemBinding
@@ -17,6 +18,10 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val APP_HOLDER_TYPE = 0
 private const val APP_GROUP_HOLDER_TYPE = 1
@@ -110,26 +115,43 @@ class AppsListAdapter constructor(
      * @param query - Texto que debe contener el nombre de la aplicación a buscar.
      * */
     fun search(query: String?) {
-        finalList = if (query != null && query.isNotBlank()) {
-            list.where { it.name.contains(query, true) }.toMutableList()
-        } else {
-            list.toMutableList()
+        GlobalScope.launch(Dispatchers.Default) {
+            val newList = if (query != null && query.isNotBlank()) {
+                list.where { it.name.contains(query, true) }.toMutableList()
+            } else {
+                list.toMutableList()
+            }
+
+            val result = DiffUtil.calculateDiff(DiffCallback(finalList, newList, false))
+
+            finalList = newList
+            expandedList.clear()
+
+            withContext(Dispatchers.Main) {
+                result.dispatchUpdatesTo(this@AppsListAdapter)
+            }
         }
-        notifyDataSetChanged()
     }
 
     /**
      * Actualiza la lista de aplicaciones y refresca el RecyclerView.
      *
-     * @param list - Lista de aplicaciones.
+     * @param newList - Lista de aplicaciones.
      * */
-    fun updateList(filter: AppsFilter, list: List<IApp>) {
-        this.appsFilter = filter
-        this.list = list
-        this.finalList = list.toMutableList()
-        expandedList.clear()
+    fun updateList(newFilter: AppsFilter, newList: List<IApp>) {
+        GlobalScope.launch(Dispatchers.Default) {
+            val result = DiffUtil.calculateDiff(
+                DiffCallback(finalList, newList, appsFilter != newFilter),
+                true)
 
-        notifyDataSetChanged()
+            appsFilter = newFilter
+            this@AppsListAdapter.list = newList
+            finalList = newList.toMutableList()
+
+            withContext(Dispatchers.Main) {
+                result.dispatchUpdatesTo(this@AppsListAdapter)
+            }
+        }
     }
 
     /**
@@ -312,6 +334,30 @@ class AppsListAdapter constructor(
     abstract inner class AbstractViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         abstract fun bind(app: IApp)
+    }
+
+    private class DiffCallback(
+        private val oldList: List<IApp>,
+        private val newList: List<IApp>,
+        private val changeFilter: Boolean
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition] && !changeFilter
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].accessHashCode() ==
+                    newList[newItemPosition].accessHashCode()
+        }
+
     }
 
     /**

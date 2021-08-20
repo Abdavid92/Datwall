@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.repositories.models.AppGroup
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -61,7 +62,7 @@ class PackageMonitor @Inject constructor(
                     } else if (app == null) {
                         //Instancio una nueva App
                         app = App()
-                        //LA lleno
+                        //La lleno
                         appRepository.fillNewApp(app, info)
                         //Y la creo
                         appRepository.create(app)
@@ -120,11 +121,9 @@ class PackageMonitor @Inject constructor(
     /**
      * Fuerza la sincronización de la base de datos revisando todas las aplicaciones
      * instaladas y creando, actualizando o eliminando según corresponda.
-     * Ejecuta una función al final del proceso.
      *
-     * @param task - Función a ejecutar cuando termina el proceso de sincronización
      * */
-    suspend fun forceSynchronization(/*task: (() -> Unit)? = null*/) {
+    suspend fun forceSynchronization() {
         //Obtengo las aplicaciones instaladas
         val installedPackages = packageManager.getInstalledPackages(0)
 
@@ -166,10 +165,17 @@ class PackageMonitor @Inject constructor(
         appRepository.update(appsToUpdate)
         appRepository.delete(appsToDelete)
 
-        restoreOldConfiguration()
+        //Actualizo los accesos a los grupos
+        appRepository.getAllByGroup()
+            .filterIsInstance<AppGroup>()
+            .forEach { group ->
 
-        //Por último ejecuto la tarea que se pasó como parámetro.
-        //task?.invoke()
+            group.access = group.getMasterApp().access
+
+            appRepository.update(group)
+        }
+
+        restoreOldConfiguration()
     }
 
     /**

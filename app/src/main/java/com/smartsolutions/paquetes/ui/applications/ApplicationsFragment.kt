@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,11 +43,12 @@ class ApplicationsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val sectionsAdapter = SectionsPagerAdapter(requireContext(), childFragmentManager)
+        val sectionsAdapter = SectionsPagerAdapter(this)
         binding.viewPager.adapter = sectionsAdapter
 
-        binding.tabs.setupWithViewPager(binding.viewPager)
-
+        TabLayoutMediator(binding.tabs, binding.viewPager) { tab, position ->
+            tab.text = sectionsAdapter.pages[position].second
+        }.attach()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

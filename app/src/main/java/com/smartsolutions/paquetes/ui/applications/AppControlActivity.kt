@@ -1,17 +1,11 @@
 package com.smartsolutions.paquetes.ui.applications
 
 import android.content.Intent
-import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.renderscript.Allocation
-import android.renderscript.Element
-import android.renderscript.RenderScript
-import android.renderscript.ScriptIntrinsicBlur
 import android.transition.Transition
 import android.view.View
 import android.widget.CompoundButton
-import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityAppControlBinding

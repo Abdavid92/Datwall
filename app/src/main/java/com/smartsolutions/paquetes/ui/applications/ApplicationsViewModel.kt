@@ -16,13 +16,10 @@ import com.smartsolutions.paquetes.ui.firewall.AppsListAdapter
 import com.smartsolutions.paquetes.uiDataStore
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
 
@@ -211,7 +208,7 @@ private class HeaderApp private constructor(
 ) : IApp {
 
     override fun accessHashCode(): Long {
-        throw UnsupportedOperationException("Not supported")
+        return 0
     }
 
     companion object {

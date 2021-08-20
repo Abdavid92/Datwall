@@ -13,11 +13,11 @@
         android:id="@+id/background_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
         android:layout_margin="8dp"
         android:clickable="true"
         android:focusable="true"
+        app:cardCornerRadius="@dimen/card_view_radius"
+        app:cardElevation="@dimen/card_view_elevation"
         android:foreground="?android:attr/selectableItemBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
