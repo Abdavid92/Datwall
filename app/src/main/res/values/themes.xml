@@ -12,6 +12,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="cardViewStyle">@style/Theme.Datwall.CardView</item>
     </style>
 
     <style name="BottomSheetDialog." parent="Theme.MaterialComponents.BottomSheetDialog">
@@ -44,5 +45,11 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition</item>
         <item name="android:windowSharedElementExitTransition">@transition/app_control_transition</item>
+        <item name="cardViewStyle">@style/Theme.Datwall.CardView</item>
+    </style>
+
+    <style name="Theme.Datwall.CardView">
+        <item name="cardCornerRadius">@dimen/card_view_radius</item>
+        <item name="cardElevation">@dimen/card_view_elevation</item>
     </style>
 </resources>

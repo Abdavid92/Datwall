@@ -149,6 +149,10 @@ class AppControlActivity : AppCompatActivity() {
         }
     }
 
+    fun onClose(view: View) {
+        onBackPressed()
+    }
+
     fun onSave(view: View) {
         if (wasChanges) {
             /*Si hubo cambios establezco el resultado en ok e

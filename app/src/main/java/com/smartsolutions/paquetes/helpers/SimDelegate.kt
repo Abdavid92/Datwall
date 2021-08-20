@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Looper
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
@@ -33,7 +34,11 @@ class SimDelegate @Inject constructor(
     }
 
     /**
+     * Obtiene el [SubscriptionInfo] de la linea por el tipo.
      *
+     * @param type - Tipo de linea.
+     *
+     * @return [SubscriptionInfo]
      * */
     @Throws(MissingPermissionException::class)
     @RequiresApi(Build.VERSION_CODES.N)
@@ -94,8 +99,19 @@ class SimDelegate @Inject constructor(
             subscriptionInfo.iccId
 
     enum class SimType {
-
         VOICE,
         DATA
+    }
+
+    fun addOnSubscriptionsChangedListener(
+        listener: SubscriptionManager.OnSubscriptionsChangedListener
+    ) {
+        subscriptionManager.addOnSubscriptionsChangedListener(listener)
+    }
+
+    fun removeOnSubscriptionsChangedListener(
+        listener: SubscriptionManager.OnSubscriptionsChangedListener
+    ) {
+        subscriptionManager.removeOnSubscriptionsChangedListener(listener)
     }
 }

@@ -130,6 +130,18 @@ class SimManager @Inject constructor(
                 list.add(findSim(it, withRelations))
             }
 
+            /*Si estoy en android 5.1 o android 6 y solo tengo una linea,
+            * verifico que esa linea sea la predeterminada para datos y
+            * para voz. Si no lo es le asigno los valores y la actualizo
+            * en base de datos.*/
+            if (list.size == 1 &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.M &&
+                (!list[0].defaultData || !list[0].defaultVoice)) {
+                simRepository.update(list[0].apply {
+                    defaultData = true
+                    defaultVoice = true
+                })
+            }
             return list
         }
         return listOf(seedEmbeddedSim(withRelations))
@@ -138,9 +150,13 @@ class SimManager @Inject constructor(
     @Throws(MissingPermissionException::class)
     override fun flowInstalledSims(withRelations: Boolean): Flow<List<Sim>> =
         simRepository.flow(withRelations).map { list ->
-            val finalList = mutableListOf<Sim>()
-
             val installedSims = getInstalledSims()
+
+            if (list.size != installedSims.size) {
+                return@map installedSims
+            }
+
+            val finalList = mutableListOf<Sim>()
 
             list.forEach {
                 if (installedSims.contains(it))
@@ -150,6 +166,7 @@ class SimManager @Inject constructor(
                         }
                     })
             }
+
             return@map finalList
         }
 
@@ -165,7 +182,8 @@ class SimManager @Inject constructor(
     @Throws(MissingPermissionException::class)
     override suspend fun getSimByIndex(simIndex: Int, withRelations: Boolean): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            return findSim(simDelegate.getSimByIndex(simIndex) ?: throw IllegalArgumentException(), withRelations)
+            return findSim(simDelegate.getSimByIndex(simIndex) ?:
+            throw IllegalArgumentException(), withRelations)
         }
         return seedEmbeddedSim(withRelations)
     }
@@ -184,9 +202,10 @@ class SimManager @Inject constructor(
             return it
         }
 
-        val sim = Sim(embeddedSimId, 0, NETWORK_NONE)
-        sim.defaultVoice = true
-        sim.defaultData = true
+        val sim = Sim(embeddedSimId, 0, NETWORK_NONE).apply {
+            defaultVoice = true
+            defaultData = true
+        }
 
         simRepository.create(sim)
 
