@@ -5,7 +5,7 @@ import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
 import com.smartsolutions.paquetes.helpers.createDataPackageId
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.*
 
-object DataPackagesContract {
+/*object DataPackagesContract {
 
     const val PROMO_BONUS_KEY = "Su cuenta ha sido recargada en promocion"
 
@@ -161,4 +161,4 @@ object DataPackagesContract {
             get() = createDataPackageId(name, price)
 
     }
-}
+}*/

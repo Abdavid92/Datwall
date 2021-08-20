@@ -50,41 +50,6 @@ abstract class DbContext: RoomDatabase() {
 
     abstract fun getTrafficDao(): ITrafficDao
 
-    /**
-     * Seeder de la tabla data_packages
-     * */
-    internal class DataPackageDbSeeder: RoomDatabase.Callback() {
-
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            super.onCreate(db)
-
-            INSTANCE?.let { dbContext ->
-                val dao = dbContext.getDataPackageDao()
-
-                GlobalScope.launch(Dispatchers.Main) {
-                    DataPackagesContract.PackagesList.forEach { packageModel ->
-
-                        val dataPackage = DataPackage(
-                            packageModel.id,
-                            packageModel.name,
-                            packageModel.description,
-                            packageModel.price,
-                            packageModel.bytes.toBytes(),
-                            packageModel.bytesLte.toBytes(),
-                            packageModel.bonusBytes.toBytes(),
-                            packageModel.bonusCuBytes.toBytes(),
-                            packageModel.network,
-                            packageModel.index,
-                            packageModel.duration
-                        )
-
-                        dao.create(dataPackage)
-                    }
-                }
-            }
-        }
-    }
-
     companion object {
 
         @Volatile
@@ -104,8 +69,6 @@ abstract class DbContext: RoomDatabase() {
                     context,
                     DbContext::class.java,
                     "data.db")
-                    .addCallback(DataPackageDbSeeder())
-                    //.addMigrations()
                     .build()
 
                 return INSTANCE!!
