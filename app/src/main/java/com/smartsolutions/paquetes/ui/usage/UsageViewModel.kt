@@ -77,6 +77,10 @@ class UsageViewModel @Inject constructor(
     suspend fun processTrafficChart(list: List<App>): List<Pair<String, Long>> {
         val data = mutableListOf<Pair<String, Long>>()
 
+        list.forEach {
+            data.add(Pair(it.name, it.traffic!!.totalBytes.bytes))
+        }
+
         if (list.size > 8) {
             list.subList(0, 7).forEach {
                 data.add(Pair(it.name, it.traffic!!.totalBytes.bytes))
@@ -89,9 +93,7 @@ class UsageViewModel @Inject constructor(
 
             data.add(Pair("Otras", total))
         } else {
-            list.forEach {
-                data.add(Pair(it.name.split(" ")[0], it.traffic!!.totalBytes.bytes))
-            }
+
         }
         return data
     }

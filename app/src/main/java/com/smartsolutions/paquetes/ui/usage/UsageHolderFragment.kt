@@ -82,7 +82,7 @@ class UsageHolderFragment : Fragment() {
             colors = resources.getIntArray(R.array.colors_chart).toMutableList()
         })
 
-        pieData.setValueFormatter(PercentFormatter())
+        //pieData.setValueFormatter(PercentFormatter())
 
         pieData.setDrawValues(false)
 
@@ -92,12 +92,11 @@ class UsageHolderFragment : Fragment() {
         binding.pieChart.isDrawHoleEnabled = false
         binding.pieChart.legend.textColor = uiHelper.getTextColorByTheme()
         binding.pieChart.setDrawRoundedSlices(true)
-        binding.pieChart.setUsePercentValues(true)
+        binding.pieChart.setUsePercentValues(false)
         binding.pieChart.setEntryLabelTextSize(11f)
         binding.pieChart.setDrawEntryLabels(false)
         binding.pieChart.setEntryLabelColor(Color.BLACK)
         binding.pieChart.animateY(1000, Easing.EaseInOutCubic)
-        binding.pieChart.setUsePercentValues(true)
         binding.pieChart.postInvalidate()
     }
 
