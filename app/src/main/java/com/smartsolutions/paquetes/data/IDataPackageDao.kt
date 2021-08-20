@@ -6,6 +6,7 @@ import com.smartsolutions.paquetes.repositories.models.DataPackage
 import kotlinx.coroutines.flow.Flow
 
 @Dao
+@TypeConverters(DataPackage.PackageIdConverter::class)
 interface IDataPackageDao {
 
     @Query("SELECT * FROM data_packages")
@@ -15,7 +16,7 @@ interface IDataPackageDao {
     fun flow(): Flow<List<DataPackage>>
 
     @Query("SELECT * FROM data_packages WHERE id = :id")
-    suspend fun get(id: String): DataPackage?
+    suspend fun get(id: DataPackages.PackageId): DataPackage?
 
     @Query("SELECT * FROM data_packages WHERE network = :network")
     suspend fun getByNetwork(@Networks network: String) : List<DataPackage>

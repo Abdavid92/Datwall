@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.repositories.models
 
 import androidx.room.*
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 
 /**
@@ -25,7 +26,10 @@ import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
         Index("data_package_id"),
         Index("sim_id")
 ])
-@TypeConverters(PurchasedPackage.BuyModeConverter::class)
+@TypeConverters(
+    PurchasedPackage.BuyModeConverter::class,
+    DataPackage.PackageIdConverter::class
+)
 data class PurchasedPackage(
     /**
      * Id de la compra.
@@ -53,7 +57,7 @@ data class PurchasedPackage(
      * Id del paquete que se compró.
      * */
     @ColumnInfo(name = "data_package_id")
-    val dataPackageId: String
+    val dataPackageId: DataPackages.PackageId
 ) {
 
     /**

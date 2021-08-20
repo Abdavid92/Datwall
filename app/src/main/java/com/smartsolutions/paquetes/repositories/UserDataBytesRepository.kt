@@ -34,7 +34,7 @@ class UserDataBytesRepository @Inject constructor(
             val userDataBytesList: MutableList<UserDataBytes> = userDataBytesDao
                 .bySimId(simId).toMutableList()
 
-            if (userDataBytesList.size < DataBytes.DataType.values().size) {
+            if (userDataBytesList.size < DataType.values().size) {
                 seedUserDataBytes(simId, userDataBytesList)
             }
 

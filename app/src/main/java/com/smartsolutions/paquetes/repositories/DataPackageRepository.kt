@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.repositories
 
 import com.smartsolutions.paquetes.annotations.Networks
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.data.IDataPackageDao
 import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
@@ -28,7 +29,7 @@ class DataPackageRepository @Inject constructor(
             return@map list
         }
 
-    override suspend fun get(id: String): DataPackage? =
+    override suspend fun get(id: DataPackages.PackageId): DataPackage? =
         dataPackageDao.get(id)?.apply {
             transform(this)
         }

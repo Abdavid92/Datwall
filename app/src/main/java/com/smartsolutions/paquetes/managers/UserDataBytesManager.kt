@@ -1,8 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.data.DataPackagesContract
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -18,7 +17,7 @@ class UserDataBytesManager @Inject constructor(
 ) : IUserDataBytesManager {
 
     override suspend fun addDataBytes(dataPackage: DataPackage, simId: String) {
-        if (dataPackage.id == DataPackagesContract.DailyBag.id) {
+        if (dataPackage.id == DataPackages.PackageId.DailyBag) {
             userDataBytesRepository.get(simId, DataType.DailyBag)
                 .apply {
                     bytes += dataPackage.bytesLte
@@ -30,11 +29,6 @@ class UserDataBytesManager @Inject constructor(
                 }
         } else {
             userDataBytesRepository.update(userDataBytesRepository.bySimId(simId).apply {
-                val bonus = first { it.type == DataType.Bonus }
-                bonus.bytes += dataPackage.bonusBytes
-                bonus.initialBytes = bonus.bytes
-                bonus.startTime = 0
-                bonus.expiredTime = 0
 
                 val international = first { it.type == DataType.International }
                 international.bytes += dataPackage.bytes

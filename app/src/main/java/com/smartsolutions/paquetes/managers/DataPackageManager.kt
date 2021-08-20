@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
-import com.smartsolutions.paquetes.data.DataPackagesContract
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
@@ -16,11 +16,13 @@ import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
 
@@ -34,14 +36,16 @@ class DataPackageManager @Inject constructor(
     private val simManager: ISimManager,
     private val simRepository: ISimRepository,
     private val miCubacelManager: IMiCubacelManager
-): IDataPackageManager {
+): IDataPackageManager, CoroutineScope {
 
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     private var _buyMode: IDataPackageManager.ConnectionMode = IDataPackageManager.ConnectionMode.USSD
     override var buyMode: IDataPackageManager.ConnectionMode
         get() = _buyMode
         set(value) {
-            GlobalScope.launch(Dispatchers.IO) {
+            launch {
                 context.dataStore.edit {
                     it[PreferencesKeys.BUY_MODE] = value.name
                 }
@@ -50,7 +54,7 @@ class DataPackageManager @Inject constructor(
         }
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        launch {
             context.dataStore.data.collect {
                 _buyMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.ConnectionMode.USSD.name)
@@ -59,6 +63,7 @@ class DataPackageManager @Inject constructor(
     }
 
     override suspend fun configureDataPackages() {
+        TODO("Hay que arreglarlo")
         ussdHelper.sendUSSDRequestLegacy("*133*1#")?.let { response ->
             //Texto del mensaje
             var text = response.string()
@@ -133,7 +138,7 @@ class DataPackageManager @Inject constructor(
                 buyDataPackageForUSSD(dataPackage, sim)
             }
             IDataPackageManager.ConnectionMode.MiCubacel -> {
-                buyDataPackageForMiCubacel(dataPackage, sim)
+                //buyDataPackageForMiCubacel(dataPackage, sim)
             }
             IDataPackageManager.ConnectionMode.Unknown ->
                 throw UnsupportedOperationException("Unknown buy mode")
@@ -147,7 +152,7 @@ class DataPackageManager @Inject constructor(
         else
             simManager.getSimByIndex(simIndex)
 
-        if (smsBody.contains(DataPackagesContract.PROMO_BONUS_KEY)) {
+        if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
             val bytes = getBytesFromText("Bonos: ", smsBody)
 
             if (bytes != -1L) {
@@ -156,7 +161,7 @@ class DataPackageManager @Inject constructor(
             return
         }
 
-        DataPackagesContract.PackagesList.firstOrNull { smsBody.contains(it.smsKey) }?.let {
+        DataPackages.PACKAGES.firstOrNull { smsBody.contains(it.smsKey) }?.let {
 
             dataPackageRepository.get(it.id)?.let { dataPackage ->
                 userDataBytesManager.addDataBytes(dataPackage, defaultSim.id)
@@ -167,7 +172,7 @@ class DataPackageManager @Inject constructor(
 
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage, sim: Sim) {
 
-        ussdHelper.sendUSSDRequestLegacy(buildUssd(sim, dataPackage),false)
+        ussdHelper.sendUSSDRequestLegacy(buildUssd(dataPackage),false)
 
         purchasedPackagesManager.newPurchased(
             dataPackage.id,
@@ -176,7 +181,7 @@ class DataPackageManager @Inject constructor(
         )
     }
 
-    private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage, sim: Sim) {
+    /*private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage, sim: Sim) {
         if (sim.miCubacelAccount == null)
             throw NoSuchElementException(context.getString(R.string.account_not_found))
 
@@ -203,33 +208,22 @@ class DataPackageManager @Inject constructor(
 
         if (!found)
             throw NoSuchElementException(context.getString(R.string.product_not_found))
-    }
+    }*/
 
-    private fun buildUssd(sim: Sim, dataPackage: DataPackage): String {
+    private fun buildUssd(dataPackage: DataPackage): String {
 
-        if (dataPackage.id == DataPackagesContract.DailyBag.id)
+        if (dataPackage.id == DataPackages.PackageId.DailyBag)
             return "*133*1*3#"
 
-        var index = -1
-
-        when (dataPackage.network) {
+        return when (dataPackage.network) {
             Networks.NETWORK_4G -> {
-                if (sim.network == Networks.NETWORK_3G_4G) {
-                    index = 5
-                } else if (sim.network == Networks.NETWORK_4G) {
-                    index = 4
-                }
+                "*133*1*4*${dataPackage.index}#"
             }
             Networks.NETWORK_3G,
             Networks.NETWORK_3G_4G -> {
-                if (sim.network == Networks.NETWORK_3G) {
-                    index = 3
-                } else if (sim.network == Networks.NETWORK_3G_4G) {
-                    index = 4
-                }
+                "*133*5*${dataPackage.index}#"
             }
+            else -> throw IllegalStateException()
         }
-
-        return "*133*1*$index*${dataPackage.index}#"
     }
 }

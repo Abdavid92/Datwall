@@ -2,7 +2,7 @@ package com.smartsolutions.paquetes.managers
 
 import android.content.Context
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.data.DataPackagesContract
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
@@ -82,9 +82,10 @@ class StatisticsManager @Inject constructor(
         val date = Date()
 
         if (dateExpired == 0L && containPackages) {
-            dateExpired = DateUtils.addDays(date, DataPackagesContract.GENERAL_DURATION).time
+            dateExpired = DateUtils.addDays(date, DataPackages.GENERAL_DURATION).time
         } else if (dateExpired == 0L && !containPackages) {
-            dateExpired = DateUtils.addDays(date, DataPackagesContract.DailyBag.duration).time
+            val dailyBag = DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.DailyBag }
+            dateExpired = DateUtils.addDays(date, dailyBag.duration).time
         }
 
         var quantity = timeUnit.convert(dateExpired - date.time, timeUnit)

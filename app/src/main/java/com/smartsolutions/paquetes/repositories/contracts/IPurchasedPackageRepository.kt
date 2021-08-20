@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
 import androidx.room.Query
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.flow.Flow
 
@@ -16,11 +17,11 @@ interface IPurchasedPackageRepository {
 
     fun get(id: Long): Flow<PurchasedPackage>
 
-    fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>>
+    fun getByDataPackageId(dataPackageId: DataPackages.PackageId): Flow<List<PurchasedPackage>>
 
     fun getPending(): Flow<List<PurchasedPackage>>
 
-    fun getPending(dataPackageId: String): Flow<List<PurchasedPackage>>
+    fun getPending(dataPackageId: DataPackages.PackageId): Flow<List<PurchasedPackage>>
 
     suspend fun create(purchasedPackage: PurchasedPackage): Long
 

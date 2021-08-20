@@ -12,6 +12,8 @@ object DataPackages {
 
     const val PROMO_BONUS_KEY = "Su cuenta ha sido recargada en promocion"
 
+    const val GENERAL_DURATION = 30
+
     val PACKAGES = arrayOf(
         DataPackage(
             DailyBag,
@@ -29,7 +31,7 @@ object DataPackages {
         ),
         DataPackage(
             Combined_Basic,
-            "Combinado básico",
+            "Plan básico",
             "Proporciona 600MB disponibles para todas las redes y 800MB solo para LTE. " +
                     "Ademas contará con 15min para llamadas y 20sms. La vigencia es de 30 dias " +
                     "a partir del primer uso de cualquiera de los tres recursos.",
@@ -39,12 +41,12 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_3G_4G,
             1,
-            30,
+            GENERAL_DURATION,
             "600MB +800MB LTE"
         ),
         DataPackage(
             Combined_Medium,
-            "Combinado medio",
+            "Plan medio",
             "Proporciona 1.5GB disponibles para todas las redes y 2GB solo para LTE. " +
                     "Ademas contará con 35min para llamadas y 40sms. La vigencia es de 30 dias " +
                     "a partir del primer uso de cualquiera de los tres recursos.",
@@ -54,12 +56,12 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_3G_4G,
             2,
-            30,
+            GENERAL_DURATION,
             "1.5GB +2GB LTE"
         ),
         DataPackage(
             Combined_Extra,
-            "Combinado extra",
+            "Plan extra",
             "Proporciona 3.5GB disponibles para todas las redes y 4.5GB solo para LTE. " +
                     "Ademas contará con 75min para llamadas y 80sms. La vigencia es de 30 dias " +
                     "a partir del primer uso de cualquiera de los tres recursos.",
@@ -69,7 +71,7 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_3G_4G,
             3,
-            30,
+            GENERAL_DURATION,
             "3.5GB +4.5GB LTE"
         ),
         DataPackage(
@@ -83,7 +85,7 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_4G,
             1,
-            30,
+            GENERAL_DURATION,
             "1GB solo LTE"
         ),
         DataPackage(
@@ -97,7 +99,7 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_4G,
             2,
-            30,
+            GENERAL_DURATION,
             "2.5GB solo LTE"
         ),
         DataPackage(
@@ -111,7 +113,7 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_4G,
             3,
-            30,
+            GENERAL_DURATION,
             "12GB LTE" //TODO: Revisar la clave
         )
     )

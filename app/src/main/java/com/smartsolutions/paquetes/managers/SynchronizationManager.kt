@@ -21,6 +21,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.NoSuchElementException
+import kotlin.coroutines.CoroutineContext
 
 class SynchronizationManager @Inject constructor(
     @ApplicationContext
@@ -30,7 +31,10 @@ class SynchronizationManager @Inject constructor(
     private val ussdHelper: USSDHelper,
     private val simManager: ISimManager,
     private val simRepository: ISimRepository
-) : ISynchronizationManager {
+) : ISynchronizationManager, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     private var _synchronizationMode = IDataPackageManager.ConnectionMode.USSD
     override var synchronizationMode: IDataPackageManager.ConnectionMode
@@ -39,7 +43,7 @@ class SynchronizationManager @Inject constructor(
             if (value == IDataPackageManager.ConnectionMode.Unknown)
                 return
 
-            GlobalScope.launch(Dispatchers.IO) {
+            launch {
                 context.dataStore.edit {
                     it[PreferencesKeys.SYNCHRONIZATION_MODE] = value.name
                 }
@@ -48,7 +52,7 @@ class SynchronizationManager @Inject constructor(
         }
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        launch {
             context.dataStore.data.collect {
                 _synchronizationMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.SYNCHRONIZATION_MODE] ?: _synchronizationMode.name)
@@ -58,13 +62,13 @@ class SynchronizationManager @Inject constructor(
 
     override suspend fun synchronizeUserDataBytes(sim: Sim) {
         if (_synchronizationMode == IDataPackageManager.ConnectionMode.MiCubacel) {
-            if (sim.miCubacelAccount == null)
+            /*if (sim.miCubacelAccount == null)
                 throw NoSuchElementException()
 
             val data = miCubacelManager.synchronizeUserDataBytes(sim.miCubacelAccount)
                 .getOrThrow()
 
-            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), sim.id)
+            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), sim.id)*/
         } else if (_synchronizationMode == IDataPackageManager.ConnectionMode.USSD) {
             val data = mutableListOf<DataBytes>()
 
@@ -89,7 +93,7 @@ class SynchronizationManager @Inject constructor(
         if (synchronizationMode == IDataPackageManager.ConnectionMode.USSD)
             return
 
-        GlobalScope.launch(Dispatchers.IO) {
+        launch {
             context.dataStore.edit {
                 if (sim != null)
                     it[PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID] = sim.id
@@ -139,11 +143,6 @@ class SynchronizationManager @Inject constructor(
             data.add(DataBytes(DataBytes.DataType.PromoBonus, value, getExpireDateBonus(PROMO_BONO, response)))
         }
 
-        value = getBytesFromText(BONO, response)
-        if (value >= 0){
-            data.add(DataBytes(DataBytes.DataType.Bonus, value, getExpireDateBonus(BONO, response)))
-        }
-
         value = getBytesFromText(NATIONAL, response)
         if (value >= 0){
             data.add(DataBytes(DataBytes.DataType.National, value, getExpireDateBonus(NATIONAL, response)))
@@ -151,7 +150,6 @@ class SynchronizationManager @Inject constructor(
 
         return data
     }
-
 
     private fun fillMissingDataBytes(data: List<DataBytes>): List<DataBytes> {
         val list = data.toMutableList()
@@ -165,20 +163,21 @@ class SynchronizationManager @Inject constructor(
     }
 
     private fun getInternationals(text: String): List<DataBytes> {
-        var international = getBytesFromText(PAQUETES, text)
+        var international = 0L
         var internationalLte = 0L
 
-        if (text.contains("solo LTE)")){
-            val start = text.indexOf(PAQUETES)
-            internationalLte = getBytesFromText(text.substring(start, text.indexOf("(", start) + 1), text)
-            if (internationalLte >= 0)
-                international -= internationalLte
-            else
-                internationalLte = 0
+        if (!text.contains(LTE)) {
 
-        }else if (text.contains("solo LTE")){
-            internationalLte = international
-            international = 0L
+            international = getBytesFromText(PAQUETES, text)
+
+        } else if (text.contains(LTE) && !text.contains(PLUS_SYMBOL)) {
+
+            internationalLte = getBytesFromText(PAQUETES, text)
+
+        } else if (text.contains(LTE) && text.contains(PLUS_SYMBOL)) {
+
+            international = getBytesFromText(PAQUETES, text)
+            internationalLte = getBytesFromText(PLUS_SYMBOL, text)
         }
 
         return listOf(
@@ -186,8 +185,6 @@ class SynchronizationManager @Inject constructor(
             DataBytes(DataBytes.DataType.InternationalLte, internationalLte, getExpireDatePackages(text, false))
         )
     }
-
-
 
     private fun getExpireDatePackages(text: String, isBolsa: Boolean): Long {
         if (isBolsa && !text.contains(DIARIA) || !isBolsa && !text.contains(PAQUETES)){
@@ -235,8 +232,8 @@ class SynchronizationManager @Inject constructor(
             date = DateUtils.setHours(date, 23)
             date = DateUtils.setMinutes(date, 59)
             date = DateUtils.setSeconds(date, 59)
-            date.time
-        }catch (e: Exception){
+            date?.time ?: 0
+        }catch (e: Exception) {
             0L
         }
     }
@@ -252,9 +249,10 @@ class SynchronizationManager @Inject constructor(
     companion object {
         const val DIARIA = "Diaria:"
         const val PAQUETES = "Paquetes:"
-        const val BONO = "LTE"
         const val PROMO_BONO = "Datos"
         const val NATIONAL = "Datos.cu"
+        const val PLUS_SYMBOL = "+"
+        const val LTE = "LTE"
 
         const val SYNCHRONIZATION_WORKER_TAG = "synchronization_worker"
     }

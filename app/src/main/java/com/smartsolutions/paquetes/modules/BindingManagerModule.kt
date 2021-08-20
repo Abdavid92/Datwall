@@ -40,4 +40,7 @@ interface BindingManagerModule {
 
     @Binds
     fun bindIConfigurationManager(impl: ConfigurationManager): IConfigurationManager
+
+    @Binds
+    fun bindISynchronizationManager(impl: SynchronizationManager): ISynchronizationManager
 }

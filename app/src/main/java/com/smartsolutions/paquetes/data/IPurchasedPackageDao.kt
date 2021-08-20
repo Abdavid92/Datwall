@@ -1,10 +1,12 @@
 package com.smartsolutions.paquetes.data
 
 import androidx.room.*
+import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.flow.Flow
 
 @Dao
+@TypeConverters(DataPackage.PackageIdConverter::class)
 interface IPurchasedPackageDao {
 
     @Query("SELECT * FROM purchased_packages ORDER BY id DESC")
@@ -23,13 +25,13 @@ interface IPurchasedPackageDao {
     fun get(id: Long): Flow<PurchasedPackage>
 
     @Query("SELECT * FROM purchased_packages WHERE data_package_id = :dataPackageId ORDER BY id DESC")
-    fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>>
+    fun getByDataPackageId(dataPackageId: DataPackages.PackageId): Flow<List<PurchasedPackage>>
 
     @Query("SELECT * FROM purchased_packages WHERE pending = 1 ORDER BY id DESC")
     fun getPending(): Flow<List<PurchasedPackage>>
 
     @Query("SELECT * FROM purchased_packages WHERE pending = 1 AND data_package_id = :dataPackageId ORDER BY id DESC")
-    fun getPending(dataPackageId: String): Flow<List<PurchasedPackage>>
+    fun getPending(dataPackageId: DataPackages.PackageId): Flow<List<PurchasedPackage>>
 
     @Insert
     suspend fun create(purchasedPackage: PurchasedPackage): Long

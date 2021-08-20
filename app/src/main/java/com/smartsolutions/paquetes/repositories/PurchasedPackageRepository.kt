@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.repositories
 
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.data.IDataPackageDao
 import com.smartsolutions.paquetes.data.IPurchasedPackageDao
 import com.smartsolutions.paquetes.data.ISimDao
@@ -49,7 +50,7 @@ class PurchasedPackageRepository @Inject constructor(
             return@map transform(it)
         }
 
-    override fun getByDataPackageId(dataPackageId: String): Flow<List<PurchasedPackage>> =
+    override fun getByDataPackageId(dataPackageId: DataPackages.PackageId): Flow<List<PurchasedPackage>> =
         purchasedPackageDao.getByDataPackageId(dataPackageId).map { list ->
             list.forEach {
                 transform(it)
@@ -65,7 +66,7 @@ class PurchasedPackageRepository @Inject constructor(
             return@map list
         }
 
-    override fun getPending(dataPackageId: String): Flow<List<PurchasedPackage>> =
+    override fun getPending(dataPackageId: DataPackages.PackageId): Flow<List<PurchasedPackage>> =
         purchasedPackageDao.getPending(dataPackageId).map { list ->
             list.forEach {
                 transform(it)

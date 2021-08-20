@@ -77,7 +77,7 @@ fun getBytesFromText(key: String, text: String): Long {
 
     while (index < text.length) {
 
-        when (text[index].toUpperCase()){
+        when (text[index].uppercaseChar()){
             'B' -> {
                 unit = DataUnitBytes.DataUnit.B
                 break
@@ -98,7 +98,7 @@ fun getBytesFromText(key: String, text: String): Long {
         index++
     }
 
-    when (text[index].toUpperCase()) {
+    when (text[index].uppercaseChar()) {
         'K', 'M', 'G' -> {
             if (text.length < index + 1 || !text[index + 1].toUpperCase().equals('B', true))
                 return -1

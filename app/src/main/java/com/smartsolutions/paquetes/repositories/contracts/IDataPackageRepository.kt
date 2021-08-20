@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import kotlinx.coroutines.flow.Flow
 
@@ -9,7 +10,7 @@ interface IDataPackageRepository {
 
     fun flow(): Flow<List<DataPackage>>
 
-    suspend fun get(id: String): DataPackage?
+    suspend fun get(id: DataPackages.PackageId): DataPackage?
 
     suspend fun getByNetwork(network: String): List<DataPackage>
 

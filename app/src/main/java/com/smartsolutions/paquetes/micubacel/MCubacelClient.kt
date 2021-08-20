@@ -42,7 +42,6 @@ class MCubacelClient @Inject constructor() {
      * */
     private val dataKeys = mapOf(
         Pair("myStat_3001", DataBytes.DataType.International), //Paquete de navegación
-        Pair("myStat_30012", DataBytes.DataType.Bonus), //Navegación LTE
         Pair("myStat_2001", DataBytes.DataType.DailyBag), //Bolsa diaria
         Pair("myStat_bonusDataN", DataBytes.DataType.National), //Navegación nacional
         Pair("myStat_bonusData", DataBytes.DataType.PromoBonus) //Navegación promocional

@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
@@ -15,7 +16,7 @@ class PurchasedPackagesManager @Inject constructor(
 ) : IPurchasedPackagesManager {
 
     override suspend fun newPurchased(
-        dataPackageId: String,
+        dataPackageId: DataPackages.PackageId,
         simId: String,
         buyMode: IDataPackageManager.ConnectionMode,
         pending: Boolean
@@ -31,7 +32,7 @@ class PurchasedPackagesManager @Inject constructor(
         purchasedPackageRepository.create(purchasedPackage)
     }
 
-    override suspend fun confirmPurchased(dataPackageId: String, simId: String) {
+    override suspend fun confirmPurchased(dataPackageId: DataPackages.PackageId, simId: String) {
         val pending = purchasedPackageRepository
             .getPending(dataPackageId)
             .first()
