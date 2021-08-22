@@ -71,16 +71,16 @@ class UIScannerService : AccessibilityService() {
 
     private fun tryCloseDialog(event: AccessibilityEvent) {
         var nodes = event.source
-            .findAccessibilityNodeInfosByText(
+            ?.findAccessibilityNodeInfosByText(
                 getString(android.R.string.cancel)
                     .uppercase(Locale.ROOT)
             )
 
-        if (nodes.isEmpty())
+        if (nodes == null || nodes.isEmpty())
             nodes = event.source
-                .findAccessibilityNodeInfosByText(getString(android.R.string.cancel))
+                ?.findAccessibilityNodeInfosByText(getString(android.R.string.cancel))
 
-        if (nodes.isNotEmpty()) {
+        if (nodes?.isNotEmpty() == true) {
             nodes.forEach {
                 it.performAction(AccessibilityNodeInfo.ACTION_CLICK)
             }

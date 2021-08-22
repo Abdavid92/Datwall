@@ -18,10 +18,8 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 private const val APP_HOLDER_TYPE = 0
 private const val APP_GROUP_HOLDER_TYPE = 1
@@ -33,7 +31,10 @@ class AppsListAdapter constructor(
     private val iconManager: IIconManager,
     private var appsFilter: AppsFilter,
     private var list: List<IApp>
-) : RecyclerView.Adapter<AppsListAdapter.AbstractViewHolder>() {
+) : RecyclerView.Adapter<AppsListAdapter.AbstractViewHolder>(), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 
     /**
      * Lista filtrada.
@@ -115,7 +116,7 @@ class AppsListAdapter constructor(
      * @param query - Texto que debe contener el nombre de la aplicación a buscar.
      * */
     fun search(query: String?) {
-        GlobalScope.launch(Dispatchers.Default) {
+        launch {
             val newList = if (query != null && query.isNotBlank()) {
                 list.where { it.name.contains(query, true) }.toMutableList()
             } else {
@@ -139,7 +140,7 @@ class AppsListAdapter constructor(
      * @param newList - Lista de aplicaciones.
      * */
     fun updateList(newFilter: AppsFilter, newList: List<IApp>) {
-        GlobalScope.launch(Dispatchers.Default) {
+        launch {
             val result = DiffUtil.calculateDiff(
                 DiffCallback(finalList, newList, appsFilter != newFilter),
                 true)
@@ -297,7 +298,7 @@ class AppsListAdapter constructor(
 
             binding.backgroundLayout.setOnClickListener {
                 app.expanded = !app.expanded
-                notifyItemChanged(adapterPosition)
+                notifyItemChanged(absoluteAdapterPosition)
             }
 
             childAdapter = AppsListAdapter(

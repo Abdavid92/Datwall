@@ -50,7 +50,7 @@ class ApplicationsViewModel @Inject constructor(
      * */
     fun commitUpdateApps(): Boolean {
         if (appsToUpdate.isNotEmpty()) {
-            GlobalScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(Dispatchers.IO) {
                 appRepository.update(appsToUpdate)
                 appsToUpdate.clear()
             }
@@ -72,7 +72,7 @@ class ApplicationsViewModel @Inject constructor(
         return appRepository.flowByGroup()
             .combine(getApplication<Application>().uiDataStore.data) { apps, preferences ->
 
-                delay(500)
+                delay(300)
 
                 val filter = AppsFilter.valueOf(
                     preferences[PreferencesKeys.APPS_FILTER] ?:

@@ -2,8 +2,7 @@
 <resources>
     <string-array name="sim_networks">
         <item>Seleccione una opción…</item>
-        <item>Paquetes de todas la redes</item>
-        <item>Paquetes solo de la red 3G</item>
-        <item>Paquetes solo de la red 4G</item>
+        <item>Todos los planes y paquetes</item>
+        <item>Solo los planes combinados</item>
     </string-array>
 </resources>

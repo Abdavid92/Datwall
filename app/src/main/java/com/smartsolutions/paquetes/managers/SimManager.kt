@@ -49,7 +49,9 @@ class SimManager @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.VOICE)
 
-            return findSim(subscriptionInfo, withRelations)
+            return findSim(subscriptionInfo, withRelations).apply {
+                defaultVoice = true
+            }
         }
         try {
             return getInstalledSims(withRelations).first { it.defaultVoice }
@@ -87,7 +89,9 @@ class SimManager @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.DATA)
 
-            return findSim(subscriptionInfo, withRelations)
+            return findSim(subscriptionInfo, withRelations).apply {
+                defaultData = true
+            }
         }
         try {
             return getInstalledSims(withRelations).first { it.defaultData }

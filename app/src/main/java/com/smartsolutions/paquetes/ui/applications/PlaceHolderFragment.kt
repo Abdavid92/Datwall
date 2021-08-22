@@ -116,7 +116,7 @@ class PlaceHolderFragment : Fragment(),
             if (adapter != null) {
                 /*Se debe borrar la cache del RecyclerView para forzar la actualización
                 * de todos los ViewHolders.*/
-                binding.appsList.recycledViewPool.clear()
+                //binding.appsList.recycledViewPool.clear()
                 adapter!!.updateList(it.first, it.second)
             } else {
                 adapter = AppsListAdapter(
@@ -148,6 +148,7 @@ class PlaceHolderFragment : Fragment(),
 
     override fun onDetach() {
         super.onDetach()
+        //Confirmo los cambios
         viewModel.commitUpdateApps()
     }
 

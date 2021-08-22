@@ -52,7 +52,6 @@ class PackagesConfigurationFragment @Inject constructor(
                     val network = when (binding.simNetwork.selectedItemPosition) {
                         1 -> Networks.NETWORK_3G_4G
                         2 -> Networks.NETWORK_3G
-                        3 -> Networks.NETWORK_4G
                         else -> Networks.NETWORK_NONE
                     }
 
@@ -67,7 +66,6 @@ class PackagesConfigurationFragment @Inject constructor(
                 }
             }
 
-        binding.manualMode.setOnCheckedChangeListener(this::manualModeChange)
         binding.btnContinue.setOnClickListener {
             it.isEnabled = false
             binding.progressContinue.visibility = View.VISIBLE
@@ -78,26 +76,28 @@ class PackagesConfigurationFragment @Inject constructor(
 
             if (it.isSuccess) {
 
-                binding.network = it.getOrThrow().network
+                val network = it.getOrThrow().network
 
-                binding.resultMsg.text = when (it.getOrThrow().network) {
-                    Networks.NETWORK_3G -> {
-                        binding.simNetwork.setSelection(2, true)
-                        "Paquetes para la red 3G disponibles para esta linea"
-                    }
+                if (network != Networks.NETWORK_NONE)
+                    binding.network = network
+
+                val none = "No se pudo encontrar ningún plan ni paquete para esta linea. " +
+                        "Si cree que esto fue un error intentelo de nuevo."
+
+                binding.resultMsg.text = when (network) {
                     Networks.NETWORK_3G_4G -> {
                         binding.simNetwork.setSelection(1, true)
-                        "Todos los paquetes disponibles para esta linea"
+                        "Todos los planes y paquetes disponibles para esta linea"
                     }
-                    Networks.NETWORK_4G -> {
-                        binding.simNetwork.setSelection(3, true)
-                        "Paquetes para la red 4G disponibles para esta linea"
+                    Networks.NETWORK_3G -> {
+                        binding.simNetwork.setSelection(2, true)
+                        "Solo los planes combinados disponibles para esta linea"
                     }
                     Networks.NETWORK_NONE -> {
-                        "No se pudo encontrar ningún paquete para esta linea"
+                        none
                     }
                     else -> {
-                        "No se pudo encontrar ningún paquete para esta linea"
+                        none
                     }
                 }
             } else {
@@ -106,15 +106,6 @@ class PackagesConfigurationFragment @Inject constructor(
                 binding.resultMsg.text = message
             }
         }
-    }
-
-    /**
-     * Cambia la variable network para que el botón de aplicar los cambios se abilite
-     * cuando se cambia al modo automático.
-     * */
-    private fun manualModeChange(buttonView: CompoundButton, isChecked: Boolean) {
-        if (!isChecked)
-            binding.network = Networks.NETWORK_NONE
     }
 
     companion object {

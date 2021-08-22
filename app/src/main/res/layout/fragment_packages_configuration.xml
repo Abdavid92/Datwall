@@ -65,7 +65,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sim_network"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:enabled="@{(network == null || network == Networks.NETWORK_NONE) || !automatic}"
+            android:enabled="@{network == Networks.NETWORK_NONE || !automatic}"
             tools:text="@string/start_packages_configuration" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -96,7 +96,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:text="@string/btn_continue"
-            android:enabled="@{network != null &amp;&amp; network != Networks.NETWORK_NONE}" />
+            android:enabled="@{network != Networks.NETWORK_NONE}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

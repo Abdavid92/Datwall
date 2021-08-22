@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.snackbar.Snackbar
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.USSDHelper
@@ -75,10 +76,18 @@ class PackagesConfigurationViewModel @Inject constructor(
                     ).show(fragmentManager, null)
             }
             USSDHelper.TELEPHONY_SERVICE_UNAVAILABLE -> {
-
+                throw RuntimeException("Telephony service unavailable")
             }
             USSDHelper.USSD_CODE_FAILED -> {
-
+                fragment.view?.let {
+                    Snackbar.make(
+                        it,
+                        "Falló el código ussd",
+                        Snackbar.LENGTH_LONG
+                    ).setAction("Reintenar") {
+                        configureDataPackages(fragment, fragmentManager)
+                    }.show()
+                }
             }
             USSDHelper.ACCESSIBILITY_SERVICE_UNAVAILABLE -> {
                 StartAccessibilityServiceFragment.newInstance(
@@ -95,7 +104,15 @@ class PackagesConfigurationViewModel @Inject constructor(
                 ).show(fragmentManager, null)
             }
             USSDHelper.CONNECTION_TIMEOUT -> {
-
+                fragment.view?.let {
+                    Snackbar.make(
+                        it,
+                        "Se agotó el tiempo de espera",
+                        Snackbar.LENGTH_LONG
+                    ).setAction("Reintenar") {
+                        configureDataPackages(fragment, fragmentManager)
+                    }.show()
+                }
             }
         }
     }

@@ -63,43 +63,43 @@ class DataPackageManager @Inject constructor(
     }
 
     override suspend fun configureDataPackages() {
-        TODO("Hay que arreglarlo")
-        ussdHelper.sendUSSDRequestLegacy("*133*1#")?.let { response ->
-            //Texto del mensaje
-            var text = response.string()
+        val plainResultText = ussdHelper.sendUSSDRequestLegacy("*133#")
+        val lteResultText = ussdHelper.sendUSSDRequestLegacy("*133*1#")
 
-            //Linea predeterminada para llamadas
-            val defaultSim = simManager.getDefaultVoiceSim()
+        //Indica si los planes están abilitados
+        var enabledCombinedPlains = false
 
-            //Lte abilitada
-            var enabledLte = false
-            //3G abilitada
-            var enabled3G = false
+        //Indica si los paquetes 4G están abilitados
+        var enabledLte = false
 
-            //Si contiene los paquetes lte, habilito estos paquetes y borro
-            //esa expresión de la variable text para que no se confunda a la hora
-            //de verificar los paquetes 3G.
-            if (text.contains("Paquetes LTE", true)) {
-                enabledLte = true
-                text = text.replace("Paquetes LTE", "", true)
-            }
+        //Linea predeterminada para llamadas
+        val defaultSim = simManager.getDefaultVoiceSim()
 
-            if (text.contains("Paquetes", true)) {
-                enabled3G = true
-            }
+        plainResultText?.let {
+            val text = it.string()
 
-            when {
-                enabledLte && enabled3G -> defaultSim.network = Networks.NETWORK_3G_4G
-                enabledLte && !enabled3G -> defaultSim.network = Networks.NETWORK_4G
-                !enabledLte && enabled3G -> defaultSim.network = Networks.NETWORK_3G
-                !enabledLte && !enabled3G -> defaultSim.network = Networks.NETWORK_NONE
-            }
-
-            //Fecha en la que se configuró esta linea.
-            defaultSim.setupDate = System.currentTimeMillis()
-
-            simRepository.update(defaultSim)
+            if (text.contains("Planes", true))
+                enabledCombinedPlains = true
         }
+
+        lteResultText?.let {
+            val text = it.string()
+
+            if (text.contains("Paquetes LTE", true))
+                enabledLte = true
+        }
+
+        when {
+            enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_3G_4G
+            enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_3G
+            !enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_4G
+            !enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_NONE
+        }
+
+        //Fecha en la que se configuró esta linea.
+        defaultSim.setupDate = System.currentTimeMillis()
+
+        simRepository.update(defaultSim)
     }
 
     override suspend fun setDataPackagesManualConfiguration(network: String) {
