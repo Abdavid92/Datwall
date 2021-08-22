@@ -180,7 +180,7 @@ class IconManager @Inject constructor(
             val icon = try {
                 getResizedBitmap(drawableToBitmap(packageManager.getApplicationIcon(packageName)), size)
             } catch (e: Exception) {
-                getResizedBitmap(drawableToBitmap(ContextCompat.getDrawable(context, android.R.drawable.sym_def_app_icon)), 100)
+                getResizedBitmap(drawableToBitmap(ContextCompat.getDrawable(context, android.R.drawable.sym_def_app_icon)), size)
             }
 
             //Guardo el ícono en el file

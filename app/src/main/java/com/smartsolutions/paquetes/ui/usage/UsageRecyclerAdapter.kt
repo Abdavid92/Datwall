@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import android.app.usage.NetworkStats
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -40,6 +41,10 @@ class UsageRecyclerAdapter constructor(
 
         fun bind(usageApp: UsageApp) {
             val app = usageApp.app
+            if (app.uid == NetworkStats.Bucket.UID_TETHERING){
+                val string: String = "uwhowqr"
+                string.split("i")
+            }
             iconManager.getAsync(app.packageName, app.version) {
                 binding.appIcon.setImageBitmap(it)
             }
