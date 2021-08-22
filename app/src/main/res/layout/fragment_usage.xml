@@ -30,13 +30,23 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textSize="20sp" />
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/spinner_usage_options"
+                <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:entries="@array/usage_options"
-                    android:minHeight="48dp" />
+                    android:layout_margin="2dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardPreventCornerOverlap="true"
+                    app:cardUseCompatPadding="true">
+
+                    <androidx.appcompat.widget.AppCompatSpinner
+                        android:id="@+id/spinner_usage_options"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/usage_options"
+                        android:minHeight="35dp"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                </androidx.cardview.widget.CardView>
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/btn_show_chart"

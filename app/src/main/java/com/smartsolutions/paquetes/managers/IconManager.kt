@@ -14,9 +14,14 @@ import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Clase administradora de los íconos de las aplicaciones
@@ -24,7 +29,7 @@ import javax.inject.Inject
 class IconManager @Inject constructor(
     @ApplicationContext
     private val context: Context
-) : IIconManager {
+) : IIconManager, CoroutineScope {
 
     /**
      * Servicio que se usa para obtener los íconos de las aplicaciones
@@ -66,16 +71,11 @@ class IconManager @Inject constructor(
     }
 
     override fun getAsync(packageName: String, size: Int, callback: (img: Bitmap) -> Unit) {
-        /*GlobalScope.launch(Dispatchers.IO) {
+        launch {
             get(packageName, size)?.let {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main){
                     callback(it)
                 }
-            }
-        }*/
-        handler.post {
-            get(packageName, size)?.let {
-                callback(it)
             }
         }
     }
@@ -104,16 +104,11 @@ class IconManager @Inject constructor(
         size: Int,
         callback: (img: Bitmap) -> Unit
     ) {
-        /*GlobalScope.launch(Dispatchers.IO) {
-            get(packageName, versionCode)?.let {
-                withContext(Dispatchers.Main) {
+        launch {
+            get(packageName, versionCode, size)?.let {
+                withContext(Dispatchers.Main){
                     callback(it)
                 }
-            }
-        }*/
-        handler.post {
-            get(packageName, versionCode, size)?.let {
-                callback(it)
             }
         }
     }
@@ -141,16 +136,11 @@ class IconManager @Inject constructor(
         size: Int,
         callback: (img: File) -> Unit
     ) {
-        /*GlobalScope.launch(Dispatchers.IO) {
-            getImageFile(packageName, versionCode)?.let {
-                withContext(Dispatchers.Main) {
+        launch {
+            getImageFile(packageName, versionCode, size)?.let {
+                withContext(Dispatchers.Main){
                     callback(it)
                 }
-            }
-        }*/
-        handler.post {
-            getImageFile(packageName, versionCode, size)?.let {
-                callback(it)
             }
         }
     }
@@ -291,4 +281,7 @@ class IconManager @Inject constructor(
         }
         return null
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 }
