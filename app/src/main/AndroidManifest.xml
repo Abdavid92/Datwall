@@ -64,9 +64,7 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/WelcomeScreenTheme"
-            tools:ignore="LockedOrientationActivity" /> <!-- Services -->
+            android:theme="@style/WelcomeScreenTheme" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:enabled="true"
