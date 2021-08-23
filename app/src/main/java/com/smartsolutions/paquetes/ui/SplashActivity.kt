@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.ProgressBar
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.smartsolutions.paquetes.DatwallKernel
@@ -23,19 +25,20 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
     @Inject
     lateinit var kernel: DatwallKernel
 
-    private lateinit var progressBar: ProgressBar
+    private val progressBar by findView<ProgressBar>(R.id.progressBar)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
         windowInsetsController.hide(
             WindowInsetsCompat.Type.systemBars()
         )
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         val handler = Handler(Looper.getMainLooper())
-
-        progressBar = findViewById(R.id.progressBar)
 
         /*Después de 1000 milisegundos intento iniciar la PresentationActivity.
         * Si tiene éxito, espero el resultado en el onActivityResult. Sino,
@@ -60,5 +63,9 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
                 .duration = 200
             kernel.mainInForeground(this)
         }
+    }
+
+    private fun <T : View?> findView(resId: Int) = lazy {
+        findViewById<T>(resId)
     }
 }

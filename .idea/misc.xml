@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout-land/fragment_presentation.xml" value="0.1515625" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_packages_configuration.xml" value="0.11730072463768115" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_presentation.xml" value="0.16" />
       </map>
     </option>
   </component>

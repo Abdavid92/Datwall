@@ -30,6 +30,11 @@ class ApplicationsViewModel @Inject constructor(
     val iconManager: IIconManager
 ) : AndroidViewModel(application) {
 
+    private var currentFilter: AppsFilter = AppsFilter.InternetAccess
+
+    /**
+     * Se invoca cuando se establece un nuevo filtro.
+     * */
     var filterChangeListener: ((filter: AppsFilter) -> Unit)? = null
 
     /**
@@ -62,13 +67,15 @@ class ApplicationsViewModel @Inject constructor(
     }
 
     fun setFilter(filter: AppsFilter) {
+        if (currentFilter != filter)
+            filterChangeListener?.invoke(filter)
+
         viewModelScope.launch {
             getApplication<Application>()
                 .uiDataStore.edit {
                     it[PreferencesKeys.APPS_FILTER] = filter.name
                 }
         }
-        filterChangeListener?.invoke(filter)
     }
 
     fun getApps(key: String): LiveData<Pair<AppsFilter, List<IApp>>> {
@@ -80,6 +87,8 @@ class ApplicationsViewModel @Inject constructor(
                 val filter = AppsFilter.valueOf(
                     preferences[PreferencesKeys.APPS_FILTER] ?:
                     AppsFilter.InternetAccess.name)
+
+                currentFilter = filter
 
                 return@combine when (key) {
                     SectionsPagerAdapter.USER_APPS -> {

@@ -116,9 +116,6 @@ class PlaceHolderFragment : Fragment(),
 
         viewModel.getApps(key).observe(viewLifecycleOwner) {
             if (adapter != null) {
-                /*Se debe borrar la cache del RecyclerView para forzar la actualización
-                * de todos los ViewHolders.*/
-                //binding.appsList.recycledViewPool.clear()
                 adapter!!.updateList(it.first, it.second)
             } else {
                 adapter = AppsListAdapter(
@@ -137,6 +134,10 @@ class PlaceHolderFragment : Fragment(),
     override fun onResume() {
         super.onResume()
 
+        /*Se invoca cuando se cambia el filtro.
+        * Se asigna en el método onResume para que
+        * el fragmento que esté visible sea el que
+        * escuche el evento. El otro no.*/
         viewModel.filterChangeListener = {
             binding.refresh.isRefreshing = true
         }
