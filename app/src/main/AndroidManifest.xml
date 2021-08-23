@@ -65,9 +65,7 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/WelcomeScreenTheme"
-            tools:ignore="LockedOrientationActivity" />
+            android:theme="@style/WelcomeScreenTheme" />
 
         <!-- Services -->
         <service
