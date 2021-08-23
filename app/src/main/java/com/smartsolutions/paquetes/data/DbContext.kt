@@ -4,12 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.smartsolutions.paquetes.managers.models.Traffic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import com.smartsolutions.paquetes.repositories.models.*
+import kotlinx.coroutines.runBlocking
+
+const val DATABASE_VERSION = 1
 
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
@@ -21,7 +25,7 @@ import com.smartsolutions.paquetes.repositories.models.*
     Sim::class,
     MiCubacelAccount::class,
     UserDataBytes::class,
-    Traffic::class], version = 1, exportSchema = false)
+    Traffic::class], version = DATABASE_VERSION, exportSchema = false)
 abstract class DbContext: RoomDatabase() {
 
     /**

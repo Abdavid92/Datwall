@@ -33,7 +33,9 @@ class PlaceHolderFragment : Fragment(),
      * */
     private lateinit var binding: FragmentApplicationsPlaceholderBinding
 
-    private val viewModel by viewModels<ApplicationsViewModel>()
+    private val viewModel by viewModels<ApplicationsViewModel>(
+        { requireParentFragment() }
+    )
 
     /**
      * Adaptador de la lista de aplicaciones.
@@ -129,6 +131,14 @@ class PlaceHolderFragment : Fragment(),
                 binding.appsList.adapter = adapter
             }
             binding.refresh.isRefreshing = false
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.filterChangeListener = {
+            binding.refresh.isRefreshing = true
         }
     }
 

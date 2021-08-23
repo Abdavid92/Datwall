@@ -5,9 +5,12 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Obtiene las configuraciones de la versión anterior de la aplicación.
@@ -15,7 +18,10 @@ import javax.inject.Inject
 class LegacyConfigurationHelper @Inject constructor(
     @ApplicationContext
     private val context: Context
-) {
+) : CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     private val preferences = context
         .getSharedPreferences("data_mis_datos", Context.MODE_PRIVATE)
@@ -100,7 +106,7 @@ class LegacyConfigurationHelper @Inject constructor(
             Context.MODE_PRIVATE
         )
 
-        GlobalScope.launch {
+        launch {
             context.dataStore.edit {
                 it[PreferencesKeys.ENABLED_FIREWALL] = preferences
                     .getBoolean("firewall_running", false)
@@ -119,7 +125,7 @@ class LegacyConfigurationHelper @Inject constructor(
             Context.MODE_PRIVATE
         )
 
-        GlobalScope.launch {
+        launch {
             context.dataStore.edit {
                 it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = preferences
                     .getBoolean("widget_floating", false)

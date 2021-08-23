@@ -4,6 +4,7 @@ import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.repositories.models.DataPackage
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.repositories.models.Sim
 import kotlin.jvm.Throws
 
@@ -20,6 +21,16 @@ interface IDataPackageManager {
      * Puede se por ussd o por mi.cubacel.net.
      * */
     var buyMode: ConnectionMode
+
+    /**
+     * Crea o actualiza la lista de paquetes de datos.
+     * Este método se basa en un control de versiones siguiendo
+     * la version declarada en la variable [DataPackages.PACKAGES_VERSION].
+     * Decide si ejecutar la migración de los paquetes o no usando esta variable.
+     * En caso de realizar algún cambio el [DataPackages.PACKAGES], debe subirse
+     * el valor de esta variable para que este método ejecute la migración.
+     * */
+    suspend fun createOrUpdateDataPackages()
 
     /**
      * Configura los paquetes de datos en dependencia

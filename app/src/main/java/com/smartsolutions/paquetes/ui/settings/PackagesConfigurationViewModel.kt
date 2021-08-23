@@ -34,6 +34,13 @@ class PackagesConfigurationViewModel @Inject constructor(
     val configurationResult: LiveData<Result<Sim>>
         get() = _configurationResult
 
+    /**
+     * Último tipo de red que se pudo resolver para la linea.
+     * */
+    @Networks
+    var lastNetworkResult: String = Networks.NETWORK_NONE
+        private set
+
     fun configureDataPackages(
         fragment: AbstractSettingsFragment,
         fragmentManager: FragmentManager
@@ -42,7 +49,10 @@ class PackagesConfigurationViewModel @Inject constructor(
             try {
                 dataPackageManager.configureDataPackages()
 
-                _configurationResult.postValue(Result.Success(simManager.getDefaultVoiceSim()))
+                val defaultSim = simManager.getDefaultVoiceSim()
+                lastNetworkResult = defaultSim.network
+
+                _configurationResult.postValue(Result.Success(defaultSim))
             } catch (e: USSDRequestException) {
                 _configurationResult.postValue(Result.Failure(e))
 

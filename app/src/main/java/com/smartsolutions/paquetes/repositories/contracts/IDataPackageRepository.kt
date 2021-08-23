@@ -18,6 +18,8 @@ interface IDataPackageRepository {
 
     suspend fun create(dataPackages: List<DataPackage>): List<Long>
 
+    suspend fun createOrUpdate(dataPackages: List<DataPackage>)
+
     suspend fun update(dataPackage: DataPackage): Int
 
     suspend fun update(dataPackages: List<DataPackage>): Int

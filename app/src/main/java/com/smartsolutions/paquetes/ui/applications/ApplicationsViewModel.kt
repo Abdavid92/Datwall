@@ -30,6 +30,8 @@ class ApplicationsViewModel @Inject constructor(
     val iconManager: IIconManager
 ) : AndroidViewModel(application) {
 
+    var filterChangeListener: ((filter: AppsFilter) -> Unit)? = null
+
     /**
      * Lista de aplicaciones pendientes a actualizar.
      * */
@@ -66,13 +68,14 @@ class ApplicationsViewModel @Inject constructor(
                     it[PreferencesKeys.APPS_FILTER] = filter.name
                 }
         }
+        filterChangeListener?.invoke(filter)
     }
 
     fun getApps(key: String): LiveData<Pair<AppsFilter, List<IApp>>> {
         return appRepository.flowByGroup()
             .combine(getApplication<Application>().uiDataStore.data) { apps, preferences ->
 
-                delay(300)
+                delay(500)
 
                 val filter = AppsFilter.valueOf(
                     preferences[PreferencesKeys.APPS_FILTER] ?:

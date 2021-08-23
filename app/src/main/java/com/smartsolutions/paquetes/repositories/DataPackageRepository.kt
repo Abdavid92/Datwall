@@ -44,6 +44,10 @@ class DataPackageRepository @Inject constructor(
 
     override suspend fun create(dataPackages: List<DataPackage>): List<Long> = dataPackageDao.create(dataPackages)
 
+    override suspend fun createOrUpdate(dataPackages: List<DataPackage>) {
+        dataPackageDao.createOrUpdate(dataPackages)
+    }
+
     override suspend fun update(dataPackage: DataPackage): Int = dataPackageDao.update(dataPackage)
 
     override suspend fun update(dataPackages: List<DataPackage>): Int = dataPackageDao.update(dataPackages)

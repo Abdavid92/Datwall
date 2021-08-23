@@ -27,6 +27,9 @@ interface IDataPackageDao {
     @Insert
     suspend fun create(dataPackages: List<DataPackage>): List<Long>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun createOrUpdate(dataPackages: List<DataPackage>)
+
     @Update
     suspend fun update(dataPackage: DataPackage): Int
 

@@ -6,6 +6,7 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
+import com.smartsolutions.paquetes.data.DbContext
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
@@ -18,8 +19,8 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -62,8 +63,21 @@ class DataPackageManager @Inject constructor(
         }
     }
 
+    override suspend fun createOrUpdateDataPackages() {
+        val oldVersion = context.dataStore.data
+            .firstOrNull()?.get(PreferencesKeys.CURRENT_PACKAGES_VERSION) ?: 0
+
+        if (oldVersion < DataPackages.PACKAGES_VERSION) {
+            dataPackageRepository.createOrUpdate(DataPackages.PACKAGES.toList())
+
+            context.dataStore.edit {
+                it[PreferencesKeys.CURRENT_PACKAGES_VERSION] = DataPackages.PACKAGES_VERSION
+            }
+        }
+    }
+
     override suspend fun configureDataPackages() {
-        val plainResultText = ussdHelper.sendUSSDRequestLegacy("*133#")
+        val plainsResultText = ussdHelper.sendUSSDRequestLegacy("*133#")
         val lteResultText = ussdHelper.sendUSSDRequestLegacy("*133*1#")
 
         //Indica si los planes están abilitados
@@ -75,7 +89,7 @@ class DataPackageManager @Inject constructor(
         //Linea predeterminada para llamadas
         val defaultSim = simManager.getDefaultVoiceSim()
 
-        plainResultText?.let {
+        plainsResultText?.let {
             val text = it.string()
 
             if (text.contains("Planes", true))

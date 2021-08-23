@@ -89,4 +89,9 @@ object PreferencesKeys {
      * Filtro que se usa para ordenar la lista de aplicaciones
      * */
     val APPS_FILTER = stringPreferencesKey("apps_filter")
+
+    /**
+     * Versión actual de la lista de paquetes de datos.
+     * */
+    val CURRENT_PACKAGES_VERSION = intPreferencesKey("current_packages_version")
 }

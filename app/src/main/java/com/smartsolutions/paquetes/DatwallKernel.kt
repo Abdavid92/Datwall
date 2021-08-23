@@ -16,10 +16,7 @@ import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.helpers.NetworkUtil
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
-import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
+import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.receivers.TrafficRegistrationNewReceiver
 import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
@@ -50,6 +47,7 @@ class DatwallKernel @Inject constructor(
     private val permissionManager: IPermissionsManager,
     private val configurationManager: IConfigurationManager,
     private val updateManager: IUpdateManager,
+    private val dataPackageManager: IDataPackageManager,
     private val changeNetworkReceiver: Lazy<ChangeNetworkReceiver>,
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
     private val notificationHelper: NotificationHelper,
@@ -61,10 +59,9 @@ class DatwallKernel @Inject constructor(
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 
     private var updateApplicationStatusJob: Job? = null
-    private val defaultDispatcher = Dispatchers.Default
     private var bubbleOn = false
     private var firewallOn = false
 
@@ -83,29 +80,44 @@ class DatwallKernel @Inject constructor(
      * y la actividad principal.
      * */
     fun mainInForeground(activity: Activity) {
+
+        //Crea los canales de notificaciones
+        createNotificationChannels()
+
+        //Restablece la configuración de la versión anterior
         setLegacyConfiguration()
 
-        GlobalScope.launch(defaultDispatcher) {
-            createNotificationChannels()
+        launch {
+            //Crea o actualiza los paquetes de datos
+            createOrUpdatePackages()
 
             when {
+                //Verifica los permisos
                 missingSomePermission() -> {
                     openPermissionsActivity()
                 }
+                //Verfica el registro y la activación
                 /*!isRegisteredAndValid() -> {
                     openActivationActivity()
                 }*/
+                //Verfica las configuraciones iniciales
                 missingSomeConfiguration() -> {
                     openSetupActivity()
                 }
                 else -> {
+                    //Sincroniza la base de datos y enciende el rastreador
                     synchronizeDatabaseAndStartWatcher()
+                    //Inicia los servicios
                     startServices()
+                    //Registra los broadcasts y los callbacks
                     registerBroadcastsAndCallbacks()
+                    //Registra los workers
                     registerWorkers()
+                    //Inicia la activiada principal
                     startMainActivity()
                 }
             }
+            //Cierra la actividad anterior
             activity.finish()
         }
     }
@@ -114,11 +126,12 @@ class DatwallKernel @Inject constructor(
 
         if (isInForeground())
             return
+        createNotificationChannels()
 
         setLegacyConfiguration()
 
-        GlobalScope.launch(defaultDispatcher) {
-            createNotificationChannels()
+        launch {
+            createOrUpdatePackages()
 
             when {
                 missingSomePermission() -> {
@@ -146,6 +159,12 @@ class DatwallKernel @Inject constructor(
                     registerWorkers()
                 }
             }
+        }
+    }
+
+    private suspend fun createOrUpdatePackages() {
+        withContext(Dispatchers.IO) {
+            dataPackageManager.createOrUpdateDataPackages()
         }
     }
 
@@ -277,7 +296,7 @@ class DatwallKernel @Inject constructor(
      * Registra los workers.
      * */
     private fun registerWorkers() {
-        updateApplicationStatusJob = GlobalScope.launch(Dispatchers.Default) {
+        updateApplicationStatusJob = launch {
             if (!updateManager.wasScheduleUpdateApplicationStatusWorker()) {
                 context.dataStore.data.collect {
                     val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 24
@@ -469,7 +488,11 @@ class DatwallKernel @Inject constructor(
                         0,
                         Intent(context, SplashActivity::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        0
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        } else {
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                        }
                     )
                 )
             }.build()
