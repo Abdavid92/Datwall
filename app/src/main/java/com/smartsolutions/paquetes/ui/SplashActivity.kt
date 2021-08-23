@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.ProgressBar
+import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -22,8 +23,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
 
-    @Inject
-    lateinit var kernel: DatwallKernel
+    /*@Inject
+    lateinit var kernel: DatwallKernel*/
+
+    private val viewModel by viewModels<SplashViewModel>()
 
     private val progressBar by findView<ProgressBar>(R.id.progressBar)
 
@@ -49,7 +52,8 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
                 progressBar.animate()
                     .alpha(1F)
                     .duration = 200
-                kernel.mainInForeground(this)
+                //kernel.mainInForeground(this)
+                viewModel.main(this)
             }
         }, 1000)
     }
@@ -61,7 +65,8 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
             progressBar.animate()
                 .alpha(1F)
                 .duration = 200
-            kernel.mainInForeground(this)
+            //kernel.mainInForeground(this)
+            viewModel.main(this)
         }
     }
 
