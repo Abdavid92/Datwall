@@ -26,7 +26,12 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
      *
      * @return Una instancia de Traffic con los datos recopilados.
      * */
-    abstract suspend fun getAppUsage(uid : Int, start: Long, finish: Long, updateSim: Boolean = true): Traffic
+    abstract suspend fun getAppUsage(
+        uid: Int,
+        start: Long,
+        finish: Long,
+        updateSim: Boolean = true
+    ): Traffic
 
     /**
      * Obtiene el tráfico completo de un tiempo dado organizado por aplicaciones.
@@ -57,7 +62,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
      * @return Una instancia de Traffic con los datos recopilados. Esta instancia no tendrá
      * asignado ningún uid porque se trata del trafico completo en el tiempo dado.
      * */
-    abstract suspend fun getUsageTotal(start : Long, finish : Long) : Traffic
+    abstract suspend fun getUsageTotal(start: Long, finish: Long): Traffic
 
     /**
      * Método de utilidad para obtener la aplicacion de la lista que más o menos consumió en
@@ -71,18 +76,23 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
      *
      * @return La aplicación resultante de la búsqueda.
      * */
-    suspend fun getAppPerConsumed(apps: List<App>, start: Long, finish: Long, moreConsumed : Boolean) : App? {
-        if (apps.isEmpty()){
+    suspend fun getAppPerConsumed(
+        apps: List<App>,
+        start: Long,
+        finish: Long,
+        moreConsumed: Boolean
+    ): App? {
+        if (apps.isEmpty()) {
             return null
         }
         fillAppsUsage(apps, start, finish)
         var app = apps[0]
-        for (i in 1 .. apps.size ){
+        for (i in 1..apps.size) {
             if (moreConsumed) {
                 if (apps[i].traffic!! > app.traffic!!) {
                     app = apps[i]
                 }
-            }else {
+            } else {
                 if (apps[i].traffic!! < app.traffic!!) {
                     app = apps[i]
                 }
@@ -99,11 +109,13 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
      *
      * @return Una lista de pares con la hora en un Long y el tráfico.
      * */
-    suspend fun getAppUsageDayByHour(uid: Int, day : Date) : List<Pair<Long, Traffic>>{
+    suspend fun getAppUsageDayByHour(uid: Int, day: Date): List<Pair<Long, Traffic>> {
         val pairList: ArrayList<Pair<Long, Traffic>> = ArrayList()
         var date = NetworkUsageUtils.getZeroHour(day)
 
-        while (DateUtils.isSameDay(date, day) && date.time <= System.currentTimeMillis()){
+
+
+        while (DateUtils.isSameDay(date, day) && date.time <= System.currentTimeMillis()) {
             val start = date.time
             date = DateUtils.setMinutes(date, 59)
             val finish = date.time
@@ -115,7 +127,51 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
         return pairList
     }
 
-    suspend fun updateSimID(){
+
+    suspend fun getAppUsageByLapsusTime(
+        uid: Int,
+        start: Long,
+        finish: Long,
+        timeUnit: NetworkUsageUtils.TimeUnit
+    ): List<Traffic> {
+
+        val traffics = mutableListOf<Traffic>()
+        var currentTime = Date(start)
+
+        while (currentTime.time in start..finish) {
+            val start1 = currentTime.time
+            val finish1: Long
+
+            when (timeUnit) {
+                NetworkUsageUtils.TimeUnit.MONTH -> {
+                    currentTime = DateUtils.addMonths(currentTime, 1).also {
+                        finish1 = it.time
+                    }
+                }
+
+                NetworkUsageUtils.TimeUnit.DAY -> {
+                    currentTime = DateUtils.addDays(currentTime, 1).also {
+                        finish1 = it.time
+                    }
+                }
+
+                NetworkUsageUtils.TimeUnit.HOUR -> {
+                    currentTime = DateUtils.addHours(currentTime, 1).also {
+                        finish1 = it.time
+                    }
+                }
+            }
+
+            traffics.add(
+                getAppUsage(uid, start1 + 1, finish1)
+            )
+        }
+
+        return traffics
+    }
+
+
+    suspend fun updateSimID() {
         simId = simManager.getDefaultDataSim().id
     }
 

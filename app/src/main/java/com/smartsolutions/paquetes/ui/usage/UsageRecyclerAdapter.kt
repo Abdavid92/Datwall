@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUsageBinding
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
@@ -14,6 +15,7 @@ import java.time.Period
 import kotlin.math.roundToInt
 
 class UsageRecyclerAdapter constructor(
+    private val fragment: Fragment,
     private var apps: List<UsageApp>,
     private val iconManager: IIconManager
 ): RecyclerView.Adapter<UsageRecyclerAdapter.UsageViewHolder>() {
@@ -51,8 +53,13 @@ class UsageRecyclerAdapter constructor(
 
             binding.textAppName.text = app.name
             val value = app.traffic?.totalBytes?.getValue() ?: DataUnitBytes.DataValue(0.0, DataUnitBytes.DataUnit.B)
-            binding.textUsageValue.text = "${value.value.roundToInt()} ${value.dataUnit}"
+            binding.textUsageValue.text = "${Math.round(value.value * 100) / 100.0} ${value.dataUnit}"
             binding.circleColour.circleColor = usageApp.colour
+
+            binding.root.setOnClickListener {
+                val dialog = UsageAppDetailsFragment.newInstance(usageApp.app)
+                dialog.show(fragment.parentFragmentManager, "UsageAppDetails")
+            }
         }
 
     }

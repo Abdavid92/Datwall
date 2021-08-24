@@ -170,6 +170,12 @@ class NetworkUsageUtils @Inject constructor(
 
     }
 
+    enum class TimeUnit {
+        MONTH,
+        DAY,
+        HOUR
+    }
+
 }
 
 @Retention(AnnotationRetention.SOURCE)

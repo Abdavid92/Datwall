@@ -71,7 +71,7 @@ class UsageHolderFragment : Fragment() {
 
                 setAdapter(result.second)
 
-                binding.pieChart.centerText = "${total.value.roundToInt()} ${total.dataUnit}"
+                binding.pieChart.centerText = "${Math.round(total.value * 100) / 100.0} ${total.dataUnit}"
 
                 viewModel.processAndFillPieCharData(result.first, result.second, binding.pieChart)
 
@@ -85,7 +85,7 @@ class UsageHolderFragment : Fragment() {
 
     private fun setAdapter(apps: List<UsageApp>){
         if (adapter == null){
-            adapter = UsageRecyclerAdapter(apps, viewModel.iconManager)
+            adapter = UsageRecyclerAdapter(this, apps, viewModel.iconManager)
             binding.recyclerView.adapter = adapter
         }else {
             adapter!!.updateApps(apps)
@@ -105,7 +105,7 @@ class UsageHolderFragment : Fragment() {
             setDrawEntryLabels(false)
             setEntryLabelColor(Color.BLACK)
             setCenterTextColor(uiHelper.getTextColorByTheme())
-            setCenterTextSize(24f)
+            setCenterTextSize(23f)
         }
 
         binding.pieChart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {

@@ -3,9 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_app_usage.xml" value="0.4" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.24259259259259258" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_applications_placeholder.xml" value="0.25416666666666665" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_item_list_dialog_list_dialog.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_usage.xml" value="0.4" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_usage_app_details.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_usage_place_holder.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage.xml" value="0.4" />
       </map>

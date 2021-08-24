@@ -76,7 +76,7 @@ class UsageViewModel @Inject constructor(
     private suspend fun getTraffic(@Period period: Int): Pair<Long, List<UsageApp>> {
         val interval = networkUsageUtils.getTimePeriod(period)
         val traffics = networkUsageManager.getAppsUsage(interval.first, interval.second)
-        val total = networkUsageManager.getUsageTotal(interval.first, interval.second)
+        var total = 0L
 
         val uids = mutableListOf<Int>()
         traffics.forEach {
@@ -95,10 +95,11 @@ class UsageViewModel @Inject constructor(
 
         apps.forEach { app ->
             app.traffic = traffics.firstOrNull { it.uid == app.uid }
+            total += app.traffic?.totalBytes?.bytes ?: 0
         }
 
         return Pair(
-            total.totalBytes.bytes,
+            total,
             transformAppsToUsageApps(
                 apps.sortedByDescending { it.traffic!!.totalBytes.bytes },
                 getRandomsColors(apps.size)
@@ -171,6 +172,11 @@ class UsageViewModel @Inject constructor(
                 }.postInvalidate()
             }
         }
+    }
+
+
+    fun getAppDetails(app: App) {
+
     }
 
 
