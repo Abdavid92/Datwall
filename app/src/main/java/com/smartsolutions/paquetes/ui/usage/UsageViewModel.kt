@@ -188,6 +188,17 @@ class UsageViewModel @Inject constructor(
             colors.add(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)))
             items++
         }
+
+        //TODO: Puedes cambiar el while por un for
+        /*for (i in 0..size) {
+            colors.add(Color.argb(
+                    255,
+                rnd.nextInt(256),
+                rnd.nextInt(256),
+                rnd.nextInt(256)
+                )
+            )
+        }*/
         return colors
     }
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUsageBinding
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
@@ -37,6 +38,38 @@ class UsageRecyclerAdapter constructor(
         this.apps = apps
         appsShow = apps.toMutableList()
         notifyDataSetChanged()
+
+        //TODO: Puedes usar DiffUtil aquí y en el método filter
+        /*DiffUtil recibe un callback que usa para comparar cada item en el
+        * que itera. Retorna una instancia de DiffResult.*/
+        /*val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                //Se retorna el tamaño de la lista vieja
+                return appsShow.size
+            }
+
+            override fun getNewListSize(): Int {
+                //Se retorna el tamaño de la lista nueva
+                return apps.size
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                /*Se verifica si las dos instancias de app son iguales.
+                * No necesariamente debes usar el operador de igualdad. Puedes
+                * crear tu propio mecanismo de comparación para asegurarte
+                * que funcione bien.*/
+                return appsShow[oldItemPosition].app == apps[newItemPosition].app
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                /*Verifica si el contenido de las instancias son iguales*/
+                return appsShow[oldItemPosition].app.traffic == apps[newItemPosition].app.traffic
+            }
+        })
+
+        /*DiffResult aplica los cambios al adaptador
+        con este método*/
+        result.dispatchUpdatesTo(this)*/
     }
 
     inner class UsageViewHolder(private val binding: ItemUsageBinding): RecyclerView.ViewHolder(binding.root) {
@@ -58,6 +91,9 @@ class UsageRecyclerAdapter constructor(
 
             binding.root.setOnClickListener {
                 val dialog = UsageAppDetailsFragment.newInstance(usageApp.app)
+
+                //TODO: No debes usar el parentFragmentManager aquí
+                /*Ej: dialog.show(fragment.childFragmentManager, "UsageAppDetails")*/
                 dialog.show(fragment.parentFragmentManager, "UsageAppDetails")
             }
         }

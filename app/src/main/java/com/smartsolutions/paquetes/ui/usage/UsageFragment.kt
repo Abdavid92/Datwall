@@ -21,7 +21,7 @@ class UsageFragment : Fragment() {
         fun newInstance() = UsageFragment()
     }
 
-    private val viewModel by viewModels<UsageViewModel> ()
+    private val viewModel by viewModels<UsageViewModel>()
     private lateinit var binding: FragmentUsageBinding
 
 

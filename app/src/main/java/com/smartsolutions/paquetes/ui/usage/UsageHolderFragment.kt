@@ -30,10 +30,27 @@ class UsageHolderFragment : Fragment() {
 
     private var type: Int? = null
     private lateinit var binding: FragmentUsagePlaceHolderBinding
+
+    //TODO: Puedes usar Lazy aquí
+    /*private val uiHelper by lazy {
+        UIHelper(requireContext())
+    }
+    Cuando intentes usar la variable por primera vez,
+    esta se inicializa automáticamente.
+    */
     private lateinit var uiHelper: UIHelper
     private var adapter: UsageRecyclerAdapter? = null
 
-    private val viewModel by viewModels<UsageViewModel> ()
+    //TODO: Puedes compartir el mismo viewModel para todos los fragmentos
+    /*Ej: private val viewModel by viewModels<UsageViewModel>({
+        /*Esto le indica a la función viewModels que use el
+        * ViewModelStoreOwner del fragmento padre y se recicla el mismo
+        * viewModel para todos sus fragmentos hijos. Esto te permite propagar
+        * eventos a traves del viewModel por todos los fragmentos hijos.
+        */
+        requireParentFragment()
+    })*/
+    private val viewModel by viewModels<UsageViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
