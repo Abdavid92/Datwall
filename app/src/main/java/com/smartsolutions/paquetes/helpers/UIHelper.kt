@@ -193,12 +193,22 @@ class UIHelper(
     }
 }
 
+/**
+ * Crea una instancia [Lazy] de [UIHelper]
+ *
+ * Ej: val uiHelper by uiHelper()
+ * */
 fun Context.uiHelper(): Lazy<UIHelper> {
     return lazy {
         UIHelper(this)
     }
 }
 
+/**
+ * Crea una instancia [Lazy] de [UIHelper]
+ *
+ * Ej: val uiHelper by uiHelper()
+ * */
 fun Fragment.uiHelper(): Lazy<UIHelper> {
     return lazy {
         UIHelper(requireContext())
