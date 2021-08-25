@@ -40,6 +40,9 @@ class TrafficRegistrationNewReceiver @Inject constructor(
     private val trafficRepository: ITrafficRepository
 ): BroadcastReceiver(), CoroutineScope {
 
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
+
     var isRegistered = false
         private set
 
@@ -114,8 +117,6 @@ class TrafficRegistrationNewReceiver @Inject constructor(
     private suspend fun registerTraffic(start: Long) {
         val international = Traffic()
         val national = Traffic()
-
-        //TODO Falta por agregar un campo a el modelo App que permita marcarla como Free
 
         getTrafficsToRegister(start).forEach { traffic ->
             apps.firstOrNull { it.uid == traffic.uid }?.let { app ->
@@ -226,15 +227,9 @@ class TrafficRegistrationNewReceiver @Inject constructor(
 
     }
 
-
     private fun isLTE(): Boolean {
         return networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default
-
-
 
     companion object {
         /**

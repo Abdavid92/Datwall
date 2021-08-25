@@ -19,7 +19,6 @@ import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.receivers.TrafficRegistrationNewReceiver
-import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.services.FirewallService

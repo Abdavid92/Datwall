@@ -12,15 +12,13 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.repositories.models.IApp
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 import kotlin.Exception
 
 
-class UIHelper @Inject constructor(
-    @ApplicationContext
+class UIHelper(
     private val context: Context
 ) {
 
@@ -187,10 +185,22 @@ class UIHelper @Inject constructor(
             dialog.setMessage(app.blockedAnnotations)
                 .show()
         } else {
-            /*Si no hay ningún mensaje de advertencia cambio la propiedad access y
+            /*Si no hay ningún mensaje de advertencia. Cambio la propiedad access y
             * notifico que hubo cambios.*/
             app.access = checkBox.isChecked
             callback?.invoke()
         }
+    }
+}
+
+fun Context.uiHelper(): Lazy<UIHelper> {
+    return lazy {
+        UIHelper(this)
+    }
+}
+
+fun Fragment.uiHelper(): Lazy<UIHelper> {
+    return lazy {
+        UIHelper(requireContext())
     }
 }

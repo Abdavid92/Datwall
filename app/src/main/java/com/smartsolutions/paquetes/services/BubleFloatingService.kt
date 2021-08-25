@@ -23,6 +23,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
+import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.NetworkUtils
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
@@ -50,8 +51,7 @@ class BubbleFloatingService : Service() {
     @Inject
     lateinit var networkUsageManager: NetworkUsageManager
 
-    @Inject
-    lateinit var uiHelper: UIHelper
+    private val uiHelper by uiHelper()
 
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)

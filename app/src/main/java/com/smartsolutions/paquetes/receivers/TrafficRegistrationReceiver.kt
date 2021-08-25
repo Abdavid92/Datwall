@@ -18,9 +18,12 @@ import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Receiver que registra el tráfico de datos de la red movil.
@@ -28,7 +31,7 @@ import javax.inject.Inject
  * apagados se debe quitar el registro. Lanza un broadcast con el tráfico
  * detectado en el último segundo para poder obtener el ancho de banda de la red.
  * */
-@AndroidEntryPoint
+/*@AndroidEntryPoint
 class TrafficRegistrationReceiver @Inject constructor(
     @ApplicationContext
     private val context: Context,
@@ -37,7 +40,10 @@ class TrafficRegistrationReceiver @Inject constructor(
     private val simManager: ISimManager,
     private val trafficRepository: ITrafficRepository,
     private val appRepository: IAppRepository
-) : BroadcastReceiver() {
+) : BroadcastReceiver(), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 
     var isRegistered = false
         private set
@@ -70,7 +76,7 @@ class TrafficRegistrationReceiver @Inject constructor(
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Watcher.ACTION_TICKTOCK) {
-            GlobalScope.launch {
+            launch {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
                     takeLollipopTraffic()
 
@@ -174,7 +180,7 @@ class TrafficRegistrationReceiver @Inject constructor(
         const val ACTION_TRAFFIC_REGISTRATION = "com.smartsolutions.paquetes.action.TRAFFIC_REGISTRATION"
 
         /**
-         * Extra que contiene los bytes descrgados.
+         * Extra que contiene los bytes descargados.
          * */
         const val EXTRA_TRAFFIC_RX = "com.smartsolutions.paquetes.extra.TRAFFIC_RX"
 
@@ -186,4 +192,4 @@ class TrafficRegistrationReceiver @Inject constructor(
         private var rxBytes = -1L
         private var txBytes = -1L
     }
-}
+}*/

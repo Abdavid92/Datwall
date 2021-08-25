@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.services
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
@@ -13,30 +12,45 @@ import android.os.Build
 import android.os.IBinder
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.helpers.UIHelper
+import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
-import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
+import com.smartsolutions.paquetes.receivers.TrafficRegistrationNewReceiver
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.lang.NullPointerException
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
 
+/**
+ * Servicio principal de la aplicación. Mantiene abierta la aplicación
+ * en fondo. Resuelve el ancho de banda de la conexión y actualiza el
+ * estado de los datos cada cierto tiempo en la notificación.
+ * */
 @AndroidEntryPoint
 class DatwallService : Service(), CoroutineScope {
 
+    private val job = Job()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + job
+
     private val binder = DatwallServiceBinder()
+
+    private val uiHelper by uiHelper()
 
     @Inject
     lateinit var userDataBytesRepository: IUserDataBytesRepository
@@ -47,11 +61,11 @@ class DatwallService : Service(), CoroutineScope {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
-    @Inject
-    lateinit var uiHelper: UIHelper
+    //private lateinit var notificationBuilder: Notification.Builder
+    //private lateinit var notificationManager: NotificationManager
 
-    private lateinit var notificationBuilder: Notification.Builder
-    private lateinit var notificationManager: NotificationManager
+    private lateinit var notificationManager: NotificationManagerCompat
+    private lateinit var notificationBuilder: NotificationCompat.Builder
 
     private val trafficRegistrationBroadcastReceiver = TrafficRegistrationBroadcastReceiver()
     private lateinit var contentView: RemoteViews
@@ -63,26 +77,35 @@ class DatwallService : Service(), CoroutineScope {
         return binder
     }
 
-    inner class DatwallServiceBinder: Binder() {
-        val service: DatwallService
-            get() = this@DatwallService
-    }
-
 
     override fun onCreate() {
         super.onCreate()
-        launch {
-            userDataBytesRepository.flowBySimId(simManager.getDefaultDataSim().id).collect { userData ->
+
+        notificationManager = NotificationManagerCompat.from(this)
+        notificationBuilder = NotificationCompat
+            .Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
+
+        /*launch {
+            userDataBytesRepository.flow()
+                .combine(simManager.flowInstalledSims(false)) { dataBytes, sims ->
+                    val defaultDataSim = sims.first { it.defaultData }
+                    return@combine dataBytes.filter { it.exists() && it.simId == defaultDataSim.id }
+                }
+                .collect { dataBytes ->
+                    //TODO: Actualizar los valores
+                }
+            /*userDataBytesRepository.flowBySimId(simManager.getDefaultDataSim().id).collect { userData ->
                 userDataBytesInfo = userData.filter { it.exists() }
-            }
-        }
-        notificationManager = ContextCompat.getSystemService(this, NotificationManager::class.java) ?: throw NullPointerException()
+            }*/
+        }*/
+        trafficRegistrationBroadcastReceiver.registerBroadcast(this)
+        /*notificationManager = ContextCompat.getSystemService(this, NotificationManager::class.java) ?: throw NullPointerException()
 
         notificationBuilder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
         }else {
             Notification.Builder(this)
-        }
+        }*/
     }
 
 
@@ -97,10 +120,6 @@ class DatwallService : Service(), CoroutineScope {
             }.build()
         )
 
-
-
-        trafficRegistrationBroadcastReceiver.registerBroadcast(this)
-
         return START_STICKY
     }
 
@@ -112,16 +131,21 @@ class DatwallService : Service(), CoroutineScope {
 
     private fun updateNotification(rxBytes: Long, txBytes: Long) {
         notificationBuilder.setSmallIcon(getIcon( rxBytes + txBytes))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             notificationBuilder.style = Notification.DecoratedCustomViewStyle()
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        }*/
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             notificationBuilder.setCustomContentView(contentView)
             notificationBuilder.setCustomBigContentView(contentView)
         }else {
             notificationBuilder.setContent(contentView)
-        }
-        notificationManager.notify(NotificationHelper.MAIN_NOTIFICATION_ID, notificationBuilder.build())
+        }*/
+        notificationManager.notify(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
+            notificationBuilder.apply {
+                setCustomContentView(this@DatwallService.contentView)
+                setCustomBigContentView(this@DatwallService.contentView)
+            }.build())
     }
 
 
@@ -151,7 +175,17 @@ class DatwallService : Service(), CoroutineScope {
         return uiHelper.getResource(name) ?: R.drawable.ic_bubble_notification
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        trafficRegistrationBroadcastReceiver
+            .unregisterBroadcast(this)
+        job.cancel()
+    }
 
+    inner class DatwallServiceBinder: Binder() {
+        val service: DatwallService
+            get() = this@DatwallService
+    }
 
     inner class TrafficRegistrationBroadcastReceiver: BroadcastReceiver() {
 
@@ -159,9 +193,9 @@ class DatwallService : Service(), CoroutineScope {
 
         override fun onReceive(context: Context?, intent: Intent?) {
 
-            if (intent?.action == TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION){
-                val tx = intent.getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_TX, 0L)
-                val rx = intent.getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_RX, 0L)
+            if (intent?.action == TrafficRegistrationNewReceiver.ACTION_TRAFFIC_REGISTRATION){
+                val tx = intent.getLongExtra(TrafficRegistrationNewReceiver.EXTRA_TRAFFIC_TX, 0L)
+                val rx = intent.getLongExtra(TrafficRegistrationNewReceiver.EXTRA_TRAFFIC_RX, 0L)
                 updateView()
                 updateNotification(rx, tx)
             }
@@ -173,7 +207,7 @@ class DatwallService : Service(), CoroutineScope {
             if (!isRegistered) {
                 LocalBroadcastManager.getInstance(context).registerReceiver(
                     this,
-                    IntentFilter(TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION)
+                    IntentFilter(TrafficRegistrationNewReceiver.ACTION_TRAFFIC_REGISTRATION)
                 )
                 isRegistered = true
             }
@@ -185,15 +219,4 @@ class DatwallService : Service(), CoroutineScope {
         }
 
     }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        trafficRegistrationBroadcastReceiver.unregisterBroadcast(this)
-    }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
-
-
 }
