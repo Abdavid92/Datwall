@@ -31,9 +31,6 @@ class IconManager @Inject constructor(
     private val context: Context
 ) : IIconManager, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
-
     /**
      * Servicio que se usa para obtener los íconos de las aplicaciones
      * */
@@ -48,6 +45,8 @@ class IconManager @Inject constructor(
      * Nombre base de los íconos
      * */
     private val baseIconName = "icon_"
+
+    private val handler = Handler(Looper.getMainLooper())
 
     init {
         if (!cacheDir.exists()) {
@@ -74,7 +73,7 @@ class IconManager @Inject constructor(
     override fun getAsync(packageName: String, size: Int, callback: (img: Bitmap) -> Unit) {
         launch {
             get(packageName, size)?.let {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main){
                     callback(it)
                 }
             }
@@ -107,7 +106,7 @@ class IconManager @Inject constructor(
     ) {
         launch {
             get(packageName, versionCode, size)?.let {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main){
                     callback(it)
                 }
             }
@@ -139,7 +138,7 @@ class IconManager @Inject constructor(
     ) {
         launch {
             getImageFile(packageName, versionCode, size)?.let {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main){
                     callback(it)
                 }
             }
@@ -181,7 +180,7 @@ class IconManager @Inject constructor(
             val icon = try {
                 getResizedBitmap(drawableToBitmap(packageManager.getApplicationIcon(packageName)), size)
             } catch (e: Exception) {
-                getResizedBitmap(drawableToBitmap(ContextCompat.getDrawable(context, android.R.drawable.sym_def_app_icon)), 100)
+                getResizedBitmap(drawableToBitmap(ContextCompat.getDrawable(context, android.R.drawable.sym_def_app_icon)), size)
             }
 
             //Guardo el ícono en el file
@@ -282,4 +281,7 @@ class IconManager @Inject constructor(
         }
         return null
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 }

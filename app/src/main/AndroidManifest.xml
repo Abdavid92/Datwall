@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.smartsolutions.paquetes">
+    package="com.smartsolutions.paquetes" >
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -98,8 +98,7 @@
         <!-- Receivers -->
         <receiver
             android:name=".receivers.BootCompletedReceiver"
-            android:enabled="true"
-            android:exported="true">
+            android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

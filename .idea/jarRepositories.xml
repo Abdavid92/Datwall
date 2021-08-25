@@ -276,5 +276,10 @@
       <option name="name" value="injected_offline_com" />
       <option name="url" value="file:/$PROJECT_DIR$/../../Repository/com/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_corretto-1.8.0_302" />
+      <option name="name" value="injected_offline_corretto-1.8.0_302" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/corretto-1.8.0_302/" />
+    </remote-repository>
   </component>
 </project>

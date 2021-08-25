@@ -8,7 +8,7 @@ import android.net.TrafficStats
 import android.os.Build
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.annotations.Networks
-import com.smartsolutions.paquetes.helpers.NetworkUtil
+import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
@@ -35,7 +35,7 @@ class TrafficRegistrationNewReceiver @Inject constructor(
     private val networkUsageManager: NetworkUsageManager,
     private val appRepository: IAppRepository,
     private val userDataBytesManager: IUserDataBytesManager,
-    private val networkUtil: NetworkUtil,
+    private val networkUtils: NetworkUtils,
     private val simManager: ISimManager,
     private val trafficRepository: ITrafficRepository
 ): BroadcastReceiver(), CoroutineScope {
@@ -228,7 +228,7 @@ class TrafficRegistrationNewReceiver @Inject constructor(
     }
 
     private fun isLTE(): Boolean {
-        return networkUtil.getNetworkGeneration() == NetworkUtil.NetworkType.NETWORK_4G
+        return networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
     }
 
     companion object {

@@ -20,4 +20,7 @@
     </style>
 
     <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
+
+    <style name="ThemeOverlay.Datwall.FullscreenContainer" parent="">
+    </style>
 </resources>

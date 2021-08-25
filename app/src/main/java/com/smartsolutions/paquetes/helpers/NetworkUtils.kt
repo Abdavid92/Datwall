@@ -13,7 +13,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlin.jvm.Throws
 
-class NetworkUtil @Inject constructor(
+class NetworkUtils @Inject constructor(
     @ApplicationContext
     private val context: Context
 ) {
