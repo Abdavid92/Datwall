@@ -94,4 +94,9 @@ object PreferencesKeys {
      * Opcion de periodo de tiempo en el cual mostrar el consumo
      */
     val USAGE_PERIOD = intPreferencesKey("usage_option")
+
+    /**
+     * Filtro que organiza las apps en el fragmento de consumo
+     */
+    val USAGE_FILTER = stringPreferencesKey("usage_filter")
 }

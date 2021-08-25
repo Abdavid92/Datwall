@@ -67,7 +67,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
         binding.include.textAppName.text = app.name
         val value = app.traffic!!.totalBytes.getValue()
-        binding.include.textUsageValue.text = "${Math.round(value.value * 100) / 100.0} ${value.dataUnit}"
+        binding.include.textUsageValue.text = "${value.value} ${value.dataUnit}"
         configureLineChart()
 
         viewModel.getUsageByTime(app.uid).observe(viewLifecycleOwner, { result ->
@@ -133,7 +133,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
                             "Dia " + SimpleDateFormat("dd", Locale.US).format(Date(value.toLong()))
                         }
                         NetworkUsageUtils.TimeUnit.MONTH -> {
-                            "Mes " + SimpleDateFormat("MMM", Locale.US).format(Date(value.toLong()))
+                            SimpleDateFormat("MMM", Locale.US).format(Date(value.toLong()))
                         }
                     }
                 }

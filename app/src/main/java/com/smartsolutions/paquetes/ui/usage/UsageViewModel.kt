@@ -37,6 +37,7 @@ class UsageViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     private var period = 0
+    private var filter = UsageFilters.MAX_USAGE
     var apps = mutableListOf<UsageApp>()
     var others = mutableListOf<UsageApp>()
 
@@ -44,7 +45,8 @@ class UsageViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getApplication<Application>().uiDataStore.data.collect {
                 period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
-                liveData.postValue(getTraffic(period))
+                filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
+                liveData.postValue(getTraffic(period, filter))
             }
         }
     }
@@ -60,9 +62,17 @@ class UsageViewModel @Inject constructor(
         }
     }
 
+    fun setUsageFilter(filter: UsageFilters) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getApplication<Application>().uiDataStore.edit {
+                it[PreferencesKeys.USAGE_FILTER] = filter.name
+            }
+        }
+    }
+
     fun refreshData(){
         viewModelScope.launch(Dispatchers.IO) {
-            liveData.postValue(getTraffic(period))
+            liveData.postValue(getTraffic(period, filter))
         }
     }
 
@@ -73,7 +83,7 @@ class UsageViewModel @Inject constructor(
     }
 
 
-    private suspend fun getTraffic(@Period period: Int): Pair<Long, List<UsageApp>> {
+    private suspend fun getTraffic(@Period period: Int, filter: UsageFilters): Pair<Long, List<UsageApp>> {
         val interval = networkUsageUtils.getTimePeriod(period)
         val traffics = networkUsageManager.getAppsUsage(interval.first, interval.second)
         var total = 0L
@@ -87,7 +97,7 @@ class UsageViewModel @Inject constructor(
             appRepository.get(uids.toIntArray()).filter { it.trafficType == type }.toMutableList()
 
         traffics.forEach { traffic ->
-            val toRemove = apps.filter { it.uid ==  traffic.uid}
+            val toRemove = apps.filter { it.uid == traffic.uid }
             if (toRemove.size > 1) {
                 apps.removeAll(toRemove.subList(1, toRemove.size - 1))
             }
@@ -98,10 +108,22 @@ class UsageViewModel @Inject constructor(
             total += app.traffic?.totalBytes?.bytes ?: 0
         }
 
+        val appsShorted = when (filter) {
+            UsageFilters.ALPHABETICAL -> {
+                apps.sortedBy { it.name }
+            }
+            UsageFilters.MAX_USAGE -> {
+                apps.sortedByDescending { it.traffic!!.totalBytes.bytes }
+            }
+            UsageFilters.MIN_USAGE -> {
+                apps.sortedBy { it.traffic!!.totalBytes.bytes }
+            }
+        }
+
         return Pair(
             total,
             transformAppsToUsageApps(
-                apps.sortedByDescending { it.traffic!!.totalBytes.bytes },
+                appsShorted,
                 getRandomsColors(apps.size)
             )
         )
@@ -175,22 +197,11 @@ class UsageViewModel @Inject constructor(
     }
 
 
-    fun getAppDetails(app: App) {
-
-    }
-
-
     private fun getRandomsColors(size: Int): MutableList<Int> {
         val colors = mutableListOf<Int>()
         val rnd = Random()
-        var items = 0
-        while (items < size) {
-            colors.add(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)))
-            items++
-        }
 
-        //TODO: Puedes cambiar el while por un for
-        /*for (i in 0..size) {
+        for (i in 1..size) {
             colors.add(Color.argb(
                     255,
                 rnd.nextInt(256),
@@ -198,7 +209,7 @@ class UsageViewModel @Inject constructor(
                 rnd.nextInt(256)
                 )
             )
-        }*/
+        }
         return colors
     }
 
@@ -215,4 +226,9 @@ class UsageViewModel @Inject constructor(
     }
 
 
+    enum class UsageFilters {
+        ALPHABETICAL,
+        MAX_USAGE,
+        MIN_USAGE
+    }
 }

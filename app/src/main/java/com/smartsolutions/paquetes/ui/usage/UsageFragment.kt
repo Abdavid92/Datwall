@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageBinding
 import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,6 +56,10 @@ class UsageFragment : Fragment() {
 
         }
 
+        binding.btnFilterUsage.setOnClickListener {
+            showFilterOptions()
+        }
+
         val adapter = FragmentPageAdapter(this)
         binding.pager.adapter = adapter
 
@@ -61,6 +67,14 @@ class UsageFragment : Fragment() {
             tab.text = adapter.fragmentsList[position].second
         }.attach()
 
+    }
+
+    private fun showFilterOptions(){
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.dialog_filter_title)
+            .setItems(R.array.filter_usage) { _, pos ->
+                viewModel.setUsageFilter(UsageViewModel.UsageFilters.values()[pos])
+            }.show()
     }
 
 }

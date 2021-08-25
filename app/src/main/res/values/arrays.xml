@@ -6,6 +6,12 @@
         <item>Type of traffic</item>
     </string-array>
 
+    <string-array name="filter_usage">
+        <item>Alphabetic</item>
+        <item>Max usage</item>
+        <item>Min usage</item>
+    </string-array>
+
     <string-array name="usage_options">
         <item>Hoy</item>
         <item>Ayer</item>

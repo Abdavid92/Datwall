@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable/ic_arrow_expanded.xml" value="0.2324074074074074" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_fullscreen.xml" value="0.24010416666666667" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.4" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_splash.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/app_item.xml" value="0.25416666666666665" />
@@ -12,6 +13,7 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_test.xml" value="0.24010416666666667" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_update.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_usage.xml" value="0.264" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_usage_app_details.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_usage_place_holder.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/usage_fragment.xml" value="0.25416666666666665" />

@@ -86,15 +86,12 @@ class UsageRecyclerAdapter constructor(
 
             binding.textAppName.text = app.name
             val value = app.traffic?.totalBytes?.getValue() ?: DataUnitBytes.DataValue(0.0, DataUnitBytes.DataUnit.B)
-            binding.textUsageValue.text = "${Math.round(value.value * 100) / 100.0} ${value.dataUnit}"
+            binding.textUsageValue.text = "${value.value} ${value.dataUnit}"
             binding.circleColour.circleColor = usageApp.colour
 
             binding.root.setOnClickListener {
                 val dialog = UsageAppDetailsFragment.newInstance(usageApp.app)
-
-                //TODO: No debes usar el parentFragmentManager aquí
-                /*Ej: dialog.show(fragment.childFragmentManager, "UsageAppDetails")*/
-                dialog.show(fragment.parentFragmentManager, "UsageAppDetails")
+                dialog.show(fragment.childFragmentManager, "UsageAppDetails")
             }
         }
 

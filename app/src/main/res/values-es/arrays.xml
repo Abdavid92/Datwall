@@ -6,6 +6,12 @@
         <item>Tipo de tráfico</item>
     </string-array>
 
+    <string-array name="filter_usage">
+        <item>Alfabético</item>
+        <item>Mayor consumo</item>
+        <item>Menor consumo</item>
+    </string-array>
+
     <string-array name="usage_options">
         <item>Hoy</item>
         <item>Ayer</item>

@@ -15,7 +15,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="BottomSheetDialog." parent="Theme.MaterialComponents.BottomSheetDialog">
+    <style name="BottomSheetDialog" parent="Theme.MaterialComponents.BottomSheetDialog">
         <item name="cornerRadius">20dp</item>
     </style>
 
@@ -51,7 +51,9 @@
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition</item>
-        <item name="android:windowSharedElementExitTransition">@transition/app_control_transition</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition
+        </item>
+        <item name="android:windowSharedElementExitTransition">@transition/app_control_transition
+        </item>
     </style>
 </resources>
