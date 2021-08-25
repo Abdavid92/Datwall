@@ -5,7 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:padding="4dp">
+    android:padding="8dp">
+
+    <com.smartsolutions.paquetes.ui.CircleView
+        android:id="@+id/circle_colour"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginEnd="10dp" />
 
     <ImageView
         android:id="@+id/app_icon"
@@ -18,15 +24,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:padding="8dp"
         android:text="App Name"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:padding="8dp"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/textView11"
+        android:id="@+id/text_usage_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="8dp"
         android:text="45 MB"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:padding="8dp"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 </LinearLayout>

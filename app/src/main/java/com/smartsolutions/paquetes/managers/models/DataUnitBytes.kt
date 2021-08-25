@@ -46,7 +46,7 @@ class DataUnitBytes(val bytes: Long) {
             }
         }
 
-        return DataValue(value, unit)
+        return DataValue(Math.round(value * 100) / 100.0, unit)
     }
 
     companion object {

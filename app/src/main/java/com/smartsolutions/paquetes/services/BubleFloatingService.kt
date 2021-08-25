@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
@@ -24,7 +23,7 @@ import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.NetworkUtils
+import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -52,6 +51,9 @@ class BubbleFloatingService : Service() {
 
     @Inject
     lateinit var uiHelper: UIHelper
+
+    @Inject
+    lateinit var networkUsageUtils: NetworkUsageUtils
 
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
@@ -230,7 +232,7 @@ class BubbleFloatingService : Service() {
     }
 
     private fun setTraffic(app: App) {
-        val period = NetworkUtils.getTimePeriod(NetworkUtils.PERIOD_TODAY)
+        val period = networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_TODAY)
         runBlocking {
             traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }

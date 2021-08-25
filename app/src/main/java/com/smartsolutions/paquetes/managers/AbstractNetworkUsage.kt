@@ -24,7 +24,7 @@ abstract class AbstractNetworkUsage(
         try {
             telephonyManager.subscriberId
         } catch (e: SecurityException) {
-            throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
+            return@lazy null
         }
     }
 

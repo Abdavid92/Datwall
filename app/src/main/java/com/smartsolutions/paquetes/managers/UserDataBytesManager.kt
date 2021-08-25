@@ -177,7 +177,7 @@ class UserDataBytesManager @Inject constructor(
      *
      **/
     private fun fixTrafficByTime (bytes: Long) : Long {
-        return if (NetworkUtils.isInDiscountHour(System.currentTimeMillis(), System.currentTimeMillis())){
+        return if (NetworkUsageUtils.isInDiscountHour(System.currentTimeMillis(), System.currentTimeMillis())){
             bytes / 2
         }else {
             bytes
