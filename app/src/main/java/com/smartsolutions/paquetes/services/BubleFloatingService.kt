@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.services
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -18,7 +19,11 @@ import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
+import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
@@ -31,11 +36,13 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import java.lang.RuntimeException
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
-class BubbleFloatingService : Service() {
+class BubbleFloatingService : Service(), CoroutineScope {
 
     @Inject
     lateinit var notificationHelper: NotificationHelper
@@ -50,47 +57,42 @@ class BubbleFloatingService : Service() {
     lateinit var networkUsageManager: NetworkUsageManager
 
     @Inject
+    lateinit var networkUsageUtils: NetworkUsageUtils
+
     lateinit var uiHelper: UIHelper
 
-    @Inject
-    lateinit var networkUsageUtils: NetworkUsageUtils
+    private lateinit var bubbleBinding: BubbleFloatingLayoutBinding
+    private lateinit var closeBinding: BubbleCloseFloatingLayoutBinding
 
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
     private val paramsClose = getParams(WindowManager.LayoutParams.MATCH_PARENT)
 
-    private lateinit var cardBubble: View
-    private lateinit var closeView: View
-    private lateinit var menuLeft: View
-    private lateinit var menuRight: View
     private lateinit var currentMenu: View
 
     private val receiverChangeAppWatcher = ReceiverChangeAppWatcher()
     private val receiverTickWatcher = ReceiverTickWatcher()
-
-    private lateinit var iconApp: ImageView
-    private lateinit var valueApp: TextView
-    private lateinit var unitApp: TextView
-    private lateinit var background: LinearLayout
-    private lateinit var closeImage: ImageView
 
 
     private var app: App? = null
     private var bitmapIcon: Bitmap? = null
     private var traffic: Traffic = Traffic()
     private var isShowMenu = false
+    private var VPN_ENABLED = false
 
-    var delayTransparency = 0
-    var ticks = 4
-    var initialX: Int = 0
-    var initialY: Int = 0
-    var initialTouchX: Float = 0F
-    var initialTouchY: Float = 0F
-    var xMinClose = 0
-    var xMaxClose = 0
-    var yMinClose = 0
-    var yMaxClose = 0
-    var moving = 0
+    private var delayTransparency = 0
+    private var ticks = 4
+    private var lastX = 0
+    private var lastY = 0
+    private var initialX: Int = 0
+    private var initialY: Int = 0
+    private var initialTouchX: Float = 0F
+    private var initialTouchY: Float = 0F
+    private var xMinClose = 0
+    private var xMaxClose = 0
+    private var yMinClose = 0
+    private var yMaxClose = 0
+    private var moving = 0
 
 
     override fun onBind(intent: Intent): IBinder? {
@@ -120,52 +122,54 @@ class BubbleFloatingService : Service() {
         windowManager = ContextCompat.getSystemService(this, WindowManager::class.java)
             ?: throw NullPointerException()
 
-        cardBubble = layoutInflater.inflate(R.layout.buble_floating_layout, null, false)
-        closeView = layoutInflater.inflate(R.layout.bubble_close_floating_layout, null, false)
+        uiHelper = UIHelper(this)
+
+        bubbleBinding = BubbleFloatingLayoutBinding.inflate(layoutInflater)
+        closeBinding = BubbleCloseFloatingLayoutBinding.inflate(layoutInflater)
 
         setOnTouch()
-        initializeViews()
+        setViews()
 
-        addView(cardBubble, params)
+        addView(bubbleBinding.root, params)
 
         runBlocking(Dispatchers.IO) {
             app = appRepository.get(applicationContext.packageName)
         }
         registerBroadcasts()
-    }
 
-
-    private fun initializeViews() {
-        iconApp = cardBubble.findViewById(R.id.app_icon)
-        valueApp = cardBubble.findViewById(R.id.app_value)
-        unitApp = cardBubble.findViewById(R.id.unit_app)
-        background = cardBubble.findViewById(R.id.lin_background_bubble)
-        closeImage = closeView.findViewById(R.id.image_close)
-        closeImage.setImageResource(R.drawable.ic_close_red)
-        closeView.findViewById<LinearLayout>(R.id.lin_background).setOnClickListener {
-            hideClose()
+        launch {
+            this@BubbleFloatingService.dataStore.data.collect {
+                VPN_ENABLED = it[PreferencesKeys.ENABLED_FIREWALL] ?: false
+            }
         }
-        menuLeft = cardBubble.findViewById(R.id.menu_left)
-        menuRight = cardBubble.findViewById(R.id.menu_right)
+    }
+
+    private fun setViews() {
+      closeBinding.root.setOnClickListener {
+          hideClose()
+      }
+        closeBinding.imageClose.setImageResource(R.drawable.ic_close_red)
     }
 
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setOnTouch() {
-        cardBubble.setOnTouchListener { v, event ->
+        bubbleBinding.root.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
                     initialX = params.x
                     initialY = params.y
+                    lastX = initialX
+                    lastY = initialY
                     setTransparency(false)
                     showClose()
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    v.performClick()
                     if (isDrawOverClose()){
-                       Toast.makeText(this, "Close", Toast.LENGTH_SHORT).show()
+                       hideBubble()
                     }
                     hideClose()
                     if (moving < 10) {
@@ -183,7 +187,7 @@ class BubbleFloatingService : Service() {
                     moving++
                     params.x = initialX + (event.rawX - initialTouchX).toInt()
                     params.y = initialY + (event.rawY - initialTouchY).toInt()
-                    windowManager.updateViewLayout(cardBubble, params)
+                    windowManager.updateViewLayout(bubbleBinding.root, params)
                 }
             }
             delayTransparency = 0
@@ -195,38 +199,46 @@ class BubbleFloatingService : Service() {
     private fun setTransparency(transparent: Boolean) {
         val duration = 800L
         if (transparent) {
-            if (cardBubble.alpha == 1.0f) {
-                cardBubble.animate().alpha(0.3f).duration = duration
+            if (bubbleBinding.root.alpha == 1.0f) {
+                bubbleBinding.root.animate().alpha(0.3f).duration = duration
             }
         } else {
-            if (cardBubble.alpha < 1.0f) {
-                cardBubble.animate().alpha(1f).duration = duration
+            if (bubbleBinding.root.alpha < 1.0f) {
+                bubbleBinding.root.animate().alpha(1f).duration = duration
             }
         }
     }
 
     private fun setTheme() {
-        background.setBackgroundResource(getBackgroundResource())
+        bubbleBinding.linBackgroundBubble.setBackgroundResource(getBackgroundResource())
 
         val color = uiHelper.getTextColorByTheme()
 
-        valueApp.setTextColor(color)
-        unitApp.setTextColor(color)
+        bubbleBinding.appValue.setTextColor(color)
+        bubbleBinding.unitApp.setTextColor(color)
     }
 
     private fun getBackgroundResource(): Int{
         val isDark = uiHelper.isUIDarkTheme()
-        return if (app?.access == true) {
-           if (isDark){
-               R.drawable.background_green_borderless_card_dark
-           }else {
-               R.drawable.background_green_borderless_card_light
-           }
-        } else {
+        return if (VPN_ENABLED){
+            if (app?.access == true) {
+                if (isDark){
+                    R.drawable.background_green_borderless_card_dark
+                }else {
+                    R.drawable.background_green_borderless_card_light
+                }
+            } else {
+                if (isDark){
+                    R.drawable.background_red_borderless_card_dark
+                }else {
+                    R.drawable.background_red_borderless_card_light
+                }
+            }
+        }else {
             if (isDark){
-                R.drawable.background_red_borderless_card_dark
+                R.drawable.background_card_dark
             }else {
-                R.drawable.background_red_borderless_card_light
+                R.drawable.background_card_light
             }
         }
     }
@@ -237,18 +249,18 @@ class BubbleFloatingService : Service() {
             traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }
 
-        valueApp.text = "${traffic.totalBytes.getValue().value.toInt()}"
-        unitApp.text = traffic.totalBytes.getValue().dataUnit.name
+        bubbleBinding.appValue.text = "${traffic.totalBytes.getValue().value.toInt()}"
+        bubbleBinding.unitApp.text = traffic.totalBytes.getValue().dataUnit.name
     }
 
 
     private fun showClose(){
         try {
-            closeImage.alpha = 0f
-            addView(closeView, paramsClose)
-            closeImage.animate().alpha(1f).setListener(object : AnimatorListenerAdapter() {
+            closeBinding.imageClose.alpha = 0f
+            addView(closeBinding.root, paramsClose)
+            closeBinding.imageClose.animate().alpha(1f).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    closeImage.animate().setListener(null)
+                    closeBinding.imageClose.animate().setListener(null)
                     if (xMinClose == 0 && yMinClose == 0) {
                         fillLocationClose()
                     }
@@ -261,12 +273,12 @@ class BubbleFloatingService : Service() {
 
     private fun hideClose(){
         try {
-            closeImage.alpha = 1f
-            closeImage.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
+            closeBinding.imageClose.alpha = 1f
+            closeBinding.imageClose.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    closeImage.animate().setListener(null)
+                    closeBinding.imageClose.animate().setListener(null)
                     try {
-                        windowManager.removeView(closeView)
+                        windowManager.removeView(closeBinding.root)
                     }catch (e: Exception){
 
                     }
@@ -279,17 +291,34 @@ class BubbleFloatingService : Service() {
 
     private fun isDrawOverClose(): Boolean {
         val posBubble = IntArray(2)
-        cardBubble.getLocationOnScreen(posBubble)
+        bubbleBinding.root.getLocationOnScreen(posBubble)
 
         return posBubble[0] in (xMinClose + 1) until xMaxClose && posBubble[1] in (yMinClose + 1) until yMaxClose
+    }
+
+    private fun showBubble() {
+        params.x = lastX
+        params.y = lastY
+        updateView(bubbleBinding.root, params)
+        bubbleBinding.root.visibility = View.VISIBLE
+        bubbleBinding.root.animate().alpha(1f)
+    }
+
+    private fun hideBubble() {
+        bubbleBinding.root.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                bubbleBinding.root.animate().setListener(null)
+                bubbleBinding.root.visibility = View.GONE
+            }
+        })
     }
 
 
     private fun fillLocationClose(){
         val posClose = IntArray(2)
-        closeImage.getLocationOnScreen(posClose)
-        val width = closeImage.width
-        val height = closeImage.height
+        closeBinding.imageClose.getLocationOnScreen(posClose)
+        val width = closeBinding.imageClose.width
+        val height = closeBinding.imageClose.height
         xMinClose = posClose[0] - width
         xMaxClose = posClose[0] + width
 
@@ -313,17 +342,17 @@ class BubbleFloatingService : Service() {
 
     private fun animationMenu(show: Boolean){
         val radius = if (show) {
-            valueApp.visibility = View.GONE
-            unitApp.visibility = View.GONE
+            bubbleBinding.appValue.visibility = View.GONE
+            bubbleBinding.unitApp.visibility = View.GONE
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
         }else {
-            valueApp.visibility = View.VISIBLE
-            unitApp.visibility = View.VISIBLE
+            bubbleBinding.appValue.visibility = View.VISIBLE
+            bubbleBinding.unitApp.visibility = View.VISIBLE
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35f, resources.displayMetrics).toInt()
         }
 
-        iconApp.layoutParams.height = radius
-        iconApp.layoutParams.width = radius
+        bubbleBinding.appIcon.layoutParams.height = radius
+        bubbleBinding.appIcon.layoutParams.width = radius
     }
 
 
@@ -332,7 +361,6 @@ class BubbleFloatingService : Service() {
         val switchAccess: Switch = menu.findViewById(R.id.switch_access)
         val downloadValue: TextView = menu.findViewById(R.id.value_download_app)
         val uploadValue: TextView = menu.findViewById(R.id.value_upload_app)
-        val backgroundMenu: LinearLayout = menu.findViewById(R.id.lin_background)
         val imageDownload: ImageView = menu.findViewById(R.id.image_download)
         val imageUpload: ImageView = menu.findViewById(R.id.image_upload)
 
@@ -342,29 +370,38 @@ class BubbleFloatingService : Service() {
 
         imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
 
-        //backgroundMenu.setBackgroundResource(getBackgroundResource())
-
         val color = uiHelper.getTextColorByTheme()
 
         downloadValue.setTextColor(color)
         uploadValue.setTextColor(color)
         switchAccess.setTextColor(color)
+        switchAccess.isChecked = app?.access == true || app?.tempAccess == true
+        switchAccess.isEnabled = VPN_ENABLED && app?.access == false
+
+        switchAccess.setOnCheckedChangeListener { _, isChecked ->
+            launch {
+                app?.let {
+                    it.tempAccess = isChecked
+                    appRepository.update(it)
+                }
+            }
+        }
 
         uploadValue.text =
-            "${Math.round(traffic.txBytes.getValue().value * 100.0) / 100.0} ${traffic.txBytes.getValue().dataUnit.name}"
+            "${traffic.txBytes.getValue().value} ${traffic.txBytes.getValue().dataUnit.name}"
         downloadValue.text =
-            "${Math.round(traffic.rxBytes.getValue().value * 100.0) / 100.0} ${traffic.rxBytes.getValue().dataUnit.name}"
+            "${traffic.rxBytes.getValue().value} ${traffic.rxBytes.getValue().dataUnit.name}"
     }
 
     private fun getViewSideMenu(): View {
         val width = getScreenWidth()/2
         val pos = IntArray(2)
-        cardBubble.getLocationOnScreen(pos)
+        bubbleBinding.root.getLocationOnScreen(pos)
         val x = pos[0]
         return if (x >= width){
-            menuLeft
+            bubbleBinding.menuLeft.root
         }else {
-            menuRight
+            bubbleBinding.menuRight.root
         }
     }
 
@@ -405,6 +442,7 @@ class BubbleFloatingService : Service() {
 
             intent?.let {
                 it.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)?.let { appIntent ->
+                    showBubble()
 
                     app = appIntent
 
@@ -415,7 +453,7 @@ class BubbleFloatingService : Service() {
                         appIntent.version
                     )
 
-                    iconApp.setImageBitmap(bitmapIcon)
+                    bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
 
                     setTraffic(appIntent)
                 }
@@ -489,12 +527,17 @@ class BubbleFloatingService : Service() {
         try {
             windowManager.addView(view, params)
         }catch (e: Exception){
-
             if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 throw MissingPermissionException(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
             }
+        }
+    }
 
-            throw e
+    private fun updateView(view: View, params: WindowManager.LayoutParams) {
+        try {
+            windowManager.updateViewLayout(bubbleBinding.root, params)
+        }catch (e: Exception){
+
         }
     }
 
@@ -503,5 +546,8 @@ class BubbleFloatingService : Service() {
         super.onDestroy()
         unregisterBroadcasts()
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
 }
