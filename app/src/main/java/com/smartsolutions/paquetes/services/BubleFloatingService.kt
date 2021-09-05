@@ -24,6 +24,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
+import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
@@ -63,12 +64,11 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     private lateinit var bubbleBinding: BubbleFloatingLayoutBinding
     private lateinit var closeBinding: BubbleCloseFloatingLayoutBinding
+    private lateinit var currentMenu: BubbleMenuFloatingLayoutBinding
 
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
     private val paramsClose = getParams(WindowManager.LayoutParams.MATCH_PARENT)
-
-    private lateinit var currentMenu: View
 
     private val receiverChangeAppWatcher = ReceiverChangeAppWatcher()
     private val receiverTickWatcher = ReceiverTickWatcher()
@@ -77,6 +77,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private var app: App? = null
     private var bitmapIcon: Bitmap? = null
     private var traffic: Traffic = Traffic()
+    private var isShowBubble = true
     private var isShowMenu = false
     private var VPN_ENABLED = false
 
@@ -93,6 +94,10 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private var yMinClose = 0
     private var yMaxClose = 0
     private var moving = 0
+
+    private var SIZE = BubbleSize.MEDIUM
+    private var TRANSPARENCY = BubbleTransparency.MEDIUM
+    private var ALWAYS_SHOW = true
 
 
     override fun onBind(intent: Intent): IBinder? {
@@ -140,6 +145,13 @@ class BubbleFloatingService : Service(), CoroutineScope {
         launch {
             this@BubbleFloatingService.dataStore.data.collect {
                 VPN_ENABLED = it[PreferencesKeys.ENABLED_FIREWALL] ?: false
+                SIZE = BubbleSize.valueOf(
+                    it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.MEDIUM.name
+                )
+                TRANSPARENCY = BubbleTransparency.valueOf(
+                    it[PreferencesKeys.BUBBLE_TRANSPARENCY] ?: BubbleTransparency.MEDIUM.name
+                )
+                ALWAYS_SHOW = it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] ?: true
             }
         }
     }
@@ -196,20 +208,74 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     }
 
+
+    private fun showBubble() {
+        isShowBubble = true
+        params.x = lastX
+        params.y = lastY
+        updateView(bubbleBinding.root, params)
+        bubbleBinding.root.visibility = View.VISIBLE
+        bubbleBinding.root.alpha = 1f
+        setTransparency(true)
+    }
+
+    private fun hideBubble() {
+        isShowBubble = false
+        bubbleBinding.root.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                bubbleBinding.root.animate().setListener(null)
+                bubbleBinding.root.visibility = View.GONE
+            }
+        })
+    }
+
+
+    private fun updateBubble(){
+        if (isShowBubble) {
+            setThemeBubble()
+            if (!isShowMenu) {
+                setSizeBubble()
+            }
+            app?.let {
+                setTraffic(it)
+            }
+            setValuesMenu(bubbleBinding.menuLeft)
+            setValuesMenu(bubbleBinding.menuRight)
+        }
+    }
+
+
     private fun setTransparency(transparent: Boolean) {
         val duration = 800L
+
         if (transparent) {
-            if (bubbleBinding.root.alpha == 1.0f) {
-                bubbleBinding.root.animate().alpha(0.3f).duration = duration
+            val value = when (TRANSPARENCY){
+                BubbleTransparency.LOW -> 0.3f
+                BubbleTransparency.MEDIUM -> 0.5f
+                BubbleTransparency.HIGH -> 0.8f
+            }
+
+            if (bubbleBinding.root.alpha == 1f){
+                bubbleBinding.root.animate().alpha(value).duration = duration
+                bubbleBinding.root.animate().start()
             }
         } else {
-            if (bubbleBinding.root.alpha < 1.0f) {
+            if (bubbleBinding.root.alpha < 1f){
                 bubbleBinding.root.animate().alpha(1f).duration = duration
+                bubbleBinding.root.animate().start()
             }
         }
     }
 
-    private fun setTheme() {
+    private fun setSizeBubble() {
+        when (SIZE) {
+            BubbleSize.SMALL -> setSizes(30, 10, 8)
+            BubbleSize.MEDIUM -> setSizes(40, 12, 10)
+            BubbleSize.LARGE -> setSizes(50, 14, 12)
+        }
+    }
+
+    private fun setThemeBubble() {
         bubbleBinding.linBackgroundBubble.setBackgroundResource(getBackgroundResource())
 
         val color = uiHelper.getTextColorByTheme()
@@ -245,7 +311,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     private fun setTraffic(app: App) {
         val period = networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_TODAY)
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }
 
@@ -296,22 +362,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
         return posBubble[0] in (xMinClose + 1) until xMaxClose && posBubble[1] in (yMinClose + 1) until yMaxClose
     }
 
-    private fun showBubble() {
-        params.x = lastX
-        params.y = lastY
-        updateView(bubbleBinding.root, params)
-        bubbleBinding.root.visibility = View.VISIBLE
-        bubbleBinding.root.animate().alpha(1f)
-    }
-
-    private fun hideBubble() {
-        bubbleBinding.root.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-                bubbleBinding.root.animate().setListener(null)
-                bubbleBinding.root.visibility = View.GONE
-            }
-        })
-    }
 
 
     private fun fillLocationClose(){
@@ -330,90 +380,87 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun showMenu(){
         isShowMenu = true
         currentMenu = getViewSideMenu()
-        currentMenu.scaleX = 0f
-        currentMenu.scaleY = 0f
-        currentMenu.visibility = View.VISIBLE
+        currentMenu.root.scaleX = 0f
+        currentMenu.root.scaleY = 0f
+        currentMenu.root.visibility = View.VISIBLE
 
         setValuesMenu(currentMenu)
-        currentMenu.animate().scaleX(1f).scaleY(1f)
+        currentMenu.root.animate().scaleX(1f).scaleY(1f)
         animationMenu(true)
+    }
+
+    private fun hideMenu(menu: BubbleMenuFloatingLayoutBinding){
+        isShowMenu = false
+        menu.root.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter(){
+            override fun onAnimationEnd(animation: Animator?) {
+                menu.root.animate().setListener(null)
+                menu.root.visibility = View.GONE
+                animationMenu(false)
+            }
+        })
     }
 
 
     private fun animationMenu(show: Boolean){
-        val radius = if (show) {
+        if (show) {
             bubbleBinding.appValue.visibility = View.GONE
             bubbleBinding.unitApp.visibility = View.GONE
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
+            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
+            bubbleBinding.appIcon.layoutParams.height = radius
+            bubbleBinding.appIcon.layoutParams.width = radius
         }else {
             bubbleBinding.appValue.visibility = View.VISIBLE
             bubbleBinding.unitApp.visibility = View.VISIBLE
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35f, resources.displayMetrics).toInt()
+            setSizeBubble()
         }
-
-        bubbleBinding.appIcon.layoutParams.height = radius
-        bubbleBinding.appIcon.layoutParams.width = radius
     }
 
+    private fun setValuesMenu(menu: BubbleMenuFloatingLayoutBinding) {
 
-    private fun setValuesMenu(menu: View) {
-        val iconAppMenu: ImageView = menu.findViewById(R.id.image_app_icon)
-        val switchAccess: Switch = menu.findViewById(R.id.switch_access)
-        val downloadValue: TextView = menu.findViewById(R.id.value_download_app)
-        val uploadValue: TextView = menu.findViewById(R.id.value_upload_app)
-        val imageDownload: ImageView = menu.findViewById(R.id.image_download)
-        val imageUpload: ImageView = menu.findViewById(R.id.image_upload)
+        menu.imageAppIcon.setImageBitmap(bitmapIcon)
 
-        iconAppMenu.setImageBitmap(bitmapIcon)
+        menu.imageDownload.setImageDrawable( uiHelper.getImageResourceByTheme("ic_download"))
 
-        imageDownload.setImageDrawable( uiHelper.getImageResourceByTheme("ic_download"))
-
-        imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
+        menu.imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
 
         val color = uiHelper.getTextColorByTheme()
 
-        downloadValue.setTextColor(color)
-        uploadValue.setTextColor(color)
-        switchAccess.setTextColor(color)
-        switchAccess.isChecked = app?.access == true || app?.tempAccess == true
-        switchAccess.isEnabled = VPN_ENABLED && app?.access == false
+        menu.valueDownloadApp.apply {
+            setTextColor(color)
+            text =
+                "${traffic.txBytes.getValue().value} ${traffic.txBytes.getValue().dataUnit.name}"
+        }
+        menu.valueUploadApp.apply {
+            setTextColor(color)
+            text =
+                "${traffic.rxBytes.getValue().value} ${traffic.rxBytes.getValue().dataUnit.name}"
+        }
 
-        switchAccess.setOnCheckedChangeListener { _, isChecked ->
-            launch {
-                app?.let {
-                    it.tempAccess = isChecked
-                    appRepository.update(it)
+        menu.switchAccess.apply {
+            setTextColor(color)
+            isChecked = app?.access == true || app?.tempAccess == true
+            isEnabled = VPN_ENABLED && app?.access == false
+            setOnCheckedChangeListener { _, isChecked ->
+                launch {
+                    app?.let {
+                        it.tempAccess = isChecked
+                        appRepository.update(it)
+                    }
                 }
             }
         }
-
-        uploadValue.text =
-            "${traffic.txBytes.getValue().value} ${traffic.txBytes.getValue().dataUnit.name}"
-        downloadValue.text =
-            "${traffic.rxBytes.getValue().value} ${traffic.rxBytes.getValue().dataUnit.name}"
     }
 
-    private fun getViewSideMenu(): View {
+    private fun getViewSideMenu(): BubbleMenuFloatingLayoutBinding {
         val width = getScreenWidth()/2
         val pos = IntArray(2)
         bubbleBinding.root.getLocationOnScreen(pos)
         val x = pos[0]
         return if (x >= width){
-            bubbleBinding.menuLeft.root
+            bubbleBinding.menuLeft
         }else {
-            bubbleBinding.menuRight.root
+            bubbleBinding.menuRight
         }
-    }
-
-    private fun hideMenu(view: View){
-        isShowMenu = false
-        view.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter(){
-            override fun onAnimationEnd(animation: Animator?) {
-                view.animate().setListener(null)
-                view.visibility = View.GONE
-                animationMenu(false)
-            }
-        })
     }
 
 
@@ -442,11 +489,10 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
             intent?.let {
                 it.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)?.let { appIntent ->
-                    showBubble()
 
                     app = appIntent
 
-                    setTheme()
+                    setThemeBubble()
 
                     bitmapIcon = iconManager.get(
                         appIntent.packageName,
@@ -456,8 +502,13 @@ class BubbleFloatingService : Service(), CoroutineScope {
                     bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
 
                     setTraffic(appIntent)
-                }
 
+                    if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
+                        hideBubble()
+                    }else if (!isShowBubble) {
+                        showBubble()
+                    }
+                }
             }
         }
 
@@ -468,19 +519,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (delayTransparency < 3) {
                 delayTransparency++
-            } else if (delayTransparency == 3 && !isShowMenu) {
+            } else if (delayTransparency == 3 && !isShowMenu && isShowBubble) {
                 setTransparency(true)
                 delayTransparency++
             }
 
-            if (ticks >= 5) {
-                ticks = -1
-                app?.let {
-                    setTheme()
-                    setTraffic(it)
-                }
-            }
-            ticks++
+            updateBubble()
         }
 
     }
@@ -522,6 +566,15 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
+    private fun setSizes(iconSize: Int, textSize: Int, subTextSize: Int) {
+        val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconSize.toFloat(), resources.displayMetrics).toInt()
+        bubbleBinding.appIcon.layoutParams.height = radius
+        bubbleBinding.appIcon.layoutParams.width = radius
+
+        bubbleBinding.appValue.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textSize.toFloat())
+        bubbleBinding.unitApp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, subTextSize.toFloat())
+    }
+
 
     private fun addView(view: View, params: WindowManager.LayoutParams){
         try {
@@ -549,5 +602,18 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
+
+
+    enum class BubbleSize {
+        SMALL,
+        MEDIUM,
+        LARGE
+    }
+
+    enum class BubbleTransparency {
+        LOW,
+        MEDIUM,
+        HIGH
+    }
 
 }

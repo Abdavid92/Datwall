@@ -5,6 +5,8 @@
       <map>
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable-anydpi-v24/background_card_dark.xml" value="0.2703125" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable-anydpi-v24/background_card_light.xml" value="0.2703125" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/bubble_floating_layout.xml" value="0.25416666666666665" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/bubble_menu_floating_layout.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.15677083333333333" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout-land/fragment_presentation.xml" value="0.1515625" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_packages_configuration.xml" value="0.11730072463768115" />
