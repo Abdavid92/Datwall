@@ -93,6 +93,13 @@ class ApplicationsFragment : Fragment() {
             }.show()
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        //Confirmo los cambios
+        viewModel.commitUpdateApps()
+    }
+
     interface OnQueryAppListener {
         fun onQueryApp(query: String?)
     }

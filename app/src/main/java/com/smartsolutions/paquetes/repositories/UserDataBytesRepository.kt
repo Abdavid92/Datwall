@@ -50,7 +50,7 @@ class UserDataBytesRepository @Inject constructor(
     override fun flowBySimId(simId: String): Flow<List<UserDataBytes>> =
         userDataBytesDao.flowBySimId(simId)
             .map { list ->
-                if (list.size < DataType.values().size) {
+                if (list.size != DataType.values().size) {
                     return@map seedUserDataBytes(simId, list.toMutableList()).map {
                         transform(it)
                     }

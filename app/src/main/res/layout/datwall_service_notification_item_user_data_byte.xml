@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
@@ -9,11 +10,40 @@
         android:id="@+id/textUserDataBytesName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Paquete"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        tools:text="Paquete"/>
 
-    <FrameLayout
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@drawable/circle_shape"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="20"
+            android:progressDrawable="@drawable/circular_progress_bar"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/textPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="n/a"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="11sp"
+            android:layout_centerInParent="true"
+            tools:text="100%"
+            tools:ignore="HardcodedText" />
+
+    </RelativeLayout>
+
+    <!--<FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -26,8 +56,8 @@
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="43dp"
+                android:layout_height="43dp"
                 android:background="@drawable/circle_shape"
                 android:indeterminate="false"
                 android:max="100"
@@ -45,11 +75,13 @@
                 android:id="@+id/textPercent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="20%"
+                android:text="n/a"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                tools:text="100%"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
 
-    </FrameLayout>
+    </FrameLayout>-->
 
 </LinearLayout>

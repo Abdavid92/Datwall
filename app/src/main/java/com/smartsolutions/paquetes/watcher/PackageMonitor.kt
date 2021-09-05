@@ -130,8 +130,9 @@ class PackageMonitor @Inject constructor(
         //Obtengo las aplicaciones guardadas en base de datos
         val apps = appRepository.all()
 
-        val appsToAdd = mutableListOf<App>()
-        val appsToUpdate = mutableListOf<App>()
+        //val appsToAdd = mutableListOf<App>()
+        //val appsToUpdate = mutableListOf<App>()
+        val appsToCreateOrReplace = mutableListOf<App>()
         val appsToDelete = mutableListOf<App>()
 
         installedPackages.forEach { info ->
@@ -144,12 +145,14 @@ class PackageMonitor @Inject constructor(
                 app = App()
 
                 appRepository.fillNewApp(app, info)
-                appsToAdd.add(app)
+                //appsToAdd.add(app)
+                appsToCreateOrReplace.add(app)
             } else if (versionNotEquals(app.version, info)) {
                 /*Pero si la encuentro reviso que la version sea diferente.
                 * Si lo es, la actualizo.*/
                 appRepository.fillApp(app, info)
-                appsToUpdate.add(app)
+                //appsToUpdate.add(app)
+                appsToCreateOrReplace.add(app)
             }
         }
 
@@ -161,8 +164,9 @@ class PackageMonitor @Inject constructor(
             }
         }
 
-        appRepository.create(appsToAdd)
-        appRepository.update(appsToUpdate)
+        //appRepository.create(appsToAdd)
+        //appRepository.update(appsToUpdate)
+        appRepository.createOrReplace(appsToCreateOrReplace)
         appRepository.delete(appsToDelete)
 
         //Actualizo los accesos a los grupos

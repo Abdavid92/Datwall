@@ -104,8 +104,8 @@ class NotificationHelper @Inject constructor(
 
         //Canal principal
         const val MAIN_CHANNEL_ID = "main_channel"
-        const val MAIN_NOTIFICATION_ID = 1
-        const val ALERT_NOTIFICATION_ID = 2
+        const val MAIN_NOTIFICATION_ID = 0
+        const val ALERT_NOTIFICATION_ID = 1
 
         //Canal de alertas
         const val ALERT_CHANNEL_ID = "alert_channel"

@@ -17,6 +17,12 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/usage_fragment.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/bottom_nav_menu.xml" value="0.140625" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/usage_menu.xml" value="0.25416666666666665" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/circle_shape.xml" value="1.321875" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/circular_progress_bar.xml" value="1.321875" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_launch.xml" value="0.675" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_launcher_background.xml" value="0.675" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_item_user_data_byte.xml" value="3.0" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_normal.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_usage_app_details.xml" value="0.1" />
       </map>
     </option>

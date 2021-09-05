@@ -30,4 +30,11 @@ class DatwallKernelTest {
     fun equalsKernels() {
         assertEquals(kernel0, kernel1)
     }
+
+    @Test
+    fun remainder() {
+        val rem = (2.0 % 1 * 10).toInt()
+
+        assert(rem != 0)
+    }
 }

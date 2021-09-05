@@ -31,8 +31,6 @@ class Watcher @Inject constructor(
     private val appRepository: IAppRepository
 ) : Runnable, AutoCloseable, CoroutineScope {
 
-    private val TAG = "Watcher"
-
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
@@ -140,6 +138,9 @@ class Watcher @Inject constructor(
     }
 
     companion object {
+
+        private const val TAG = "Watcher"
+
         /**
          * Broadcast que se lanza cuando hay un cambio de aplicación
          * en primer plano.

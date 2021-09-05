@@ -63,7 +63,7 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
                 progressBar.animate()
                     .alpha(1F)
                     .duration = 200
-                //kernel.mainInForeground(this)
+
                 viewModel.main(this)
             }
         }, 1000)
@@ -76,7 +76,7 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
             progressBar.animate()
                 .alpha(1F)
                 .duration = 200
-            //kernel.mainInForeground(this)
+
             viewModel.main(this)
         }
     }

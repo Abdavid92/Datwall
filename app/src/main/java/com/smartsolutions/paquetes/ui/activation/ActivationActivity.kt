@@ -27,6 +27,6 @@ class ActivationActivity : AppCompatActivity(R.layout.activity_activation), OnCo
     }
 
     override fun onCompleted() {
-        kernel.get().mainInForeground(this)
+        kernel.get().main(this)
     }
 }

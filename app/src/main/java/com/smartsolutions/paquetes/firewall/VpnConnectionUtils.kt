@@ -12,13 +12,19 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.services.FirewallService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Utilidades para el vpn
  * */
-object VpnConnectionUtils {
+object VpnConnectionUtils : CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     private val TAG = "VpnConnectionUtils"
 
@@ -48,7 +54,7 @@ object VpnConnectionUtils {
      * @return Intent si el vpn no tiene permiso para encender.
      * */
     fun startVpn(context: Context): Intent? {
-        GlobalScope.launch {
+        launch {
             context.dataStore.edit {
                 it[PreferencesKeys.ENABLED_FIREWALL] = true
             }
@@ -77,7 +83,7 @@ object VpnConnectionUtils {
      * Si los datos móviles están encendidos, apaga el vpn.
      * */
     fun stopVpn(context: Context) {
-        GlobalScope.launch {
+        launch {
             context.dataStore.edit {
                 it[PreferencesKeys.ENABLED_FIREWALL] = false
             }
