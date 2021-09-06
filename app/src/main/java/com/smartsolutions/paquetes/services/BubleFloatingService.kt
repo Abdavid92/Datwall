@@ -34,6 +34,7 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.uiDataStore
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -145,6 +146,10 @@ class BubbleFloatingService : Service(), CoroutineScope {
         launch {
             this@BubbleFloatingService.dataStore.data.collect {
                 VPN_ENABLED = it[PreferencesKeys.ENABLED_FIREWALL] ?: false
+            }
+        }
+        launch {
+            this@BubbleFloatingService.uiDataStore.data.collect {
                 SIZE = BubbleSize.valueOf(
                     it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.SMALL.name
                 )
