@@ -104,4 +104,19 @@ object PreferencesKeys {
      * Filtro que organiza las apps en el fragmento de consumo
      */
     val USAGE_FILTER = stringPreferencesKey("usage_filter")
+
+    /**
+     * Tamaño de la burbuja
+     */
+    val BUBBLE_SIZE = stringPreferencesKey("bubble_size")
+
+    /**
+     * Transparencia de la burbuja flotante
+     */
+    val BUBBLE_TRANSPARENCY = stringPreferencesKey("bubble_transparency")
+
+    /**
+     * Indica si se muestra siempre la burbuja o solo si la app abierta tiene consumo
+     */
+    val BUBBLE_ALWAYS_SHOW = booleanPreferencesKey("bubble_always_show")
 }

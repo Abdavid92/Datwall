@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.services
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -18,25 +19,32 @@ import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
+import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
+import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.uiDataStore
 import com.smartsolutions.paquetes.watcher.Watcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import java.lang.RuntimeException
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
-class BubbleFloatingService : Service() {
+class BubbleFloatingService : Service(), CoroutineScope {
 
     @Inject
     lateinit var notificationHelper: NotificationHelper
@@ -50,47 +58,47 @@ class BubbleFloatingService : Service() {
     @Inject
     lateinit var networkUsageManager: NetworkUsageManager
 
-    private val uiHelper by uiHelper()
-
     @Inject
     lateinit var networkUsageUtils: NetworkUsageUtils
+
+    lateinit var uiHelper: UIHelper
+
+    private lateinit var bubbleBinding: BubbleFloatingLayoutBinding
+    private lateinit var closeBinding: BubbleCloseFloatingLayoutBinding
+    private lateinit var currentMenu: BubbleMenuFloatingLayoutBinding
 
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
     private val paramsClose = getParams(WindowManager.LayoutParams.MATCH_PARENT)
 
-    private lateinit var cardBubble: View
-    private lateinit var closeView: View
-    private lateinit var menuLeft: View
-    private lateinit var menuRight: View
-    private lateinit var currentMenu: View
-
     private val receiverChangeAppWatcher = ReceiverChangeAppWatcher()
     private val receiverTickWatcher = ReceiverTickWatcher()
-
-    private lateinit var iconApp: ImageView
-    private lateinit var valueApp: TextView
-    private lateinit var unitApp: TextView
-    private lateinit var background: LinearLayout
-    private lateinit var closeImage: ImageView
 
 
     private var app: App? = null
     private var bitmapIcon: Bitmap? = null
     private var traffic: Traffic = Traffic()
+    private var isShowBubble = true
     private var isShowMenu = false
+    private var VPN_ENABLED = false
 
-    var delayTransparency = 0
-    var ticks = 4
-    var initialX: Int = 0
-    var initialY: Int = 0
-    var initialTouchX: Float = 0F
-    var initialTouchY: Float = 0F
-    var xMinClose = 0
-    var xMaxClose = 0
-    var yMinClose = 0
-    var yMaxClose = 0
-    var moving = 0
+    private var delayTransparency = 0
+    private var ticks = 4
+    private var lastX = 0
+    private var lastY = 0
+    private var initialX: Int = 0
+    private var initialY: Int = 0
+    private var initialTouchX: Float = 0F
+    private var initialTouchY: Float = 0F
+    private var xMinClose = 0
+    private var xMaxClose = 0
+    private var yMinClose = 0
+    private var yMaxClose = 0
+    private var moving = 0
+
+    private var SIZE = BubbleSize.MEDIUM
+    private var TRANSPARENCY = BubbleTransparency.MEDIUM
+    private var ALWAYS_SHOW = true
 
 
     override fun onBind(intent: Intent): IBinder? {
@@ -120,52 +128,68 @@ class BubbleFloatingService : Service() {
         windowManager = ContextCompat.getSystemService(this, WindowManager::class.java)
             ?: throw NullPointerException()
 
-        cardBubble = layoutInflater.inflate(R.layout.buble_floating_layout, null, false)
-        closeView = layoutInflater.inflate(R.layout.bubble_close_floating_layout, null, false)
+        uiHelper = UIHelper(this)
+
+        bubbleBinding = BubbleFloatingLayoutBinding.inflate(layoutInflater)
+        closeBinding = BubbleCloseFloatingLayoutBinding.inflate(layoutInflater)
 
         setOnTouch()
-        initializeViews()
+        setViews()
 
-        addView(cardBubble, params)
+        addView(bubbleBinding.root, params)
 
         runBlocking(Dispatchers.IO) {
             app = appRepository.get(applicationContext.packageName)
         }
         registerBroadcasts()
-    }
 
-
-    private fun initializeViews() {
-        iconApp = cardBubble.findViewById(R.id.app_icon)
-        valueApp = cardBubble.findViewById(R.id.app_value)
-        unitApp = cardBubble.findViewById(R.id.unit_app)
-        background = cardBubble.findViewById(R.id.lin_background_bubble)
-        closeImage = closeView.findViewById(R.id.image_close)
-        closeImage.setImageResource(R.drawable.ic_close_red)
-        closeView.findViewById<LinearLayout>(R.id.lin_background).setOnClickListener {
-            hideClose()
+        launch {
+            this@BubbleFloatingService.dataStore.data.collect {
+                VPN_ENABLED = it[PreferencesKeys.ENABLED_FIREWALL] ?: false
+            }
         }
-        menuLeft = cardBubble.findViewById(R.id.menu_left)
-        menuRight = cardBubble.findViewById(R.id.menu_right)
+        launch {
+            this@BubbleFloatingService.uiDataStore.data.collect {
+                SIZE = BubbleSize.valueOf(
+                    it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.SMALL.name
+                )
+                TRANSPARENCY = BubbleTransparency.valueOf(
+                    it[PreferencesKeys.BUBBLE_TRANSPARENCY] ?: BubbleTransparency.LOW.name
+                )
+                ALWAYS_SHOW = it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] ?: false
+            }
+        }
+    }
+
+    private fun setViews() {
+      closeBinding.root.setOnClickListener {
+          hideClose()
+      }
+        closeBinding.imageClose.setImageResource(R.drawable.ic_close_red)
     }
 
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setOnTouch() {
-        cardBubble.setOnTouchListener { v, event ->
+        bubbleBinding.root.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
                     initialX = params.x
                     initialY = params.y
+                    lastX = initialX
+                    lastY = initialY
                     setTransparency(false)
                     showClose()
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    v.performClick()
                     if (isDrawOverClose()){
-                       Toast.makeText(this, "Close", Toast.LENGTH_SHORT).show()
+                       hideBubble()
+                    }else {
+                        lastX = params.x
+                        lastY = params.y
                     }
                     hideClose()
                     if (moving < 10) {
@@ -183,7 +207,7 @@ class BubbleFloatingService : Service() {
                     moving++
                     params.x = initialX + (event.rawX - initialTouchX).toInt()
                     params.y = initialY + (event.rawY - initialTouchY).toInt()
-                    windowManager.updateViewLayout(cardBubble, params)
+                    windowManager.updateViewLayout(bubbleBinding.root, params)
                 }
             }
             delayTransparency = 0
@@ -192,63 +216,126 @@ class BubbleFloatingService : Service() {
 
     }
 
-    private fun setTransparency(transparent: Boolean) {
-        val duration = 800L
-        if (transparent) {
-            if (cardBubble.alpha == 1.0f) {
-                cardBubble.animate().alpha(0.3f).duration = duration
+
+    private fun showBubble() {
+        isShowBubble = true
+        params.x = lastX
+        params.y = lastY
+        updateView(bubbleBinding.root, params)
+        bubbleBinding.root.visibility = View.VISIBLE
+        bubbleBinding.root.alpha = 1f
+        setTransparency(true)
+    }
+
+    private fun hideBubble() {
+        isShowBubble = false
+        bubbleBinding.root.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                bubbleBinding.root.animate().setListener(null)
+                bubbleBinding.root.visibility = View.GONE
             }
-        } else {
-            if (cardBubble.alpha < 1.0f) {
-                cardBubble.animate().alpha(1f).duration = duration
+        })
+    }
+
+
+    private fun updateBubble(){
+        if (isShowBubble) {
+            setThemeBubble()
+            if (!isShowMenu) {
+                setSizeBubble()
+            }
+            app?.let {
+                setTraffic(it)
+            }
+            if (isShowMenu) {
+                setValuesMenu(currentMenu)
             }
         }
     }
 
-    private fun setTheme() {
-        background.setBackgroundResource(getBackgroundResource())
+
+    private fun setTransparency(transparent: Boolean) {
+        val duration = 800L
+
+        if (transparent) {
+            val value = when (TRANSPARENCY){
+                BubbleTransparency.LOW -> 0.3f
+                BubbleTransparency.MEDIUM -> 0.5f
+                BubbleTransparency.HIGH -> 0.8f
+            }
+
+            if (bubbleBinding.root.alpha == 1f){
+                bubbleBinding.root.animate().alpha(value).duration = duration
+                bubbleBinding.root.animate().start()
+            }
+        } else {
+            if (bubbleBinding.root.alpha < 1f){
+                bubbleBinding.root.animate().alpha(1f).duration = duration
+                bubbleBinding.root.animate().start()
+            }
+        }
+    }
+
+    private fun setSizeBubble() {
+        when (SIZE) {
+            BubbleSize.SMALL -> setSizes(30, 10, 8)
+            BubbleSize.MEDIUM -> setSizes(40, 11, 9)
+            BubbleSize.LARGE -> setSizes(50, 12, 10)
+        }
+    }
+
+    private fun setThemeBubble() {
+        bubbleBinding.linBackgroundBubble.setBackgroundResource(getBackgroundResource())
 
         val color = uiHelper.getTextColorByTheme()
 
-        valueApp.setTextColor(color)
-        unitApp.setTextColor(color)
+        bubbleBinding.appValue.setTextColor(color)
+        bubbleBinding.unitApp.setTextColor(color)
     }
 
     private fun getBackgroundResource(): Int{
         val isDark = uiHelper.isUIDarkTheme()
-        return if (app?.access == true) {
-           if (isDark){
-               R.drawable.background_green_borderless_card_dark
-           }else {
-               R.drawable.background_green_borderless_card_light
-           }
-        } else {
+        return if (VPN_ENABLED){
+            if (app?.access == true) {
+                if (isDark){
+                    R.drawable.background_green_borderless_card_dark
+                }else {
+                    R.drawable.background_green_borderless_card_light
+                }
+            } else {
+                if (isDark){
+                    R.drawable.background_red_borderless_card_dark
+                }else {
+                    R.drawable.background_red_borderless_card_light
+                }
+            }
+        }else {
             if (isDark){
-                R.drawable.background_red_borderless_card_dark
+                R.drawable.background_card_dark
             }else {
-                R.drawable.background_red_borderless_card_light
+                R.drawable.background_card_light
             }
         }
     }
 
     private fun setTraffic(app: App) {
         val period = networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_TODAY)
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }
 
-        valueApp.text = "${traffic.totalBytes.getValue().value.toInt()}"
-        unitApp.text = traffic.totalBytes.getValue().dataUnit.name
+        bubbleBinding.appValue.text = "${traffic.totalBytes.getValue().value.toInt()}"
+        bubbleBinding.unitApp.text = traffic.totalBytes.getValue().dataUnit.name
     }
 
 
     private fun showClose(){
         try {
-            closeImage.alpha = 0f
-            addView(closeView, paramsClose)
-            closeImage.animate().alpha(1f).setListener(object : AnimatorListenerAdapter() {
+            closeBinding.imageClose.alpha = 0f
+            addView(closeBinding.root, paramsClose)
+            closeBinding.imageClose.animate().alpha(1f).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    closeImage.animate().setListener(null)
+                    closeBinding.imageClose.animate().setListener(null)
                     if (xMinClose == 0 && yMinClose == 0) {
                         fillLocationClose()
                     }
@@ -261,12 +348,12 @@ class BubbleFloatingService : Service() {
 
     private fun hideClose(){
         try {
-            closeImage.alpha = 1f
-            closeImage.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
+            closeBinding.imageClose.alpha = 1f
+            closeBinding.imageClose.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    closeImage.animate().setListener(null)
+                    closeBinding.imageClose.animate().setListener(null)
                     try {
-                        windowManager.removeView(closeView)
+                        windowManager.removeView(closeBinding.root)
                     }catch (e: Exception){
 
                     }
@@ -279,17 +366,18 @@ class BubbleFloatingService : Service() {
 
     private fun isDrawOverClose(): Boolean {
         val posBubble = IntArray(2)
-        cardBubble.getLocationOnScreen(posBubble)
+        bubbleBinding.root.getLocationOnScreen(posBubble)
 
         return posBubble[0] in (xMinClose + 1) until xMaxClose && posBubble[1] in (yMinClose + 1) until yMaxClose
     }
 
 
+
     private fun fillLocationClose(){
         val posClose = IntArray(2)
-        closeImage.getLocationOnScreen(posClose)
-        val width = closeImage.width
-        val height = closeImage.height
+        closeBinding.imageClose.getLocationOnScreen(posClose)
+        val width = closeBinding.imageClose.width
+        val height = closeBinding.imageClose.height
         xMinClose = posClose[0] - width
         xMaxClose = posClose[0] + width
 
@@ -301,82 +389,87 @@ class BubbleFloatingService : Service() {
     private fun showMenu(){
         isShowMenu = true
         currentMenu = getViewSideMenu()
-        currentMenu.scaleX = 0f
-        currentMenu.scaleY = 0f
-        currentMenu.visibility = View.VISIBLE
+        currentMenu.root.scaleX = 0f
+        currentMenu.root.scaleY = 0f
+        currentMenu.root.visibility = View.VISIBLE
 
         setValuesMenu(currentMenu)
-        currentMenu.animate().scaleX(1f).scaleY(1f)
+        currentMenu.root.animate().scaleX(1f).scaleY(1f)
         animationMenu(true)
+    }
+
+    private fun hideMenu(menu: BubbleMenuFloatingLayoutBinding){
+        isShowMenu = false
+        menu.root.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter(){
+            override fun onAnimationEnd(animation: Animator?) {
+                menu.root.animate().setListener(null)
+                menu.root.visibility = View.GONE
+                animationMenu(false)
+            }
+        })
     }
 
 
     private fun animationMenu(show: Boolean){
-        val radius = if (show) {
-            valueApp.visibility = View.GONE
-            unitApp.visibility = View.GONE
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
+        if (show) {
+            bubbleBinding.appValue.visibility = View.GONE
+            bubbleBinding.unitApp.visibility = View.GONE
+            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
+            bubbleBinding.appIcon.layoutParams.height = radius
+            bubbleBinding.appIcon.layoutParams.width = radius
         }else {
-            valueApp.visibility = View.VISIBLE
-            unitApp.visibility = View.VISIBLE
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35f, resources.displayMetrics).toInt()
+            bubbleBinding.appValue.visibility = View.VISIBLE
+            bubbleBinding.unitApp.visibility = View.VISIBLE
+            setSizeBubble()
         }
-
-        iconApp.layoutParams.height = radius
-        iconApp.layoutParams.width = radius
     }
 
+    private fun setValuesMenu(menu: BubbleMenuFloatingLayoutBinding) {
 
-    private fun setValuesMenu(menu: View) {
-        val iconAppMenu: ImageView = menu.findViewById(R.id.image_app_icon)
-        val switchAccess: Switch = menu.findViewById(R.id.switch_access)
-        val downloadValue: TextView = menu.findViewById(R.id.value_download_app)
-        val uploadValue: TextView = menu.findViewById(R.id.value_upload_app)
-        val backgroundMenu: LinearLayout = menu.findViewById(R.id.lin_background)
-        val imageDownload: ImageView = menu.findViewById(R.id.image_download)
-        val imageUpload: ImageView = menu.findViewById(R.id.image_upload)
+        menu.imageAppIcon.setImageBitmap(bitmapIcon)
 
-        iconAppMenu.setImageBitmap(bitmapIcon)
+        menu.imageDownload.setImageDrawable( uiHelper.getImageResourceByTheme("ic_download"))
 
-        imageDownload.setImageDrawable( uiHelper.getImageResourceByTheme("ic_download"))
-
-        imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
-
-        //backgroundMenu.setBackgroundResource(getBackgroundResource())
+        menu.imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
 
         val color = uiHelper.getTextColorByTheme()
 
-        downloadValue.setTextColor(color)
-        uploadValue.setTextColor(color)
-        switchAccess.setTextColor(color)
+        menu.valueDownloadApp.apply {
+            setTextColor(color)
+            text =
+                "${traffic.rxBytes.getValue().value} ${traffic.rxBytes.getValue().dataUnit.name}"
+        }
+        menu.valueUploadApp.apply {
+            setTextColor(color)
+            text =
+                "${traffic.txBytes.getValue().value} ${traffic.txBytes.getValue().dataUnit.name}"
+        }
 
-        uploadValue.text =
-            "${Math.round(traffic.txBytes.getValue().value * 100.0) / 100.0} ${traffic.txBytes.getValue().dataUnit.name}"
-        downloadValue.text =
-            "${Math.round(traffic.rxBytes.getValue().value * 100.0) / 100.0} ${traffic.rxBytes.getValue().dataUnit.name}"
-    }
-
-    private fun getViewSideMenu(): View {
-        val width = getScreenWidth()/2
-        val pos = IntArray(2)
-        cardBubble.getLocationOnScreen(pos)
-        val x = pos[0]
-        return if (x >= width){
-            menuLeft
-        }else {
-            menuRight
+        menu.switchAccess.apply {
+            setTextColor(color)
+            isChecked = app?.access == true || app?.tempAccess == true
+            isEnabled = VPN_ENABLED && app?.access == false
+            setOnCheckedChangeListener { _, isChecked ->
+                launch {
+                    app?.let {
+                        it.tempAccess = isChecked
+                        appRepository.update(it)
+                    }
+                }
+            }
         }
     }
 
-    private fun hideMenu(view: View){
-        isShowMenu = false
-        view.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter(){
-            override fun onAnimationEnd(animation: Animator?) {
-                view.animate().setListener(null)
-                view.visibility = View.GONE
-                animationMenu(false)
-            }
-        })
+    private fun getViewSideMenu(): BubbleMenuFloatingLayoutBinding {
+        val width = getScreenWidth()/2
+        val pos = IntArray(2)
+        bubbleBinding.root.getLocationOnScreen(pos)
+        val x = pos[0]
+        return if (x >= width){
+            bubbleBinding.menuLeft
+        }else {
+            bubbleBinding.menuRight
+        }
     }
 
 
@@ -405,21 +498,23 @@ class BubbleFloatingService : Service() {
 
             intent?.let {
                 it.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)?.let { appIntent ->
-
                     app = appIntent
+                    setTraffic(appIntent)
 
-                    setTheme()
+                    setThemeBubble()
 
                     bitmapIcon = iconManager.get(
                         appIntent.packageName,
                         appIntent.version
                     )
+                    bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
 
-                    iconApp.setImageBitmap(bitmapIcon)
-
-                    setTraffic(appIntent)
+                    if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
+                        hideBubble()
+                    }else if (!isShowBubble) {
+                        showBubble()
+                    }
                 }
-
             }
         }
 
@@ -430,19 +525,12 @@ class BubbleFloatingService : Service() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (delayTransparency < 3) {
                 delayTransparency++
-            } else if (delayTransparency == 3 && !isShowMenu) {
+            } else if (delayTransparency == 3 && !isShowMenu && isShowBubble) {
                 setTransparency(true)
                 delayTransparency++
             }
 
-            if (ticks >= 5) {
-                ticks = -1
-                app?.let {
-                    setTheme()
-                    setTraffic(it)
-                }
-            }
-            ticks++
+            updateBubble()
         }
 
     }
@@ -484,17 +572,31 @@ class BubbleFloatingService : Service() {
         }
     }
 
+    private fun setSizes(iconSize: Int, textSize: Int, subTextSize: Int) {
+        val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconSize.toFloat(), resources.displayMetrics).toInt()
+        bubbleBinding.appIcon.layoutParams.height = radius
+        bubbleBinding.appIcon.layoutParams.width = radius
+
+        bubbleBinding.appValue.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textSize.toFloat())
+        bubbleBinding.unitApp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, subTextSize.toFloat())
+    }
+
 
     private fun addView(view: View, params: WindowManager.LayoutParams){
         try {
             windowManager.addView(view, params)
         }catch (e: Exception){
-
             if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 throw MissingPermissionException(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
             }
+        }
+    }
 
-            throw e
+    private fun updateView(view: View, params: WindowManager.LayoutParams) {
+        try {
+            windowManager.updateViewLayout(bubbleBinding.root, params)
+        }catch (e: Exception){
+
         }
     }
 
@@ -502,6 +604,22 @@ class BubbleFloatingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterBroadcasts()
+    }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
+
+
+    enum class BubbleSize {
+        SMALL,
+        MEDIUM,
+        LARGE
+    }
+
+    enum class BubbleTransparency {
+        LOW,
+        MEDIUM,
+        HIGH
     }
 
 }
