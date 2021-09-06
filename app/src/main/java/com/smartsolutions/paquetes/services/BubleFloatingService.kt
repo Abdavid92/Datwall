@@ -146,12 +146,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
             this@BubbleFloatingService.dataStore.data.collect {
                 VPN_ENABLED = it[PreferencesKeys.ENABLED_FIREWALL] ?: false
                 SIZE = BubbleSize.valueOf(
-                    it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.MEDIUM.name
+                    it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.SMALL.name
                 )
                 TRANSPARENCY = BubbleTransparency.valueOf(
-                    it[PreferencesKeys.BUBBLE_TRANSPARENCY] ?: BubbleTransparency.MEDIUM.name
+                    it[PreferencesKeys.BUBBLE_TRANSPARENCY] ?: BubbleTransparency.LOW.name
                 )
-                ALWAYS_SHOW = it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] ?: true
+                ALWAYS_SHOW = it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] ?: false
             }
         }
     }
@@ -182,6 +182,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
                 MotionEvent.ACTION_UP -> {
                     if (isDrawOverClose()){
                        hideBubble()
+                    }else {
+                        lastX = params.x
+                        lastY = params.y
                     }
                     hideClose()
                     if (moving < 10) {
@@ -239,8 +242,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
             app?.let {
                 setTraffic(it)
             }
-            setValuesMenu(bubbleBinding.menuLeft)
-            setValuesMenu(bubbleBinding.menuRight)
+            if (isShowMenu) {
+                setValuesMenu(currentMenu)
+            }
         }
     }
 
@@ -270,8 +274,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun setSizeBubble() {
         when (SIZE) {
             BubbleSize.SMALL -> setSizes(30, 10, 8)
-            BubbleSize.MEDIUM -> setSizes(40, 12, 10)
-            BubbleSize.LARGE -> setSizes(50, 14, 12)
+            BubbleSize.MEDIUM -> setSizes(40, 11, 9)
+            BubbleSize.LARGE -> setSizes(50, 12, 10)
         }
     }
 
@@ -428,12 +432,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         menu.valueDownloadApp.apply {
             setTextColor(color)
             text =
-                "${traffic.txBytes.getValue().value} ${traffic.txBytes.getValue().dataUnit.name}"
+                "${traffic.rxBytes.getValue().value} ${traffic.rxBytes.getValue().dataUnit.name}"
         }
         menu.valueUploadApp.apply {
             setTextColor(color)
             text =
-                "${traffic.rxBytes.getValue().value} ${traffic.rxBytes.getValue().dataUnit.name}"
+                "${traffic.txBytes.getValue().value} ${traffic.txBytes.getValue().dataUnit.name}"
         }
 
         menu.switchAccess.apply {
@@ -489,8 +493,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
             intent?.let {
                 it.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)?.let { appIntent ->
-
                     app = appIntent
+                    setTraffic(appIntent)
 
                     setThemeBubble()
 
@@ -498,10 +502,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
                         appIntent.packageName,
                         appIntent.version
                     )
-
                     bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
-
-                    setTraffic(appIntent)
 
                     if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
                         hideBubble()
