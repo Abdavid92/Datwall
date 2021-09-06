@@ -75,11 +75,12 @@ class DatwallService : Service(), CoroutineScope {
     }
 
     private val notificationBuilder by lazy {
-        NotificationCompat
+        return@lazy NotificationCompat
             .Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setCustomContentView(remoteViews)
             .setCustomBigContentView(expandedRemoteViews)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setContentIntent(PendingIntent
                 .getActivity(
                     this,
@@ -274,7 +275,7 @@ class DatwallService : Service(), CoroutineScope {
             }
         }
 
-        return uiHelper.getResource(name) ?: R.drawable.ic_launcher_foreground
+        return uiHelper.getResource(name) ?: R.mipmap.ic_launcher_foreground
     }
 
     override fun onDestroy() {
