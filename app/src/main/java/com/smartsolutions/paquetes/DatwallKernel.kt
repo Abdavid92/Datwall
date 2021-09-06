@@ -18,7 +18,6 @@ import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
-import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.services.FirewallService
@@ -27,9 +26,7 @@ import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
-import com.smartsolutions.paquetes.watcher.ChangeNetworkCallback
-import com.smartsolutions.paquetes.watcher.PackageMonitor
-import com.smartsolutions.paquetes.watcher.Watcher
+import com.smartsolutions.paquetes.watcher.*
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -51,10 +48,10 @@ class DatwallKernel @Inject constructor(
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
-    private val watcher: Watcher,
+    private val watcher: RxWatcher,
     private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
-    private val trafficRegistration: TrafficRegistrationReceiver
+    private val trafficRegistration: TrafficRegistration
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -213,7 +210,7 @@ class DatwallKernel @Inject constructor(
     override fun setDataMobileStateOn() {
         (context as DatwallApplication).dataMobileOn = true
 
-        trafficRegistration.register()
+        trafficRegistration.start()
 
         launch {
             if (firewallOn) {
@@ -246,7 +243,7 @@ class DatwallKernel @Inject constructor(
             stopBubbleFloating()
         }
 
-        trafficRegistration.unregister()
+        trafficRegistration.stop()
     }
 
     /**
@@ -403,7 +400,7 @@ class DatwallKernel @Inject constructor(
 
         context.stopService(Intent(context, DatwallService::class.java))
 
-        trafficRegistration.unregister()
+        trafficRegistration.stop()
         stopBubbleFloating()
         stopFirewall()
     }

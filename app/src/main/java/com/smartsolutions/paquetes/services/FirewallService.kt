@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.*
 import android.net.VpnService
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.abdavid92.vpncore.*
 import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
@@ -12,10 +11,9 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.MainActivity
-import com.smartsolutions.paquetes.watcher.Watcher
 import com.smartsolutions.paquetes.ui.firewall.AskActivity
+import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +48,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
      * */
     private var vpnConnectionThread: Thread? = null
 
+    private var enabledDynamicFirewall = false
+
     /**
      * Repositorio de aplicaciones
      * */
@@ -59,63 +59,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
-    /**
-     * Receptor de radiodifución del observador
-     * */
-    private val watcherReceiver = object : BroadcastReceiver(), CoroutineScope {
-
-        override val coroutineContext: CoroutineContext
-            get() = Dispatchers.IO
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-
-            //Aplicación en primer plano
-            val foregroundApp = intent?.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)
-            //Aplicación que dejó el primer plano
-            val delayApp = intent?.getParcelableExtra<App>(Watcher.EXTRA_DELAY_APP)
-
-            foregroundApp?.let { app ->
-
-                //Si la aplicación tiene acceso en primer plano
-                if (app.foregroundAccess) {
-                    launch {
-                        //Concedo acceso temporal y actualiza en el repostorio
-                        app.tempAccess = true
-                        appRepository.update(app)
-                    }
-                /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
-                 * y se puede preguntar por ella
-                 * */
-                } else if (!app.access && app.executable && app.internet && app.ask) {
-                    //Lanzo el AskActivity con la aplicación
-                    val askIntent = Intent(context, AskActivity::class.java)
-                        .putExtra(Watcher.EXTRA_FOREGROUND_APP, app)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                    startActivity(askIntent)
-                } else {
-                    Log.i(TAG, "onReceive: Empty action for ${app.packageName}")
-                }
-            }
-
-            delayApp?.let { app ->
-
-                /*Si la aplicación que dejó el primer plano tenía
-                * acceso temporal se lo quito y actualiza el repositorio.
-                * Esto hara que el vpn aplique los nuevos cambios automáticamente.*/
-                if (app.tempAccess) {
-
-                    app.tempAccess = false
-
-                    launch {
-                        appRepository.update(app)
-
-                        Log.i(TAG, "The application ${app.packageName} left the foreground")
-                    }
-                }
-            }
-        }
-    }
+    @Inject
+    lateinit var watcher: RxWatcher
 
     override fun onCreate() {
         super.onCreate()
@@ -139,30 +84,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         vpnConnectionThread = Thread(vpnConnection)
 
         launchNotification()
-
-        //Si el modo dinámico está activado
-        launch {
-            dataStore.data.collect {
-                if (it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] == true) {
-                    val filter = IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
-
-                    //Registro del receptor
-                    LocalBroadcastManager.getInstance(this@FirewallService)
-                        .registerReceiver(watcherReceiver, filter)
-                } else {
-                    LocalBroadcastManager.getInstance(this@FirewallService)
-                        .unregisterReceiver(watcherReceiver)
-                }
-            }
-
-            appRepository.flow().collect {
-                vpnConnection.setAllowedPackageNames(it.filter { app ->
-                    app.access || app.tempAccess
-                }.map { transformApp ->
-                    return@map transformApp.packageName
-                }.toTypedArray())
-            }
-        }
+        registerFlows()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -191,6 +113,79 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             .sendPacket(packet)
     }
 
+    private fun registerFlows() {
+        launch {
+            dataStore.data.collect {
+                enabledDynamicFirewall = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] ?: false
+            }
+        }
+
+        observeAppList()
+        observeForegroundApp()
+    }
+
+    private fun observeAppList() {
+        launch {
+            appRepository.flow().collect {
+                vpnConnection.setAllowedPackageNames(it.filter { app ->
+                    app.access || app.tempAccess
+                }.map { transformApp ->
+                    return@map transformApp.packageName
+                }.toTypedArray())
+            }
+        }
+    }
+
+    private fun observeForegroundApp() {
+        launch {
+            watcher.currentAppFlow.collect {
+                //Aplicación en primer plano
+                val foregroundApp = it.first
+                //Aplicación que dejó el primer plano
+                val delayApp = it.second
+
+                //Si la aplicación tiene acceso en primer plano
+                if (foregroundApp.foregroundAccess) {
+                    //Concedo acceso temporal y actualiza en el repostorio
+                    foregroundApp.tempAccess = true
+                    appRepository.update(foregroundApp)
+
+                /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
+                 * y se puede preguntar por ella
+                 * */
+                } else if (
+                    !foregroundApp.access &&
+                    foregroundApp.executable &&
+                    foregroundApp.internet &&
+                    foregroundApp.ask) {
+                    //Lanzo el AskActivity con la aplicación
+                    val askIntent = Intent(this@FirewallService, AskActivity::class.java)
+                        .putExtra(AskActivity.EXTRA_FOREGROUND_APP, foregroundApp)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                    startActivity(askIntent)
+                } else {
+                    Log.i(TAG, "observeForegroundApp: Empty action for ${foregroundApp.packageName}")
+                }
+
+                delayApp?.let { app ->
+
+                    /*Si la aplicación que dejó el primer plano tenía
+                    * acceso temporal se lo quito y actualiza el repositorio.
+                    * Esto hara que el vpn aplique los nuevos cambios automáticamente.*/
+                    if (app.tempAccess) {
+
+                        app.tempAccess = false
+
+                        appRepository.update(app)
+
+                        Log.i(TAG, "The application ${app.packageName} left the foreground")
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Detiene el vpn y el servicio
      * */
@@ -201,10 +196,6 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         vpnConnection.unsubscribe(this)
         vpnConnectionThread?.interrupt()
         job.cancel()
-
-        //Elimino el registro del receiver
-        LocalBroadcastManager.getInstance(this)
-            .unregisterReceiver(watcherReceiver)
 
         //Detengo el servicio en primer plano
         stopForeground(true)

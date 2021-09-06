@@ -1,13 +1,8 @@
-package com.smartsolutions.paquetes.receivers
+package com.smartsolutions.paquetes.watcher
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.TrafficStats
 import android.os.Build
-import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
@@ -18,34 +13,34 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.watcher.Watcher
-import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.apache.commons.lang.time.DateUtils
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
-@AndroidEntryPoint
-class TrafficRegistrationReceiver @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
+@Singleton
+class TrafficRegistration @Inject constructor(
     private val networkUsageManager: NetworkUsageManager,
     private val appRepository: IAppRepository,
     private val userDataBytesManager: IUserDataBytesManager,
     private val networkUtils: NetworkUtils,
     private val simManager: ISimManager,
-    private val trafficRepository: ITrafficRepository
-): BroadcastReceiver(), CoroutineScope {
+    private val trafficRepository: ITrafficRepository,
+    private val watcher: RxWatcher
+) : CoroutineScope {
+
+    private val mainJob = Job()
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.IO + mainJob
 
-    var isRegistered = false
-        private set
+    private var running = false
 
     /**
      * Tiempo de Inicio que se usará a partir de Android 6 con NetworkStatsManager para comenzar
@@ -70,66 +65,44 @@ class TrafficRegistrationReceiver @Inject constructor(
      */
     private var lastTime = 0L
 
-
-    init {
-        launch {
-            appRepository.flow().collect {
-                apps = it
-            }
-        }
-    }
-
-    fun register() {
-        if (!isRegistered) {
-            LocalBroadcastManager.getInstance(context)
-                .registerReceiver(this, IntentFilter(Watcher.ACTION_TICKTOCK))
-            isRegistered = true
-        }
-    }
-
-    fun unregister() {
-        lastTraffics.clear()
-        lastTime = 0L
-        LocalBroadcastManager.getInstance(context)
-            .unregisterReceiver(this)
-        isRegistered = false
-
-        Log.i(TAG, "unregister: sending 0 bytes traffic band with")
-
-        LocalBroadcastManager.getInstance(context).sendBroadcast(
-            Intent(ACTION_TRAFFIC_REGISTRATION)
-                .putExtra(EXTRA_TRAFFIC_TX, 0L)
-                .putExtra(EXTRA_TRAFFIC_RX, 0L)
-        )
-    }
-
-
-    override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action == Watcher.ACTION_TICKTOCK) {
-            //Resuelvo el ancho de banda
-            val trafficResult = getAndSendBandWithTraffic()
-
-            val currentTime = System.currentTimeMillis()
+    fun start() {
+        if (!running) {
+            running = true
 
             launch {
-                /*Este método se le debe pasar el currentTime como argumento porque
-                el se demora un poco en hacer su trabajo y se pueden crear discordancias
-                en el tiempo por esta demora.*/
-                registerLollipopTraffic(
-                    trafficResult.first,
-                    trafficResult.second,
-                    currentTime
-                )
+                appRepository.flow().collect {
+                    apps = it
+                }
             }
 
-            if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
-                val start = lastTime
-                lastTime = currentTime
-                launch {
-                    registerTraffic(start)
+            launch {
+                watcher.bandWithFlow.collect {
+
+                    val currentTime = System.currentTimeMillis()
+
+                    /*Este método se le debe pasar el currentTime como argumento porque
+                     el se demora un poco en hacer su trabajo y se pueden crear discordancias
+                     en el tiempo por esta demora.*/
+                    registerLollipopTraffic(
+                        it.first,
+                        it.second,
+                        currentTime
+                    )
+
+                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
+                        val start = lastTime
+                        lastTime = currentTime
+
+                        registerTraffic(start)
+                    }
                 }
             }
         }
+    }
+
+    fun stop() {
+        running = false
+        mainJob.cancel()
     }
 
     /**
@@ -232,60 +205,7 @@ class TrafficRegistrationReceiver @Inject constructor(
         }
     }
 
-    /**
-     * Obtiene el ancho de banda de la red.
-     * */
-    private fun getAndSendBandWithTraffic(): Pair<Long, Long> {
-        val rx = TrafficStats.getMobileRxBytes()
-        val tx = TrafficStats.getMobileTxBytes()
-
-        var pair = Pair(0L, 0L)
-
-        if (rxBytes > 0 && txBytes > 0) {
-            pair = Pair(rx - rxBytes, tx - txBytes)
-
-            LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(Intent(ACTION_TRAFFIC_REGISTRATION)
-                    .putExtra(EXTRA_TRAFFIC_RX, pair.first)
-                    .putExtra(EXTRA_TRAFFIC_TX, pair.second))
-
-            Log.i(TAG, "getAndSendBandWithTraffic: band with rx: ${pair.first} tx: ${pair.second}")
-        }
-
-        rxBytes = rx
-        txBytes = tx
-
-        return pair
-    }
-
     private fun isLTE(): Boolean {
         return networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
     }
-
-    companion object {
-
-        private const val TAG = "TrafficRegistration"
-
-        /**
-         * Broadcast que se lanza cada un segundo para obtener el ancho de banda de la red.
-         * */
-        const val ACTION_TRAFFIC_REGISTRATION = "com.smartsolutions.paquetes.action.TRAFFIC_REGISTRATION"
-
-        /**
-         * Extra que contiene los bytes descargados.
-         * */
-        const val EXTRA_TRAFFIC_RX = "com.smartsolutions.paquetes.extra.TRAFFIC_RX"
-
-        /**
-         * Extra que contiene los bytes subidos.
-         * */
-        const val EXTRA_TRAFFIC_TX = "com.smartsolutions.paquetes.extra.TRAFFIC_TX"
-
-        @JvmStatic
-        private var rxBytes = 0L
-
-        @JvmStatic
-        private var txBytes = 0L
-    }
-
 }

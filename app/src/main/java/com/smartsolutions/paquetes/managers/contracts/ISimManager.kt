@@ -80,4 +80,9 @@ interface ISimManager {
      * */
     @Throws(MissingPermissionException::class)
     suspend fun getSimByIndex(simIndex: Int, withRelations: Boolean = false): Sim
+
+    /**
+     * Detecta si hubo cambios en las lineas y los aplica en la base de datos.
+     * */
+    suspend fun synchronizeDatabase()
 }

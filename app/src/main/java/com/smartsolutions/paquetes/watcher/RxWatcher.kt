@@ -1,14 +1,15 @@
 package com.smartsolutions.paquetes.watcher
 
+import android.net.TrafficStats
 import android.os.Build
 import android.util.Log
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import dagger.Lazy
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -17,7 +18,8 @@ import kotlin.coroutines.CoroutineContext
 class RxWatcher @Inject constructor(
     private val packageMonitor: Lazy<PackageMonitor>,
     private val watcherUtils: WatcherUtils,
-    private val appRepository: IAppRepository
+    private val appRepository: IAppRepository,
+    private val simManager: ISimManager
 ) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -30,38 +32,66 @@ class RxWatcher @Inject constructor(
         private set
 
     /**
+     * Trabajo principal que está corriendo
+     * */
+    private var mainJob: Job? = null
+
+    /**
      * Último nombre de paquete que se resolvió
      * */
     private var currentPackageName: String? = null
 
-    var currentAppFlow: Flow<Pair<App, App?>> = MutableSharedFlow()
-        private set
+    /**
+     *
+     * */
+    val currentAppFlow: Flow<Pair<App, App?>> = MutableSharedFlow()
 
     /**
-     * Trabajo principal que está corriendo
+     *
      * */
-    private var mainJob: Job? = null
+    val bandWithFlow: Flow<Pair<Long, Long>> = MutableSharedFlow()
 
     /**
      * Enciende el Watcher
      * */
     fun start() {
 
-        this.running = true
+        if (!running) {
+            this.running = true
 
-        Log.i(TAG, "Watcher is running")
+            Log.i(TAG, "Watcher is running")
 
-        mainJob = launch {
-            while (running && isActive) {
+            mainJob = launch {
+                while (running && isActive) {
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    packageMonitor.get().synchronizeDatabase()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        packageMonitor.get().synchronizeDatabase()
 
-                getCurrentApp()
+                    simManager.synchronizeDatabase()
 
+                    getCurrentApp()
 
+                    getBandWith()
+
+                    delay(1000)
+                }
             }
         }
+    }
+
+    private suspend fun getBandWith() {
+        val rx = TrafficStats.getMobileRxBytes()
+        val tx = TrafficStats.getMobileTxBytes()
+
+        if (rxBytes > 0 && txBytes > 0) {
+            (bandWithFlow as MutableSharedFlow)
+                .emit(rx - rxBytes to tx - txBytes)
+
+            Log.i(TAG, "Band with rx: ${rx - rxBytes} tx: ${tx - txBytes}")
+        }
+
+        rxBytes = rx
+        txBytes = tx
     }
 
     private suspend fun getCurrentApp() {
@@ -97,6 +127,13 @@ class RxWatcher @Inject constructor(
     }
 
     companion object {
+
         private const val TAG = "Watcher"
+
+        @JvmStatic
+        private var rxBytes = 0L
+
+        @JvmStatic
+        private var txBytes = 0L
     }
 }

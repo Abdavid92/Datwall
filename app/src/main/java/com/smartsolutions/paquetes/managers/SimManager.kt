@@ -190,6 +190,10 @@ class SimManager @Inject constructor(
         return seedEmbeddedSim(withRelations)
     }
 
+    override suspend fun synchronizeDatabase() {
+        //TODO: Not yet implemented
+    }
+
     /**
      * Siembra la linea embeida para android 21 y posteriormente la retorna.
      * En caso existir en base de datos, solo la retorna. Esto se hace porque

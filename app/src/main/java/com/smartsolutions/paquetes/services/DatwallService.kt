@@ -2,10 +2,7 @@ package com.smartsolutions.paquetes.services
 
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Binder
@@ -15,7 +12,6 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
@@ -23,14 +19,13 @@ import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
-import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.ui.SplashActivity
+import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
@@ -61,6 +56,9 @@ class DatwallService : Service(), CoroutineScope {
 
     @Inject
     lateinit var kernel: DatwallKernel
+
+    @Inject
+    lateinit var watcher: RxWatcher
 
     private val remoteViews: RemoteViews by lazy {
         RemoteViews(packageName, R.layout.datwall_service_notification_normal)
@@ -96,8 +94,6 @@ class DatwallService : Service(), CoroutineScope {
             .setOngoing(true)
     }
 
-    private val bandWithReceiver = BandWithReceiver()
-
     override fun onBind(intent: Intent): IBinder {
         return binder
     }
@@ -116,17 +112,11 @@ class DatwallService : Service(), CoroutineScope {
 
         kernel.tryRestoreState()
 
-        bandWithReceiver.registerBroadcast(this)
+        registerBandWithFlow()
         beginUserDataBytesCollect()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        runCatching {
-            startForeground(
-                NotificationHelper.MAIN_NOTIFICATION_ID,
-                notificationBuilder.build()
-            )
-        }
         return START_STICKY
     }
 
@@ -278,8 +268,15 @@ class DatwallService : Service(), CoroutineScope {
         return uiHelper.getResource(name) ?: R.mipmap.ic_launcher_foreground
     }
 
+    private fun registerBandWithFlow() {
+        launch {
+            watcher.bandWithFlow.collect {
+                updateBandWith(it.first, it.second)
+            }
+        }
+    }
+
     override fun onDestroy() {
-        bandWithReceiver.unregisterBroadcast(this)
         job.cancel()
 
         super.onDestroy()
@@ -288,40 +285,5 @@ class DatwallService : Service(), CoroutineScope {
     inner class DatwallServiceBinder: Binder() {
         val service: DatwallService
             get() = this@DatwallService
-    }
-
-    inner class BandWithReceiver: BroadcastReceiver() {
-
-        var isRegistered = false
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-
-            if (intent?.action == TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION){
-                val tx = intent
-                    .getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_TX, 0L)
-                val rx = intent
-                    .getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_RX, 0L)
-
-                updateBandWith(rx, tx)
-            }
-
-        }
-
-
-        fun registerBroadcast(context: Context) {
-            if (!isRegistered) {
-                LocalBroadcastManager.getInstance(context).registerReceiver(
-                    this,
-                    IntentFilter(TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION)
-                )
-                isRegistered = true
-            }
-        }
-
-        fun unregisterBroadcast(context: Context) {
-            LocalBroadcastManager.getInstance(context)
-                .unregisterReceiver(this)
-            isRegistered = false
-        }
     }
 }

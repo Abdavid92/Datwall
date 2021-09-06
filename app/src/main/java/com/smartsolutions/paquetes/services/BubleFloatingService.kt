@@ -4,10 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.os.Build
@@ -18,7 +15,7 @@ import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.lifecycle.asLiveData
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
@@ -35,7 +32,7 @@ import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.uiDataStore
-import com.smartsolutions.paquetes.watcher.Watcher
+import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -45,6 +42,11 @@ import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class BubbleFloatingService : Service(), CoroutineScope {
+
+    private val job = Job()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + job
 
     @Inject
     lateinit var notificationHelper: NotificationHelper
@@ -61,6 +63,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
     @Inject
     lateinit var networkUsageUtils: NetworkUsageUtils
 
+    @Inject
+    lateinit var watcher: RxWatcher
+
     lateinit var uiHelper: UIHelper
 
     private lateinit var bubbleBinding: BubbleFloatingLayoutBinding
@@ -70,10 +75,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
     private val paramsClose = getParams(WindowManager.LayoutParams.MATCH_PARENT)
-
-    private val receiverChangeAppWatcher = ReceiverChangeAppWatcher()
-    private val receiverTickWatcher = ReceiverTickWatcher()
-
 
     private var app: App? = null
     private var bitmapIcon: Bitmap? = null
@@ -141,7 +142,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         runBlocking(Dispatchers.IO) {
             app = appRepository.get(applicationContext.packageName)
         }
-        registerBroadcasts()
+        registerFlows()
 
         launch {
             this@BubbleFloatingService.dataStore.data.collect {
@@ -472,67 +473,47 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
+    private fun registerFlows() {
+        launch {
+            watcher.currentAppFlow.collect {
 
-    private fun registerBroadcasts() {
+                withContext(Dispatchers.Main) {
+                    val appCurrent = it.first
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-            receiverChangeAppWatcher,
-            IntentFilter(Watcher.ACTION_CHANGE_APP_FOREGROUND)
-        )
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-            receiverTickWatcher,
-            IntentFilter(Watcher.ACTION_TICKTOCK)
-        )
-
-    }
-
-    private fun unregisterBroadcasts() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiverChangeAppWatcher)
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiverTickWatcher)
-    }
-
-    inner class ReceiverChangeAppWatcher : BroadcastReceiver() {
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-
-            intent?.let {
-                it.getParcelableExtra<App>(Watcher.EXTRA_FOREGROUND_APP)?.let { appIntent ->
-                    app = appIntent
-                    setTraffic(appIntent)
+                    app = appCurrent
+                    setTraffic(appCurrent)
 
                     setThemeBubble()
 
                     bitmapIcon = iconManager.get(
-                        appIntent.packageName,
-                        appIntent.version
+                        appCurrent.packageName,
+                        appCurrent.version
                     )
                     bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
 
                     if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
                         hideBubble()
-                    }else if (!isShowBubble) {
+                    } else if (!isShowBubble) {
                         showBubble()
                     }
                 }
             }
         }
 
-    }
+        launch {
+            watcher.bandWithFlow.collect {
+                withContext(Dispatchers.Main) {
+                    if (delayTransparency < 3) {
+                        delayTransparency++
+                    } else if (delayTransparency == 3 && !isShowMenu && isShowBubble) {
+                        setTransparency(true)
+                        delayTransparency++
+                    }
 
-    inner class ReceiverTickWatcher : BroadcastReceiver() {
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (delayTransparency < 3) {
-                delayTransparency++
-            } else if (delayTransparency == 3 && !isShowMenu && isShowBubble) {
-                setTransparency(true)
-                delayTransparency++
+                    updateBubble()
+                }
             }
-
-            updateBubble()
         }
-
     }
 
 
@@ -602,13 +583,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
 
     override fun onDestroy() {
+        job.cancel()
         super.onDestroy()
-        unregisterBroadcasts()
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
-
 
     enum class BubbleSize {
         SMALL,
