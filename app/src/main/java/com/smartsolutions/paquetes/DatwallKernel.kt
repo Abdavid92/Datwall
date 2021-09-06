@@ -98,7 +98,7 @@ class DatwallKernel @Inject constructor(
      * y registra los workers si no lo están).
      * */
     fun tryRestoreState() {
-        runBlocking {
+        launch {
             val grantedAllPermissions = !missingSomePermission()
             val completedAllConfiguration = !missingSomeConfiguration()
             val registeredAndValid = isRegisteredAndValid()

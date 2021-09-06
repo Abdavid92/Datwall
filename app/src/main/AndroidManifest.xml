@@ -65,7 +65,7 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeScreenTheme" />
+            android:theme="@style/WelcomeTheme" />
 
         <!-- Services -->
         <service

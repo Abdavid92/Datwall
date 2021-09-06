@@ -66,6 +66,10 @@ class DatwallService : Service(), CoroutineScope {
         RemoteViews(packageName, R.layout.datwall_service_notification_normal)
     }
 
+    private val expandedRemoteViews by lazy {
+        RemoteViews(packageName, R.layout.datwall_service_notification_expanded)
+    }
+
     private val notificationManager by lazy {
         NotificationManagerCompat.from(this)
     }
@@ -75,7 +79,7 @@ class DatwallService : Service(), CoroutineScope {
             .Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setCustomContentView(remoteViews)
-            .setCustomBigContentView(remoteViews)
+            .setCustomBigContentView(expandedRemoteViews)
             .setContentIntent(PendingIntent
                 .getActivity(
                     this,
@@ -116,6 +120,12 @@ class DatwallService : Service(), CoroutineScope {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        runCatching {
+            startForeground(
+                NotificationHelper.MAIN_NOTIFICATION_ID,
+                notificationBuilder.build()
+            )
+        }
         return START_STICKY
     }
 
@@ -183,71 +193,10 @@ class DatwallService : Service(), CoroutineScope {
                         NotificationHelper.MAIN_NOTIFICATION_ID,
                         notificationBuilder.apply {
                             setCustomContentView(remoteViews)
-                            setCustomBigContentView(remoteViews)
+                            setCustomBigContentView(expandedRemoteViews)
                         }.build()
                     )
                 }
-
-            /*userDataBytesRepository.flowBySimId(simManager.getDefaultDataSim().id).collect { userData ->
-
-                userData.forEach { userDataBytes ->
-
-                    //TODO: Delete this. Was a test
-                    userDataBytes.initialBytes = 1073741824
-                    userDataBytes.bytes = Random.nextLong(userDataBytes.initialBytes)
-
-                    if (userDataBytes.type == DataBytes.DataType.DailyBag) {
-                        if (userDataBytes.exists() && !userDataBytes.isExpired()) {
-                            remoteViews.setViewVisibility(R.id.daily_bag_layout, View.VISIBLE)
-                            remoteViews.setViewVisibility(R.id.daily_bag_divider, View.VISIBLE)
-                        } else {
-                            remoteViews.setViewVisibility(R.id.daily_bag_layout, View.GONE)
-                            remoteViews.setViewVisibility(R.id.daily_bag_divider, View.GONE)
-                        }
-                    }
-
-                    val progressRef = R.id::class.java
-                        .getDeclaredField("progress_${userDataBytes.type}")
-                        .getInt(null)
-
-                    val percentRef = R.id::class.java
-                        .getDeclaredField("percent_${userDataBytes.type}")
-                        .getInt(null)
-
-                    if (userDataBytes.exists()) {
-                        val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
-                            .toInt()
-
-                        remoteViews.setTextViewText(percentRef, if (userDataBytes.isExpired()) {
-                            "exp"
-                        } else {
-                            "$percent%"
-                        })
-
-                        remoteViews.setProgressBar(
-                            progressRef,
-                            100,
-                            percent,
-                            false)
-                    } else {
-                        remoteViews.setTextViewText(percentRef, "n/a")
-                        remoteViews.setProgressBar(
-                            progressRef,
-                            100,
-                            0,
-                            false
-                        )
-                    }
-                }
-
-                notificationManager.notify(
-                    NotificationHelper.MAIN_NOTIFICATION_ID,
-                    notificationBuilder.apply {
-                        setCustomContentView(remoteViews)
-                        setCustomBigContentView(remoteViews)
-                    }.build()
-                )
-            }*/
         }
     }
 
@@ -259,7 +208,7 @@ class DatwallService : Service(), CoroutineScope {
             NotificationHelper.MAIN_NOTIFICATION_ID,
             notificationBuilder.apply {
                 setCustomContentView(remoteViews)
-                setCustomBigContentView(remoteViews)
+                setCustomBigContentView(expandedRemoteViews)
             }.build()
         )
     }
@@ -292,7 +241,7 @@ class DatwallService : Service(), CoroutineScope {
             NotificationHelper.MAIN_NOTIFICATION_ID,
             notificationBuilder.apply {
                 setCustomContentView(this@DatwallService.remoteViews)
-                setCustomBigContentView(this@DatwallService.remoteViews)
+                setCustomBigContentView(this@DatwallService.expandedRemoteViews)
             }.build())
     }
 
@@ -371,6 +320,7 @@ class DatwallService : Service(), CoroutineScope {
         fun unregisterBroadcast(context: Context) {
             LocalBroadcastManager.getInstance(context)
                 .unregisterReceiver(this)
+            isRegistered = false
         }
     }
 }

@@ -11,9 +11,14 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="appBarLayoutStyle">@style/Theme.Datwall.AppBar</item>
         <!-- Customize your theme here. -->
+        <item name="buttonStyle">@style/PrimaryButton</item>
+        <item name="appBarLayoutStyle">@style/Theme.Datwall.AppBar</item>
         <item name="cardViewStyle">@style/Theme.Datwall.CardView</item>
+    </style>
+
+    <style name="WelcomeTheme" parent="WelcomeScreenTheme">
+        <item name="welcomeButtonDoneText">OK</item>
     </style>
 
     <style name="BottomSheetDialog." parent="Theme.MaterialComponents.BottomSheetDialog">

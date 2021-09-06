@@ -27,5 +27,5 @@
         app:layout_constraintTop_toBottomOf="@id/text_dashboard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Quitar una"/>
+        android:text="Quitar una" />
 </androidx.constraintlayout.widget.ConstraintLayout>
