@@ -1,13 +1,17 @@
 package com.smartsolutions.paquetes.managers
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.BATTERY_OPTIMIZATION_CODE
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.CALL_CODE
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.DRAW_OVERLAYS_CODE
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.SMS_CODE
@@ -21,6 +25,8 @@ class PermissionsManagerM @Inject constructor(
     private val context: Context
 ) : PermissionsManager(context) {
 
+    @SuppressLint("BatteryLife")
+    @Suppress("DEPRECATION")
     override val permissions = listOf(
         Permission(
             context.getString(R.string.call_permission),
@@ -62,6 +68,31 @@ class PermissionsManagerM @Inject constructor(
                 }
 
                 fragment.startActivityForResult(intent, requestCode)
+            }
+        ),
+        Permission(
+            context.getString(R.string.battery_optimization_permission),
+            emptyArray(),
+            context.getString(R.string.battery_optimization_permission_description),
+            Permission.Category.Required,
+            BATTERY_OPTIMIZATION_CODE,
+            checkPermission = { context ->
+                val powerManager = ContextCompat.getSystemService(context, PowerManager::class.java)
+                    ?: throw NullPointerException()
+
+                powerManager.isIgnoringBatteryOptimizations(context.packageName)
+            },
+            requestPermissionActivity = { activity ->
+                activity.startActivityForResult(
+                    Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                        .setData(Uri.parse("package:${activity.packageName}")),
+                    requestCode
+                )
+            },
+            requestPermissionFragment = { fragment ->
+                fragment.activity?.let {
+                    requestPermissionActivity(this, it)
+                }
             }
         ),
         *super.permissions.toTypedArray()

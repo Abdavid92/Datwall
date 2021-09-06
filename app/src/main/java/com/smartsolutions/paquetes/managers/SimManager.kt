@@ -49,9 +49,7 @@ class SimManager @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.VOICE)
 
-            return findSim(subscriptionInfo, withRelations).apply {
-                defaultVoice = true
-            }
+            return findSim(subscriptionInfo, withRelations)
         }
         try {
             return getInstalledSims(withRelations).first { it.defaultVoice }
@@ -89,9 +87,7 @@ class SimManager @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val subscriptionInfo = simDelegate.getActiveSim(SimType.DATA)
 
-            return findSim(subscriptionInfo, withRelations).apply {
-                defaultData = true
-            }
+            return findSim(subscriptionInfo, withRelations)
         }
         try {
             return getInstalledSims(withRelations).first { it.defaultData }
@@ -162,11 +158,13 @@ class SimManager @Inject constructor(
 
             val finalList = mutableListOf<Sim>()
 
-            list.forEach {
-                if (installedSims.contains(it))
-                    finalList.add(it.apply {
-                        installedSims.getOrNull(installedSims.indexOf(it))?.let { foundSim ->
+            list.forEach { sim ->
+                if (installedSims.contains(sim))
+                    finalList.add(sim.apply {
+                        installedSims.getOrNull(installedSims.indexOf(sim))?.let { foundSim ->
                             this.icon = foundSim.icon
+                            this.defaultData = foundSim.defaultData
+                            this.defaultVoice = foundSim.defaultVoice
                         }
                     })
             }
@@ -229,6 +227,20 @@ class SimManager @Inject constructor(
 
         simRepository.get(id, withRelations)?.let {
             it.icon = subscriptionInfo.createIconBitmap(context)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val dataSubscriptionInfoId = simDelegate
+                    .getSimId(simDelegate.getActiveSim(SimType.DATA))
+
+                val voiceSubscriptionInfoId = simDelegate
+                    .getSimId(simDelegate.getActiveSim(SimType.VOICE))
+
+                if (id == dataSubscriptionInfoId)
+                    it.defaultData = true
+
+                if (id == voiceSubscriptionInfoId)
+                    it.defaultVoice = true
+            }
 
             return it
         }

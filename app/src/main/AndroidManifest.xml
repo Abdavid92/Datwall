@@ -24,6 +24,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:name=".DatwallApplication"
@@ -64,7 +65,7 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeScreenTheme" />
+            android:theme="@style/WelcomeTheme" />
 
         <!-- Services -->
         <service

@@ -18,7 +18,7 @@ import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
-import com.smartsolutions.paquetes.receivers.TrafficRegistrationNewReceiver
+import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.services.FirewallService
@@ -54,7 +54,7 @@ class DatwallKernel @Inject constructor(
     private val watcher: Watcher,
     private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
-    private val trafficRegistration: TrafficRegistrationNewReceiver
+    private val trafficRegistration: TrafficRegistrationReceiver
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -76,15 +76,47 @@ class DatwallKernel @Inject constructor(
 
     /**
      * Función principal que maqueta e inicia todos los servicios de la aplicación
-     * y la actividad principal.
+     * y la actividad principal si está en primer plano.
      * */
-    fun mainInForeground(activity: Activity) {
+    fun main(activity: Activity? = null) {
 
         //Crea los canales de notificaciones
         createNotificationChannels()
 
         //Restablece la configuración de la versión anterior
         setLegacyConfiguration()
+
+        if (activity != null) {
+            mainInForeground(activity)
+        } else {
+            mainInBackground()
+        }
+    }
+
+    /**
+     * Restaura el estado de la aplicación (Registra los broadcast y callbacks de nuevo
+     * y registra los workers si no lo están).
+     * */
+    fun tryRestoreState() {
+        launch {
+            val grantedAllPermissions = !missingSomePermission()
+            val completedAllConfiguration = !missingSomeConfiguration()
+            val registeredAndValid = isRegisteredAndValid()
+
+            if (grantedAllPermissions &&
+                completedAllConfiguration /*&&
+                registeredAndValid*/) {
+                registerBroadcastsAndCallbacks()
+                registerWorkers()
+            }
+        }
+    }
+
+    /**
+     * Función principal que maqueta e inicia todos los servicios de la aplicación
+     * y la actividad principal.
+     * */
+    private fun mainInForeground(activity: Activity) {
 
         launch {
             //Crea o actualiza los paquetes de datos
@@ -121,13 +153,7 @@ class DatwallKernel @Inject constructor(
         }
     }
 
-    fun mainInBackground() {
-
-        if (isInForeground())
-            return
-        createNotificationChannels()
-
-        setLegacyConfiguration()
+    private fun mainInBackground() {
 
         launch {
             createOrUpdatePackages()

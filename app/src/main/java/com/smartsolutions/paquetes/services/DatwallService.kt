@@ -1,39 +1,40 @@
 package com.smartsolutions.paquetes.services
 
-import android.app.Notification
-import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
-import com.smartsolutions.paquetes.receivers.TrafficRegistrationNewReceiver
+import com.smartsolutions.paquetes.micubacel.models.DataBytes
+import com.smartsolutions.paquetes.receivers.TrafficRegistrationReceiver
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
-import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.ui.SplashActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
-import java.lang.NullPointerException
+import kotlinx.coroutines.flow.filter
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
+import kotlin.random.Random
 
 /**
  * Servicio principal de la aplicación. Mantiene abierta la aplicación
@@ -59,92 +60,188 @@ class DatwallService : Service(), CoroutineScope {
     lateinit var simManager: ISimManager
 
     @Inject
-    lateinit var notificationHelper: NotificationHelper
+    lateinit var kernel: DatwallKernel
 
-    //private lateinit var notificationBuilder: Notification.Builder
-    //private lateinit var notificationManager: NotificationManager
+    private val remoteViews: RemoteViews by lazy {
+        RemoteViews(packageName, R.layout.datwall_service_notification_normal)
+    }
 
-    private lateinit var notificationManager: NotificationManagerCompat
-    private lateinit var notificationBuilder: NotificationCompat.Builder
+    private val expandedRemoteViews by lazy {
+        RemoteViews(packageName, R.layout.datwall_service_notification_expanded)
+    }
 
-    private val trafficRegistrationBroadcastReceiver = TrafficRegistrationBroadcastReceiver()
-    private lateinit var contentView: RemoteViews
-    private var userDataBytesInfo: List<UserDataBytes> = emptyList()
+    private val notificationManager by lazy {
+        NotificationManagerCompat.from(this)
+    }
 
+    private val notificationBuilder by lazy {
+        NotificationCompat
+            .Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setCustomContentView(remoteViews)
+            .setCustomBigContentView(expandedRemoteViews)
+            .setContentIntent(PendingIntent
+                .getActivity(
+                    this,
+                    0,
+                    Intent(this, SplashActivity::class.java)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    } else {
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                    }
+                ))
+            .setOngoing(true)
+    }
 
+    private val bandWithReceiver = BandWithReceiver()
 
     override fun onBind(intent: Intent): IBinder {
         return binder
     }
 
-
     override fun onCreate() {
         super.onCreate()
 
-        notificationManager = NotificationManagerCompat.from(this)
-        notificationBuilder = NotificationCompat
-            .Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
+        setTextColor()
 
-        /*launch {
-            userDataBytesRepository.flow()
-                .combine(simManager.flowInstalledSims(false)) { dataBytes, sims ->
-                    val defaultDataSim = sims.first { it.defaultData }
-                    return@combine dataBytes.filter { it.exists() && it.simId == defaultDataSim.id }
-                }
-                .collect { dataBytes ->
-                    //TODO: Actualizar los valores
-                }
-            /*userDataBytesRepository.flowBySimId(simManager.getDefaultDataSim().id).collect { userData ->
-                userDataBytesInfo = userData.filter { it.exists() }
-            }*/
-        }*/
-        trafficRegistrationBroadcastReceiver.registerBroadcast(this)
-        /*notificationManager = ContextCompat.getSystemService(this, NotificationManager::class.java) ?: throw NullPointerException()
+        runCatching {
+            startForeground(
+                NotificationHelper.MAIN_NOTIFICATION_ID,
+                notificationBuilder.build()
+            )
+        }
 
-        notificationBuilder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
-        }else {
-            Notification.Builder(this)
-        }*/
+        kernel.tryRestoreState()
+
+        bandWithReceiver.registerBroadcast(this)
+        beginUserDataBytesCollect()
     }
 
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        startForeground(
-            NotificationHelper.MAIN_NOTIFICATION_ID,
-            //TODO cambiar icono de la notificacion
-            notificationHelper.buildNotification(NotificationHelper.MAIN_CHANNEL_ID).apply {
-                setContentTitle("Servicio Principal")
-                setContentText("En funcionamiento")
-            }.build()
-        )
-
+        runCatching {
+            startForeground(
+                NotificationHelper.MAIN_NOTIFICATION_ID,
+                notificationBuilder.build()
+            )
+        }
         return START_STICKY
     }
 
+    private fun beginUserDataBytesCollect() {
+        launch {
+            simManager.flowInstalledSims(false)
+                .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
+                    val defaultDataSim = sims.first { it.defaultData }
 
-    private fun updateView(){
-        contentView = RemoteViews(this.packageName, R.layout.datwall_service_notification_normal)
+                    return@combine userDataBytes
+                        .filter { it.simId == defaultDataSim.id }
+                }.collect { userData ->
+
+                    userData.forEach { userDataBytes ->
+
+                        //TODO: Delete this. Was a test
+                        userDataBytes.initialBytes = 1073741824
+                        userDataBytes.bytes = Random.nextLong(userDataBytes.initialBytes)
+
+                        if (userDataBytes.type == DataBytes.DataType.DailyBag) {
+                            if (userDataBytes.exists() && !userDataBytes.isExpired()) {
+                                remoteViews.setViewVisibility(R.id.daily_bag_layout, View.VISIBLE)
+                                remoteViews.setViewVisibility(R.id.daily_bag_divider, View.VISIBLE)
+                            } else {
+                                remoteViews.setViewVisibility(R.id.daily_bag_layout, View.GONE)
+                                remoteViews.setViewVisibility(R.id.daily_bag_divider, View.GONE)
+                            }
+                        }
+
+                        val progressRef = R.id::class.java
+                            .getDeclaredField("progress_${userDataBytes.type}")
+                            .getInt(null)
+
+                        val percentRef = R.id::class.java
+                            .getDeclaredField("percent_${userDataBytes.type}")
+                            .getInt(null)
+
+                        if (userDataBytes.exists()) {
+                            val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
+                                .toInt()
+
+                            remoteViews.setTextViewText(percentRef, if (userDataBytes.isExpired()) {
+                                "exp"
+                            } else {
+                                "$percent%"
+                            })
+
+                            remoteViews.setProgressBar(
+                                progressRef,
+                                100,
+                                percent,
+                                false)
+                        } else {
+                            remoteViews.setTextViewText(percentRef, "n/a")
+                            remoteViews.setProgressBar(
+                                progressRef,
+                                100,
+                                0,
+                                false
+                            )
+                        }
+                    }
+
+                    notificationManager.notify(
+                        NotificationHelper.MAIN_NOTIFICATION_ID,
+                        notificationBuilder.apply {
+                            setCustomContentView(remoteViews)
+                            setCustomBigContentView(expandedRemoteViews)
+                        }.build()
+                    )
+                }
+        }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        setTextColor()
 
-    private fun updateNotification(rxBytes: Long, txBytes: Long) {
-        notificationBuilder.setSmallIcon(getIcon( rxBytes + txBytes))
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            notificationBuilder.style = Notification.DecoratedCustomViewStyle()
-        }*/
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            notificationBuilder.setCustomContentView(contentView)
-            notificationBuilder.setCustomBigContentView(contentView)
-        }else {
-            notificationBuilder.setContent(contentView)
-        }*/
         notificationManager.notify(
             NotificationHelper.MAIN_NOTIFICATION_ID,
             notificationBuilder.apply {
-                setCustomContentView(this@DatwallService.contentView)
-                setCustomBigContentView(this@DatwallService.contentView)
+                setCustomContentView(remoteViews)
+                setCustomBigContentView(expandedRemoteViews)
+            }.build()
+        )
+    }
+
+    private fun setTextColor() {
+        val methodName = "setTextColor"
+
+        val color = if (uiHelper.isUIDarkTheme())
+            Color.WHITE
+        else
+            Color.BLACK
+
+        DataBytes.DataType.values().forEach {
+            val percentRef = R.id::class.java
+                .getDeclaredField("percent_${it.name}")
+                .getInt(null)
+
+            val labelRef = R.id::class.java
+                .getDeclaredField("label_${it.name}")
+                .getInt(null)
+
+            remoteViews.setInt(percentRef, methodName, color)
+            remoteViews.setInt(labelRef, methodName, color)
+        }
+    }
+
+    private fun updateBandWith(rxBytes: Long, txBytes: Long) {
+        notificationBuilder.setSmallIcon(getIcon( rxBytes + txBytes))
+        notificationManager.notify(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
+            notificationBuilder.apply {
+                setCustomContentView(this@DatwallService.remoteViews)
+                setCustomBigContentView(this@DatwallService.expandedRemoteViews)
             }.build())
     }
 
@@ -163,23 +260,28 @@ class DatwallService : Service(), CoroutineScope {
                 "traficc_${traffic.value.roundToLong()}_kb"
             }
             DataUnitBytes.DataUnit.MB -> {
-                val values = traffic.value.toString().split(".")
-                "traficc_${values[0]}_quot_${values[1]}_mb"
-            }
-            else -> {
-                return R.drawable.ic_bubble_notification
-            }
+                if (traffic.value > 10.0) {
+                    return R.drawable.traficc_10_more_mb
+                } else {
+                    val absolute = traffic.value.toInt()
+                    val remainder = (traffic.value % 1 * 10).toInt()
 
+                    "traficc_${absolute}_quot_${remainder}_mb"
+                }
+            }
+            DataUnitBytes.DataUnit.GB -> {
+                return R.drawable.traficc_10_more_mb
+            }
         }
 
-        return uiHelper.getResource(name) ?: R.drawable.ic_bubble_notification
+        return uiHelper.getResource(name) ?: R.drawable.ic_launcher_foreground
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        trafficRegistrationBroadcastReceiver
-            .unregisterBroadcast(this)
+        bandWithReceiver.unregisterBroadcast(this)
         job.cancel()
+
+        super.onDestroy()
     }
 
     inner class DatwallServiceBinder: Binder() {
@@ -187,17 +289,19 @@ class DatwallService : Service(), CoroutineScope {
             get() = this@DatwallService
     }
 
-    inner class TrafficRegistrationBroadcastReceiver: BroadcastReceiver() {
+    inner class BandWithReceiver: BroadcastReceiver() {
 
         var isRegistered = false
 
         override fun onReceive(context: Context?, intent: Intent?) {
 
-            if (intent?.action == TrafficRegistrationNewReceiver.ACTION_TRAFFIC_REGISTRATION){
-                val tx = intent.getLongExtra(TrafficRegistrationNewReceiver.EXTRA_TRAFFIC_TX, 0L)
-                val rx = intent.getLongExtra(TrafficRegistrationNewReceiver.EXTRA_TRAFFIC_RX, 0L)
-                updateView()
-                updateNotification(rx, tx)
+            if (intent?.action == TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION){
+                val tx = intent
+                    .getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_TX, 0L)
+                val rx = intent
+                    .getLongExtra(TrafficRegistrationReceiver.EXTRA_TRAFFIC_RX, 0L)
+
+                updateBandWith(rx, tx)
             }
 
         }
@@ -207,7 +311,7 @@ class DatwallService : Service(), CoroutineScope {
             if (!isRegistered) {
                 LocalBroadcastManager.getInstance(context).registerReceiver(
                     this,
-                    IntentFilter(TrafficRegistrationNewReceiver.ACTION_TRAFFIC_REGISTRATION)
+                    IntentFilter(TrafficRegistrationReceiver.ACTION_TRAFFIC_REGISTRATION)
                 )
                 isRegistered = true
             }
@@ -216,7 +320,7 @@ class DatwallService : Service(), CoroutineScope {
         fun unregisterBroadcast(context: Context) {
             LocalBroadcastManager.getInstance(context)
                 .unregisterReceiver(this)
+            isRegistered = false
         }
-
     }
 }

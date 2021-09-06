@@ -55,6 +55,13 @@
 
         </RelativeLayout>
 
+        <TextView
+            android:id="@+id/bytes_International"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 kb"
+            tools:ignore="HardcodedText" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -112,6 +119,13 @@
                 tools:ignore="HardcodedText" />
 
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/bytes_InternationalLte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 kb"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
 
@@ -171,6 +185,13 @@
 
         </RelativeLayout>
 
+        <TextView
+            android:id="@+id/bytes_PromoBonus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 kb"
+            tools:ignore="HardcodedText" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -228,6 +249,13 @@
                 tools:ignore="HardcodedText" />
 
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/bytes_National"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 kb"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
 
@@ -291,6 +319,13 @@
                 tools:ignore="HardcodedText" />
 
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/bytes_DailyBag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 kb"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
 

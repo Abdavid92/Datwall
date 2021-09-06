@@ -98,11 +98,6 @@ class SimDelegate @Inject constructor(
         else
             subscriptionInfo.iccId
 
-    enum class SimType {
-        VOICE,
-        DATA
-    }
-
     fun addOnSubscriptionsChangedListener(
         listener: SubscriptionManager.OnSubscriptionsChangedListener
     ) {
@@ -113,5 +108,10 @@ class SimDelegate @Inject constructor(
         listener: SubscriptionManager.OnSubscriptionsChangedListener
     ) {
         subscriptionManager.removeOnSubscriptionsChangedListener(listener)
+    }
+
+    enum class SimType {
+        VOICE,
+        DATA
     }
 }

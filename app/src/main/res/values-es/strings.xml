@@ -142,4 +142,6 @@
     <string name="tab_national">Nacional</string>
     <string name="tab_free">Gratis</string>
     <string name="title_usage">Consumo</string>
+    <string name="battery_optimization_permission">Permiso de optimización de batería</string>
+    <string name="battery_optimization_permission_description">Descripción del permiso de optimización de batería.</string>
 </resources>

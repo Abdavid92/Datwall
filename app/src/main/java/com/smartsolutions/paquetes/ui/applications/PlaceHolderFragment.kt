@@ -157,12 +157,6 @@ class PlaceHolderFragment : Fragment(),
         adapter?.search(query)
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        //Confirmo los cambios
-        viewModel.commitUpdateApps()
-    }
-
     companion object {
 
         fun newInstance(@FragmentAppsKey key: String): Fragment {

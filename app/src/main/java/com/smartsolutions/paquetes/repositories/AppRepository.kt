@@ -24,7 +24,7 @@ class AppRepository @Inject constructor(
     context: Context,
     gson: Gson,
     private val dao: IAppDao
-): BaseAppRepository(context, gson) {
+) : BaseAppRepository(context, gson) {
 
     override suspend fun appsCount(): Int = dao.appsCount()
 
@@ -122,6 +122,9 @@ class AppRepository @Inject constructor(
     override suspend fun create(app: App) = dao.create(app)
 
     override suspend fun create(apps: List<IApp>) = dao.create(convertToListApp(apps))
+
+    override suspend fun createOrReplace(apps: List<IApp>) =
+        dao.createOrReplace(convertToListApp(apps))
 
     override suspend fun update(app: App) = dao.update(app)
 

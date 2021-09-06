@@ -23,19 +23,22 @@ interface IAppDao {
     fun flow(): Flow<List<App>>
 
     @Query("SELECT * FROM apps WHERE package_name = :packageName")
-    fun get(packageName: String): App?
+    suspend fun get(packageName: String): App?
 
     @Query("SELECT * FROM apps WHERE uid = :uid")
-    fun get(uid: Int): List<App>
+    suspend fun get(uid: Int): List<App>
 
     @Query("SELECT * FROM apps WHERE uid IN (:uid)")
-    fun get(uid: IntArray): List<App>
+    suspend fun get(uid: IntArray): List<App>
 
     @Insert
     suspend fun create(app: App)
 
     @Insert
     suspend fun create(apps: List<App>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun createOrReplace(apps: List<App>)
 
     @Update
     suspend fun update(app: App): Int

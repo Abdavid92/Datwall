@@ -74,6 +74,8 @@ interface IAppRepository {
      * */
     suspend fun create(apps: List<IApp>)
 
+    suspend fun createOrReplace(apps: List<IApp>)
+
     /**
      * Actualiza una aplicación
      *

@@ -17,7 +17,7 @@ class SplashViewModel @Inject constructor(
         if (!wasRunning) {
             wasRunning = true
 
-            kernel.mainInForeground(activity)
+            kernel.main(activity)
         }
     }
 }

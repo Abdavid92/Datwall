@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.workers
 
 import android.content.Context
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.PreferencesKeys
@@ -9,67 +9,46 @@ import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.serverApis.models.Result.Failure
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
-import javax.inject.Inject
 
+class ActivationWorker @AssistedInject constructor(
+    @Assisted
+    context: Context,
+    @Assisted
+    params: WorkerParameters,
+    private val gson: Gson,
+    private val client: IRegistrationClient
+) : CoroutineWorker(context, params) {
 
-class ActivationWorker (
-    private val context: Context,
-    params: WorkerParameters
-) : Worker(context, params) {
+    override suspend fun doWork(): Result {
+        return try {
+            val deviceApp = gson.fromJson(
+                applicationContext.dataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.DEVICE_APP),
+                DeviceApp::class.java
+            )
 
-    @Inject
-    lateinit var gson: Gson
-    @Inject
-    lateinit var client: IRegistrationClient
+            deviceApp.purchased = true
+            deviceApp.waitingPurchase = false
 
-    init {
-        EntryPointAccessors
-            .fromApplication(context, ActivationWorkerEntryPoint::class.java)
-            .inject(this)
-    }
+            val result = client.updateDeviceApp(deviceApp)
 
-    override fun doWork(): Result {
-        return runBlocking {
+            if (result.isSuccess)
+                Result.success()
+            else {
+                val ex = (result as Failure).throwable
 
-            try {
-                val deviceApp = gson.fromJson(
-                    context.dataStore.data.firstOrNull()
-                        ?.get(PreferencesKeys.DEVICE_APP),
-                    DeviceApp::class.java
-                )
+                if (ex is HttpException && ex.code() == 422)
+                    Result.failure()
 
-                deviceApp.purchased = true
-                deviceApp.waitingPurchase = false
-
-                val result = client.updateDeviceApp(deviceApp)
-
-                if (result.isSuccess)
-                    return@runBlocking Result.success()
-                else {
-                    val ex = (result as Failure).throwable
-
-                    if (ex is HttpException && ex.code() == 422)
-                        return@runBlocking Result.failure()
-
-                    return@runBlocking Result.retry()
-                }
-
-            } catch (e: Exception) {
-                return@runBlocking Result.failure()
+                Result.retry()
             }
-        }
-    }
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface ActivationWorkerEntryPoint {
-        fun inject(activationWorker: ActivationWorker)
+        } catch (e: Exception) {
+            Result.failure()
+        }
     }
 }
