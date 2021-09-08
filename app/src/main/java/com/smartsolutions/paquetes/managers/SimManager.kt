@@ -184,7 +184,7 @@ class SimManager @Inject constructor(
     @Throws(MissingPermissionException::class)
     override suspend fun getSimByIndex(simIndex: Int, withRelations: Boolean): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            return findSim(simDelegate.getSimByIndex(simIndex) ?:
+            return findSim(simDelegate.getSimBySlotIndex(simIndex) ?:
             throw IllegalArgumentException(), withRelations)
         }
         return seedEmbeddedSim(withRelations)
