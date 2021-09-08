@@ -9,13 +9,12 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
 import android.provider.Settings
+import android.telephony.SubscriptionManager
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
-import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
-import com.smartsolutions.paquetes.helpers.NetworkUtils
-import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
@@ -51,7 +50,9 @@ class DatwallKernel @Inject constructor(
     private val watcher: RxWatcher,
     private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
-    private val trafficRegistration: TrafficRegistration
+    private val trafficRegistration: TrafficRegistration,
+    private val simDelegate: SimDelegate,
+    private val simManagerNew: ISimManagerNew
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -60,6 +61,16 @@ class DatwallKernel @Inject constructor(
     private var updateApplicationStatusJob: Job? = null
     private var bubbleOn = false
     private var firewallOn = false
+    private var simChangeListenerRegistered = false
+    private val simChangeListener = @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    object : SubscriptionManager.OnSubscriptionsChangedListener() {
+        override fun onSubscriptionsChanged() {
+            super.onSubscriptionsChanged()
+            launch {
+                simManagerNew.getInstalledSims()
+            }
+        }
+    }
 
     init {
         launch {
@@ -293,6 +304,11 @@ class DatwallKernel @Inject constructor(
      * Registra los broadcasts y los callbacks.
      * */
     private fun registerBroadcastsAndCallbacks() {
+        //Detecta los cambios de las Sim
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && !simChangeListenerRegistered) {
+            simChangeListenerRegistered = true
+            simDelegate.addOnSubscriptionsChangedListener(simChangeListener)
+        }
         /* En apis 22 o menor se registra un receiver para escuchar los cambios de redes.
          **/
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -381,6 +397,11 @@ class DatwallKernel @Inject constructor(
     fun stopAllDatwall(){
         if (watcher.isActive){
             watcher.stop()
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && simChangeListenerRegistered) {
+            simChangeListenerRegistered = false
+            simDelegate.removeOnSubscriptionsChangedListener(simChangeListener)
         }
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {

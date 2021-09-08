@@ -17,6 +17,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManagerNew
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
@@ -52,7 +53,7 @@ class DatwallService : Service(), CoroutineScope {
     lateinit var userDataBytesRepository: IUserDataBytesRepository
 
     @Inject
-    lateinit var simManager: ISimManager
+    lateinit var simManager: ISimManagerNew
 
     @Inject
     lateinit var kernel: DatwallKernel

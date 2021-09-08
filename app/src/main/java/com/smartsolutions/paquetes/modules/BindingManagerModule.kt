@@ -27,6 +27,9 @@ interface BindingManagerModule {
     fun bindISimManager(impl: SimManager): ISimManager
 
     @Binds
+    fun bindISimManagerNew(impl: SimManagerNew): ISimManagerNew
+
+    @Binds
     fun bindIStatisticsManager(impl: StatisticsManager): IStatisticsManager
 
     @Binds
