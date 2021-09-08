@@ -77,6 +77,9 @@ data class Sim(
     @Ignore
     var miCubacelAccount: MiCubacelAccount? = null
 
+    @Ignore
+    var slotIndex: Int = 1
+
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: throw NullPointerException(),
         parcel.readLong(),

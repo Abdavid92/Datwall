@@ -81,7 +81,7 @@ class SimDelegate @Inject constructor(
      * @param simIndex - Slot de la linea.
      * */
     @Throws(MissingPermissionException::class)
-    fun getSimByIndex(simIndex: Int): SubscriptionInfo? {
+    fun getSimBySlotIndex(simIndex: Int): SubscriptionInfo? {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE
