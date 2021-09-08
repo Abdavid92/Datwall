@@ -134,7 +134,7 @@ class DatwallKernel @Inject constructor(
                 }
                 else -> {
                     //Sincroniza la base de datos y enciende el rastreador
-                    synchronizeDatabaseAndStartWatcher()
+                    synchronizeDatabase()
                     //Inicia los servicios
                     startServices()
                     //Registra los broadcasts y los callbacks
@@ -175,7 +175,7 @@ class DatwallKernel @Inject constructor(
                     )
                 }
                 else -> {
-                    synchronizeDatabaseAndStartWatcher()
+                    synchronizeDatabase()
                     startServices()
                     registerBroadcastsAndCallbacks()
                     registerWorkers()
@@ -341,17 +341,14 @@ class DatwallKernel @Inject constructor(
     }
 
     /**
-     * Sincroniza la base de datos y enciende el Watcher.
+     * Sincroniza la base de datos.
      * */
-    private suspend fun synchronizeDatabaseAndStartWatcher() {
+    private suspend fun synchronizeDatabase() {
         if (!watcher.running) {
             /* Fuerzo la sincronización de la base de datos para
              * garantizar la integridad de los datos. Esto no sobrescribe
              * los valores de acceso existentes.*/
             packageMonitor.forceSynchronization()
-
-            //Después de sembrar la base de datos, inicio el observador
-            watcher.start()
         }
     }
 
@@ -379,9 +376,6 @@ class DatwallKernel @Inject constructor(
      * Detiene todos los servicios y trabajos de la aplicación.
      * */
     fun stopAllDatwall(){
-        if (watcher.isActive){
-            watcher.stop()
-        }
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
 
@@ -398,7 +392,8 @@ class DatwallKernel @Inject constructor(
 
         updateManager.cancelUpdateApplicationStatusWorker()
 
-        context.stopService(Intent(context, DatwallService::class.java))
+        context.startService(Intent(context, DatwallService::class.java)
+            .setAction(DatwallService.ACTION_STOP))
 
         trafficRegistration.stop()
         stopBubbleFloating()

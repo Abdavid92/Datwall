@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         handleIntent()
 
-        startService(Intent(this, BubbleFloatingService::class.java))
+        //startService(Intent(this, BubbleFloatingService::class.java))
     }
 
     private fun handleIntent(){

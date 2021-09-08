@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.watcher
 import android.content.Context
 import android.net.TrafficStats
 import android.os.Build
+import android.util.Log
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
@@ -14,11 +15,8 @@ import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.apache.commons.lang.time.DateUtils
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -77,24 +75,31 @@ class TrafficRegistration @Inject constructor(
 
             launch {
                 watcher.bandWithFlow.collect {
+                    val job = launch {
 
-                    val currentTime = System.currentTimeMillis()
+                        delay(3000)
 
-                    /*Este método se le debe pasar el currentTime como argumento porque
+                        val currentTime = System.currentTimeMillis()
+
+                        /*Este método se le debe pasar el currentTime como argumento porque
                      el se demora un poco en hacer su trabajo y se pueden crear discordancias
                      en el tiempo por esta demora.*/
-                    registerLollipopTraffic(
-                        it.first,
-                        it.second,
-                        currentTime
-                    )
+                        registerLollipopTraffic(
+                            it.first,
+                            it.second,
+                            currentTime
+                        )
 
-                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
-                        val start = lastTime
-                        lastTime = currentTime
+                        if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
+                            val start = lastTime
+                            lastTime = currentTime
 
-                        registerTraffic(start)
+                            registerTraffic(start)
+                        }
+
+                        Log.i(TAG, "Traffic registered successful")
                     }
+                    job.start()
                 }
             }
         }
@@ -207,5 +212,9 @@ class TrafficRegistration @Inject constructor(
 
     private fun isLTE(): Boolean {
         return networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
+    }
+
+    companion object {
+        const val TAG = "TrafficRegistration"
     }
 }
