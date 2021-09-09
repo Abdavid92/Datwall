@@ -60,6 +60,8 @@ class DatwallService : Service(), CoroutineScope {
     @Inject
     lateinit var watcher: RxWatcher
 
+    private lateinit var watcherThread: Thread
+
     private val remoteViews: RemoteViews by lazy {
         RemoteViews(packageName, R.layout.datwall_service_notification_normal)
     }
@@ -114,9 +116,19 @@ class DatwallService : Service(), CoroutineScope {
 
         registerBandWithFlow()
         beginUserDataBytesCollect()
+
+        watcherThread = Thread(watcher)
+
+        watcherThread.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            stopForeground(true)
+            stopSelf()
+
+            return START_NOT_STICKY
+        }
         return START_STICKY
     }
 
@@ -279,11 +291,17 @@ class DatwallService : Service(), CoroutineScope {
     override fun onDestroy() {
         job.cancel()
 
+        watcher.stop()
+
         super.onDestroy()
     }
 
     inner class DatwallServiceBinder: Binder() {
         val service: DatwallService
             get() = this@DatwallService
+    }
+
+    companion object {
+        const val ACTION_STOP = "com.smartsolutions.paquetes.ACTION_STOP"
     }
 }

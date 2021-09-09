@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.watcher
 
 import android.net.TrafficStats
 import android.os.Build
+import android.util.Log
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
@@ -13,11 +14,9 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.apache.commons.lang.time.DateUtils
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -76,8 +75,10 @@ class TrafficRegistration @Inject constructor(
 
             launch {
                 watcher.bandWithFlow.collect {
+                    val job = launch {
 
-                    if (it.first > 0 || it.second > 0) {
+                        delay(3000)
+
                         val currentTime = System.currentTimeMillis()
 
                         /*Este método se le debe pasar el currentTime como argumento porque
@@ -95,7 +96,10 @@ class TrafficRegistration @Inject constructor(
 
                             registerTraffic(start)
                         }
+
+                        Log.i(TAG, "Traffic registered successful")
                     }
+                    job.start()
                 }
             }
         }
@@ -208,5 +212,9 @@ class TrafficRegistration @Inject constructor(
 
     private fun isLTE(): Boolean {
         return networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
+    }
+
+    companion object {
+        const val TAG = "TrafficRegistration"
     }
 }
