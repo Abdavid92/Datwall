@@ -7,7 +7,6 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import dagger.Lazy
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import java.lang.Runnable
@@ -19,8 +18,7 @@ import kotlin.coroutines.CoroutineContext
 class RxWatcher @Inject constructor(
     private val packageMonitor: Lazy<PackageMonitor>,
     private val watcherUtils: WatcherUtils,
-    private val appRepository: IAppRepository,
-    private val simManager: ISimManager
+    private val appRepository: IAppRepository
 ) : CoroutineScope, Runnable {
 
     private val job = Job()
@@ -65,11 +63,10 @@ class RxWatcher @Inject constructor(
 
             while (running && !Thread.currentThread().isInterrupted) {
 
-                launch(Dispatchers.IO) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    launch(Dispatchers.IO) {
                         packageMonitor.get().synchronizeDatabase()
-
-                    simManager.synchronizeDatabase()
+                    }
                 }
 
                 getCurrentApp()
@@ -83,7 +80,7 @@ class RxWatcher @Inject constructor(
 
             Log.i(TAG, "Watcher was stopped")
         } else {
-            Log.i(TAG, "Failed starting watcher. Was started")
+            Log.w(TAG, "Failed starting watcher. Was started")
         }
     }
 
