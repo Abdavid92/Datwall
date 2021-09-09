@@ -3,7 +3,6 @@ package com.smartsolutions.paquetes.repositories.models
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.*
-import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import java.util.*
 
 /**

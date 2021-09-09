@@ -323,7 +323,7 @@ class ActivationManager @Inject constructor(
 
     private suspend fun fillPhone(simIndex: Int, deviceApp: DeviceApp) {
         try {
-            deviceApp.phone = simManager.getSimByIndex(simIndex).phone
+            deviceApp.phone = simManager.getSimBySlotIndex(simIndex)?.phone
         } catch (e: Exception) {
 
         }

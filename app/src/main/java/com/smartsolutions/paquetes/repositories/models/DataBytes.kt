@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.micubacel.models
+package com.smartsolutions.paquetes.repositories.models
 
 import androidx.room.ColumnInfo
 

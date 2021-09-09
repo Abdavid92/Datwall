@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -33,7 +34,7 @@ class SynchronizationManagerTest {
     fun synchronizeUserDataBytes() {
 
         runBlocking {
-            synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultVoiceSim())
+            synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
         }
     }
 }

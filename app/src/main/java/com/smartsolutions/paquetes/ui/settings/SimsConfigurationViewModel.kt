@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -13,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.reflect.KClass
 
 @HiltViewModel
 class SimsConfigurationViewModel @Inject constructor(
@@ -58,14 +58,14 @@ class SimsConfigurationViewModel @Inject constructor(
 
     fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim) {
         viewModelScope.launch(Dispatchers.IO) {
-            simManager.setDefaultDataSim(defaultDataSim)
-            simManager.setDefaultVoiceSim(defaultVoiceSim)
+            simManager.setDefaultSim(SimDelegate.SimType.DATA, defaultDataSim)
+            simManager.setDefaultSim(SimDelegate.SimType.VOICE, defaultVoiceSim)
         }
     }
 
     private fun fillSims() {
         viewModelScope.launch(Dispatchers.IO) {
-            simManager.flowInstalledSims(false).collect {
+            simManager.flowInstalledSims().collect {
                 _sims.postValue(it)
             }
         }

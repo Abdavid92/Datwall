@@ -2,19 +2,21 @@ package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
-import com.smartsolutions.paquetes.micubacel.models.DataBytes
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import javax.inject.Inject
 import kotlin.math.abs
-import com.smartsolutions.paquetes.micubacel.models.DataBytes.DataType
+import com.smartsolutions.paquetes.repositories.models.DataBytes.DataType
 import org.apache.commons.lang.time.DateUtils
 
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
-    private val simManager: SimManager
+    private val simManager: ISimManager
 ) : IUserDataBytesManager {
 
     override suspend fun addDataBytes(dataPackage: DataPackage, simId: String) {
@@ -68,7 +70,7 @@ class UserDataBytesManager @Inject constructor(
 
     override suspend fun registerTraffic(rxBytes: Long, txBytes: Long, nationalBytes: Long, isLte: Boolean) {
 
-        val sim = simManager.getDefaultDataSim()
+        val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
         var total = rxBytes + txBytes
 
         if (nationalBytes > 0) {

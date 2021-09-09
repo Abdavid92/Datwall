@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.material.snackbar.Snackbar
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
@@ -22,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.reflect.KClass
 
 @HiltViewModel
 class PackagesConfigurationViewModel @Inject constructor(
@@ -49,7 +49,7 @@ class PackagesConfigurationViewModel @Inject constructor(
             try {
                 dataPackageManager.configureDataPackages()
 
-                val defaultSim = simManager.getDefaultVoiceSim()
+                val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)
                 lastNetworkResult = defaultSim.network
 
                 _configurationResult.postValue(Result.Success(defaultSim))
@@ -131,7 +131,7 @@ class PackagesConfigurationViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             dataPackageManager.setDataPackagesManualConfiguration(network)
 
-            _configurationResult.postValue(Result.Success(simManager.getDefaultVoiceSim()))
+            _configurationResult.postValue(Result.Success(simManager.getDefaultSim(SimDelegate.SimType.VOICE)))
         }
     }
 }

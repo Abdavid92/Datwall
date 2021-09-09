@@ -1,13 +1,11 @@
 package com.smartsolutions.paquetes.managers
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.net.ConnectivityManager
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import org.apache.commons.lang.time.DateUtils
 import java.util.*

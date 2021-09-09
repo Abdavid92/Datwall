@@ -6,7 +6,6 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.data.DbContext
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
@@ -35,8 +34,7 @@ class DataPackageManager @Inject constructor(
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
     private val simManager: ISimManager,
-    private val simRepository: ISimRepository,
-    private val miCubacelManager: IMiCubacelManager
+    private val simRepository: ISimRepository
 ): IDataPackageManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -87,7 +85,7 @@ class DataPackageManager @Inject constructor(
         var enabledLte = false
 
         //Linea predeterminada para llamadas
-        val defaultSim = simManager.getDefaultVoiceSim()
+        val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)
 
         plainsResultText?.let {
             val text = it.string()
@@ -117,7 +115,7 @@ class DataPackageManager @Inject constructor(
     }
 
     override suspend fun setDataPackagesManualConfiguration(network: String) {
-        val defaultSim = simManager.getDefaultVoiceSim().apply {
+        val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE).apply {
             this.network = network
 
             //Fecha en la que se configuró esta linea.
@@ -129,7 +127,7 @@ class DataPackageManager @Inject constructor(
 
     override suspend fun isConfiguredDataPackages(): Boolean {
         return try {
-            simManager.getDefaultVoiceSim()
+            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
                 .network != Networks.NETWORK_NONE
         } catch (e: IllegalStateException) {
             false
@@ -162,9 +160,10 @@ class DataPackageManager @Inject constructor(
     override suspend fun registerDataPackage(smsBody: String, simIndex: Int) {
 
         val defaultSim = if (simIndex == -1)
-            simManager.getDefaultVoiceSim()
+            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
         else
-            simManager.getSimByIndex(simIndex)
+            simManager.getSimBySlotIndex(simIndex) ?:
+            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
 
         if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
             val bytes = getBytesFromText("Bonos: ", smsBody)
@@ -194,35 +193,6 @@ class DataPackageManager @Inject constructor(
             IDataPackageManager.ConnectionMode.USSD
         )
     }
-
-    /*private suspend fun buyDataPackageForMiCubacel(dataPackage: DataPackage, sim: Sim) {
-        if (sim.miCubacelAccount == null)
-            throw NoSuchElementException(context.getString(R.string.account_not_found))
-
-
-        val result = miCubacelManager.getProducts(sim.miCubacelAccount!!)
-
-        var found = false
-
-        for (group in result.getOrThrow()) {
-            val product = group.firstOrNull { it.id == dataPackage.id }
-
-            if (product != null) {
-                found = true
-                miCubacelManager.buyProduct(product.urlBuy, sim.miCubacelAccount!!)
-
-                purchasedPackagesManager.newPurchased(
-                    dataPackage.id,
-                    sim.id,
-                    IDataPackageManager.ConnectionMode.MiCubacel
-                )
-                break
-            }
-        }
-
-        if (!found)
-            throw NoSuchElementException(context.getString(R.string.product_not_found))
-    }*/
 
     private fun buildUssd(dataPackage: DataPackage): String {
 

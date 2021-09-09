@@ -5,10 +5,11 @@ import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.helpers.getBytesFromText
 import com.smartsolutions.paquetes.managers.contracts.*
-import com.smartsolutions.paquetes.micubacel.models.DataBytes
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,13 +21,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.NoSuchElementException
 import kotlin.coroutines.CoroutineContext
 
 class SynchronizationManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val miCubacelManager: IMiCubacelManager,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
     private val simManager: ISimManager,
@@ -78,7 +77,7 @@ class SynchronizationManager @Inject constructor(
             data.addAll(obtainDataBytesPackages(bytesPackages))
             data.addAll(obtainDataByteBonus(bonusPackages))
 
-            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), simManager.getDefaultVoiceSim().id)
+            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), simManager.getDefaultSim(SimDelegate.SimType.VOICE).id)
         }
 
         simRepository.update(sim.apply {
@@ -271,7 +270,7 @@ class SynchronizationManager @Inject constructor(
                     val sim = if (simID != null && simID != "null"){
                         simRepository.get(simID, true)
                     }else {
-                        simManager.getDefaultDataSim(true)
+                        simManager.getDefaultSim(SimDelegate.SimType.DATA, true)
                     }
 
                     sim?.let {

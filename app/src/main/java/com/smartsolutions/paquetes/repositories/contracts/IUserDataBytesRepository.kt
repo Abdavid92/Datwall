@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.repositories.contracts
 
-import com.smartsolutions.paquetes.micubacel.models.DataBytes
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import kotlinx.coroutines.flow.Flow
 

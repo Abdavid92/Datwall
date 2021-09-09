@@ -1,10 +1,7 @@
 package com.smartsolutions.paquetes.helpers
 
 import androidx.annotation.IntDef
-import com.smartsolutions.paquetes.managers.SimManager
-import com.smartsolutions.paquetes.managers.UserDataBytesManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang.time.DateUtils
@@ -84,7 +81,7 @@ class NetworkUsageUtils @Inject constructor(
             }
             PERIOD_PACKAGE -> {
                 runBlocking {
-                    userDataBytesRepository.bySimId(simManager.getDefaultDataSim().id).firstOrNull { it.exists() && !it.isExpired()}?.let {
+                    userDataBytesRepository.bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id).firstOrNull { it.exists() && !it.isExpired()}?.let {
                         return@let Pair(it.startTime, currentTime)
                     }
                     return@runBlocking Pair(0L, 0L)

@@ -3,7 +3,6 @@ package com.smartsolutions.paquetes.watcher
 import android.net.TrafficStats
 import android.os.Build
 import android.util.Log
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import dagger.Lazy
@@ -18,8 +17,7 @@ import kotlin.coroutines.CoroutineContext
 class RxWatcher @Inject constructor(
     private val packageMonitor: Lazy<PackageMonitor>,
     private val watcherUtils: WatcherUtils,
-    private val appRepository: IAppRepository,
-    private val simManager: ISimManager
+    private val appRepository: IAppRepository
 ) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -66,8 +64,6 @@ class RxWatcher @Inject constructor(
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                         packageMonitor.get().synchronizeDatabase()
-
-                    simManager.synchronizeDatabase()
 
                     getCurrentApp()
 

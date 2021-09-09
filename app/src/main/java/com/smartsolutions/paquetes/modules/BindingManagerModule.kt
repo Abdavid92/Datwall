@@ -18,16 +18,10 @@ interface BindingManagerModule {
     fun bindIIconManager(impl: IconManager): IIconManager
 
     @Binds
-    fun bindIMiCubacelManager(impl: MiCubacelManager): IMiCubacelManager
-
-    @Binds
     fun bindIPurchasedPackagesManager(impl: PurchasedPackagesManager): IPurchasedPackagesManager
 
     @Binds
-    fun bindISimManager(impl: SimManager): ISimManager
-
-    @Binds
-    fun bindISimManagerNew(impl: SimManagerNew): ISimManagerNew
+    fun bindISimManagerNew(impl: SimManager): ISimManager
 
     @Binds
     fun bindIStatisticsManager(impl: StatisticsManager): IStatisticsManager

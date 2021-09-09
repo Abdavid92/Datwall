@@ -1,10 +1,10 @@
 package com.smartsolutions.paquetes.watcher
 
-import android.content.Context
 import android.net.TrafficStats
 import android.os.Build
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtils
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
@@ -13,7 +13,6 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -78,22 +77,24 @@ class TrafficRegistration @Inject constructor(
             launch {
                 watcher.bandWithFlow.collect {
 
-                    val currentTime = System.currentTimeMillis()
+                    if (it.first > 0 || it.second > 0) {
+                        val currentTime = System.currentTimeMillis()
 
-                    /*Este método se le debe pasar el currentTime como argumento porque
+                        /*Este método se le debe pasar el currentTime como argumento porque
                      el se demora un poco en hacer su trabajo y se pueden crear discordancias
                      en el tiempo por esta demora.*/
-                    registerLollipopTraffic(
-                        it.first,
-                        it.second,
-                        currentTime
-                    )
+                        registerLollipopTraffic(
+                            it.first,
+                            it.second,
+                            currentTime
+                        )
 
-                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
-                        val start = lastTime
-                        lastTime = currentTime
+                        if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
+                            val start = lastTime
+                            lastTime = currentTime
 
-                        registerTraffic(start)
+                            registerTraffic(start)
+                        }
                     }
                 }
             }
@@ -147,7 +148,7 @@ class TrafficRegistration @Inject constructor(
         val traffics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             networkUsageManager.getAppsUsage(startTime, System.currentTimeMillis())
         } else {
-            val sim = simManager.getDefaultDataSim()
+            val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
             val traffics = mutableListOf<Traffic>()
 
             apps.forEach { app ->
@@ -196,7 +197,7 @@ class TrafficRegistration @Inject constructor(
                 NetworkUsageManager.GENERAL_TRAFFIC_UID,
                 rx,
                 tx,
-                simManager.getDefaultDataSim().id
+                simManager.getDefaultSim(SimDelegate.SimType.DATA).id
             ).apply {
                 startTime = currentTime - DateUtils.MILLIS_PER_SECOND
                 endTime = currentTime

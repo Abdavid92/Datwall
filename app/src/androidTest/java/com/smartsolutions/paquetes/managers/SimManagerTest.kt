@@ -3,7 +3,7 @@ package com.smartsolutions.paquetes.managers
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 
@@ -28,12 +28,17 @@ class SimManagerTest {
 
     @Test
     fun flowInstalledSims() {
-        runBlocking {
-            val sims = simManager.flowInstalledSims(false)
-                .first()
 
-            assertNotNull(sims)
-            assertFalse(sims.isEmpty())
+        runBlocking {
+
+            simManager.flowInstalledSims().collect {
+
+                assertNotNull(it)
+
+                assertFalse(it.isNotEmpty())
+
+            }
+
         }
     }
 }

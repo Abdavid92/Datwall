@@ -4,10 +4,11 @@ import android.content.Context
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
-import com.smartsolutions.paquetes.micubacel.models.DataBytes
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
@@ -45,7 +46,7 @@ class StatisticsManager @Inject constructor(
         if (timeUnit.ordinal < TimeUnit.HOURS.ordinal)
             throw IllegalArgumentException()
 
-        val sim = simManager.getDefaultDataSim()
+        val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
 
         val enabledLte = context.dataStore.data.firstOrNull()
             ?.get(PreferencesKeys.ENABLED_LTE) ?: false

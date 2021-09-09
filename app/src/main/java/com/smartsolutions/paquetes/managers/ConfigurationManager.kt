@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
 import android.os.Build
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
@@ -40,15 +41,15 @@ class ConfigurationManager @Inject constructor(
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
             Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP &&
-            simManager.isInstalledSeveralSims()) {
+            simManager.isSeveralSimsInstalled()) {
             list.add(
                 Configuration(
                     true,
                     simConfigurationFragment,
                     {
                         try {
-                            simManager.getDefaultDataSim()
-                            simManager.getDefaultVoiceSim()
+                            simManager.getDefaultSim(SimDelegate.SimType.DATA)
+                            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
 
                             return@Configuration true
                         } catch (e: IllegalStateException) {

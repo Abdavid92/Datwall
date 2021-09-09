@@ -2,14 +2,13 @@ package com.smartsolutions.paquetes.repositories
 
 import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.data.IUserDataBytesDao
-import com.smartsolutions.paquetes.micubacel.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import com.smartsolutions.paquetes.micubacel.models.DataBytes.DataType
+import com.smartsolutions.paquetes.repositories.models.DataBytes.DataType
 
 class UserDataBytesRepository @Inject constructor(
     private val userDataBytesDao: IUserDataBytesDao,

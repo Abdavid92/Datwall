@@ -1,88 +1,72 @@
 package com.smartsolutions.paquetes.managers.contracts
 
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.models.Sim
 import kotlinx.coroutines.flow.Flow
-import kotlin.jvm.Throws
 
 interface ISimManager {
-    /**
-     * Obtiene la linea predeterminada para llamadas. Si la versión de
-     * las apis android es 24 o mayor obtendrá la predeterminada del sistema.
-     * De lo contrario obtendrá la que se estableció como predeterminada manualmente
-     * mediante el método [setDefaultVoiceSim]. Si es android 23 o 22 y no existe ninguna
-     * linea establecida como predeterminada se lanza un [IllegalStateException].
-     *
-     * @param withRelations - Indica si se debe obtener la linea con sus relaciones foráneas.
-     *
-     * @return [Sim]
-     * */
-    @Throws(MissingPermissionException::class)
-    suspend fun getDefaultVoiceSim(withRelations: Boolean = false): Sim
 
     /**
-     * Establece la linea predeterminada para las llamadas. Esto se usa
-     * solamente en las apis 23 y 22 ya que no se pueden obtener
-     * mediante el sistema.
-     *
-     * @param sim - Linea que se establecerá como predeterminada.
-     * */
-    suspend fun setDefaultVoiceSim(sim: Sim)
+     * Verifica que existan dos subscriptionInfo activos
+     * @return  - true si hay mas de una Sim instalada
+     */
+    fun isSeveralSimsInstalled(): Boolean
 
     /**
-     * Obtiene la linea predeterminada para los datos. Si la versión de
-     * las apis android es 24 o mayor obtendrá la predeterminada del sistema.
-     * De lo contrario obtendrá la que se estableció como predeterminada manualmente
-     * mediante el método [setDefaultDataSim]. Si es android 23 o 22 y no existe ninguna
-     * linea establecida como predeterminada se lanza un [IllegalStateException].
+     * Busca las lineas que están activas, las crea si no existen en el repositorio o sincroniza sus
+     * valores con el sistema y actualiza el repositorio
      *
-     * @param withRelations - Indica si se debe obtener la linea con sus relaciones foráneas.
+     * @param relations - Indica si se devuelven las sim con sus relaciones foráneas
      *
-     * @return [Sim]
-     * */
-    @Throws(MissingPermissionException::class)
-    suspend fun getDefaultDataSim(withRelations: Boolean = false): Sim
+     * @return - La lista de todas las Sim instaladas con los valores actuales
+     **/
+    suspend fun getInstalledSims(relations: Boolean = false): List<Sim>
 
     /**
-     * Establece la linea predeterminada para los datos. Esto se usa
-     * solamente en las apis 23 y 22 ya que no se pueden obtener
-     * mediante el sistema.
-     *
-     * @param sim - Linea que se establecerá como predeterminada.
-     * */
-    suspend fun setDefaultDataSim(sim: Sim)
+     * Obtiene la línea que esta marcada como predeterminada para el tipo dado
+     * @param type - El tipo de Sim predeterminada que se quiere obtener [SimDelegate.SimType.DATA]
+     * o [SimDelegate.SimType.VOICE]
+     * @param relations - Indica si se devuelven las sim con las relaciones foráneas
+     * @return - En los SDK 24 o superiores se retorna la Sim predeterminada por el Sistema para el tipo dado,
+     * en SDK 23 o inferior se retorna la Sim marcada como predeterminada en el reporsitorio
+     * @throws IllegalStateException - Si en SDK 23 o inferior no existe una Sim marcada como
+     * predeterminada en el repositorio o hay mas de una Sim marcada como predeterminada
+     */
+    suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean = false): Sim
 
     /**
-     * Indica si hay más de una linea instalada.
-     * */
-    @Throws(MissingPermissionException::class)
-    suspend fun isInstalledSeveralSims(): Boolean
+     * Establece en el repositorio la Sim dada como predeterminada para el tipo dado. Esta función
+     * solamente es necesaria en SDK 23 o inferior
+     * @param type - El tipo que se establecerá como predeterminado [SimDelegate.SimType.DATA] o
+     * [SimDelegate.SimType.VOICE]
+     * @param sim - La Sim que se establece el valor predeterminado
+     */
+    suspend fun setDefaultSim(type: SimDelegate.SimType, sim: Sim)
 
     /**
-     * Obtiene todas las lineas instaladas.
-     *
-     * @return [List]
-     * */
-    @Throws(MissingPermissionException::class)
-    suspend fun getInstalledSims(withRelations: Boolean = false): List<Sim>
-
-    @Throws(MissingPermissionException::class)
-    fun flowInstalledSims(withRelations: Boolean): Flow<List<Sim>>
+     * Obtiene la Sim instalada que se encuentre en el slot dado
+     * @param slotIndex - El índice de la ranura donde está la Sim
+     * @param relations - Indica si se devuelve la Sim con las relaciones foráneas
+     * @return - La Sim que se encuentra instalada en la ranura o null si no hay ninguna
+     */
+    suspend fun getSimBySlotIndex(slotIndex: Int, relations: Boolean = false): Sim?
 
     /**
-     * Obtiene una linea por el índice.
-     *
-     * @param simIndex - Índice en base a 1 de la linea. Normalmente este es el
-     * slot donde está instalada.
-     * @param withRelations - Indica si se debe obtener la linea con sus relaciones foráneas.
-     *
-     * @return [Sim]
-     * */
-    @Throws(MissingPermissionException::class)
-    suspend fun getSimByIndex(simIndex: Int, withRelations: Boolean = false): Sim
+     * Conección con el repositorio de Sim. Se dispara cada vez que se produce un cambio en el mismo
+     * @param relations - Indica si se devueve la Sim con las relaciones foráneas
+     * @return - Un Flow conectado al repositorio que contiene solamente las Sim instaldas actualizadas
+     */
+    suspend fun flowInstalledSims(relations: Boolean = false): Flow<List<Sim>>
 
     /**
-     * Detecta si hubo cambios en las lineas y los aplica en la base de datos.
+     * Registra un oyente para detectar cualquier cambio que se produzca con las sims.
      * */
-    suspend fun synchronizeDatabase()
+    fun registerSubscriptionChangedListener()
+
+    /**
+     * Quita el registro del oyente de los cambios de sims.
+     * */
+    fun unregisterSubscriptionChangedListener()
 }
