@@ -23,7 +23,6 @@ const val DATABASE_VERSION = 1
     DataPackage::class,
     PurchasedPackage::class,
     Sim::class,
-    MiCubacelAccount::class,
     UserDataBytes::class,
     Traffic::class], version = DATABASE_VERSION, exportSchema = false)
 abstract class DbContext: RoomDatabase() {
@@ -47,8 +46,6 @@ abstract class DbContext: RoomDatabase() {
      * @return Data Access Object para consultar la tabla sims.
      * */
     abstract fun getSimDao(): ISimDao
-
-    abstract fun getMiCubacelAccountDao(): IMiCubacelAccountDao
 
     abstract fun getUserDataBytesDao(): IUserDataBytesDao
 

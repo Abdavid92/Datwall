@@ -151,6 +151,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <provider
+            android:authorities="${applicationId}.workmanager-init"
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            tools:node="remove" />
     </application>
 
 </manifest>

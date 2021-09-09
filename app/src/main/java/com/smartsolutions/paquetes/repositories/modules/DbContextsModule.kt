@@ -29,9 +29,6 @@ object DbContextsModule {
     fun provideISimDao(dbContext: DbContext) = dbContext.getSimDao()
 
     @Provides
-    fun provideIMiCubacelAccountDao(dbContext: DbContext) = dbContext.getMiCubacelAccountDao()
-
-    @Provides
     fun provideITrafficDao(dbContext: DbContext) = dbContext.getTrafficDao()
 
     @Provides

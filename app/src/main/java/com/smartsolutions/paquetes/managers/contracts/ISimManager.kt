@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.managers.contracts
 
 import android.os.Build
+import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.models.Sim

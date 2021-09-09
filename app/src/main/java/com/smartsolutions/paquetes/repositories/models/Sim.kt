@@ -71,12 +71,6 @@ data class Sim(
     @Ignore
     var packages = emptyList<DataPackage>()
 
-    /**
-     * Cuenta de mi.cubacel.net. Si es null significa que no tiene cuenta.
-     * */
-    @Ignore
-    var miCubacelAccount: MiCubacelAccount? = null
-
     @Ignore
     var slotIndex: Int = 1
 

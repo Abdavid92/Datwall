@@ -1,11 +1,9 @@
 package com.smartsolutions.paquetes.repositories
 
-import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_3G_4G
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
 import com.smartsolutions.paquetes.data.IDataPackageDao
-import com.smartsolutions.paquetes.data.IMiCubacelAccountDao
 import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -16,8 +14,7 @@ import javax.inject.Inject
 
 class SimRepository @Inject constructor(
     private val simDao: ISimDao,
-    private val dataPackageDao: IDataPackageDao,
-    private val miCubacelAccountDao: IMiCubacelAccountDao
+    private val dataPackageDao: IDataPackageDao
 ) : ISimRepository {
 
     override suspend fun create(sim: Sim) {
@@ -83,10 +80,6 @@ class SimRepository @Inject constructor(
         }
 
         sim.packages = packages
-
-        miCubacelAccountDao.get(sim.id)?.let {
-            sim.miCubacelAccount = it
-        }
 
         return sim
     }

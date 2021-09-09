@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes
 
 import android.app.Application
+import androidx.annotation.RestrictTo
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
@@ -35,6 +36,9 @@ class DatwallApplication : Application(), Configuration.Provider {
      * Indica si el servicio está listo para trabajar.
      * */
     var uiScannerServiceReady = false
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    var kernel: DatwallKernel? = null
 
 
     override fun onCreate() {

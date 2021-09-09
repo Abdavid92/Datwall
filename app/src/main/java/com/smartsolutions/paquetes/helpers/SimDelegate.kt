@@ -4,15 +4,19 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Handler
 import android.os.Looper
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.ExecutorCompat
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.jvm.Throws
 
@@ -98,12 +102,14 @@ class SimDelegate @Inject constructor(
         else
             subscriptionInfo.iccId
 
+    @MainThread
     fun addOnSubscriptionsChangedListener(
         listener: SubscriptionManager.OnSubscriptionsChangedListener
     ) {
         subscriptionManager.addOnSubscriptionsChangedListener(listener)
     }
 
+    @MainThread
     fun removeOnSubscriptionsChangedListener(
         listener: SubscriptionManager.OnSubscriptionsChangedListener
     ) {

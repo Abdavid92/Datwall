@@ -24,9 +24,6 @@ interface RepositoriesModule {
     fun bindIUserDataBytesRepository(impl: UserDataBytesRepository): IUserDataBytesRepository
 
     @Binds
-    fun bindIMiCubacelAccountRepository(impl: MiCubacelAccountRepository): IMiCubacelAccountRepository
-
-    @Binds
     fun bindISimRepository(impl: SimRepository): ISimRepository
 
     @Binds

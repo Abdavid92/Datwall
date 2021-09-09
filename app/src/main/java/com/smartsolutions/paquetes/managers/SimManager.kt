@@ -2,6 +2,8 @@ package com.smartsolutions.paquetes.managers
 
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import androidx.annotation.RequiresApi
@@ -31,15 +33,29 @@ class SimManager @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    private val simChangeListener by lazy {
+
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+        object : SubscriptionManager.OnSubscriptionsChangedListener() {
+
+            override fun onSubscriptionsChanged() {
+
+                launch {
+                    getInstalledSims()
+                }
+            }
+        }
+    }
+
+    /*@RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     private val simChangeListener = object : SubscriptionManager.OnSubscriptionsChangedListener() {
         override fun onSubscriptionsChanged() {
-            super.onSubscriptionsChanged()
+
             launch {
                 getInstalledSims()
             }
         }
-    }
+    }*/
 
     override fun isSeveralSimsInstalled(): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP){
@@ -114,7 +130,10 @@ class SimManager @Inject constructor(
 
     override fun registerSubscriptionChangedListener() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && !isRegistered) {
-            simDelegate.addOnSubscriptionsChangedListener(simChangeListener)
+            Handler(Looper.getMainLooper())
+                .post {
+                    simDelegate.addOnSubscriptionsChangedListener(simChangeListener)
+                }
             isRegistered = true
         }
     }

@@ -8,7 +8,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
@@ -54,10 +57,6 @@ class DatwallKernel @Inject constructor(
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
-
-    private var updateApplicationStatusJob: Job? = null
-    private var bubbleOn = false
-    private var firewallOn = false
 
     init {
         launch {
@@ -288,6 +287,7 @@ class DatwallKernel @Inject constructor(
      * */
     @Suppress("DEPRECATION")
     private fun registerBroadcastsAndCallbacks() {
+
         //Detecta los cambios de las Sim
         simManager.registerSubscriptionChangedListener()
 
@@ -516,5 +516,11 @@ class DatwallKernel @Inject constructor(
                 )
             }.build()
         )
+    }
+
+    companion object {
+        private var updateApplicationStatusJob: Job? = null
+        private var bubbleOn = false
+        private var firewallOn = false
     }
 }
