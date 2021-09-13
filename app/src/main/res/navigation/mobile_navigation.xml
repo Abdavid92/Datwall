@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_dashboard">
+    app:startDestination="@+id/navigation_resume">
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.smartsolutions.paquetes.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/navigation_usage"
+        android:name="com.smartsolutions.paquetes.ui.usage.UsageFragment"
+        android:label="@string/title_usage"
+        tools:layout="@layout/fragment_usage"/>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -18,20 +18,27 @@
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
+        android:id="@+id/navigation_resume"
+        android:name="com.smartsolutions.paquetes.ui.resume.ResumeFragment"
+        android:label="@string/title_resume"
+        tools:layout="@layout/fragment_resume" />
+
+    <fragment
         android:id="@+id/navigation_apps"
         android:name="com.smartsolutions.paquetes.ui.applications.ApplicationsFragment"
         android:label="@string/title_applications"
         tools:layout="@layout/fragment_applications" />
 
-   <fragment
-       android:id="@+id/navigation_usage"
-       android:name="com.smartsolutions.paquetes.ui.usage.UsageFragment"
-       android:label="@string/title_usage"
-       tools:layout="@layout/fragment_usage"/>
+    <fragment
+        android:id="@+id/navigation_packages"
+        android:name="com.smartsolutions.paquetes.ui.packages.PackagesFragment"
+        android:label="@string/title_packages"
+        tools:layout="@layout/fragment_packages" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.smartsolutions.paquetes.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_settings"
+        android:name="com.smartsolutions.paquetes.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
+
 </navigation>

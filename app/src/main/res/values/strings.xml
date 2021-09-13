@@ -143,4 +143,8 @@
     <string name="title_usage">Consumo</string>
     <string name="battery_optimization_permission">Permiso de optimización de batería</string>
     <string name="battery_optimization_permission_description">Descripción del permiso de optimización de batería.</string>
+    <string name="title_more">Más</string>
+    <string name="title_resume">Resumen</string>
+    <string name="title_packages">Paquetes</string>
+    <string name="title_settings">Ajustes</string>
 </resources>
