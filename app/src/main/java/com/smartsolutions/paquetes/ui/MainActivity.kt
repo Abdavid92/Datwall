@@ -1,37 +1,32 @@
 package com.smartsolutions.paquetes.ui
 
-import android.content.Intent
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.Gravity
 import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GravityCompat
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
+import com.smartsolutions.paquetes.databinding.ActivityMainBinding
 import com.smartsolutions.paquetes.managers.SynchronizationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
-import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(R.layout.activity_main), NavigationBarView.OnItemSelectedListener {
+class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListener {
 
-    private lateinit var navView: BottomNavigationView
     private lateinit var navController: NavController
+
+    private lateinit var binding: ActivityMainBinding
 
     private var ignoreNavigate = false
 
@@ -44,9 +39,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), NavigationBarVie
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //setSupportActionBar(findViewById(R.id.toolbar))
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        navView = findViewById(R.id.nav_view)
+        //setSupportActionBar(findViewById(R.id.toolbar))
 
         navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
@@ -56,11 +52,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), NavigationBarVie
         ))*/
 
         //setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        binding.navView.setupWithNavController(navController)
+        binding.navView.setOnItemSelectedListener(this)
 
         handleIntent()
-
-        navView.setOnItemSelectedListener(this)
 
         //startService(Intent(this, BubbleFloatingService::class.java))
     }
@@ -112,6 +107,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), NavigationBarVie
 
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
@@ -119,14 +115,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), NavigationBarVie
 
         if (id == R.id.navigation_more) {
 
-            val popup = PopupMenu(this, navView, GravityCompat.END)
+            val popup = PopupMenu(this, binding.navView, GravityCompat.END)
             popup.inflate(R.menu.more_nav_menu)
+            popup.forcePopUpMenuToShowIcons()
             popup.setOnDismissListener {
                 navController.currentDestination?.let {
                     if (changeIgnoredNavigation)
                         ignoreNavigate = true
 
-                    navView.selectedItemId = it.id
+                    binding.navView.selectedItemId = it.id
                 }
             }
             popup.setOnMenuItemClickListener { menuItem ->
@@ -134,6 +131,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), NavigationBarVie
                 navController.navigate(menuItem.itemId)
                 return@setOnMenuItemClickListener true
             }
+
             popup.show()
         } else {
             if (!ignoreNavigate)
@@ -148,5 +146,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), NavigationBarVie
         const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
         const val EXTRA_FRAGMENT = "extra_fragment"
         const val FRAGMENT_UPDATE_DIALOG = "fragment_update_dialog"
+    }
+}
+
+@SuppressLint("RestrictedApi")
+fun PopupMenu.forcePopUpMenuToShowIcons() {
+    try {
+        (menu as MenuBuilder).setOptionalIconsVisible(true)
+    } catch (e: Exception) {
+
     }
 }
