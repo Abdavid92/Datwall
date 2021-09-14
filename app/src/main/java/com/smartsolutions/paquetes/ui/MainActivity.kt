@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -9,21 +8,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GravityCompat
-import androidx.core.view.children
-import androidx.core.view.forEach
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationBarView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.databinding.ActivityMainBinding
-import com.smartsolutions.paquetes.managers.SynchronizationManager
-import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
-import com.smartsolutions.paquetes.serverApis.models.AndroidApp
-import com.smartsolutions.paquetes.ui.settings.UpdateFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListener {
@@ -32,34 +24,19 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
 
     private lateinit var binding: ActivityMainBinding
 
-    @Inject
-    lateinit var synchronizationManager: SynchronizationManager
-
-    @Inject
-    lateinit var updateManager: IUpdateManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //setSupportActionBar(findViewById(R.id.toolbar))
-
         navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        /*val appBarConfiguration = AppBarConfiguration(setOf(
-            R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
-        ))*/
 
-        //setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
+
+                binding.navView.setupWithNavController(navController)
         binding.navView.setOnItemSelectedListener(this)
 
         handleIntent()
-
-        //startService(Intent(this, BubbleFloatingService::class.java))
     }
 
 
@@ -70,7 +47,7 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
                 intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
                     when(extra) {
                         FRAGMENT_UPDATE_DIALOG -> {
-                            testDownload()
+                            //TODO: Crear un método que saque el diálogo de las actualizaciones
                         }
                         else -> {
 
@@ -79,34 +56,6 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
                 }
             }
         }
-    }
-
-    fun testDownload() {
-
-        val androidApp = AndroidApp(
-            12,
-            "Covid",
-            "Jefferson.covid19.world.data",
-            1,
-            4,
-            "4.2.0",
-            AndroidApp.UpdatePriority.High,
-            "Se mejoro mucho esto de las actualizaciones\nAhora todo funciona mucho mejor\nClaro por lo menos en las pruebas que hemos realizado",
-            ApplicationStatus.DISCONTINUED,
-            false,
-            trialPeriod = 12,
-            12,
-            "",
-            "",
-            "",
-            ""
-        )
-        //archive.apklis.cu/application/apk/Jefferson.covid19.world.data-v4.apk
-
-        val dialog = UpdateFragment(androidApp)
-
-        dialog.show(supportFragmentManager, "UpdateDialog")
-
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -124,14 +73,19 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
                 }
             }
             popup.setOnMenuItemClickListener { menuItem ->
-                navController.navigate(menuItem.itemId)
-                return@setOnMenuItemClickListener true
+                if (navController.currentDestination?.id != menuItem.itemId)
+                    return@setOnMenuItemClickListener NavigationUI
+                        .onNavDestinationSelected(menuItem, navController)
+
+                return@setOnMenuItemClickListener false
             }
 
             popup.show()
         } else {
-            navController.navigate(id)
+            if (navController.currentDestination?.id != id)
+                return NavigationUI.onNavDestinationSelected(item, navController)
         }
+
         return true
     }
 
@@ -147,12 +101,4 @@ fun Menu.showIcons(show: Boolean) {
     try {
         (this as MenuBuilder).setOptionalIconsVisible(show)
     } catch (e: Exception) { }
-}
-
-fun Menu.firstOrNull(predicate: (item: MenuItem) -> Boolean): MenuItem? {
-    this.forEach {
-        if (predicate(it))
-            return it
-    }
-    return null
 }
