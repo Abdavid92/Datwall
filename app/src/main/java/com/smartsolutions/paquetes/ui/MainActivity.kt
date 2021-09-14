@@ -1,12 +1,16 @@
 package com.smartsolutions.paquetes.ui
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GravityCompat
+import androidx.core.view.children
+import androidx.core.view.forEach
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -27,8 +31,6 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
     private lateinit var navController: NavController
 
     private lateinit var binding: ActivityMainBinding
-
-    private var ignoreNavigate = false
 
     @Inject
     lateinit var synchronizationManager: SynchronizationManager
@@ -107,37 +109,28 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
 
     }
 
-    @SuppressLint("RestrictedApi")
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-
-        var changeIgnoredNavigation = true
 
         if (id == R.id.navigation_more) {
 
             val popup = PopupMenu(this, binding.navView, GravityCompat.END)
             popup.inflate(R.menu.more_nav_menu)
-            popup.forcePopUpMenuToShowIcons()
+            popup.menu.showIcons(true)
             popup.setOnDismissListener {
                 navController.currentDestination?.let {
-                    if (changeIgnoredNavigation)
-                        ignoreNavigate = true
-
-                    binding.navView.selectedItemId = it.id
+                    binding.navView.menu.findItem(it.id)
+                        ?.isChecked = true
                 }
             }
             popup.setOnMenuItemClickListener { menuItem ->
-                changeIgnoredNavigation = false
                 navController.navigate(menuItem.itemId)
                 return@setOnMenuItemClickListener true
             }
 
             popup.show()
         } else {
-            if (!ignoreNavigate)
-                navController.navigate(id)
-
-            ignoreNavigate = false
+            navController.navigate(id)
         }
         return true
     }
@@ -150,10 +143,16 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
 }
 
 @SuppressLint("RestrictedApi")
-fun PopupMenu.forcePopUpMenuToShowIcons() {
+fun Menu.showIcons(show: Boolean) {
     try {
-        (menu as MenuBuilder).setOptionalIconsVisible(true)
-    } catch (e: Exception) {
+        (this as MenuBuilder).setOptionalIconsVisible(show)
+    } catch (e: Exception) { }
+}
 
+fun Menu.firstOrNull(predicate: (item: MenuItem) -> Boolean): MenuItem? {
+    this.forEach {
+        if (predicate(it))
+            return it
     }
+    return null
 }
