@@ -64,7 +64,6 @@ class DashboardFragment : ApplicationFragment() {
 
     private fun testDownload() {
 
-        (activity as MainActivity).testDownload()
 
     }
 }

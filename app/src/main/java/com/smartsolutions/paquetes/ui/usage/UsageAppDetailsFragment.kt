@@ -1,13 +1,20 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import android.graphics.Canvas
+import android.opengl.ETC1
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.IMarker
+import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -16,6 +23,8 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.utils.MPPointF
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageAppDetailsBinding
 import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.helpers.UIHelper
@@ -27,6 +36,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import android.opengl.ETC1.getHeight
+
+import android.opengl.ETC1.getWidth
+
+
+
 
 const val ARG_APP = "app"
 const val ARG_PERIOD = "period"
@@ -36,11 +51,12 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
     @Inject
     lateinit var iconManager: IIconManager
-
     private lateinit var uiHelper: UIHelper
 
     private lateinit var binding: FragmentUsageAppDetailsBinding
     private val viewModel by viewModels<UsageAppDetailsViewModel>()
+
+    private var adapter: UsageAppDetailsRecyclerAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +65,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         binding = FragmentUsageAppDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val app = arguments?.getParcelable<App>(ARG_APP)
@@ -72,12 +89,15 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
         viewModel.getUsageByTime(app.uid).observe(viewLifecycleOwner, { result ->
             setLineChart(result.first, result.second)
+            setAdapter(result)
+            binding.progressBar.visibility = View.GONE
+            binding.lineChart.visibility = View.VISIBLE
         })
     }
 
 
     private fun configureLineChart() {
-        binding.lineChart.apply {
+        binding.lineChart.apply{
             description.isEnabled = false
             axisRight.isEnabled = false
             xAxis.apply {
@@ -91,6 +111,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
                 axisMinimum = 0f
             }
             setPinchZoom(true)
+            setDrawMarkers(true)
         }
     }
 
@@ -130,38 +151,59 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
                             SimpleDateFormat("hh aa", Locale.US).format(Date(value.toLong()))
                         }
                         NetworkUsageUtils.TimeUnit.DAY -> {
-                            "Dia " + SimpleDateFormat("dd", Locale.US).format(Date(value.toLong()))
+                          "Día " + SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong()))
                         }
                         NetworkUsageUtils.TimeUnit.MONTH -> {
-                            SimpleDateFormat("MMM", Locale.US).format(Date(value.toLong()))
+                            SimpleDateFormat("MMM", Locale.getDefault()).format(Date(value.toLong()))
                         }
                     }
                 }
             }
 
+            marker = object : MarkerView(requireContext(), R.layout.higlith_chart) {
 
-            setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+                private val text: TextView
+                init {
+                    text = findViewById(R.id.text_value)
+                }
 
-                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                override fun refreshContent(e: Entry?, highlight: Highlight?) {
                     val index = entries.indexOf(e)
                     if (index in 0..traffics.size) {
                         val bytes = traffics[index].totalBytes.getValue()
-                        Toast.makeText(
-                            context,
-                            "${Math.round(bytes.value * 100) / 100.0} ${bytes.dataUnit}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        text.text = "${bytes.value} ${bytes.dataUnit.name}"
                     }
+                    super.refreshContent(e, highlight)
                 }
 
-                override fun onNothingSelected() {
+                private var mOffset: MPPointF? = null
+
+                override fun getOffset(): MPPointF? {
+                    if (mOffset == null) {
+                        // center the marker horizontally and vertically
+                        mOffset = MPPointF(
+                            (-(getWidth() / 2)).toFloat(),
+                            (-getHeight()).toFloat()
+                        )
+                    }
+                    return mOffset
                 }
 
-            })
+            }
 
         }.invalidate()
     }
 
+
+    private fun setAdapter(traffics: Pair<List<Traffic>, NetworkUsageUtils.TimeUnit>){
+        if (adapter == null){
+            adapter = UsageAppDetailsRecyclerAdapter(traffics)
+            binding.recyclerUsage.adapter = adapter
+        }else {
+            adapter!!.traffics = traffics
+            adapter?.notifyDataSetChanged()
+        }
+    }
 
     companion object {
         fun newInstance(app: App): UsageAppDetailsFragment =
