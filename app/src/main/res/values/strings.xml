@@ -147,4 +147,5 @@
     <string name="title_resume">Resumen</string>
     <string name="title_packages">Paquetes</string>
     <string name="title_settings">Ajustes</string>
+    <string name="syncronize">Sincronizar</string>
 </resources>

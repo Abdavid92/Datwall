@@ -1,13 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.resume.ResumeFragment">
 
-    <TextView
+    <com.google.android.material.appbar.AppBarLayout
+        style="@style/Theme.Datwall.AppBarOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+       <androidx.appcompat.widget.Toolbar
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           app:layout_scrollFlags="scroll|enterAlways">
+
+           <androidx.appcompat.widget.LinearLayoutCompat
+               android:orientation="horizontal"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:gravity="end|center_vertical">
+
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_weight="1"
+                   android:text="@string/title_resume"
+                   android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                   android:textSize="20sp" />
+
+
+               <androidx.appcompat.widget.AppCompatImageButton
+                   style="@style/Widget.AppCompat.Button.Borderless"
+                   android:layout_width="50dp"
+                   android:layout_height="50dp"
+                   android:src="@drawable/ic_more_24"
+                   tools:ignore="SpeakableTextPresentCheck" />
+
+
+           </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+       </androidx.appcompat.widget.Toolbar>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            app:tabGravity="fill"
+            app:tabMode="auto"
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" />
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        tools:ignore="SpeakableTextPresentCheck" />
 
-</FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/floating_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:src="@drawable/ic_sync_24"
+        android:text="@string/syncronize"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:backgroundTint="@color/color_primary"
+        app:icon="@drawable/ic_sync_24"
+        app:iconPadding="8dp"
+        app:layout_anchor="@id/pager"
+        app:layout_anchorGravity="end|bottom"
+        tools:ignore="ContentDescription,ImageContrastCheck,SpeakableTextPresentCheck" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

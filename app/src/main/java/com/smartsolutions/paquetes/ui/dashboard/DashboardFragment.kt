@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.smartsolutions.paquetes.ui.ApplicationFragment
@@ -48,7 +49,7 @@ class DashboardFragment : ApplicationFragment() {
             textView.text = it
         })*/
 
-        view.findViewById<MaterialButton>(R.id.delete_one).setOnClickListener{
+        view.findViewById<AppCompatButton>(R.id.delete_one).setOnClickListener{
             testDownload()
         }
 
