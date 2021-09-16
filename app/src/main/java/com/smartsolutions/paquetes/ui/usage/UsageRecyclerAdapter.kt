@@ -25,25 +25,18 @@ class UsageRecyclerAdapter constructor(
 
     private val callBack = object : DiffUtil.Callback() {
         override fun getOldListSize(): Int {
-            //Se retorna el tamaño de la lista vieja
             return appsShow.size
         }
 
         override fun getNewListSize(): Int {
-            //Se retorna el tamaño de la lista nueva
             return this@UsageRecyclerAdapter.apps.size
         }
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            /*Se verifica si las dos instancias de app son iguales.
-            * No necesariamente debes usar el operador de igualdad. Puedes
-            * crear tu propio mecanismo de comparación para asegurarte
-            * que funcione bien.*/
             return appsShow[oldItemPosition].app == this@UsageRecyclerAdapter.apps[newItemPosition].app
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            /*Verifica si el contenido de las instancias son iguales*/
             return appsShow[oldItemPosition].app.traffic == this@UsageRecyclerAdapter.apps[newItemPosition].app.traffic
         }
     }
@@ -61,14 +54,10 @@ class UsageRecyclerAdapter constructor(
     fun updateApps(apps: List<UsageApp>){
         this.apps = apps
 
-        /*DiffUtil recibe un callback que usa para comparar cada item en el
-        * que itera. Retorna una instancia de DiffResult.*/
         val result = DiffUtil.calculateDiff(callBack, true)
 
         appsShow = apps.toMutableList()
 
-        /*DiffResult aplica los cambios al adaptador
-        con este método*/
         result.dispatchUpdatesTo(this)
     }
 

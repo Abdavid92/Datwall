@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.ui.usage
 
 import android.app.Application
 import android.graphics.Color
+import android.view.View
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
 import com.github.mikephil.charting.animation.Easing
@@ -192,6 +193,7 @@ class UsageViewModel @Inject constructor(
                     data = pieData
                     animateY(1000, Easing.EaseInOutCubic)
                 }.postInvalidate()
+                pieChart.visibility = View.VISIBLE
             }
         }
     }
