@@ -12,17 +12,13 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="buttonStyle">@style/PrimaryButton</item>
-        <item name="appBarLayoutStyle">@style/Theme.Datwall.AppBar</item>
-        <item name="cardViewStyle">@style/Theme.Datwall.CardView</item>
+        <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
+        <item name="cardViewStyle">@style/CardViewStyle</item>
+        <item name="actionBarStyle">@style/AppBarStyle</item>
     </style>
 
     <style name="WelcomeTheme" parent="WelcomeScreenTheme">
         <item name="welcomeButtonDoneText">OK</item>
-    </style>
-
-    <style name="BottomSheetDialog." parent="Theme.MaterialComponents.BottomSheetDialog">
-        <item name="cornerRadius">20dp</item>
     </style>
 
     <style name="Theme.Datwall.Fullscreen">
@@ -32,17 +28,12 @@
         <item name="splash_icon">@drawable/splash_screen</item>
     </style>
 
-    <style name="Theme.Datwall.NoActionBar">
+    <!--<style name="Theme.Datwall.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
+    </style>-->
 
     <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
-        <item name="background">@android:color/transparent</item>
-        <item name="elevation">0dp</item>
-    </style>
-
-    <style name="Theme.Datwall.AppBar">
         <item name="android:background">@android:color/transparent</item>
         <item name="elevation">0dp</item>
     </style>
@@ -59,11 +50,6 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition</item>
         <item name="android:windowSharedElementExitTransition">@transition/app_control_transition</item>
-        <item name="cardViewStyle">@style/Theme.Datwall.CardView</item>
-    </style>
-
-    <style name="Theme.Datwall.CardView">
-        <item name="cardCornerRadius">@dimen/card_view_radius</item>
-        <item name="cardElevation">@dimen/card_view_elevation</item>
+        <item name="cardViewStyle">@style/CardViewStyle</item>
     </style>
 </resources>

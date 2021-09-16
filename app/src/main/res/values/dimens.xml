@@ -3,7 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="card_view_radius">16dp</dimen>
-    <dimen name="card_view_elevation">0dp</dimen>
+    <dimen name="card_view_elevation">2dp</dimen>
     <dimen name="padding_top">88dp</dimen>
     <dimen name="list_item_spacing">16dp</dimen>
     <dimen name="list_item_spacing_half">8dp</dimen>
@@ -14,4 +14,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
     <dimen name="activity_horizontal_padding">0dp</dimen>
+    <dimen name="min_height_button">48dp</dimen>
+    <dimen name="min_width_button">88dp</dimen>
 </resources>

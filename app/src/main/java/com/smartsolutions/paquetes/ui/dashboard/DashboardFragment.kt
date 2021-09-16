@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
@@ -48,10 +49,6 @@ class DashboardFragment : ApplicationFragment() {
             textView.text = it
         })*/
 
-        view.findViewById<MaterialButton>(R.id.delete_one).setOnClickListener{
-            testDownload()
-        }
-
         dashboardViewModel.apps.observe(viewLifecycleOwner, {
             textView.text = "Cantidad de aplicaciones: ${it.size}"
         })
@@ -60,11 +57,5 @@ class DashboardFragment : ApplicationFragment() {
     private fun deleteOne(view: View) {
         SinglePermissionFragment.newInstance(34)
             .show(parentFragmentManager, "Single")
-    }
-
-    private fun testDownload() {
-
-        (activity as MainActivity).testDownload()
-
     }
 }
