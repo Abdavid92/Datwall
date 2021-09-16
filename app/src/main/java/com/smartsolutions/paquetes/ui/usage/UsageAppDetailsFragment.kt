@@ -44,7 +44,6 @@ import androidx.recyclerview.widget.RecyclerView
 
 
 const val ARG_APP = "app"
-const val ARG_PERIOD = "period"
 
 @AndroidEntryPoint
 class UsageAppDetailsFragment : BottomSheetDialogFragment() {
