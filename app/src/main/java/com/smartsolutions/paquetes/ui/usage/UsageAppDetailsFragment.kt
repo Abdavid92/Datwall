@@ -39,8 +39,8 @@ import javax.inject.Inject
 import android.opengl.ETC1.getHeight
 
 import android.opengl.ETC1.getWidth
-
-
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
 
 
 const val ARG_APP = "app"
@@ -198,6 +198,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
     private fun setAdapter(traffics: Pair<List<Traffic>, NetworkUsageUtils.TimeUnit>){
         if (adapter == null){
             adapter = UsageAppDetailsRecyclerAdapter(traffics)
+            binding.recyclerUsage.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
             binding.recyclerUsage.adapter = adapter
         }else {
             adapter!!.traffics = traffics
