@@ -45,10 +45,6 @@
         <item name="tabGravity">center</item>
     </style>
 
-    <style name="AlertDialogStyle" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/background_alert_dialog</item>
-    </style>
-
     <style name="Widget.Theme.Datwall.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
     </style>

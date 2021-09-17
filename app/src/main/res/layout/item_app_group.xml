@@ -5,7 +5,7 @@
     android:id="@+id/background_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="?android:attr/windowBackground"
     app:cardElevation="0dp"
     android:layout_margin="8dp"
     android:clickable="true"
@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/app_item"/>
+                tools:listitem="@layout/item_app"/>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

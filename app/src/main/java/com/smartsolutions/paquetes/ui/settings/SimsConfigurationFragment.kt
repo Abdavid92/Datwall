@@ -64,7 +64,7 @@ class SimsConfigurationFragment @Inject constructor(
             val layoutInflater = LayoutInflater.from(parent.context)
 
             val view = convertView ?: layoutInflater
-                .inflate(R.layout.sim_spinner_item, parent, false)
+                .inflate(R.layout.item_sim_spinner, parent, false)
 
             bindView(view, position)
 

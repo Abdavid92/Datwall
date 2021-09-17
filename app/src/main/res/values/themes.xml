@@ -14,11 +14,11 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:colorBackground">@color/background_light</item>
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
         <item name="appBarLayoutStyle">@style/AppBarStyle</item>
         <item name="tabStyle">@style/TabLayoutStyle</item>
-        <item name="alertDialogStyle">@style/AlertDialogStyle</item>
     </style>
 
     <style name="WelcomeTheme" parent="WelcomeScreenTheme">
@@ -28,8 +28,14 @@
     <style name="Theme.Datwall.Fullscreen">
         <item name="android:actionBarStyle">@style/Widget.Theme.Datwall.ActionBar.Fullscreen</item>
         <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">?attr/colorOnPrimary</item>
         <item name="splash_icon">@drawable/splash_screen</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+    </style>
+
+    <style name="Theme.Datwall.AlertDialogStyle" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/background_alert_dialog</item>
     </style>
 
     <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
