@@ -10,9 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.databinding.AppGroupItemBinding
-import com.smartsolutions.paquetes.databinding.AppItemBinding
-import com.smartsolutions.paquetes.databinding.HeaderItemBinding
+import com.smartsolutions.paquetes.databinding.ItemAppGroupBinding
+import com.smartsolutions.paquetes.databinding.ItemAppBinding
+import com.smartsolutions.paquetes.databinding.ItemHeaderBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
@@ -75,7 +75,7 @@ class AppsListAdapter constructor(
         return when (viewType) {
             APP_HOLDER_TYPE -> {
                 AppViewHolder(
-                    AppItemBinding.inflate(
+                    ItemAppBinding.inflate(
                         inflater,
                         parent,
                         false
@@ -84,7 +84,7 @@ class AppsListAdapter constructor(
             }
             APP_GROUP_HOLDER_TYPE -> {
                 AppGroupViewHolder(
-                    AppGroupItemBinding.inflate(
+                    ItemAppGroupBinding.inflate(
                         inflater,
                         parent,
                         false
@@ -93,7 +93,7 @@ class AppsListAdapter constructor(
             }
             else -> {
                 HeaderViewHolder(
-                    HeaderItemBinding.inflate(
+                    ItemHeaderBinding.inflate(
                         inflater,
                         parent,
                         false
@@ -213,7 +213,7 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [HeaderApp].
      * */
     private inner class HeaderViewHolder(
-        private val binding: HeaderItemBinding
+        private val binding: ItemHeaderBinding
     ) : AbstractViewHolder(binding.root) {
 
         override fun bind(app: IApp) {
@@ -225,7 +225,7 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [App].
      * */
     private inner class AppViewHolder(
-        private val binding: AppItemBinding
+        private val binding: ItemAppBinding
     ) : AbstractViewHolder(binding.root) {
 
         override fun bind(app: IApp) {
@@ -272,7 +272,7 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [AppGroup].
      * */
     private inner class AppGroupViewHolder(
-        private val binding: AppGroupItemBinding
+        private val binding: ItemAppGroupBinding
     ) : AbstractViewHolder(binding.root) {
 
         /**

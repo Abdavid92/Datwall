@@ -8,9 +8,9 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.databinding.AppGroupItemBinding
-import com.smartsolutions.paquetes.databinding.AppItemBinding
-import com.smartsolutions.paquetes.databinding.HeaderItemBinding
+import com.smartsolutions.paquetes.databinding.ItemAppGroupBinding
+import com.smartsolutions.paquetes.databinding.ItemAppBinding
+import com.smartsolutions.paquetes.databinding.ItemHeaderBinding
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -60,7 +60,7 @@ class AppsListAdapter(
         * */
         return when(viewType) {
             APP_HOLDER_TYPE -> {
-                AppViewHolder(AppItemBinding.inflate(
+                AppViewHolder(ItemAppBinding.inflate(
                     layoutInflater,
                     parent,
                     false
@@ -68,7 +68,7 @@ class AppsListAdapter(
             }
             APP_GROUP_HOLDER_TYPE -> {
                 AppGroupViewHolder(
-                    AppGroupItemBinding.inflate(
+                    ItemAppGroupBinding.inflate(
                         layoutInflater,
                         parent,
                         false
@@ -76,7 +76,7 @@ class AppsListAdapter(
                 )
             }
             else -> {
-                HeaderViewHolder(HeaderItemBinding.inflate(
+                HeaderViewHolder(ItemHeaderBinding.inflate(
                     layoutInflater,
                     parent,
                     false
@@ -202,7 +202,7 @@ class AppsListAdapter(
      * ViewHolder que procesa una instancia de [App].
      * */
     private inner class AppViewHolder(
-        private val binding: AppItemBinding,
+        private val binding: ItemAppBinding,
     ): ViewHolder(binding.root) {
 
         /**
@@ -250,7 +250,7 @@ class AppsListAdapter(
      * ViewHolder que procesa una instancia de [AppGroup]
      * */
     private inner class AppGroupViewHolder(
-        private val binding: AppGroupItemBinding
+        private val binding: ItemAppGroupBinding
     ) : ViewHolder(binding.root) {
 
         /**
@@ -326,7 +326,7 @@ class AppsListAdapter(
      * la propiedad name.
      * */
     private inner class HeaderViewHolder(
-        private val binding: HeaderItemBinding
+        private val binding: ItemHeaderBinding
     ) : ViewHolder(binding.root) {
 
         override fun bind(app: IApp) {
