@@ -20,6 +20,8 @@
         <entry key="..\:/Programas/android-sdk/platforms/android-30/data/res/drawable/btn_default.xml" value="0.19583333333333333" />
         <entry key="..\:/Programas/android-sdk/platforms/android-30/data/res/drawable/btn_default_material.xml" value="0.19583333333333333" />
         <entry key="..\:/Programas/android-sdk/platforms/android-30/data/res/drawable/btn_default_mtrl_shape.xml" value="0.19583333333333333" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/background_alert_dialog.xml" value="0.19583333333333333" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/bg_bottom_nav_view.xml" value="0.19583333333333333" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/bg_bottom_nav_view_dark.xml" value="0.19583333333333333" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/bottom_nav_view_background.xml" value="0.19583333333333333" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/btn_danger.xml" value="0.19583333333333333" />
@@ -33,19 +35,22 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/primary_button_background.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/secondary_button_background.xml" value="0.19583333333333333" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout-land/fragment_presentation.xml" value="0.1728395061728395" />
-        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_permissions.xml" value="0.1693840579710145" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_splash.xml" value="0.1693840579710145" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/app_item.xml" value="0.11775362318840579" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_expanded.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_item_user_data_byte.xml" value="0.125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_normal.xml" value="0.25" />
-        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.1" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.18" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_dashboard.xml" value="0.33" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_packages.xml" value="0.17617753623188406" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_presentation.xml" value="0.17617753623188406" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_resume.xml" value="0.17617753623188406" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_settings.xml" value="0.17617753623188406" />
-        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_usage.xml" value="0.17617753623188406" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_usage.xml" value="0.33" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_usage_app_details.xml" value="0.1" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/applications_menu.xml" value="0.1814814814814815" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/bottom_nav_menu.xml" value="0.1814814814814815" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/more_nav_menu.xml" value="0.1814814814814815" />
       </map>

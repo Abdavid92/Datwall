@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.Datwall" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -15,7 +16,9 @@
         <item name="android:windowBackground">@color/background_light</item>
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
-        <item name="actionBarStyle">@style/AppBarStyle</item>
+        <item name="appBarLayoutStyle">@style/AppBarStyle</item>
+        <item name="tabStyle">@style/TabLayoutStyle</item>
+        <item name="alertDialogStyle">@style/AlertDialogStyle</item>
     </style>
 
     <style name="WelcomeTheme" parent="WelcomeScreenTheme">

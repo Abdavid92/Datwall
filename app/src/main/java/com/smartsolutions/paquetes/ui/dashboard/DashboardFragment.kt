@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
@@ -44,13 +45,6 @@ class DashboardFragment : ApplicationFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val textView: TextView = view.findViewById(R.id.text_dashboard)
-        /*dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })*/
-
-        view.findViewById<MaterialButton>(R.id.delete_one).setOnClickListener{
-            testDownload()
-        }
 
         dashboardViewModel.apps.observe(viewLifecycleOwner, {
             textView.text = "Cantidad de aplicaciones: ${it.size}"
