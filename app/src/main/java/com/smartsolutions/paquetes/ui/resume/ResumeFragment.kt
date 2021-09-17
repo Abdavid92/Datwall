@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.viewModels
+import com.google.android.material.tabs.TabItem
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
@@ -43,15 +44,13 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
             try {
                 TabLayoutMediator(binding.tabs, binding.pager) { tab, pos ->
+                    tab.view
                     it[pos].icon?.let {
                         tab.icon = it.toDrawable(resources)
                     }
                     tab.text = "Sim ${it[pos].slotIndex}"
                 }.also {
                     if (!it.isAttached) {
-                        it.attach()
-                    } else {
-                        it.detach()
                         it.attach()
                     }
                 }

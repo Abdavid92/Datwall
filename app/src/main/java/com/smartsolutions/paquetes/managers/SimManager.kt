@@ -115,7 +115,7 @@ class SimManager @Inject constructor(
         return getInstalledSims(relations).firstOrNull { it.slotIndex == slotIndex }
     }
 
-    override suspend fun flowInstalledSims(relations: Boolean): Flow<List<Sim>> {
+    override fun flowInstalledSims(relations: Boolean): Flow<List<Sim>> {
         return simRepository.flow(relations).map { all ->
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
                 return@map listOf(seedEmbeddedSim())

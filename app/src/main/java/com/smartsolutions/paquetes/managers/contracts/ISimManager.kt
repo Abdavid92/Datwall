@@ -59,7 +59,7 @@ interface ISimManager {
      * @param relations - Indica si se devueve la Sim con las relaciones foráneas
      * @return - Un Flow conectado al repositorio que contiene solamente las Sim instaldas actualizadas
      */
-    suspend fun flowInstalledSims(relations: Boolean = false): Flow<List<Sim>>
+    fun flowInstalledSims(relations: Boolean = false): Flow<List<Sim>>
 
     /**
      * Registra un oyente para detectar cualquier cambio que se produzca con las sims.
