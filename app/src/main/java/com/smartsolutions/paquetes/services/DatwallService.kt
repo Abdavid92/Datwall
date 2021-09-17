@@ -144,10 +144,6 @@ class DatwallService : Service(), CoroutineScope {
 
                     userData.forEach { userDataBytes ->
 
-                        //TODO: Delete this. Was a test
-                        userDataBytes.initialBytes = 1073741824
-                        userDataBytes.bytes = Random.nextLong(userDataBytes.initialBytes)
-
                         if (userDataBytes.type == DataBytes.DataType.DailyBag) {
                             if (userDataBytes.exists() && !userDataBytes.isExpired()) {
                                 remoteViews.setViewVisibility(R.id.daily_bag_layout, View.VISIBLE)

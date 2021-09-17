@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.ui.resume
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
@@ -25,16 +26,13 @@ class ResumeViewModel @Inject constructor(
     private val simManager: ISimManager,
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager
-) : ViewModel(), CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+) : ViewModel() {
 
     private val liveDataSims = MutableLiveData<List<Sim>>()
     private val liveDataUserData = MutableLiveData<List<UserDataBytes>>()
 
     fun getInstalledSims(): LiveData<List<Sim>> {
-        launch {
+        viewModelScope.launch(Dispatchers.IO) {
             simManager.flowInstalledSims().collect {
                 liveDataSims.postValue(it)
             }
@@ -44,7 +42,7 @@ class ResumeViewModel @Inject constructor(
 
 
     fun getUserDataBytes(simId: String): LiveData<List<UserDataBytes>> {
-        launch {
+        viewModelScope.launch(Dispatchers.IO) {
             userDataBytesRepository.flowBySimId(simId).collect {
                 liveDataUserData.postValue(it.filter { it.exists() && !it.isExpired() })
             }
@@ -54,7 +52,7 @@ class ResumeViewModel @Inject constructor(
 
 
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {
-        launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
                 withContext(Dispatchers.Main) {
