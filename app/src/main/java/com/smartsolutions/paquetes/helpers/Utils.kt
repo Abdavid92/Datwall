@@ -1,5 +1,9 @@
 package com.smartsolutions.paquetes.helpers
 
+import android.app.Activity
+import android.view.View
+import androidx.annotation.IdRes
+import androidx.fragment.app.Fragment
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.GB
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.KB
@@ -120,4 +124,31 @@ fun getBytesFromText(key: String, text: String): Long {
     } catch (e: Exception) {
         -1
     }
+}
+
+/**
+ * Delegado que busca una vista por el id.
+ * Las vistas instanciadas con este delegado se deben usar después de
+ * llamar al método super.onCreate() e inflar la vista root de la
+ * actividad.
+ *
+ * @param resId - Id de la vista.
+ *
+ * @return Instancia de [View]
+ * */
+fun <T : View> Activity.findView(@IdRes resId: Int) = lazy {
+    findViewById<T>(resId)
+}
+
+/**
+ * Delegado que busca una vista por el id.
+ * Las vistas instanciadas con este delegado se deben usar después de
+ * llamar al método onCreateView.
+ *
+ * @param resId - Id de la vista.
+ *
+ * @return Instancia de [View]
+ * */
+fun <T : View> Fragment.findView(@IdRes resId: Int) = lazy {
+    view?.findViewById<T>(resId)
 }

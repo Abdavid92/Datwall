@@ -36,7 +36,6 @@
 
     <style name="BottomNavViewStyle" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="android:background">@drawable/bg_bottom_nav_view</item>
-        <item name="elevation">14dp</item>
     </style>
 
     <style name="Widget.Theme.Datwall.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
