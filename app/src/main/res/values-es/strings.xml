@@ -149,4 +149,10 @@
     <string name="title_packages">Paquetes</string>
     <string name="title_settings">Ajustes</string>
     <string name="syncronize">Sincronizar</string>
+    <string name="data_type_international">Megas Internacionales (3G/4G)</string>
+    <string name="data_type_international_lte">Megas Internacionales (LTE)</string>
+    <string name="data_type_national">Bono Navegación Nacional</string>
+    <string name="data_type_promo_bonus">Bono Promoción</string>
+    <string name="data_type_daily_bag">Bolsa Diaria</string>
+    <string name="no_package_data">No se han registrado megas \nUtilice el botón Sincronizar</string>
 </resources>

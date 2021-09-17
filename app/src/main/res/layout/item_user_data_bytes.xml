@@ -23,7 +23,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:max="100"
-            android:progress="70"
+            android:progress="1"
             android:progressDrawable="@drawable/progres_bar_vertical" />
 
         <androidx.appcompat.widget.LinearLayoutCompat

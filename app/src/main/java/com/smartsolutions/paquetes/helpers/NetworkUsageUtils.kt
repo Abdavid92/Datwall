@@ -6,6 +6,7 @@ import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesReposito
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.IllegalArgumentException
 
@@ -165,9 +166,43 @@ class NetworkUsageUtils @Inject constructor(
             return Date(start).after(startTime) && Date(finish).before(finishTime)
         }
 
+        fun calculateDiffDate(first: Long, second: Long): Pair<Int, TimeUnit> {
+            val rest = second - first
+            if (rest > 0) {
+               for (i in 0..2){
+                   val unit = when(i) {
+                       0 -> DateUtils.MILLIS_PER_DAY
+                       1 -> DateUtils.MILLIS_PER_HOUR
+                       2 -> DateUtils.MILLIS_PER_MINUTE
+                       else -> 1
+                   }
+                   val cuantity = rest / unit
+
+                   if (cuantity > 0){
+                       return Pair(cuantity.toInt(), when(i) {
+                           0 -> TimeUnit.DAYS
+                           1 -> TimeUnit.HOURS
+                           else -> TimeUnit.MINUTES
+                       })
+                   }
+               }
+            }
+
+            return Pair(0, TimeUnit.HOURS)
+        }
+
+        fun TimeUnit.nameLegible(): String {
+           return when(this) {
+                TimeUnit.DAYS -> "Días"
+                TimeUnit.HOURS -> "Horas"
+                TimeUnit.MINUTES -> "Minutos"
+                else -> ""
+            }
+        }
+
     }
 
-    enum class TimeUnit {
+    enum class MyTimeUnit {
         MONTH,
         DAY,
         HOUR

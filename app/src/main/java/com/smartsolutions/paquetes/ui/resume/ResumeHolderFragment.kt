@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.databinding.FragmentResumeHolderBinding
+import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.ui.usage.UsageAppDetailsRecyclerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -17,6 +19,7 @@ class ResumeHolderFragment : Fragment() {
     private lateinit var simID: String
     private lateinit var binding: FragmentResumeHolderBinding
     private val viewModel by viewModels<ResumeViewModel>()
+    private var adapter: UserDataBytesRecyclerAdapter? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,11 +41,28 @@ class ResumeHolderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        viewModel.getUserDataBytes(simID).observe(viewLifecycleOwner) {
+            if (it.isEmpty()){
+                binding.linNoData.visibility = View.VISIBLE
+                binding.recycler.visibility = View.GONE
+            }else {
+                binding.linNoData.visibility = View.GONE
+                binding.recycler.visibility = View.VISIBLE
+                setAdapter(it)
+            }
+        }
 
     }
 
 
+    private fun setAdapter(userData: List<UserDataBytes>) {
+        if (adapter == null){
+            adapter = UserDataBytesRecyclerAdapter(requireContext(), userData)
+            binding.recycler.adapter = adapter
+        }else {
+            adapter!!.update(userData)
+        }
+    }
 
     companion object {
 

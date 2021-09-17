@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
@@ -15,12 +16,13 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ResumeFragment : Fragment() {
+class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
     private val viewModel by viewModels<ResumeViewModel> ()
 
     private lateinit var binding: FragmentResumeBinding
     private var adapterFragment: FragmentPageAdapter? = null
+    private lateinit var installedSim: List<Sim>
 
 
     override fun onCreateView(
@@ -35,15 +37,25 @@ class ResumeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.getInstalledSims().observe(viewLifecycleOwner) {
+            installedSim = it
 
             setAdapter(it)
 
-            TabLayoutMediator(binding.tabs, binding.pager) { tab, pos ->
-                it[pos].icon?.let {
-                    tab.icon = it.toDrawable(resources)
+            try {
+                TabLayoutMediator(binding.tabs, binding.pager) { tab, pos ->
+                    it[pos].icon?.let {
+                        tab.icon = it.toDrawable(resources)
+                    }
+                    tab.text = "Sim ${it[pos].slotIndex}"
+                }.also {
+                    if (!it.isAttached) {
+                        it.attach()
+                    } else {
+                        it.detach()
+                        it.attach()
+                    }
                 }
-                tab.text = "Sim ${it[pos].slotIndex}"
-            }.attach()
+            }catch (e: Exception){}
 
             if (it.size == 1){
                 binding.tabs.visibility = View.GONE
@@ -53,13 +65,11 @@ class ResumeFragment : Fragment() {
         }
 
         binding.floatingActionButton.setOnClickListener {
-            if (binding.floatingActionButton.isExtended){
-                binding.floatingActionButton.shrink()
-            }else {
-                binding.floatingActionButton.extend()
-            }
+            showSynchronizationDialog()
+            viewModel.synchronizeUserDataBytes(
+                this
+            )
         }
-
     }
 
 
@@ -72,6 +82,34 @@ class ResumeFragment : Fragment() {
             adapterFragment!!.notifyDataSetChanged()
         }
     }
+
+
+
+    private fun showSynchronizationDialog(){
+
+    }
+
+
+    override fun onSuccess() {
+        Toast.makeText(requireContext(), "Sincronizado", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCallPermissionsDenied() {
+
+    }
+
+    override fun onUSSDFail(message: String) {
+
+    }
+
+    override fun onFailed(throwable: Throwable?) {
+
+    }
+
+    override fun onAccessibilityServiceDisabled() {
+
+    }
+
 
     companion object {
         fun newInstance() = ResumeFragment()

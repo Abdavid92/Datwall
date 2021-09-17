@@ -1,8 +1,10 @@
 package com.smartsolutions.paquetes.repositories.models
 
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.*
+import com.smartsolutions.paquetes.R
 import java.util.*
 
 /**
@@ -91,6 +93,17 @@ class UserDataBytes(
      * Indica si estos bytes están expirados.
      * */
     fun isExpired() = expiredTime != 0L && Date().after(Date(expiredTime))
+
+
+    fun getName(context: Context): String {
+        return when (type){
+            DataType.International -> context.getString(R.string.data_type_international)
+            DataType.InternationalLte -> context.getString(R.string.data_type_international_lte)
+            DataType.National -> context.getString(R.string.data_type_national)
+            DataType.PromoBonus -> context.getString(R.string.data_type_promo_bonus)
+            DataType.DailyBag -> context.getString(R.string.data_type_daily_bag)
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (other is UserDataBytes && other.type == type && other.simId == simId)
