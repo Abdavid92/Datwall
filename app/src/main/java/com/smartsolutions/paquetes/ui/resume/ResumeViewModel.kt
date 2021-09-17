@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -56,24 +57,34 @@ class ResumeViewModel @Inject constructor(
         launch {
             try {
                 synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
-                callback.onSuccess()
+                withContext(Dispatchers.Main) {
+                    callback.onSuccess()
+                }
             } catch (e: Exception) {
                 if (e is USSDRequestException) {
                     when (e.errorCode) {
                         USSDHelper.ACCESSIBILITY_SERVICE_UNAVAILABLE -> {
-                            callback.onAccessibilityServiceDisabled()
+                            withContext(Dispatchers.Main) {
+                                callback.onAccessibilityServiceDisabled()
+                            }
                         }
                         USSDHelper.DENIED_CALL_PERMISSION -> {
-                            callback.onCallPermissionsDenied()
+                            withContext(Dispatchers.Main) {
+                                callback.onCallPermissionsDenied()
+                            }
                         }
                         else -> {
-                            callback.onUSSDFail(
-                                (e.message ?: e.errorCode).toString()
-                            )
+                            withContext(Dispatchers.Main) {
+                                callback.onUSSDFail(
+                                    (e.message ?: e.errorCode).toString()
+                                )
+                            }
                         }
                     }
                 }else {
-                    callback.onFailed(e.cause)
+                    withContext(Dispatchers.Main) {
+                        callback.onFailed(e.cause)
+                    }
                 }
             }
         }
