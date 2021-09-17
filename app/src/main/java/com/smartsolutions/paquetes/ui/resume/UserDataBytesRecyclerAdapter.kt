@@ -75,6 +75,7 @@ class UserDataBytesRecyclerAdapter constructor(
             binding.textUsageUnit.text = usage.dataUnit.name
             binding.expireDate.text = expire
             binding.restDate.text = "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
+            binding.textPercent.text = "${percent}%"
         }
     }
 

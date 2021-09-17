@@ -14,23 +14,49 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="30dp"
-            android:layout_height="110dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:max="100"
-            android:progress="1"
-            android:progressDrawable="@drawable/progres_bar_vertical" />
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="35dp"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:max="100"
+                android:progress="1"
+                android:progressDrawable="@drawable/progres_bar_vertical" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/text_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="99%"
+                android:textAlignment="center"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="12sp"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="6dp"
             android:layout_marginRight="6dp"
+            android:layout_marginBottom="2dp"
             android:gravity="center"
             android:orientation="vertical">
 
