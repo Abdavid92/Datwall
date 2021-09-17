@@ -9,7 +9,10 @@ import android.util.TypedValue
 import android.widget.CompoundButton
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -95,16 +98,26 @@ class UIHelper(
     }
 
     /**
-     * Utiliza reflexion para obtener el recurso
+     * Obtiene el id de un recurso drawable.
+     *
      * @param resourceName - Nombre del recurso a encontrar
      */
     fun getResource(resourceName: String): Int? {
         return try {
-            R.drawable::class.java
+            val res = context.resources.getIdentifier(
+                resourceName,
+                "drawable",
+                context.packageName
+            )
+            if (res != 0)
+                res
+            else
+                null
+            /*R.drawable::class.java
                 .getDeclaredField(
                     resourceName
                 )
-                .getInt(drawable::class.java)
+                .getInt(drawable::class.java)*/
         }catch (e: Exception) {
             null
         }

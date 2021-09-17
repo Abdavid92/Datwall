@@ -44,8 +44,6 @@ class DatwallService : Service(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    private val binder = DatwallServiceBinder()
-
     private val uiHelper by uiHelper()
 
     @Inject
@@ -96,8 +94,8 @@ class DatwallService : Service(), CoroutineScope {
             .setOngoing(true)
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        return binder
+    override fun onBind(intent: Intent): IBinder? {
+        return null
     }
 
     override fun onCreate() {
@@ -294,11 +292,6 @@ class DatwallService : Service(), CoroutineScope {
         watcher.stop()
 
         super.onDestroy()
-    }
-
-    inner class DatwallServiceBinder: Binder() {
-        val service: DatwallService
-            get() = this@DatwallService
     }
 
     companion object {
