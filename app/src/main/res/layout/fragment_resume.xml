@@ -40,9 +40,10 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            android:visibility="gone"
-            app:tabGravity="fill"
+            android:visibility="visible"
+            app:tabGravity="start"
+            app:tabIndicatorGravity="bottom"
+            app:tabInlineLabel="true"
             app:tabMode="auto"
             app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
             tools:ignore="SpeakableTextPresentCheck" />

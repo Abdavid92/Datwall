@@ -75,6 +75,12 @@ class ResumeViewModel @Inject constructor(
     }
 
 
+    fun setDefaultSim(type: SimDelegate.SimType, sim: Sim){
+        viewModelScope.launch(Dispatchers.IO) {
+            simManager.setDefaultSim(type, sim)
+        }
+    }
+
     interface SynchronizationResult {
         fun onSuccess()
         fun onCallPermissionsDenied()
