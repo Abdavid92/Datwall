@@ -147,4 +147,8 @@
     <string name="title_resume">Resumen</string>
     <string name="title_packages">Paquetes</string>
     <string name="title_settings">Ajustes</string>
+    <string name="date_exp">%s expira el %s</string>
+    <string name="empty_noti_title">No hay datos</string>
+    <string name="empty_noti_text">No tiene ningún paquete de datos disponible.</string>
+    <string name="date_exp_others">%s y otros expiran el %s</string>
 </resources>

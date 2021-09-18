@@ -49,6 +49,11 @@ class DataUnitBytes(val bytes: Long) {
         return DataValue(Math.round(value * 100) / 100.0, unit)
     }
 
+    override fun toString(): String {
+        val value = getValue()
+        return "${value.value} ${value.dataUnit}"
+    }
+
     companion object {
 
         const val GB = 1073741824.0 //1024.0.pow(3.0)

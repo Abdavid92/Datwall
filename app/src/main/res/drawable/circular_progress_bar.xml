@@ -5,15 +5,15 @@
     <shape
         android:innerRadiusRatio="3.5"
         android:shape="ring"
-        android:thickness="4dp"
+        android:thickness="4dip"
         android:useLevel="true"> <!-- this line fixes the issue for lollipop api 21 -->
 
         <gradient
             android:angle="0"
-            android:endColor="@color/blue"
-            android:startColor="@color/blue"
+            android:startColor="@color/color_primary"
+            android:endColor="@color/color_primary"
             android:type="sweep"
-            android:useLevel="false"
+            android:useLevel="true"
             android:gradientRadius="16dp" />
     </shape>
 </rotate>

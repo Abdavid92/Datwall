@@ -14,7 +14,7 @@ import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.SpecialApp
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 
-abstract class BaseAppRepository(
+abstract class AbstractAppRepository(
     private val context: Context,
     gson: Gson
 ) : IAppRepository {
@@ -112,7 +112,8 @@ abstract class BaseAppRepository(
 
     override fun fillApp(app: App, info: PackageInfo) {
         app.version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
-        app.name = info.applicationInfo.name ?: "Unknown"
+        app.name = info.applicationInfo.loadLabel(packageManager).toString()
+        app.uid = info.applicationInfo.uid
         app.internet = hasInternet(app.packageName)
         app.system = isSystem(info)
         getSpecialApp(app.packageName)?.let {
