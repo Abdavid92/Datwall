@@ -50,6 +50,8 @@ class DatwallService : Service(), CoroutineScope {
 
     private val uiHelper by uiHelper()
 
+    private var notificationEmpty = false
+
     @Inject
     lateinit var userDataBytesRepository: IUserDataBytesRepository
 
@@ -107,6 +109,8 @@ class DatwallService : Service(), CoroutineScope {
     override fun onCreate() {
         super.onCreate()
 
+        setTheme(R.style.Theme_Datwall)
+
         runCatching {
             startForeground(
                 NotificationHelper.MAIN_NOTIFICATION_ID,
@@ -144,10 +148,13 @@ class DatwallService : Service(), CoroutineScope {
                 .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
                 .filter { it.exists() }
 
-            if (userData.isNotEmpty())
+            if (userData.isNotEmpty()) {
+                notificationEmpty = false
                 updateNotification(userData)
-            else
+            } else {
+                notificationEmpty = true
                 setEmptyNotification()
+            }
         }
     }
 
@@ -181,10 +188,13 @@ class DatwallService : Service(), CoroutineScope {
                     }
                 }
                 .collect { userData ->
-                    if (userData.isNotEmpty())
+                    if (userData.isNotEmpty()) {
+                        notificationEmpty = false
                         updateNotification(userData)
-                    else
+                    } else {
+                        notificationEmpty = true
                         setEmptyNotification()
+                    }
                 }
         }
     }
@@ -216,10 +226,6 @@ class DatwallService : Service(), CoroutineScope {
         expandedRemoteViews.removeAllViews(R.id.content_view)
 
         for (i in userData.indices) {
-
-            //TODO: Delete this. Was a test
-            userData[i].initialBytes = 1073741824
-            userData[i].bytes = Random.nextLong(userData[i].initialBytes)
 
             val title = getDataTitle(userData[i].type)
 
@@ -356,7 +362,6 @@ class DatwallService : Service(), CoroutineScope {
             setTextViewText(R.id.data_title, title)
             setInt(R.id.data_title, "setTextColor", color)
 
-
             setProgressBar(
                 R.id.data_progress,
                 100,
@@ -449,12 +454,18 @@ class DatwallService : Service(), CoroutineScope {
      * */
     private fun updateBandWith(rxBytes: Long, txBytes: Long) {
         notificationBuilder.setSmallIcon(getIcon( rxBytes + txBytes))
-        notificationManager.notify(
-            NotificationHelper.MAIN_NOTIFICATION_ID,
-            notificationBuilder.apply {
-                setCustomContentView(this@DatwallService.remoteViews)
-                setCustomBigContentView(this@DatwallService.expandedRemoteViews)
-            }.build())
+
+        if (notificationEmpty) {
+            setEmptyNotification()
+        } else {
+            notificationManager.notify(
+                NotificationHelper.MAIN_NOTIFICATION_ID,
+                notificationBuilder.apply {
+                    setCustomContentView(this@DatwallService.remoteViews)
+                    setCustomBigContentView(this@DatwallService.expandedRemoteViews)
+                }.build()
+            )
+        }
     }
 
     /**
