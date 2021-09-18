@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.resume
 
+import android.graphics.drawable.Animatable
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,8 +11,11 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.viewModels
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.tabs.TabLayoutMediator
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
 import com.smartsolutions.paquetes.databinding.PopupMenuTabBinding
 import com.smartsolutions.paquetes.databinding.TabItemBinding
@@ -67,7 +71,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             } else {
                 val fragment =
                     BottomSheetDialogBasic.newInstance(BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED_NOT_DEFAULT_SIM)
-                fragment.show(fragment.childFragmentManager, "BasicDialog")
+                fragment.show(this.childFragmentManager, "BasicDialog")
             }
         }
     }
@@ -130,16 +134,25 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             false
         )
 
-        menuBind.radioButtonDataDefault.isChecked = sim.defaultData
-        menuBind.radioButtonVoiceDefault.isChecked = sim.defaultVoice
-
-        menuBind.radioButtonVoiceDefault.setOnCheckedChangeListener { _, isCheked ->
-            if (isCheked)
-                viewModel.setDefaultSim(SimDelegate.SimType.VOICE, sim)
+        menuBind.radioButtonDataDefault.apply {
+            isChecked = sim.defaultData
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                isEnabled = false
+            }
+            setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked)
+                    viewModel.setDefaultSim(SimDelegate.SimType.DATA, sim)
+            }
         }
-        menuBind.radioButtonDataDefault.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked)
-                viewModel.setDefaultSim(SimDelegate.SimType.DATA, sim)
+        menuBind.radioButtonVoiceDefault.apply {
+            isChecked = sim.defaultVoice
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                isEnabled = false
+            }
+            setOnCheckedChangeListener { _, isCheked ->
+                if (isCheked)
+                    viewModel.setDefaultSim(SimDelegate.SimType.VOICE, sim)
+            }
         }
 
         popupMenu.contentView = menuBind.root
@@ -161,7 +174,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
     override fun onCallPermissionsDenied() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val fragment = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
-            fragment.show(fragment.childFragmentManager, "PermissionsFragment")
+            fragment.show(this.childFragmentManager, "PermissionsFragment")
         }
     }
 
@@ -170,16 +183,18 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED,
             message = message
         )
-        fragment.show(fragment.childFragmentManager, "BasicDialog")
+        fragment.show(this.childFragmentManager, "BasicDialog")
     }
 
     override fun onFailed(throwable: Throwable?) {
-
+        val fragment =
+            BottomSheetDialogBasic.newInstance(BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED)
+        fragment.show(this.childFragmentManager, "BasicDialog")
     }
 
     override fun onAccessibilityServiceDisabled() {
         val fragment = StartAccessibilityServiceFragment.newInstance()
-        fragment.show(fragment.childFragmentManager, "AccessibilityFragment")
+        fragment.show(this.childFragmentManager, "AccessibilityFragment")
     }
 
 
