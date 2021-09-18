@@ -283,7 +283,12 @@ class DatwallService : Service(), CoroutineScope {
 
         var data = userData[0]
 
+        var hasOthers = false
+
         userData.forEach {
+            if (data.expiredTime == it.expiredTime)
+                hasOthers = true
+
             if (data.expiredTime > it.expiredTime)
                 data = it
         }
@@ -296,7 +301,11 @@ class DatwallService : Service(), CoroutineScope {
 
         expandedRemoteViews.setTextViewText(
             R.id.date_exp,
-            getString(R.string.date_exp, dataTitle, dateFormat.format(date))
+            if (hasOthers) {
+                getString(R.string.date_exp_others, dataTitle, dateFormat.format(date))
+            } else {
+                getString(R.string.date_exp, dataTitle, dateFormat.format(date))
+            }
         )
         expandedRemoteViews.setInt(
             R.id.date_exp,
