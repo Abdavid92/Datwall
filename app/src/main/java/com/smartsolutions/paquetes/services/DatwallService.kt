@@ -33,7 +33,6 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
-import kotlin.random.Random
 
 /**
  * Servicio principal de la aplicación. Mantiene abierta la aplicación
