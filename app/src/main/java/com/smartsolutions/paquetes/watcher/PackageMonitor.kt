@@ -25,8 +25,6 @@ class PackageMonitor @Inject constructor(
     private val legacyConfiguration: LegacyConfigurationHelper
 ) {
 
-    private var sequenceNumber: Int = 0
-
     private val packageManager = context.packageManager
 
     /**
@@ -42,7 +40,7 @@ class PackageMonitor @Inject constructor(
             //Si existen aplicaciones con cambios
 
             //Guardo la última secuencia
-            this.sequenceNumber = it.sequenceNumber
+            sequenceNumber = it.sequenceNumber
 
             //Por cada aplicación
             it.packageNames.forEach { packageName ->
@@ -214,6 +212,10 @@ class PackageMonitor @Inject constructor(
             version != info.longVersionCode
         } else
             version != info.versionCode.toLong()
+    }
+
+    companion object {
+        private var sequenceNumber: Int = 0
     }
 }
 

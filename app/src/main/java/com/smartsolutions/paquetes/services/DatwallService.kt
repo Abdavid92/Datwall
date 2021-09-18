@@ -5,27 +5,31 @@ import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
-import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
@@ -61,7 +65,7 @@ class DatwallService : Service(), CoroutineScope {
     private lateinit var watcherThread: Thread
 
     private val remoteViews: RemoteViews by lazy {
-        RemoteViews(packageName, R.layout.datwall_service_notification_normal)
+        RemoteViews(packageName, R.layout.datwall_service_notification)
     }
 
     private val expandedRemoteViews by lazy {
@@ -84,7 +88,9 @@ class DatwallService : Service(), CoroutineScope {
                     this,
                     0,
                     Intent(this, SplashActivity::class.java)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        .setFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        ),
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     } else {
@@ -101,8 +107,6 @@ class DatwallService : Service(), CoroutineScope {
     override fun onCreate() {
         super.onCreate()
 
-        setTextColor()
-
         runCatching {
             startForeground(
                 NotificationHelper.MAIN_NOTIFICATION_ID,
@@ -112,8 +116,8 @@ class DatwallService : Service(), CoroutineScope {
 
         kernel.tryRestoreState()
 
-        registerBandWithFlow()
-        beginUserDataBytesCollect()
+        registerBandWithCollector()
+        registerUserDataBytesCollector()
 
         watcherThread = Thread(watcher)
 
@@ -122,6 +126,7 @@ class DatwallService : Service(), CoroutineScope {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
+            notificationBuilder.setOngoing(false)
             stopForeground(true)
             stopSelf()
 
@@ -130,7 +135,38 @@ class DatwallService : Service(), CoroutineScope {
         return START_STICKY
     }
 
-    private fun beginUserDataBytesCollect() {
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        launch {
+
+            val userData = userDataBytesRepository
+                .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
+                .filter { it.exists() }
+
+            if (userData.isNotEmpty())
+                updateNotification(userData)
+            else
+                setEmptyNotification()
+        }
+    }
+
+    /**
+     * Registra un colector para la velocidad de ancho de banda de la red.
+     * */
+    private fun registerBandWithCollector() {
+        launch {
+            watcher.bandWithFlow.collect {
+                updateBandWith(it.first, it.second)
+            }
+        }
+    }
+
+    /**
+     * Registra un colector para el consumo de todos los tipos
+     * de dataBytes de la linea predeterminada de datos.
+     * */
+    private fun registerUserDataBytesCollector() {
         launch {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
@@ -138,104 +174,270 @@ class DatwallService : Service(), CoroutineScope {
 
                     return@combine userDataBytes
                         .filter { it.simId == defaultDataSim.id }
-                }.collect { userData ->
-
-                    userData.forEach { userDataBytes ->
-
-                        //TODO: Delete this. Was a test
-                        userDataBytes.initialBytes = 1073741824
-                        userDataBytes.bytes = Random.nextLong(userDataBytes.initialBytes)
-
-                        if (userDataBytes.type == DataBytes.DataType.DailyBag) {
-                            if (userDataBytes.exists() && !userDataBytes.isExpired()) {
-                                remoteViews.setViewVisibility(R.id.daily_bag_layout, View.VISIBLE)
-                                remoteViews.setViewVisibility(R.id.daily_bag_divider, View.VISIBLE)
-                            } else {
-                                remoteViews.setViewVisibility(R.id.daily_bag_layout, View.GONE)
-                                remoteViews.setViewVisibility(R.id.daily_bag_divider, View.GONE)
-                            }
-                        }
-
-                        val progressRef = R.id::class.java
-                            .getDeclaredField("progress_${userDataBytes.type}")
-                            .getInt(null)
-
-                        val percentRef = R.id::class.java
-                            .getDeclaredField("percent_${userDataBytes.type}")
-                            .getInt(null)
-
-                        if (userDataBytes.exists()) {
-                            val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
-                                .toInt()
-
-                            remoteViews.setTextViewText(percentRef, if (userDataBytes.isExpired()) {
-                                "exp"
-                            } else {
-                                "$percent%"
-                            })
-
-                            remoteViews.setProgressBar(
-                                progressRef,
-                                100,
-                                percent,
-                                false)
-                        } else {
-                            remoteViews.setTextViewText(percentRef, "n/a")
-                            remoteViews.setProgressBar(
-                                progressRef,
-                                100,
-                                0,
-                                false
-                            )
-                        }
+                }
+                .map {
+                    return@map it.filter { dataBytes ->
+                        dataBytes.exists()
                     }
-
-                    notificationManager.notify(
-                        NotificationHelper.MAIN_NOTIFICATION_ID,
-                        notificationBuilder.apply {
-                            setCustomContentView(remoteViews)
-                            setCustomBigContentView(expandedRemoteViews)
-                        }.build()
-                    )
+                }
+                .collect { userData ->
+                    if (userData.isNotEmpty())
+                        updateNotification(userData)
+                    else
+                        setEmptyNotification()
                 }
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        setTextColor()
+    /**
+     * Establece una notificación con el texto de que no hay datos disponibles
+     * para consumir.
+     * */
+    private fun setEmptyNotification() {
+        notificationManager.notify(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
+            notificationBuilder.apply {
+                setCustomContentView(null)
+                setCustomBigContentView(null)
+                setContentTitle(getString(R.string.empty_noti_title))
+                setContentText(getString(R.string.empty_noti_text))
+            }.build()
+        )
+    }
+
+    /**
+     * Actualiza la notificación persistente con la lista de userDataBytes dado.
+     *
+     * @param userData - Lista de [UserDataBytes] que se usará para actualizar
+     * los valores de la notificación.
+     * */
+    private fun updateNotification(userData: List<UserDataBytes>) {
+        remoteViews.removeAllViews(R.id.content_view)
+        expandedRemoteViews.removeAllViews(R.id.content_view)
+
+        for (i in userData.indices) {
+
+            //TODO: Delete this. Was a test
+            userData[i].initialBytes = 1073741824
+            userData[i].bytes = Random.nextLong(userData[i].initialBytes)
+
+            val title = getDataTitle(userData[i].type)
+
+            addRemoteViewsContent(
+                userData[i],
+                title,
+                i != 0
+            )
+
+            addExpandedRemoteViewContent(
+                userData[i],
+                title,
+                i != 0
+            )
+        }
+
+        setFirstExpiredDate(userData)
+
+        val color = if (uiHelper.isUIDarkTheme())
+            ContextCompat.getColor(this, R.color.background_dark)
+        else
+            ContextCompat.getColor(this, R.color.white)
 
         notificationManager.notify(
             NotificationHelper.MAIN_NOTIFICATION_ID,
             notificationBuilder.apply {
                 setCustomContentView(remoteViews)
                 setCustomBigContentView(expandedRemoteViews)
+                setColor(color)
             }.build()
         )
     }
 
-    private fun setTextColor() {
-        val methodName = "setTextColor"
-
-        val color = if (uiHelper.isUIDarkTheme())
-            Color.WHITE
-        else
-            Color.BLACK
-
-        DataBytes.DataType.values().forEach {
-            val percentRef = R.id::class.java
-                .getDeclaredField("percent_${it.name}")
-                .getInt(null)
-
-            val labelRef = R.id::class.java
-                .getDeclaredField("label_${it.name}")
-                .getInt(null)
-
-            remoteViews.setInt(percentRef, methodName, color)
-            remoteViews.setInt(labelRef, methodName, color)
+    /**
+     * Obtiene un título legible a establecer en la notificación
+     * usando el dataType dado.
+     *
+     * @param dataType - [DataBytes.DataType]
+     *
+     * @return [String] el título legible.
+     * */
+    private fun getDataTitle(dataType: DataBytes.DataType): String {
+        return when (dataType) {
+            DataBytes.DataType.International -> "Internacional"
+            DataBytes.DataType.InternationalLte -> "Lte"
+            DataBytes.DataType.PromoBonus -> "Promoción"
+            DataBytes.DataType.National -> "Nacional"
+            DataBytes.DataType.DailyBag -> "Bolsa diaria"
         }
     }
 
+    /**
+     * Establece la fecha de expiración del paquete más próximo a vencer
+     * en la notificación expandida.
+     *
+     * @param userData
+     * */
+    private fun setFirstExpiredDate(userData: List<UserDataBytes>) {
+        if (userData.isEmpty())
+            return
+
+        var data = userData[0]
+
+        userData.forEach {
+            if (data.expiredTime > it.expiredTime)
+                data = it
+        }
+
+        val date = Date(data.expiredTime)
+
+        val dateFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
+
+        val dataTitle = getDataTitle(data.type)
+
+        expandedRemoteViews.setTextViewText(
+            R.id.date_exp,
+            getString(R.string.date_exp, dataTitle, dateFormat.format(date))
+        )
+        expandedRemoteViews.setInt(
+            R.id.date_exp,
+            "setTextColor",
+            if (uiHelper.isUIDarkTheme())
+                Color.LTGRAY
+            else
+                Color.DKGRAY
+        )
+    }
+
+    /**
+     * Agrega el nuevo contenido a la notificación colapsada.
+     *
+     * @param userDataBytes - [UserDataBytes] con los valores a usar.
+     * @param title - Título del contenido.
+     * @param addSeparator - Indica si se debe agregar un separador antes del contenido.
+     * */
+    private fun addRemoteViewsContent(
+        userDataBytes: UserDataBytes,
+        title: String,
+        addSeparator: Boolean
+    ) {
+        val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
+            .toInt()
+
+        val color = if (uiHelper.isUIDarkTheme())
+            Color.LTGRAY
+        else
+            Color.DKGRAY
+
+        if (addSeparator) {
+            val separator = RemoteViews(packageName, R.layout.item_datwall_service_separator)
+                .apply {
+
+                    if (uiHelper.isUIDarkTheme())
+                        setInt(
+                            R.id.separator,
+                            "setBackgroundColor",
+                            Color.LTGRAY
+                        )
+                }
+
+            remoteViews.addView(R.id.content_view, separator)
+        }
+
+        val childRemotes = RemoteViews(packageName, R.layout.item_datwall_service).apply {
+            setTextViewText(R.id.data_title, title)
+            setInt(R.id.data_title, "setTextColor", color)
+
+
+            setProgressBar(
+                R.id.data_progress,
+                100,
+                percent,
+                false
+            )
+
+            setTextViewText(
+                R.id.data_percent,
+                if (userDataBytes.isExpired()) "exp" else "$percent%"
+            )
+            setInt(R.id.data_percent, "setTextColor", color)
+        }
+
+        remoteViews.addView(R.id.content_view, childRemotes)
+    }
+
+    /**
+     * Agrega el nuevo contenido a la notificación expandida.
+     *
+     * @param userDataBytes - [UserDataBytes] con los valores a usar.
+     * @param title - Título del contenido.
+     * @param addSeparator - Indica si se debe agregar un separador antes del contenido.
+     * */
+    private fun addExpandedRemoteViewContent(
+        userDataBytes: UserDataBytes,
+        title: String,
+        addSeparator: Boolean
+    ) {
+        val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
+            .toInt()
+
+        val color = if (uiHelper.isUIDarkTheme())
+            Color.LTGRAY
+        else
+            Color.DKGRAY
+
+        if (addSeparator) {
+            val separator = RemoteViews(packageName, R.layout.item_datwall_service_separator)
+                .apply {
+
+                    if (uiHelper.isUIDarkTheme())
+                        setInt(
+                            R.id.separator,
+                            "setBackgroundColor",
+                            Color.LTGRAY
+                        )
+                }
+
+            expandedRemoteViews.addView(R.id.content_view, separator)
+        }
+
+        val childRemotes = RemoteViews(packageName, R.layout.item_datwall_service_expanded).apply {
+            setTextViewText(R.id.data_title, title)
+            setInt(R.id.data_title, "setTextColor", color)
+
+
+            setProgressBar(
+                R.id.data_progress,
+                100,
+                percent,
+                false
+            )
+
+            setTextViewText(
+                R.id.data_percent,
+                if (userDataBytes.isExpired()) "exp" else "$percent%"
+            )
+            setInt(R.id.data_percent, "setTextColor", color)
+
+            val dataBytes = DataUnitBytes(userDataBytes.bytes)
+
+            setTextViewText(
+                R.id.data_bytes,
+                dataBytes.toString()
+            )
+            setInt(R.id.data_bytes, "setTextColor", color)
+        }
+
+        expandedRemoteViews.addView(R.id.content_view, childRemotes)
+    }
+
+    /**
+     * Actualiza el ícono de velocidad de ancho de banda. Este
+     * método suma los bytes de descarga y los bytes de subida
+     * para mostrarlos juntos.
+     *
+     * @param rxBytes - Bytes de descarga.
+     * @param txBytes - Bytes de subida.
+     * */
     private fun updateBandWith(rxBytes: Long, txBytes: Long) {
         notificationBuilder.setSmallIcon(getIcon( rxBytes + txBytes))
         notificationManager.notify(
@@ -246,7 +448,11 @@ class DatwallService : Service(), CoroutineScope {
             }.build())
     }
 
-
+    /**
+     * Obtiene el ícono de la notificación usando los bytes dados.
+     *
+     * @param totalBytes - Bytes que se usarán para buscar el ícono correcto.
+     * */
     private fun getIcon(totalBytes: Long): Int {
         val traffic = DataUnitBytes(totalBytes).getValue()
 
@@ -276,14 +482,6 @@ class DatwallService : Service(), CoroutineScope {
         }
 
         return uiHelper.getResource(name) ?: R.mipmap.ic_launcher_foreground
-    }
-
-    private fun registerBandWithFlow() {
-        launch {
-            watcher.bandWithFlow.collect {
-                updateBandWith(it.first, it.second)
-            }
-        }
     }
 
     override fun onDestroy() {

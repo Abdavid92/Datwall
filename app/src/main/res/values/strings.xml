@@ -143,4 +143,7 @@
     <string name="title_usage">Consumo</string>
     <string name="battery_optimization_permission">Permiso de optimización de batería</string>
     <string name="battery_optimization_permission_description">Descripción del permiso de optimización de batería.</string>
+    <string name="date_exp">%s expira el %s</string>
+    <string name="empty_noti_title">No hay datos</string>
+    <string name="empty_noti_text">No tiene ningún paquete de datos disponible. Para una nueva compra vaya a la página de paquetes.</string>
 </resources>
