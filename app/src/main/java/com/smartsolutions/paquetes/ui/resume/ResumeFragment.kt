@@ -1,28 +1,28 @@
 package com.smartsolutions.paquetes.ui.resume
 
-import android.graphics.drawable.Animatable
+import android.animation.Animator
+import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.animation.RotateAnimation
 import android.widget.PopupWindow
 import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
 import com.smartsolutions.paquetes.databinding.PopupMenuTabBinding
 import com.smartsolutions.paquetes.databinding.TabItemBinding
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.models.Permission
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
@@ -37,6 +37,20 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
     private lateinit var binding: FragmentResumeBinding
     private var adapterFragment: FragmentPageAdapter? = null
     private lateinit var installedSims: List<Sim>
+
+    private val rotateAnimation = RotateAnimation(
+        360f,
+        0f,
+        Animation.RELATIVE_TO_SELF,
+        0.5f,
+        Animation.RELATIVE_TO_SELF,
+        0.5f
+    ).apply {
+        fillAfter = true
+        duration = 1000L
+        repeatMode = Animation.RESTART
+        repeatCount = 30
+    }
 
 
     override fun onCreateView(
@@ -56,17 +70,18 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             setAdapter(it)
             setTabLayoutMediator()
 
-            //TODO comentado temporal hasta que termine de probar
-            /*if (it.size == 1){
+            if (it.size == 1){
                 binding.tabs.visibility = View.GONE
             }else {
                 binding.tabs.visibility = View.VISIBLE
-            }*/
+            }
         }
+
+        configureAnimationFAB()
 
         binding.floatingActionButton.setOnClickListener {
             if (installedSims[binding.pager.currentItem].defaultVoice) {
-                animateFAB()
+                animateFAB(true)
                 viewModel.synchronizeUserDataBytes(this)
             } else {
                 val fragment =
@@ -76,6 +91,40 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         }
     }
 
+    private fun configureAnimationFAB() {
+        binding.floatingActionButton.addOnExtendAnimationListener(object :
+            Animator.AnimatorListener {
+
+            override fun onAnimationStart(anim: Animator?) {
+                binding.floatingActionButton.apply {
+                    animation?.cancel()
+                    animation?.reset()
+                }
+            }
+
+            override fun onAnimationEnd(anim: Animator?) {}
+            override fun onAnimationCancel(animation: Animator?) {}
+            override fun onAnimationRepeat(animation: Animator?) {}
+
+        })
+
+        binding.floatingActionButton.addOnShrinkAnimationListener(object :
+            Animator.AnimatorListener {
+
+            override fun onAnimationStart(animation: Animator?) {}
+
+            override fun onAnimationEnd(anim: Animator?) {
+                binding.floatingActionButton.apply {
+                    animation = rotateAnimation
+                    animation?.start()
+                }
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {}
+            override fun onAnimationRepeat(animation: Animator?) {}
+
+        })
+    }
 
     private fun setAdapter(sims: List<Sim>) {
         if (adapterFragment == null) {
@@ -161,17 +210,25 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         popupMenu.showAsDropDown(view)
     }
 
-    private fun animateFAB(){
-        binding.floatingActionButton.shrink()
+    private fun animateFAB(animate: Boolean) {
+        if (animate) {
+            binding.floatingActionButton.apply {
+                shrink()
+            }
+        } else {
+            binding.floatingActionButton.apply {
+                extend()
+            }
+        }
     }
 
-
     override fun onSuccess() {
-        binding.floatingActionButton.extend()
-        Toast.makeText(requireContext(), "Sincronizado", Toast.LENGTH_SHORT).show()
+        animateFAB(false)
+        //Toast.makeText(requireContext(), "Sincronizado", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCallPermissionsDenied() {
+        animateFAB(false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val fragment = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
             fragment.show(this.childFragmentManager, "PermissionsFragment")
@@ -179,6 +236,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
     }
 
     override fun onUSSDFail(message: String) {
+        animateFAB(false)
         val fragment = BottomSheetDialogBasic.newInstance(
             BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED,
             message = message
@@ -187,12 +245,14 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
     }
 
     override fun onFailed(throwable: Throwable?) {
+        animateFAB(false)
         val fragment =
             BottomSheetDialogBasic.newInstance(BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED)
         fragment.show(this.childFragmentManager, "BasicDialog")
     }
 
     override fun onAccessibilityServiceDisabled() {
+        animateFAB(false)
         val fragment = StartAccessibilityServiceFragment.newInstance()
         fragment.show(this.childFragmentManager, "AccessibilityFragment")
     }

@@ -73,6 +73,7 @@
         app:iconPadding="8dp"
         app:layout_anchor="@id/pager"
         app:layout_anchorGravity="end|bottom"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         tools:ignore="ContentDescription,ImageContrastCheck,SpeakableTextPresentCheck" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
