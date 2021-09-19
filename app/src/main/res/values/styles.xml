@@ -3,6 +3,8 @@
     <!--Estilo base de los botones-->
     <style name="BaseButton" parent="Widget.AppCompat.Button">
         <item name="android:textAllCaps">false</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
     </style>
 
     <!--Botón primario-->
