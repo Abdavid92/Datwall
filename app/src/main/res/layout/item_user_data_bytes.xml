@@ -23,9 +23,9 @@
 
             <com.github.lzyzsd.circleprogress.ArcProgress
                 android:id="@+id/progress_bar"
-                app:arc_stroke_width="3dp"
-                app:arc_progress="60"
-                app:arc_max="100"
+                app:arc_finished_color="@color/color_primary"
+                app:arc_unfinished_color="@color/gray_600"
+                app:arc_text_color="@color/color_primary"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
@@ -53,6 +53,7 @@
                 android:paddingTop="4dp"
                 android:paddingBottom="8dp"
                 android:text="Megas Internacionales (3G/4G)"
+                android:textColor="@color/color_primary"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textSize="16sp"
@@ -89,6 +90,7 @@
                             android:layout_height="wrap_content"
                             android:padding="2dp"
                             android:text="500"
+                            android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textSize="22sp"
                             android:textStyle="bold" />
@@ -99,6 +101,7 @@
                             android:layout_height="wrap_content"
                             android:text="MB"
                             android:paddingLeft="2dp"
+                            android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -134,6 +137,7 @@
                             android:layout_height="wrap_content"
                             android:padding="2dp"
                             android:text="1.5"
+                            android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textSize="22sp"
                             android:textStyle="bold" />
@@ -144,6 +148,7 @@
                             android:layout_height="wrap_content"
                             android:text="GB"
                             android:paddingLeft="2dp"
+                            android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textSize="16sp"
                             android:textStyle="bold" />
