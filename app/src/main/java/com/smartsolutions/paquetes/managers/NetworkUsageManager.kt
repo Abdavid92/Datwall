@@ -133,7 +133,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
         uid: Int,
         start: Long,
         finish: Long,
-        timeUnit: NetworkUsageUtils.TimeUnit
+        myTimeUnit: NetworkUsageUtils.MyTimeUnit
     ): List<Traffic> {
 
         val traffics = mutableListOf<Traffic>()
@@ -143,20 +143,20 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
             val start1 = currentTime.time
             val finish1: Long
 
-            when (timeUnit) {
-                NetworkUsageUtils.TimeUnit.MONTH -> {
+            when (myTimeUnit) {
+                NetworkUsageUtils.MyTimeUnit.MONTH -> {
                     currentTime = DateUtils.addMonths(currentTime, 1).also {
                         finish1 = it.time
                     }
                 }
 
-                NetworkUsageUtils.TimeUnit.DAY -> {
+                NetworkUsageUtils.MyTimeUnit.DAY -> {
                     currentTime = DateUtils.addDays(currentTime, 1).also {
                         finish1 = it.time
                     }
                 }
 
-                NetworkUsageUtils.TimeUnit.HOUR -> {
+                NetworkUsageUtils.MyTimeUnit.HOUR -> {
                     currentTime = DateUtils.addHours(currentTime, 1).also {
                         finish1 = it.time
                     }

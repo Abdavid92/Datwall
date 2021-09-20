@@ -106,12 +106,18 @@ class UserDataBytesManager @Inject constructor(
                 bytes = dataBytes.bytes
                 expiredTime = dataBytes.expiredTime
 
+                if (initialBytes < dataBytes.bytes){
+                    initialBytes = dataBytes.bytes
+                }
+
                 startTime = if (type == DataType.DailyBag)
                     expiredTime - DateUtils.MILLIS_PER_DAY
                 else
                     expiredTime - DateUtils.MILLIS_PER_DAY * 30
             }
         }
+
+        userDataBytesRepository.update(userDataBytes)
     }
 
     private suspend fun registerLteTraffic(bytes: Long, simId: String) {

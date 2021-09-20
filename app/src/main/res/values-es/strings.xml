@@ -152,4 +152,15 @@
     <string name="empty_noti_title">No hay datos</string>
     <string name="empty_noti_text">No tiene ningún paquete de datos disponible.</string>
     <string name="date_exp_others">%s y otros expiran el %s</string>
+    <string name="syncronize">Sincronizar</string>
+    <string name="data_type_international">Megas Internacionales (3G/4G)</string>
+    <string name="data_type_international_lte">Megas Internacionales (LTE)</string>
+    <string name="data_type_national">Bono Navegación Nacional</string>
+    <string name="data_type_promo_bonus">Bono Promoción</string>
+    <string name="data_type_daily_bag">Bolsa Diaria</string>
+    <string name="no_package_data">No se han registrado megas \nUtilice el botón Sincronizar</string>
+    <string name="synchronization_failed">Sincronización Fallida</string>
+    <string name="synchronization_failed_message">Ocurrió un error desconocido y no se pudo sincronizar. Si el error persiste puede enviarnos un correo explicando el error. Gracias</string>
+    <string name="synchronization_failed_not_default_sim">La Sim no es la Predeterminada</string>
+    <string name="synchronization_failed_not_default_sim_message">La sim que está intentando sincronizar no es la predeterminada para llamadas. Por favor, configurela como predeterminada para llamadas para poder realizar la sincronización.</string>
 </resources>

@@ -1,28 +1,20 @@
 package com.smartsolutions.paquetes.ui.usage
 
-import android.graphics.Canvas
-import android.opengl.ETC1
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.components.AxisBase
-import com.github.mikephil.charting.components.IMarker
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.MPPointF
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageAppDetailsBinding
@@ -36,11 +28,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import android.opengl.ETC1.getHeight
 
-import android.opengl.ETC1.getWidth
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.RecyclerView
 
 
 const val ARG_APP = "app"
@@ -114,7 +103,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun setLineChart(traffics: List<Traffic>, timeUnit: NetworkUsageUtils.TimeUnit) {
+    private fun setLineChart(traffics: List<Traffic>, myTimeUnit: NetworkUsageUtils.MyTimeUnit) {
         val entries = mutableListOf<Entry>()
 
         traffics.forEach {
@@ -145,14 +134,14 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
             xAxis.valueFormatter = object : ValueFormatter() {
                 override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                    return when (timeUnit) {
-                        NetworkUsageUtils.TimeUnit.HOUR -> {
+                    return when (myTimeUnit) {
+                        NetworkUsageUtils.MyTimeUnit.HOUR -> {
                             SimpleDateFormat("hh aa", Locale.US).format(Date(value.toLong()))
                         }
-                        NetworkUsageUtils.TimeUnit.DAY -> {
+                        NetworkUsageUtils.MyTimeUnit.DAY -> {
                           "Día " + SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong()))
                         }
-                        NetworkUsageUtils.TimeUnit.MONTH -> {
+                        NetworkUsageUtils.MyTimeUnit.MONTH -> {
                             SimpleDateFormat("MMM", Locale.getDefault()).format(Date(value.toLong()))
                         }
                     }
@@ -194,7 +183,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
     }
 
 
-    private fun setAdapter(traffics: Pair<List<Traffic>, NetworkUsageUtils.TimeUnit>){
+    private fun setAdapter(traffics: Pair<List<Traffic>, NetworkUsageUtils.MyTimeUnit>){
         if (adapter == null){
             adapter = UsageAppDetailsRecyclerAdapter(traffics)
             binding.recyclerUsage.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
