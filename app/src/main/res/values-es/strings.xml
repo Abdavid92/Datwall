@@ -155,4 +155,5 @@
     <string name="firewall_summary">Bloquee o permita el acceso a internet a sus aplicaciones</string>
     <string name="dynamic_mode">Modo dinámico</string>
     <string name="static_mode">Modo estático</string>
+    <string name="title_bubble">Burbuja flotante</string>
 </resources>

@@ -40,6 +40,8 @@
                     android:paddingEnd="12dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
                     tools:ignore="RtlSymmetry">
 
                     <com.github.lzyzsd.circleprogress.ArcProgress
@@ -52,8 +54,8 @@
                         app:arc_bottom_text="543 MB"
                         app:arc_bottom_text_size="16sp"
                         app:arc_stroke_width="5dp"
-                        app:arc_angle="270"
-                        app:arc_text_size="26sp"/>
+                        app:arc_angle="260"
+                        app:arc_text_size="26sp" />
 
                 </FrameLayout>
 
