@@ -12,6 +12,13 @@
         <item>Min usage</item>
     </string-array>
 
+    <string-array name="filter_resume">
+        <item>More Data</item>
+        <item>Minus Data</item>
+        <item>Expire so far</item>
+        <item>Expire later</item>
+    </string-array>
+
     <string-array name="usage_options">
         <item>Hoy</item>
         <item>Ayer</item>

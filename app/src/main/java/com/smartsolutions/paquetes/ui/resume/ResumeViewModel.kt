@@ -1,6 +1,9 @@
 package com.smartsolutions.paquetes.ui.resume
 
+import android.app.Application
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
@@ -9,6 +12,7 @@ import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,19 +25,51 @@ import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class ResumeViewModel @Inject constructor(
+    application: Application,
     private val simManager: ISimManager,
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager
-) : ViewModel() {
+) : AndroidViewModel(application) {
+
+    private var filter = FilterUserDataBytes.NORMAL
+    private var liveUserDataBytes = MutableLiveData<List<UserDataBytes>>()
+    private var userDataBytes = emptyList<UserDataBytes>()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            getApplication<Application>().uiDataStore.data.collect {
+                filter = FilterUserDataBytes.valueOf(
+                    it[PreferencesKeys.RESUME_FILTER] ?: FilterUserDataBytes.NORMAL.name
+                )
+                if (userDataBytes.isNotEmpty()) {
+                    liveUserDataBytes.postValue(filter(userDataBytes))
+                }
+            }
+        }
+    }
+
+
+    fun setFilter(filterUserDataBytes: FilterUserDataBytes) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getApplication<Application>().uiDataStore.edit {
+                it[PreferencesKeys.RESUME_FILTER] = filterUserDataBytes.name
+            }
+        }
+    }
+
 
     fun getInstalledSims(): LiveData<List<Sim>> {
         return simManager.flowInstalledSims().asLiveData(Dispatchers.IO)
     }
 
     fun getUserDataBytes(simId: String): LiveData<List<UserDataBytes>> {
-        return userDataBytesRepository.flowBySimId(simId).map {
-            return@map it.filter { it.exists() && !it.isExpired() }
-        }.asLiveData(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.IO) {
+            userDataBytesRepository.flowBySimId(simId).collect { userData ->
+                userDataBytes = userData
+                liveUserDataBytes.postValue(filter(userData))
+            }
+        }
+        return liveUserDataBytes
     }
 
 
@@ -65,7 +101,7 @@ class ResumeViewModel @Inject constructor(
                             }
                         }
                     }
-                }else {
+                } else {
                     withContext(Dispatchers.Main) {
                         callback.onFailed(e.cause)
                     }
@@ -74,12 +110,31 @@ class ResumeViewModel @Inject constructor(
         }
     }
 
-
-    fun setDefaultSim(type: SimDelegate.SimType, sim: Sim){
+    fun setDefaultSim(type: SimDelegate.SimType, sim: Sim) {
         viewModelScope.launch(Dispatchers.IO) {
             simManager.setDefaultSim(type, sim)
         }
     }
+
+
+    private fun filter(userData: List<UserDataBytes>): List<UserDataBytes> {
+        return when (filter){
+           FilterUserDataBytes.SIZE_ASC -> {
+                userData.sortedBy { it.bytes }
+            }
+            FilterUserDataBytes.SIZE_DESC -> {
+                userData.sortedByDescending { it.bytes }
+            }
+            FilterUserDataBytes.EXPIRE_ASC -> {
+                userData.sortedBy { it.expiredTime }
+            }
+            FilterUserDataBytes.EXPIRE_DESC -> {
+                userData.sortedByDescending { it.expiredTime }
+            }
+            else -> userData
+        }.filter { it.exists() && !it.isExpired() }
+    }
+
 
     interface SynchronizationResult {
         fun onSuccess()
@@ -87,6 +142,14 @@ class ResumeViewModel @Inject constructor(
         fun onUSSDFail(message: String)
         fun onFailed(throwable: Throwable?)
         fun onAccessibilityServiceDisabled()
+    }
+
+    enum class FilterUserDataBytes {
+        SIZE_DESC,
+        SIZE_ASC,
+        EXPIRE_ASC,
+        EXPIRE_DESC,
+        NORMAL
     }
 
 }

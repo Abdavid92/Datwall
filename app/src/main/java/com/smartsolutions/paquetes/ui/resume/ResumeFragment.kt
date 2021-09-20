@@ -1,19 +1,15 @@
 package com.smartsolutions.paquetes.ui.resume
 
 import android.animation.Animator
-import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.view.animation.RotateAnimation
 import android.widget.PopupWindow
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
@@ -27,6 +23,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
+import com.smartsolutions.paquetes.ui.usage.UsageViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -70,12 +67,11 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             setAdapter(it)
             setTabLayoutMediator()
 
-            //TODO Temporal
-            /*if (it.size == 1){
+            if (it.size == 1){
                 binding.tabs.visibility = View.GONE
             }else {
                 binding.tabs.visibility = View.VISIBLE
-            }*/
+            }
         }
 
         configureAnimationFAB()
@@ -90,41 +86,60 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
                 fragment.show(this.childFragmentManager, "BasicDialog")
             }
         }
+
+        binding.buttonFilter.setOnClickListener {
+            showFilterOptions()
+        }
+
+
+    }
+
+
+    private fun showFilterOptions(){
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.dialog_filter_title)
+            .setItems(R.array.filter_resume) { _, pos ->
+                viewModel.setFilter(ResumeViewModel.FilterUserDataBytes.values()[pos])
+            }.show()
     }
 
     private fun configureAnimationFAB() {
-        binding.floatingActionButton.addOnExtendAnimationListener(object :
-            Animator.AnimatorListener {
+        binding.floatingActionButton.apply {
 
-            override fun onAnimationStart(anim: Animator?) {
-                binding.floatingActionButton.apply {
-                    animation?.cancel()
-                    animation?.reset()
+            addOnExtendAnimationListener(object :
+                Animator.AnimatorListener {
+
+                override fun onAnimationStart(anim: Animator?) {
+                    binding.floatingActionButton.apply {
+                        animation?.cancel()
+                        animation?.reset()
+                    }
                 }
-            }
 
-            override fun onAnimationEnd(anim: Animator?) {}
-            override fun onAnimationCancel(animation: Animator?) {}
-            override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(anim: Animator?) {}
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationRepeat(animation: Animator?) {}
 
-        })
+            })
 
-        binding.floatingActionButton.addOnShrinkAnimationListener(object :
-            Animator.AnimatorListener {
 
-            override fun onAnimationStart(animation: Animator?) {}
+            addOnShrinkAnimationListener(object :
+                Animator.AnimatorListener {
 
-            override fun onAnimationEnd(anim: Animator?) {
-                binding.floatingActionButton.apply {
-                    animation = rotateAnimation
-                    animation?.start()
+                override fun onAnimationStart(animation: Animator?) {}
+
+                override fun onAnimationEnd(anim: Animator?) {
+                    binding.floatingActionButton.apply {
+                        animation = rotateAnimation
+                        animation?.start()
+                    }
                 }
-            }
 
-            override fun onAnimationCancel(animation: Animator?) {}
-            override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationRepeat(animation: Animator?) {}
 
-        })
+            })
+        }
     }
 
     private fun setAdapter(sims: List<Sim>) {

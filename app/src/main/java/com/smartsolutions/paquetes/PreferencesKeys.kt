@@ -119,4 +119,9 @@ object PreferencesKeys {
      * Indica si se muestra siempre la burbuja o solo si la app abierta tiene consumo
      */
     val BUBBLE_ALWAYS_SHOW = booleanPreferencesKey("bubble_always_show")
+
+    /**
+     * Filtro que organiza los userDataBytes que se muestran al usuario
+     */
+    val RESUME_FILTER = stringPreferencesKey("resume_filter")
 }

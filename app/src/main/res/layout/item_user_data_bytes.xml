@@ -23,13 +23,19 @@
 
             <com.github.lzyzsd.circleprogress.ArcProgress
                 android:id="@+id/progress_bar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 app:arc_finished_color="@color/color_primary"
-                app:arc_unfinished_color="@color/gray_600"
+                app:arc_max="100"
+                app:arc_progress="60"
+                app:arc_stroke_width="5dp"
                 app:arc_text_color="@color/color_primary"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:arc_text_size="26sp"
+                app:arc_suffix_text_size="10sp"
+                app:arc_unfinished_color="@color/gray_400"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -92,7 +98,7 @@
                             android:text="500"
                             android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                            android:textSize="22sp"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -103,7 +109,7 @@
                             android:paddingLeft="2dp"
                             android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                            android:textSize="16sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -139,7 +145,7 @@
                             android:text="1.5"
                             android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                            android:textSize="22sp"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -150,7 +156,7 @@
                             android:paddingLeft="2dp"
                             android:textColor="@color/color_primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                            android:textSize="16sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -178,7 +184,8 @@
                         android:textAlignment="center"
                         android:padding="3dp"
                         android:text="Vence:"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="10sp"/>
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/expire_date"
@@ -188,7 +195,8 @@
                         android:textAlignment="center"
                         android:padding="3dp"
                         android:text="8 Diciembre"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="12sp"/>
 
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -206,7 +214,8 @@
                         android:textAlignment="center"
                         android:padding="3dp"
                         android:text="Faltan:"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="10sp"/>
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/rest_date"
@@ -215,7 +224,8 @@
                         android:textAlignment="center"
                         android:padding="3dp"
                         android:text="28 Dias"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="12sp"/>
 
 
                 </androidx.appcompat.widget.LinearLayoutCompat>

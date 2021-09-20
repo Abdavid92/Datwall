@@ -30,6 +30,20 @@
                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                    android:textSize="20sp" />
 
+               <androidx.appcompat.widget.AppCompatImageButton
+                   android:id="@+id/button_history"
+                   android:layout_width="45dp"
+                   android:layout_height="45dp"
+                   android:src="@drawable/ic_history_24"
+                   style="@style/Widget.AppCompat.ButtonBar.AlertDialog"/>
+
+               <androidx.appcompat.widget.AppCompatImageButton
+                   android:id="@+id/button_filter"
+                   android:layout_width="45dp"
+                   android:layout_height="45dp"
+                   android:src="@drawable/ic_filter_list"
+                   style="@style/Widget.AppCompat.ButtonBar.AlertDialog"/>
+
 
            </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -70,6 +84,8 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:backgroundTint="@color/color_primary"
         app:icon="@drawable/ic_sync_24"
+        android:textColor="@color/white"
+        app:iconTint="@color/white"
         app:iconPadding="8dp"
         app:layout_anchor="@id/pager"
         app:layout_anchorGravity="end|bottom"

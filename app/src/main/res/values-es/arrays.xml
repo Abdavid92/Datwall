@@ -12,6 +12,13 @@
         <item>Menor consumo</item>
     </string-array>
 
+    <string-array name="filter_resume">
+        <item>Más megas restantes</item>
+        <item>Menos megas restantes</item>
+        <item>Vence más pronto</item>
+        <item>Vence más tarde</item>
+    </string-array>
+
     <string-array name="usage_options">
         <item>Hoy</item>
         <item>Ayer</item>

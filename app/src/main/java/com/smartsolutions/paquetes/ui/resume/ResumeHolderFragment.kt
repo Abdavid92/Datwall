@@ -60,7 +60,7 @@ class ResumeHolderFragment : Fragment() {
             adapter = UserDataBytesRecyclerAdapter(requireContext(), userData)
             binding.recycler.adapter = adapter
         }else {
-            adapter!!.update(userData)
+            adapter?.update(userData)
         }
     }
 

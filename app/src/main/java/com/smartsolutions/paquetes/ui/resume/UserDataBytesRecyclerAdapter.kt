@@ -20,28 +20,28 @@ class UserDataBytesRecyclerAdapter constructor(
 
     private var userDataShow = userData
 
+    private val diffUtilCallback = object : DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return userDataShow.size
+        }
+
+        override fun getNewListSize(): Int {
+            return userData.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return userDataShow[oldItemPosition].type == userData[newItemPosition].type
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return userDataShow[oldItemPosition].bytes == userData[newItemPosition].bytes
+        }
+    }
+
     fun update(userDataNew: List<UserDataBytes>){
         userData = userDataNew
 
-        val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-
-            override fun getOldListSize(): Int {
-                return userDataShow.size
-            }
-
-            override fun getNewListSize(): Int {
-                return userData.size
-            }
-
-            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return userDataShow[oldItemPosition].type == userData[newItemPosition].type
-            }
-
-            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return userDataShow[oldItemPosition].bytes == userData[newItemPosition].bytes
-            }
-
-        })
+        val result = DiffUtil.calculateDiff(diffUtilCallback)
 
         userDataShow = userData
 
@@ -62,12 +62,15 @@ class UserDataBytesRecyclerAdapter constructor(
             }
             val restDate = NetworkUsageUtils.calculateDiffDate(System.currentTimeMillis(), userDataBytes.expiredTime)
 
-            binding.progressBar.max = 100
-            binding.progressBar.progress = if (percent <= 0){
-                1
-            }else {
-                percent
+            binding.progressBar.apply {
+                max = 100
+                progress = if (percent <= 0){
+                    1f
+                }else {
+                    percent.toFloat()
+                }
             }
+
             binding.dataType.text = userDataBytes.getName(context)
             binding.textRestValue.text = rest.value.toString()
             binding.textRestUnit.text = rest.dataUnit.name
@@ -75,7 +78,6 @@ class UserDataBytesRecyclerAdapter constructor(
             binding.textUsageUnit.text = usage.dataUnit.name
             binding.expireDate.text = expire
             binding.restDate.text = "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
-            binding.textPercent.text = "${percent}%"
         }
     }
 
