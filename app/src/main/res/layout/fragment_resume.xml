@@ -1,13 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.resume.ResumeFragment">
 
-    <TextView
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="Resumen" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" />
+        android:padding="@dimen/activity_horizontal_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-</FrameLayout>
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
+
+                <FrameLayout
+                    android:id="@+id/progress_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingEnd="12dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="RtlSymmetry">
+
+                    <com.github.lzyzsd.circleprogress.ArcProgress
+                        android:id="@+id/progress"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        app:arc_finished_color="@color/color_primary"
+                        app:arc_unfinished_color="#ccc"
+                        app:arc_text_color="@color/color_primary"
+                        app:arc_bottom_text="543 MB"
+                        app:arc_bottom_text_size="16sp"
+                        app:arc_stroke_width="5dp"
+                        app:arc_angle="270"
+                        app:arc_text_size="26sp"/>
+
+                </FrameLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/progress_layout"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:text="Megas internacionales (3G/4G)"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="15sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:textStyle="bold"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/remainder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="@id/title"
+                    app:layout_constraintTop_toBottomOf="@id/title"
+                    android:layout_marginTop="8dp"
+                    android:text="Gastado"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="@id/remainder"
+                    app:layout_constraintEnd_toEndOf="@id/remainder"
+                    app:layout_constraintTop_toBottomOf="@id/remainder"
+                    android:text="1.4 GB"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/expire"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="@id/title"
+                    app:layout_constraintEnd_toEndOf="@id/title"
+                    app:layout_constraintTop_toBottomOf="@id/title"
+                    android:text="Vence"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="@id/expire"
+                    app:layout_constraintEnd_toEndOf="@id/expire"
+                    app:layout_constraintTop_toBottomOf="@id/expire"
+                    android:text="14/10"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/faltan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/title"
+                    app:layout_constraintStart_toStartOf="@id/faltan_value"
+                    app:layout_constraintEnd_toEndOf="@id/faltan_value"
+                    android:layout_marginTop="8dp"
+                    android:text="Faltan"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/faltan_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="@id/title"
+                    app:layout_constraintTop_toBottomOf="@id/faltan"
+                    android:text="24 días"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

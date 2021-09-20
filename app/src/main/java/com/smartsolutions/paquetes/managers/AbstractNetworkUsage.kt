@@ -39,6 +39,7 @@ abstract class AbstractNetworkUsage(
     /**
      * Retorna los buckets con el registro de las app que han consumido en el periodo de tiempo especificado
      * */
+    @Suppress("DEPRECATION")
     protected fun getUsage(start: Long, finish: Long): List<NetworkStats.Bucket>? {
         clearCache()
 
@@ -68,6 +69,7 @@ abstract class AbstractNetworkUsage(
     }
 
     //Retorna el bucket de consumo en general en el periodo especificado
+    @Suppress("DEPRECATION")
     protected fun getUsageGeneral(start: Long, finish: Long): NetworkStats.Bucket? {
         clearCache()
 

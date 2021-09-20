@@ -137,7 +137,7 @@
     <string name="traffic_free">Gratis</string>
     <string name="filter">Filtro</string>
     <string name="search">Buscar</string>
-    <string name="dialog_filter_title">Ordenar lista por...</string>
+    <string name="dialog_filter_title">Ordenar lista por…</string>
     <string name="tab_international">Internacional</string>
     <string name="tab_national">Nacional</string>
     <string name="tab_free">Gratis</string>
@@ -151,7 +151,6 @@
     <string name="date_exp">%s expira el %s</string>
     <string name="empty_noti_title">No hay datos</string>
     <string name="empty_noti_text">No tiene ningún paquete de datos disponible.</string>
-    <string name="date_exp_others">%s y otros expiran el %s</string>
     <string name="title_packages_configuration">Configuración de los paquetes</string>
     <string name="firewall_summary">Bloquee o permita el acceso a internet a sus aplicaciones</string>
     <string name="dynamic_mode">Modo dinámico</string>
