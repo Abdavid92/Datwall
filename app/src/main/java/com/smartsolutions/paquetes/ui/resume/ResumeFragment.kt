@@ -70,11 +70,12 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             setAdapter(it)
             setTabLayoutMediator()
 
-            if (it.size == 1){
+            //TODO Temporal
+            /*if (it.size == 1){
                 binding.tabs.visibility = View.GONE
             }else {
                 binding.tabs.visibility = View.VISIBLE
-            }
+            }*/
         }
 
         configureAnimationFAB()
