@@ -45,7 +45,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
     abstract suspend fun getAppsUsage(start: Long, finish: Long): List<Traffic>
 
     /**
-     * Obtiene el tráfico de una lista de aplicaciones y  se lo asigna a estas.
+     * Obtiene el tráfico de una lista de aplicaciones y se lo asigna a estas.
      *
      * @param apps - Lista de aplicaciones de las que se va a obtener el tráfico y
      * posteriormente asignar.

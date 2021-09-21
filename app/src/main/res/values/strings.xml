@@ -114,11 +114,11 @@
     <string name="generic_error_description_notification">Toque aqui para ver el error</string>
     <string name="stoped_missing_overlay_permissions_title_notification">Se denegó Permiso de Sobreponerse</string>
     <string name="stoped_missing_overlay_permissions_description_notification">Sin este permiso el cortafuegos o la burbuja flotante no pueden funcionar y se han detenidos</string>
-    <string name="stoped_missing_vpn_permissions_title_notification">Se Denegó Permiso de VPN</string>
+    <string name="stoped_missing_vpn_permissions_title_notification">Se denegó el permiso de VPN</string>
     <string name="stoped_missing_vpn_permissions_description_notification">Sin este permiso no puede funcionar el cortafuegos, por lo tanto se ha detenido</string>
     <string name="btn_later">Más tarde</string>
-    <string name="allowed_apps">Aplicaciones permitidas (%d)</string>
-    <string name="blocked_apps">Aplicaciones bloqueadas (%d)</string>
+    <string name="allowed_applications">Aplicaciones permitidas (%d)</string>
+    <string name="blocked_applications">Aplicaciones bloqueadas (%d)</string>
     <string name="apps_count">Aplicaciones: %d</string>
     <string name="warning_title">Advertencia</string>
     <string name="page_0_title"><![CDATA[Bienvenido a <b>Mis Datos</b> su app de administración de datos]]></string>
@@ -155,4 +155,19 @@
     <string name="dynamic_mode">Modo dinámico</string>
     <string name="static_mode">Modo estático</string>
     <string name="title_bubble">Burbuja flotante</string>
+    <string name="bubble_summary">Observe el consumo en tiempo real de la aplicación abierta mediante la burbuja.</string>
+    <string name="transparency">Transparencia</string>
+    <string name="size">Tamaño</string>
+    <string name="visibility">Visibilidad</string>
+    <string name="all_way">Siempre</string>
+    <string name="only_consume">Solo si hay consumo</string>
+    <string name="query_credit">Consultar saldo</string>
+    <string name="app_more_consume">App de más consumo</string>
+    <string name="query_bonus">Consultar bono</string>
+    <string name="error_starting_firewall_for_all_access">No se puede encender el cortafuegos si todas las aplicaciones tienen acceso.</string>
+    <string name="allowed_apps">Apps permitidas %d</string>
+    <string name="blocked_apps">Apps bloqueadas %d</string>
+    <string name="all_apps">Total de apps %d</string>
+    <string name="searching">Buscando...</string>
+    <string name="failed_find_app_more_consume">No se encontró ninguna app.</string>
 </resources>

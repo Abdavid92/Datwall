@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/colorPrimary"
     tools:context=".ui.resume.ResumeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -13,7 +14,8 @@
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="Resumen" />
+            app:title="Resumen"
+            app:titleTextColor="@color/white"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -21,7 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="@dimen/activity_horizontal_margin"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        style="@style/BackgroundStyle">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -48,9 +51,9 @@
                         android:id="@+id/progress"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
-                        app:arc_finished_color="@color/color_primary"
+                        app:arc_finished_color="@color/purple_medium"
                         app:arc_unfinished_color="#ccc"
-                        app:arc_text_color="@color/color_primary"
+                        app:arc_text_color="@color/purple_medium"
                         app:arc_bottom_text="543 MB"
                         app:arc_bottom_text_size="16sp"
                         app:arc_stroke_width="5dp"

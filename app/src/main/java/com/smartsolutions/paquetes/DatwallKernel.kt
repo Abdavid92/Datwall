@@ -8,8 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -20,7 +18,6 @@ import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
-import com.smartsolutions.paquetes.services.FirewallService
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
@@ -52,7 +49,8 @@ class DatwallKernel @Inject constructor(
     private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
     private val trafficRegistration: TrafficRegistration,
-    private val simManager: ISimManager
+    private val simManager: ISimManager,
+    private val firewallHelper: FirewallHelper
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -62,8 +60,8 @@ class DatwallKernel @Inject constructor(
         launch {
 
             context.dataStore.data.collect {
-                bubbleOn = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
-                firewallOn = it[PreferencesKeys.ENABLED_FIREWALL] == true
+                BUBBLE_ON = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
+                FIREWALL_ON = it[PreferencesKeys.ENABLED_FIREWALL] == true
             }
         }
     }
@@ -208,11 +206,11 @@ class DatwallKernel @Inject constructor(
         (context as DatwallApplication).dataMobileOn = true
 
         launch {
-            if (firewallOn) {
+            if (FIREWALL_ON) {
                 startFirewall()
             }
 
-            if (bubbleOn) {
+            if (BUBBLE_ON) {
                 startBubbleFloating()
             }
 
@@ -230,11 +228,11 @@ class DatwallKernel @Inject constructor(
     override fun setDataMobileStateOff() {
         (context as DatwallApplication).dataMobileOn = false
 
-        if (firewallOn) {
+        if (FIREWALL_ON) {
           stopFirewall()
         }
 
-        if (bubbleOn) {
+        if (BUBBLE_ON) {
             stopBubbleFloating()
         }
     }
@@ -404,16 +402,8 @@ class DatwallKernel @Inject constructor(
 
     private suspend fun startFirewall() {
         if (activationManager.canWork().first) {
-            val permission = permissionManager.findPermission(IPermissionsManager.VPN_CODE)
-            if (permission?.checkPermission?.invoke(permission, context) == true) {
-                try {
-                    context.startService(Intent(context, FirewallService::class.java))
-                } catch (e: Exception) {
-
-                }
-            } else {
+            if (!firewallHelper.startFirewallService())
                 throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
-            }
         }
     }
 
@@ -454,22 +444,11 @@ class DatwallKernel @Inject constructor(
     }
 
     fun stopFirewall(turnOf: Boolean = false){
-        if (turnOf){
-            launch {
-                context.dataStore.edit {
-                    it[PreferencesKeys.ENABLED_FIREWALL] = false
-                }
-            }
+        if (turnOf) {
+            firewallHelper.establishFirewallEnabled(false)
         }
 
-        try {
-            context.startService(
-                Intent(context, FirewallService::class.java)
-                    .setAction(FirewallService.ACTION_STOP_FIREWALL_SERVICE)
-            )
-        }catch (e: Exception) {
-
-        }
+        firewallHelper.stopFirewallService()
     }
 
     private fun openActivity(activity: Class<out Activity>) {
@@ -520,7 +499,7 @@ class DatwallKernel @Inject constructor(
 
     companion object {
         private var updateApplicationStatusJob: Job? = null
-        private var bubbleOn = false
-        private var firewallOn = false
+        private var BUBBLE_ON = false
+        private var FIREWALL_ON = false
     }
 }
