@@ -113,7 +113,7 @@ object PreferencesKeys {
     /**
      * Transparencia de la burbuja flotante
      */
-    val BUBBLE_TRANSPARENCY = stringPreferencesKey("bubble_transparency")
+    val BUBBLE_TRANSPARENCY = floatPreferencesKey("bubble_transparency")
 
     /**
      * Indica si se muestra siempre la burbuja o solo si la app abierta tiene consumo

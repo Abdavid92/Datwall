@@ -98,7 +98,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private var moving = 0
 
     private var SIZE = BubbleSize.MEDIUM
-    private var TRANSPARENCY = BubbleTransparency.MEDIUM
+    private var TRANSPARENCY = 0.5f
     private var ALWAYS_SHOW = true
 
 
@@ -154,9 +154,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
                 SIZE = BubbleSize.valueOf(
                     it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.SMALL.name
                 )
-                TRANSPARENCY = BubbleTransparency.valueOf(
-                    it[PreferencesKeys.BUBBLE_TRANSPARENCY] ?: BubbleTransparency.LOW.name
-                )
+                TRANSPARENCY = it[PreferencesKeys.BUBBLE_TRANSPARENCY] ?: 0.5f
                 ALWAYS_SHOW = it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] ?: false
             }
         }
@@ -259,14 +257,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
         val duration = 800L
 
         if (transparent) {
-            val value = when (TRANSPARENCY){
-                BubbleTransparency.LOW -> 0.3f
-                BubbleTransparency.MEDIUM -> 0.5f
-                BubbleTransparency.HIGH -> 0.8f
-            }
-
             if (bubbleBinding.root.alpha == 1f){
-                bubbleBinding.root.animate().alpha(value).duration = duration
+                bubbleBinding.root.animate().alpha(TRANSPARENCY).duration = duration
                 bubbleBinding.root.animate().start()
             }
         } else {
@@ -591,12 +583,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
         SMALL,
         MEDIUM,
         LARGE
-    }
-
-    enum class BubbleTransparency {
-        LOW,
-        MEDIUM,
-        HIGH
     }
 
 }
