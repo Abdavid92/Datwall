@@ -8,6 +8,8 @@ import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.AppCompatRadioButton
+import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.SwitchCompat
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.FragmentManager
@@ -327,6 +329,36 @@ class DashboardViewModel @Inject constructor(
                         dataStore.edit {
                             it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = false
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    fun setTransparencyListener(bubbleTransparency: AppCompatSeekBar) {
+
+    }
+
+    fun setSizeListener(bubbleSize: AppCompatSeekBar) {
+
+    }
+
+    fun setBubbleAllWayListener(allWay: AppCompatRadioButton, onlyConsume: AppCompatRadioButton) {
+        viewModelScope.launch {
+            val dataStore = getApplication<DatwallApplication>().dataStore
+
+            val allWayStore = dataStore.data
+                .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW) == true
+
+            if (allWayStore)
+                allWay.isChecked = true
+            else
+                onlyConsume.isChecked = true
+
+            allWay.setOnCheckedChangeListener { _, isChecked ->
+                viewModelScope.launch {
+                    dataStore.edit {
+                        it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] = isChecked
                     }
                 }
             }

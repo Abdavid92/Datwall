@@ -229,7 +229,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="@id/divider4"
                         app:layout_constraintTop_toBottomOf="@id/title_transparency"
-                        android:max="20" />
+                        android:max="10" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/title_size"
