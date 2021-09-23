@@ -23,7 +23,6 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
-import com.smartsolutions.paquetes.ui.usage.UsageViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,7 +31,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
     private val viewModel by viewModels<ResumeViewModel>()
 
     private lateinit var binding: FragmentResumeBinding
-    private var adapterFragment: FragmentPageAdapter? = null
+    private var adapterFragment: ResumePagerAdapter? = null
     private lateinit var installedSims: List<Sim>
 
     private val rotateAnimation = RotateAnimation(
@@ -144,7 +143,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
     private fun setAdapter(sims: List<Sim>) {
         if (adapterFragment == null) {
-            adapterFragment = FragmentPageAdapter(this, sims)
+            adapterFragment = ResumePagerAdapter(this, sims)
             binding.pager.adapter = adapterFragment
         } else {
             adapterFragment!!.sims = sims

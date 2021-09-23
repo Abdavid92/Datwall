@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.smartsolutions.paquetes.repositories.models.Sim
 
-class FragmentPageAdapter constructor(
+class ResumePagerAdapter constructor(
     fragment: ResumeFragment,
     var sims: List<Sim>
 ): FragmentStateAdapter(fragment) {

@@ -163,4 +163,8 @@
     <string name="synchronization_failed_message">Ocurrió un error desconocido y no se pudo sincronizar. Si el error persiste puede enviarnos un correo explicando el error. Gracias</string>
     <string name="synchronization_failed_not_default_sim">La Sim no es la Predeterminada</string>
     <string name="synchronization_failed_not_default_sim_message">La sim que está intentando sincronizar no es la predeterminada para llamadas. Por favor, configurela como predeterminada para llamadas para poder realizar la sincronización.</string>
+    <string name="title_history">Historial</string>
+    <string name="total">Total:</string>
+    <string name="month_purchased">Paquetes Comprados</string>
+    <string name="no_data">No hay datos para mostrar</string>
 </resources>

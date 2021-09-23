@@ -31,7 +31,7 @@ object DataPackages {
         ),
         DataPackage(
             Combined_Basic,
-            "Plan básico",
+            "Plan Básico",
             "Proporciona 600MB disponibles para todas las redes y 800MB solo para LTE. " +
                     "Ademas contará con 15min para llamadas y 20sms. La vigencia es de 30 dias " +
                     "a partir del primer uso de cualquiera de los tres recursos.",
@@ -46,7 +46,7 @@ object DataPackages {
         ),
         DataPackage(
             Combined_Medium,
-            "Plan medio",
+            "Plan Medio",
             "Proporciona 1.5GB disponibles para todas las redes y 2GB solo para LTE. " +
                     "Ademas contará con 35min para llamadas y 40sms. La vigencia es de 30 dias " +
                     "a partir del primer uso de cualquiera de los tres recursos.",
@@ -61,7 +61,7 @@ object DataPackages {
         ),
         DataPackage(
             Combined_Extra,
-            "Plan extra",
+            "Plan Extra",
             "Proporciona 3.5GB disponibles para todas las redes y 4.5GB solo para LTE. " +
                     "Ademas contará con 75min para llamadas y 80sms. La vigencia es de 30 dias " +
                     "a partir del primer uso de cualquiera de los tres recursos.",

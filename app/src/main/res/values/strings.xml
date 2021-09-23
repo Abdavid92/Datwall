@@ -162,4 +162,8 @@
     <string name="empty_noti_title">No hay datos</string>
     <string name="empty_noti_text">No tiene ningún paquete de datos disponible.</string>
     <string name="date_exp_others">%s y otros expiran el %s</string>
+    <string name="title_history">Historial</string>
+    <string name="total">Total:</string>
+    <string name="month_purchased">Paquetes Comprados</string>
+    <string name="no_data">No hay datos para mostrar</string>
 </resources>

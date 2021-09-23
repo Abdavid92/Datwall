@@ -7,6 +7,11 @@
         android:icon="@drawable/ic_packages"
         app:showAsAction="ifRoom" />
 
+    <item android:id="@+id/navigation_history"
+        android:title="@string/title_history"
+        android:icon="@drawable/ic_history_24"
+        app:showAsAction="ifRoom" />
+
     <item android:id="@+id/navigation_settings"
         android:title="@string/title_settings"
         android:icon="@drawable/ic_settings"

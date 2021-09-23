@@ -41,4 +41,10 @@
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 
+    <fragment
+        android:id="@+id/navigation_history"
+        android:name="com.smartsolutions.paquetes.ui.history.HistoryFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
+
 </navigation>

@@ -89,10 +89,12 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
             description.isEnabled = false
             axisRight.isEnabled = false
             xAxis.apply {
+                setDrawGridLines(false)
                 position = XAxis.XAxisPosition.BOTTOM
                 textColor = uiHelper.getTextColorByTheme()
             }
             axisLeft.apply {
+                setDrawGridLines(true)
                 setDrawZeroLine(false)
                 setDrawGridLinesBehindData(false)
                 textColor = uiHelper.getTextColorByTheme()
@@ -120,9 +122,9 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
                 setDrawFilled(false)
                 valueTextSize = 0f
                 isHighlightPerTapEnabled = true
-                circleRadius = 5f
+                circleRadius = 3f
                 setDrawCircleHole(true)
-                lineWidth = 2f
+                lineWidth = 3f
             })
             animateY(700)
             axisLeft.valueFormatter = object : ValueFormatter() {

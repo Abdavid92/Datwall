@@ -141,8 +141,38 @@ class NetworkUsageUtils @Inject constructor(
             }
             date = DateUtils.setMinutes(date, 0)
             date = DateUtils.setSeconds(date, 1)
+            date = DateUtils.setMilliseconds(date, 0)
 
             return date
+        }
+
+        fun getLastHour (day : Date) : Date {
+            var date = day
+            date = try {
+                DateUtils.setHours(date, 23)
+            }catch (e : IllegalArgumentException){
+                DateUtils.setHours(date, 1)
+            }
+            date = DateUtils.setMinutes(date, 59)
+            date = DateUtils.setSeconds(date, 59)
+            date = DateUtils.setMilliseconds(date, 999)
+
+            return date
+        }
+
+
+        fun isSameMonth(date: Long, month: Long): Boolean {
+            val start = getZeroHour(DateUtils.setDays(Date(month), 1)).time
+            val calendar = Calendar.getInstance()
+            calendar.time = Date(month)
+            val finish = getLastHour(
+                DateUtils.setDays(
+                    calendar.time,
+                    calendar.getActualMaximum(Calendar.DATE)
+                )
+            ).time
+            calendar.clear()
+            return date in start..finish
         }
 
         /**
