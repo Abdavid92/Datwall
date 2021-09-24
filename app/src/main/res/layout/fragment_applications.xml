@@ -6,18 +6,23 @@
     android:layout_height="match_parent"
     android:paddingStart="@dimen/activity_horizontal_padding"
     android:paddingEnd="@dimen/activity_horizontal_padding"
+    android:background="?attr/colorPrimary"
     tools:context=".ui.applications.ApplicationsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.Datwall.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:popupTheme="@style/Theme.Datwall.PopupOverlay"
-            app:layout_scrollFlags="scroll|enterAlways">
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:title="@string/title_applications"
+            app:titleTextColor="@color/white"
+            app:menu="@menu/applications_menu">
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -33,6 +38,8 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        style="@style/BackgroundStyle"
+        android:paddingTop="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

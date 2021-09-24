@@ -5,21 +5,16 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.ui.firewall.AppsListAdapter
 import com.smartsolutions.paquetes.uiDataStore
-import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
 
@@ -127,7 +122,7 @@ class ApplicationsViewModel @Inject constructor(
                     //Encabezado de aplicaciones permitidas.
                     finalList.add(HeaderApp.newInstance(
                         getApplication<Application>()
-                            .getString(R.string.allowed_apps, allowedApps.size))
+                            .getString(R.string.allowed_applications, allowedApps.size))
                     )
                 }
 
@@ -138,7 +133,7 @@ class ApplicationsViewModel @Inject constructor(
                     finalList.add(
                         HeaderApp.newInstance(
                             getApplication<Application>()
-                                .getString(R.string.blocked_apps, blockedApps.size))
+                                .getString(R.string.blocked_applications, blockedApps.size))
                     )
                 }
 

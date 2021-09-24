@@ -3,6 +3,8 @@
     <!--Estilo base de los botones-->
     <style name="BaseButton" parent="Widget.AppCompat.Button">
         <item name="android:textAllCaps">false</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
     </style>
 
     <!--Botón primario-->
@@ -29,20 +31,19 @@
         <item name="cardElevation">@dimen/card_view_elevation</item>
     </style>
 
-    <style name="AppBarStyle" parent="Widget.MaterialComponents.AppBarLayout.Primary">
-        <item name="android:background">?android:attr/windowBackground</item>
-        <item name="elevation">0dp</item>
-    </style>
-
     <style name="BottomNavViewStyle" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="android:background">@drawable/bg_bottom_nav_view</item>
     </style>
 
-    <style name="TabLayoutStyle" parent="Widget.MaterialComponents.TabLayout">
-        <item name="android:background">?android:attr/windowBackground</item>
+    <style name="TabLayoutStyle" parent="Widget.MaterialComponents.TabLayout.Colored">
+        <item name="android:background">?attr/colorPrimary</item>
         <item name="tabTextAppearance">@style/TextAppearance.AppCompat.Body2</item>
         <item name="tabMode">auto</item>
         <item name="tabGravity">center</item>
+    </style>
+
+    <style name="BackgroundStyle">
+        <item name="android:background">@drawable/background_fragments</item>
     </style>
 
     <style name="Widget.Theme.Datwall.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">

@@ -4,60 +4,91 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.android.material.button.MaterialButton
-import com.smartsolutions.paquetes.ui.ApplicationFragment
-import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.annotations.ApplicationStatus
-import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
-import com.smartsolutions.paquetes.serverApis.models.AndroidApp
-import com.smartsolutions.paquetes.ui.MainActivity
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
-import com.smartsolutions.paquetes.ui.settings.UpdateFragment
+import com.smartsolutions.paquetes.databinding.FragmentDashboardBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class DashboardFragment : ApplicationFragment() {
+class DashboardFragment : Fragment() {
 
-    private val dashboardViewModel by viewModels<DashboardViewModel>()
+    private val viewModel by viewModels<DashboardViewModel>()
 
-    @Inject
-    lateinit var ussdHelper: USSDHelper
-
-    @Inject
-    lateinit var dataPackageManager: IDataPackageManager
+    lateinit var binding: FragmentDashboardBinding
+        private set
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_dashboard, container, false)
+    ): View {
+        binding = FragmentDashboardBinding.inflate(
+            inflater,
+            container,
+            false
+        )
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val textView: TextView = view.findViewById(R.id.text_dashboard)
-
-        dashboardViewModel.apps.observe(viewLifecycleOwner, {
-            textView.text = "Cantidad de aplicaciones: ${it.size}"
-        })
-    }
-    
-    private fun deleteOne(view: View) {
-        SinglePermissionFragment.newInstance(34)
-            .show(parentFragmentManager, "Single")
+        setFirewallSettings()
+        setBubbleSettings()
+        setUssdButtonsSettings()
     }
 
-    private fun testDownload() {
+    private fun setFirewallSettings() {
+        viewModel.setFirewallSwitchListener(binding.firewall, childFragmentManager)
 
+        binding.firewallControl.setOnClickListener {
+            val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                requireActivity(),
+                Pair(binding.firewallControl, IControls.CARD_VIEW),
+                Pair(binding.firewallHeader, IControls.HEADER),
+                Pair(binding.firewall, IControls.SWITCH),
+                Pair(binding.firewallSummary, IControls.SUMMARY)
+            )
 
+            startActivity(
+                FirewallControls.getLaunchIntent(requireContext()),
+                activityOptions.toBundle()
+            )
+        }
+    }
+
+    private fun setBubbleSettings() {
+        viewModel.setBubbleSwitchListener(binding.bubble, childFragmentManager)
+
+        binding.bubbleControl.setOnClickListener {
+            val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                requireActivity(),
+                Pair(binding.bubbleControl, IControls.CARD_VIEW),
+                Pair(binding.bubbleHeader, IControls.HEADER),
+                Pair(binding.bubble, IControls.SWITCH),
+                Pair(binding.bubbleSummary, IControls.SUMMARY)
+            )
+            startActivity(
+                BubbleControls.getLaunchIntent(requireContext()),
+                activityOptions.toBundle()
+            )
+        }
+    }
+
+    private fun setUssdButtonsSettings() {
+        binding.queryCredit.setOnClickListener {
+            viewModel.launchUssdCode("*222#", childFragmentManager)
+        }
+
+        binding.queryBonus.setOnClickListener {
+            viewModel.launchUssdCode("*222*266#", childFragmentManager)
+        }
+
+        binding.queryMb.setOnClickListener {
+            viewModel.launchUssdCode("*222*328#", childFragmentManager)
+        }
     }
 }

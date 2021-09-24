@@ -3,76 +3,224 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorPrimary"
+    tools:context=".ui.dashboard.DashboardFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.Datwall.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="Dashboard" />
+            app:title="@string/title_dashboard"
+            app:titleTextColor="@color/white"
+            app:popupTheme="@style/Theme.Datwall.PopupOverlay"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.dashboard.DashboardFragment">
+        style="@style/BackgroundStyle"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/text_dashboard">
-
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/text_dashboard"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="match_parent"
+            android:padding="@dimen/activity_horizontal_margin">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/delete_one"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/text_dashboard"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="Primario" />
+            <androidx.cardview.widget.CardView
+                android:id="@+id/firewall_control"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/bubble_control"
+                android:layout_marginEnd="8dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/background_light"
+                app:cardElevation="0dp">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/second"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/delete_one"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"
-            android:text="Secondario"
-            style="@style/BaseButton.SecondaryButton" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/second"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"
-            android:text="Peligro"
-            style="@style/BaseButton.DangerButton" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/firewall_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:text="@string/title_firewall"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorPrimary"
+                        android:textAlignment="center"
+                        android:drawableStart="@drawable/ic_vpn"
+                        app:drawableTint="?attr/colorPrimary" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/firewall_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Toque aquí para ver más configuraciones"
+                        android:textAlignment="center"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/firewall_header" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/firewall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/firewall_summary"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/bubble_control"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/firewall_control"
+                android:layout_marginStart="8dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/background_light"
+                app:cardElevation="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/bubble_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:text="@string/title_bubble"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorPrimary"
+                        android:textAlignment="center"
+                        android:drawableStart="@drawable/ic_bubble"
+                        app:drawableTint="?attr/colorPrimary" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/bubble_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/bubble_header"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:text="Toque aquí para ver más configuraciones"
+                        android:textAlignment="center" />
+
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/bubble"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/bubble_summary"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/query_credit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/firewall_control"
+                app:layout_constraintStart_toStartOf="@id/firewall_control"
+                app:layout_constraintEnd_toEndOf="@id/firewall_control"
+                android:layout_marginTop="16dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardElevation="0dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:layout_gravity="center"
+                    android:text="@string/query_credit"
+                    android:drawableTop="@drawable/ic_money"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:drawableTint="?attr/colorOnPrimary" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/query_bonus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/bubble_control"
+                app:layout_constraintStart_toStartOf="@id/bubble_control"
+                app:layout_constraintEnd_toEndOf="@id/bubble_control"
+                android:layout_marginTop="16dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardElevation="0dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:text="@string/query_bonus"
+                    android:drawableTop="@drawable/ic_money"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:drawableTint="?attr/colorOnPrimary" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/query_mb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/query_credit"
+                app:layout_constraintStart_toStartOf="@id/query_credit"
+                app:layout_constraintEnd_toEndOf="@id/query_credit"
+                android:layout_marginTop="16dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardElevation="0dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:text="@string/query_mb"
+                    android:drawableTop="@drawable/ic_money"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:drawableTint="?attr/colorOnPrimary" />
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

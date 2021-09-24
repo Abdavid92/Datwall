@@ -49,6 +49,9 @@ class DataUnitBytes(val bytes: Long) {
         return DataValue(Math.round(value * 100) / 100.0, unit)
     }
 
+    /**
+     * Retorna los bytes convertidos a la unidad más optima.
+     * */
     override fun toString(): String {
         val value = getValue()
         return "${value.value} ${value.dataUnit}"

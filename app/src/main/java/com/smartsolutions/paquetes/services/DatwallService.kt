@@ -65,13 +65,9 @@ class DatwallService : Service(), CoroutineScope {
 
     private lateinit var watcherThread: Thread
 
-    private val remoteViews: RemoteViews by lazy {
-        RemoteViews(packageName, R.layout.datwall_service_notification)
-    }
+    private var remoteViews: RemoteViews? = null
 
-    private val expandedRemoteViews by lazy {
-        RemoteViews(packageName, R.layout.datwall_service_notification_expanded)
-    }
+    private var expandedRemoteViews: RemoteViews? = null
 
     private val notificationManager by lazy {
         NotificationManagerCompat.from(this)
@@ -221,8 +217,10 @@ class DatwallService : Service(), CoroutineScope {
      * los valores de la notificación.
      * */
     private fun updateNotification(userData: List<UserDataBytes>) {
-        remoteViews.removeAllViews(R.id.content_view)
-        expandedRemoteViews.removeAllViews(R.id.content_view)
+        //remoteViews.removeAllViews(R.id.content_view)
+        //expandedRemoteViews.removeAllViews(R.id.content_view)
+        remoteViews = RemoteViews(packageName, R.layout.datwall_service_notification)
+        expandedRemoteViews = RemoteViews(packageName, R.layout.datwall_service_notification_expanded)
 
         for (i in userData.indices) {
 
@@ -288,13 +286,10 @@ class DatwallService : Service(), CoroutineScope {
 
         var data = userData[0]
 
-        var hasOthers = false
-
         userData.forEach {
-            if (data.expiredTime == it.expiredTime)
-                hasOthers = true
-
             if (data.expiredTime > it.expiredTime)
+                data = it
+            else if (data.expiredTime == it.expiredTime && data.priority < it.priority)
                 data = it
         }
 
@@ -304,15 +299,11 @@ class DatwallService : Service(), CoroutineScope {
 
         val dataTitle = getDataTitle(data.type)
 
-        expandedRemoteViews.setTextViewText(
+        expandedRemoteViews?.setTextViewText(
             R.id.date_exp,
-            if (hasOthers) {
-                getString(R.string.date_exp_others, dataTitle, dateFormat.format(date))
-            } else {
-                getString(R.string.date_exp, dataTitle, dateFormat.format(date))
-            }
+            getString(R.string.date_exp, dataTitle, dateFormat.format(date))
         )
-        expandedRemoteViews.setInt(
+        expandedRemoteViews?.setInt(
             R.id.date_exp,
             "setTextColor",
             if (uiHelper.isUIDarkTheme())
@@ -354,7 +345,7 @@ class DatwallService : Service(), CoroutineScope {
                         )
                 }
 
-            remoteViews.addView(R.id.content_view, separator)
+            remoteViews?.addView(R.id.content_view, separator)
         }
 
         val childRemotes = RemoteViews(packageName, R.layout.item_datwall_service).apply {
@@ -375,7 +366,7 @@ class DatwallService : Service(), CoroutineScope {
             setInt(R.id.data_percent, "setTextColor", color)
         }
 
-        remoteViews.addView(R.id.content_view, childRemotes)
+        remoteViews?.addView(R.id.content_view, childRemotes)
     }
 
     /**
@@ -410,7 +401,7 @@ class DatwallService : Service(), CoroutineScope {
                         )
                 }
 
-            expandedRemoteViews.addView(R.id.content_view, separator)
+            expandedRemoteViews?.addView(R.id.content_view, separator)
         }
 
         val childRemotes = RemoteViews(packageName, R.layout.item_datwall_service_expanded).apply {
@@ -440,7 +431,7 @@ class DatwallService : Service(), CoroutineScope {
             setInt(R.id.data_bytes, "setTextColor", color)
         }
 
-        expandedRemoteViews.addView(R.id.content_view, childRemotes)
+        expandedRemoteViews?.addView(R.id.content_view, childRemotes)
     }
 
     /**

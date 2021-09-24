@@ -141,7 +141,7 @@ class AppsListAdapter(
                 HeaderApp(
                     "",
                     -1,
-                    context.getString(R.string.allowed_apps, allowedApps.size),
+                    context.getString(R.string.allowed_applications, allowedApps.size),
                     access = false,
                     system = false,
                     null,
@@ -158,7 +158,7 @@ class AppsListAdapter(
                 HeaderApp(
                     "",
                     -1,
-                    context.getString(R.string.blocked_apps, blockedApps.size),
+                    context.getString(R.string.blocked_applications, blockedApps.size),
                     access = false,
                     system = false,
                     null,

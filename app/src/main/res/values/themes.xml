@@ -3,22 +3,28 @@
     <!-- Base application theme. -->
     <style name="Theme.Datwall" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/purple_medium</item>
+        <item name="colorPrimaryVariant">@color/purple_dark</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorSecondary">@color/purple_light</item>
+        <item name="colorSecondaryVariant">@color/purple_medium</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="android:windowBackground">@color/background_light</item>
-        <item name="android:colorBackground">@color/background_light</item>
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
-        <item name="appBarLayoutStyle">@style/AppBarStyle</item>
         <item name="tabStyle">@style/TabLayoutStyle</item>
+    </style>
+
+    <style name="Theme.Datwall.Blue">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/blue_medium_dark</item>
+        <item name="colorPrimaryVariant">@color/blue_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
     </style>
 
     <style name="WelcomeTheme" parent="WelcomeScreenTheme">
@@ -38,12 +44,11 @@
         <item name="android:windowBackground">@drawable/background_alert_dialog</item>
     </style>
 
-    <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
-        <item name="android:background">@android:color/transparent</item>
+    <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="elevation">0dp</item>
     </style>
 
-    <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="Theme.Datwall.Transparent">
         <item name="android:windowIsTranslucent">true</item>
@@ -55,6 +60,5 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition</item>
         <item name="android:windowSharedElementExitTransition">@transition/app_control_transition</item>
-        <item name="cardViewStyle">@style/CardViewStyle</item>
     </style>
 </resources>

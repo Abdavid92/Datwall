@@ -1,24 +1,36 @@
 package com.smartsolutions.paquetes.helpers
 
-import android.R.drawable
 import android.content.Context
 import android.content.res.Configuration.*
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.util.TypedValue
+import android.view.PixelCopy
+import android.view.View
+import android.view.Window
 import android.widget.CompoundButton
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.repositories.models.IApp
+import kotlinx.coroutines.runBlocking
 import kotlin.Exception
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 class UIHelper(
@@ -203,6 +215,63 @@ class UIHelper(
             app.access = checkBox.isChecked
             callback?.invoke()
         }
+    }
+
+    fun blur(inputBitmap: Bitmap, radius: Float = BLUR_RADIUS): Bitmap {
+
+        val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+        val renderScript = RenderScript.create(context)
+
+        val scriptIntrinsicBlur = ScriptIntrinsicBlur
+            .create(renderScript, Element.U8_4(renderScript))
+
+        val tmpIn = Allocation.createFromBitmap(renderScript, inputBitmap)
+        val tmpOut = Allocation.createFromBitmap(renderScript, outputBitmap)
+
+        scriptIntrinsicBlur.setRadius(radius)
+        scriptIntrinsicBlur.setInput(tmpIn)
+        scriptIntrinsicBlur.forEach(tmpOut)
+        tmpOut.copyTo(outputBitmap)
+
+        return outputBitmap
+    }
+
+    fun getScreenshot(window: Window, view: View, result: (Bitmap?) -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val screenshot = Bitmap.createBitmap(
+                view.width,
+                view.height,
+                Bitmap.Config.ARGB_8888
+            )
+
+            val locationOfView = IntArray(2)
+
+            view.getLocationInWindow(locationOfView)
+
+            PixelCopy.request(
+                window,
+                Rect(
+                    locationOfView[0],
+                    locationOfView[1],
+                    locationOfView[0] + view.width,
+                    locationOfView[1] + view.height
+                ),
+                screenshot,
+                { copyResult ->
+                    if (copyResult == PixelCopy.SUCCESS) {
+                        result(screenshot)
+                    } else {
+                        result(null)
+                    }
+                },
+                Handler(Looper.getMainLooper())
+            )
+        }
+    }
+
+    companion object {
+        const val BLUR_RADIUS = 7.5f
     }
 }
 

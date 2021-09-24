@@ -24,6 +24,7 @@ class NetworkUtils @Inject constructor(
     private val telephonyManager = ContextCompat
         .getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException()
 
+    @Suppress("DEPRECATION")
     @Throws(MissingPermissionException::class)
     fun getNetworkGeneration(): NetworkType {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="@color/color_primary">
+    tools:background="@color/purple_medium">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/wel_image"

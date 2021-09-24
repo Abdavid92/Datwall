@@ -207,6 +207,7 @@ class PackageMonitor @Inject constructor(
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun versionNotEquals(version: Long, info: PackageInfo): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             version != info.longVersionCode
