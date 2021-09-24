@@ -160,6 +160,7 @@ class HistoryHolderFragment : Fragment() {
 
         binding.barChart.apply {
             data = BarData(dataSet)
+            data.barWidth = 0.65f
             setOnChartValueSelectedListener(object: OnChartValueSelectedListener{
 
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
