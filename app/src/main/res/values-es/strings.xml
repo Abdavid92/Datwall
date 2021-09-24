@@ -171,4 +171,5 @@
     <string name="all_apps">Total de apps %d</string>
     <string name="searching">Buscando...</string>
     <string name="failed_find_app_more_consume">No se encontró ninguna app.</string>
+    <string name="query_mb">Consultar megas</string>
 </resources>

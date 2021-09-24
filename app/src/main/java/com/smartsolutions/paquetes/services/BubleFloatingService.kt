@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
@@ -96,10 +97,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private var yMinClose = 0
     private var yMaxClose = 0
     private var moving = 0
-
-    private var SIZE = BubbleSize.MEDIUM
-    private var TRANSPARENCY = 0.5f
-    private var ALWAYS_SHOW = true
 
 
     override fun onBind(intent: Intent): IBinder? {
@@ -241,7 +238,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         if (isShowBubble) {
             setThemeBubble()
             if (!isShowMenu) {
-                setSizeBubble()
+                setSizeBubble(this, bubbleBinding.root, SIZE)
             }
             app?.let {
                 setTraffic(it)
@@ -269,13 +266,13 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
-    private fun setSizeBubble() {
+    /*private fun setSizeBubble() {
         when (SIZE) {
             BubbleSize.SMALL -> setSizes(30, 10, 8)
             BubbleSize.MEDIUM -> setSizes(40, 11, 9)
             BubbleSize.LARGE -> setSizes(50, 12, 10)
         }
-    }
+    }*/
 
     private fun setThemeBubble() {
         bubbleBinding.linBackgroundBubble.setBackgroundResource(getBackgroundResource())
@@ -413,7 +410,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }else {
             bubbleBinding.appValue.visibility = View.VISIBLE
             bubbleBinding.unitApp.visibility = View.VISIBLE
-            setSizeBubble()
+            setSizeBubble(this, bubbleBinding.root, SIZE)
         }
     }
 
@@ -545,14 +542,14 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
-    private fun setSizes(iconSize: Int, textSize: Int, subTextSize: Int) {
+    /*private fun setSizes(iconSize: Int, textSize: Int, subTextSize: Int) {
         val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconSize.toFloat(), resources.displayMetrics).toInt()
         bubbleBinding.appIcon.layoutParams.height = radius
         bubbleBinding.appIcon.layoutParams.width = radius
 
         bubbleBinding.appValue.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textSize.toFloat())
         bubbleBinding.unitApp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, subTextSize.toFloat())
-    }
+    }*/
 
 
     private fun addView(view: View, params: WindowManager.LayoutParams){
@@ -585,4 +582,37 @@ class BubbleFloatingService : Service(), CoroutineScope {
         LARGE
     }
 
+    companion object {
+
+        var SIZE = BubbleSize.MEDIUM
+        var TRANSPARENCY = 0.5f
+        var ALWAYS_SHOW = true
+
+        fun setSizeBubble(context: Context, bubble: View, size: BubbleSize) {
+            when (size) {
+                BubbleSize.SMALL -> setSizes(context, bubble, 30, 10, 8)
+                BubbleSize.MEDIUM -> setSizes(context, bubble, 40, 11, 9)
+                BubbleSize.LARGE -> setSizes(context, bubble, 50, 12, 10)
+            }
+        }
+
+        private fun setSizes(context: Context, bubble: View, iconSize: Int, textSize: Int, subTextSize: Int) {
+            val radius = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                iconSize.toFloat(),
+                context.resources.displayMetrics
+            ).toInt()
+
+            val appIcon = bubble.findViewById<ImageView>(R.id.app_icon)
+
+            appIcon.layoutParams.height = radius
+            appIcon.layoutParams.width = radius
+
+            bubble.findViewById<TextView>(R.id.app_value)
+                .setTextSize(TypedValue.COMPLEX_UNIT_DIP, textSize.toFloat())
+
+            bubble.findViewById<TextView>(R.id.unit_app)
+                .setTextSize(TypedValue.COMPLEX_UNIT_DIP, subTextSize.toFloat())
+        }
+    }
 }

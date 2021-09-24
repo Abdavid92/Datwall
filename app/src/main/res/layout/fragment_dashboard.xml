@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_padding"
     android:background="?attr/colorPrimary"
     tools:context=".ui.dashboard.DashboardFragment">
 
@@ -23,12 +22,10 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         style="@style/BackgroundStyle"
-        android:paddingTop="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -37,401 +34,190 @@
             android:padding="@dimen/activity_horizontal_margin">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/vpn_controls"
-                android:layout_width="match_parent"
+                android:id="@+id/firewall_control"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/bubble_control"
+                android:layout_marginEnd="8dp"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                app:cardBackgroundColor="@color/background_light"
+                app:cardElevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/firewall_header"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        android:paddingTop="8dp"
                         android:text="@string/title_firewall"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="?attr/colorPrimary"
+                        android:textAlignment="center"
                         android:drawableStart="@drawable/ic_vpn"
                         app:drawableTint="?attr/colorPrimary" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/firewall_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Toque aquí para ver más configuraciones"
+                        android:textAlignment="center"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/firewall_header" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/firewall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/firewall_summary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/firewall"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:text="@string/firewall_summary"/>
-
-                    <View
-                        android:id="@+id/divider1"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintTop_toBottomOf="@id/firewall_summary"
-                        android:background="?android:attr/listDivider"/>
-
-                    <androidx.appcompat.widget.LinearLayoutCompat
-                        android:id="@+id/text_info_layout"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/divider2"
-                        app:layout_constraintTop_toBottomOf="@id/divider1"
-                        app:layout_constraintBottom_toBottomOf="parent">
-
-                        <androidx.appcompat.widget.AppCompatTextView
-                            android:id="@+id/allowed_apps"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            tools:text="Apps permitidas 2" />
-
-                        <androidx.appcompat.widget.AppCompatTextView
-                            android:id="@+id/blocked_apps"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            tools:text="Apps bloqueadas 386" />
-
-                        <androidx.appcompat.widget.AppCompatTextView
-                            android:id="@+id/all_apps"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            tools:text="Total de apps 388" />
-
-                    </androidx.appcompat.widget.LinearLayoutCompat>
-
-                    <View
-                        android:id="@+id/divider2"
-                        android:layout_width="1dp"
-                        android:layout_height="0dp"
-                        android:background="?android:attr/listDivider"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/divider1"
-                        app:layout_constraintBottom_toBottomOf="@id/radio_group"
-                        android:layout_marginTop="8dp"/>
-
-                    <RadioGroup
-                        android:id="@+id/radio_group"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toEndOf="@id/divider2"
-                        app:layout_constraintTop_toBottomOf="@id/divider1"
-                        android:layout_marginTop="8dp">
-
-                        <androidx.appcompat.widget.AppCompatRadioButton
-                            android:id="@+id/dynamic_mode"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/dynamic_mode" />
-
-                        <androidx.appcompat.widget.AppCompatRadioButton
-                            android:id="@+id/static_mode"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/static_mode" />
-
-                    </RadioGroup>
+                        app:layout_constraintTop_toBottomOf="@id/firewall_summary"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/bubble_controls"
-                android:layout_width="match_parent"
+                android:id="@+id/bubble_control"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/vpn_controls"
-                android:layout_marginTop="16dp">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/firewall_control"
+                android:layout_marginStart="8dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/background_light"
+                app:cardElevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp">
+                    android:layout_height="wrap_content"
+                    android:padding="8dp">
 
                     <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/bubble_header"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:paddingTop="8dp"
                         android:text="@string/title_bubble"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="?attr/colorPrimary"
+                        android:textAlignment="center"
                         android:drawableStart="@drawable/ic_bubble"
-                        app:drawableTint="?attr/colorPrimary"/>
+                        app:drawableTint="?attr/colorPrimary" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/bubble_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/bubble_header"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:text="Toque aquí para ver más configuraciones"
+                        android:textAlignment="center" />
+
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/bubble"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/bubble_summary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/bubble"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:text="@string/bubble_summary"/>
-
-                    <View
-                        android:id="@+id/divider3"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="8dp"
                         app:layout_constraintTop_toBottomOf="@id/bubble_summary"
-                        android:background="?android:attr/listDivider"/>
-
-                    <View
-                        android:id="@+id/divider4"
-                        android:layout_width="1dp"
-                        android:layout_height="0dp"
-                        app:layout_constraintTop_toBottomOf="@id/divider3"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginTop="8dp"
-                        android:background="?android:attr/listDivider"/>
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/title_transparency"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/divider3"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/divider4"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/transparency" />
-
-                    <androidx.appcompat.widget.AppCompatSeekBar
-                        android:id="@+id/bubble_transparency"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/divider4"
-                        app:layout_constraintTop_toBottomOf="@id/title_transparency"
-                        android:max="10" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/title_size"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/divider4"
-                        app:layout_constraintTop_toBottomOf="@id/bubble_transparency"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/size" />
-
-                    <androidx.appcompat.widget.AppCompatSeekBar
-                        android:id="@+id/bubble_size"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/divider4"
-                        app:layout_constraintTop_toBottomOf="@id/title_size"
-                        android:max="20" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/title_bubble_visibility"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/divider4"
-                        app:layout_constraintTop_toBottomOf="@id/bubble_size"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/visibility" />
-
-                    <RadioGroup
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="@id/divider4"
-                        app:layout_constraintTop_toBottomOf="@id/title_bubble_visibility">
-
-                        <androidx.appcompat.widget.AppCompatRadioButton
-                            android:id="@+id/all_way"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/all_way" />
-
-                        <androidx.appcompat.widget.AppCompatRadioButton
-                            android:id="@+id/only_consume"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/only_consume" />
-                    </RadioGroup>
-
-                    <LinearLayout
-                        android:id="@+id/lin_background_bubble"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/divider3"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/divider4"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:background="@drawable/background_red_borderless_card_light"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:baselineAligned="false">
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/app_icon"
-                            android:layout_width="35sp"
-                            android:layout_height="35sp"
-                            android:adjustViewBounds="false"
-                            android:cropToPadding="false"
-                            android:paddingLeft="4dp"
-                            android:paddingTop="2dp"
-                            android:paddingRight="4dp"
-                            app:srcCompat="@mipmap/ic_launcher" />
-
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/app_value"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="2dp"
-                                android:paddingBottom="3dp"
-                                android:text="190"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                                android:textSize="10sp" />
-
-                            <TextView
-                                android:id="@+id/unit_app"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingRight="5dp"
-                                android:paddingBottom="3dp"
-                                android:text="MB"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                                android:textSize="8sp" />
-                        </LinearLayout>
-
-                    </LinearLayout>
+                        app:layout_constraintEnd_toEndOf="parent"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/app_more_consume"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/bubble_controls"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="16dp"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/header_app_more_consume"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:text="@string/app_more_consume"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:drawableStart="@drawable/ic_default_app"
-                        android:textColor="?attr/colorPrimary"
-                        app:drawableTint="?attr/colorPrimary" />
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/icon_more_consume"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        app:layout_constraintTop_toBottomOf="@id/header_app_more_consume"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:layout_marginTop="8dp"
-                        app:srcCompat="@android:drawable/sym_def_app_icon"
-                        android:visibility="invisible"
-                        tools:visibility="visible"/>
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/title_app_more_consume"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toEndOf="@id/icon_more_consume"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/icon_more_consume"
-                        app:layout_constraintBottom_toTopOf="@id/value_app_more_consume"
-                        android:layout_marginStart="8dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:text="@string/searching" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/value_app_more_consume"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/title_app_more_consume"
-                        app:layout_constraintBottom_toBottomOf="@id/icon_more_consume"
-                        app:layout_constraintStart_toEndOf="@id/icon_more_consume"
-                        android:layout_marginStart="8dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:textStyle="bold"
-                        android:visibility="invisible"
-                        tools:text="180 MB"
-                        tools:visibility="visible"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/query_credit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@id/app_more_consume"
-                app:layout_constraintStart_toEndOf="@id/app_more_consume"
-                app:layout_constraintEnd_toEndOf="@id/bubble_controls"
-                android:layout_marginStart="8dp"
-                android:text="@string/query_credit" />
+                app:layout_constraintTop_toBottomOf="@id/firewall_control"
+                app:layout_constraintStart_toStartOf="@id/firewall_control"
+                app:layout_constraintEnd_toEndOf="@id/firewall_control"
+                android:layout_marginTop="16dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardElevation="0dp">
 
-            <androidx.appcompat.widget.AppCompatButton
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:layout_gravity="center"
+                    android:text="@string/query_credit"
+                    android:drawableTop="@drawable/ic_money"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:drawableTint="?attr/colorOnPrimary" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:id="@+id/query_bonus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@id/app_more_consume"
-                app:layout_constraintEnd_toEndOf="@id/bubble_controls"
-                app:layout_constraintStart_toEndOf="@id/app_more_consume"
-                android:layout_marginStart="8dp"
-                android:text="@string/query_bonus" />
+                app:layout_constraintTop_toBottomOf="@id/bubble_control"
+                app:layout_constraintStart_toStartOf="@id/bubble_control"
+                app:layout_constraintEnd_toEndOf="@id/bubble_control"
+                android:layout_marginTop="16dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardElevation="0dp">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                app:layout_constraintTop_toBottomOf="@id/app_more_consume" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:text="@string/query_bonus"
+                    android:drawableTop="@drawable/ic_money"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:drawableTint="?attr/colorOnPrimary" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/query_mb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/query_credit"
+                app:layout_constraintStart_toStartOf="@id/query_credit"
+                app:layout_constraintEnd_toEndOf="@id/query_credit"
+                android:layout_marginTop="16dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardElevation="0dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:text="@string/query_mb"
+                    android:drawableTop="@drawable/ic_money"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:drawableTint="?attr/colorOnPrimary" />
+
+            </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

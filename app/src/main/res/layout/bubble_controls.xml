@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/bubble_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:paddingTop="8dp"
+                android:text="@string/title_bubble"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="?attr/colorPrimary"
+                android:drawableStart="@drawable/ic_bubble"
+                app:drawableTint="?attr/colorPrimary"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/bubble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bubble_summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/bubble"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/bubble_summary"/>
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/bubble_summary"
+                android:background="?android:attr/listDivider"/>
+
+            <View
+                android:id="@+id/divider4"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@id/divider3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="8dp"
+                android:background="?android:attr/listDivider"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/title_transparency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/divider3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/divider4"
+                android:layout_marginTop="8dp"
+                android:text="@string/transparency" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/bubble_transparency"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/divider4"
+                app:layout_constraintTop_toBottomOf="@id/title_transparency" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/title_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/divider4"
+                app:layout_constraintTop_toBottomOf="@id/bubble_transparency"
+                android:layout_marginTop="8dp"
+                android:text="@string/size" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/bubble_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/divider4"
+                app:layout_constraintTop_toBottomOf="@id/title_size" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/title_bubble_visibility"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/divider4"
+                app:layout_constraintTop_toBottomOf="@id/bubble_size"
+                android:layout_marginTop="8dp"
+                android:text="@string/visibility" />
+
+            <RadioGroup
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/divider4"
+                app:layout_constraintTop_toBottomOf="@id/title_bubble_visibility">
+
+                <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/all_way"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/all_way" />
+
+                <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/only_consume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/only_consume" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/bubble_example"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/divider3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/divider4"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:background="@drawable/background_red_borderless_card_light"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:baselineAligned="false">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/app_icon"
+                    android:layout_width="35sp"
+                    android:layout_height="35sp"
+                    android:adjustViewBounds="false"
+                    android:cropToPadding="false"
+                    android:paddingLeft="4dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="4dp"
+                    app:srcCompat="@mipmap/ic_launcher" />
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/app_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="2dp"
+                        android:paddingBottom="3dp"
+                        android:text="190"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/unit_app"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:paddingBottom="3dp"
+                        android:text="MB"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="8sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>

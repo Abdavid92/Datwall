@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_light">#FFBB86FC</color>
+    <color name="purple_light">#BE5DBF</color>
     <color name="purple_medium">#7800b2</color>
     <color name="purple_dark">#FF3700B3</color>
     <color name="blue_light">#049CEF</color>
@@ -17,7 +17,7 @@
     <color name="green">#57C55C</color>
     <color name="reed">#F34F4F</color>
     <color name="background_dark">#3C3C3C</color>
-    <color name="background_light">#F5F5F5</color>
+    <color name="background_light">#F0F0F0</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="light_blue_A200">#FF40C4FF</color>

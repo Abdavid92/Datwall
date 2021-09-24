@@ -3,14 +3,15 @@ package com.smartsolutions.paquetes.ui.dashboard
 import android.app.Application
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.TypedValue
 import android.view.View
-import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatRadioButton
 import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.SwitchCompat
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
@@ -33,9 +34,11 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,11 +48,9 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     application: Application,
     private val appRepository: IAppRepository,
-    private val networkUsageManager: NetworkUsageManager,
     private val permissionManager: IPermissionsManager,
     private val iconManager: IIconManager,
     private val firewallHelper: FirewallHelper,
-    private val networkUsageUtils: NetworkUsageUtils,
     private val ussdHelper: USSDHelper
 ): AndroidViewModel(application) {
 
@@ -73,46 +74,6 @@ class DashboardViewModel @Inject constructor(
             }
 
             return _appsData
-        }
-
-    private val _appMoreConsume = MutableLiveData<App?>()
-    /**
-     * Contiene la aplicación que más ha consumido desde que se
-     * obtuvo el primer userDataByte o null.
-     * */
-    val appMoreConsume: LiveData<App?>
-        get() {
-            viewModelScope.launch(Dispatchers.IO) {
-
-                val interval = networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_PACKAGE)
-
-                val apps = appRepository.all()
-
-                networkUsageManager.fillAppsUsage(
-                    apps,
-                    interval.first,
-                    interval.second
-                )
-
-                var finalApp: App? = null
-
-                apps.forEach { app ->
-                    val finalTraffic = finalApp?.traffic?.totalBytes?.bytes
-
-                    app.traffic?.totalBytes?.bytes?.let { bytes ->
-                        if (finalTraffic == null || finalTraffic < bytes) {
-                            finalApp = app
-                        }
-                    }
-                }
-
-                if (finalApp?.traffic?.totalBytes?.bytes == 0L)
-                    _appMoreConsume.postValue(null)
-                else
-                    _appMoreConsume.postValue(finalApp)
-            }
-
-            return _appMoreConsume
         }
 
     /**
@@ -156,64 +117,78 @@ class DashboardViewModel @Inject constructor(
     fun setFirewallSwitchListener(switch: SwitchCompat, fm: FragmentManager) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            val firewallEnabled = firewallHelper.firewallEnabled()
+            firewallHelper.observeFirewallState().collect {
+                withContext(Dispatchers.Main) {
+                    switch.setOnCheckedChangeListener(null)
 
-            withContext(Dispatchers.Main) {
-                switch.isChecked = firewallEnabled
-            }
+                    switch.isChecked = it
 
-            switch.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-
-                    viewModelScope.launch(Dispatchers.IO) {
-                        if (firewallHelper.allAccess(appRepository.all())) {
-
-                            withContext(Dispatchers.Main) {
-                                buttonView.isChecked = false
-
-                                Toast.makeText(
-                                    getApplication(),
-                                    getApplication<DatwallApplication>()
-                                        .getString(R.string.error_starting_firewall_for_all_access),
-                                    Toast.LENGTH_SHORT).show()
-                            }
-                        } else {
-                            if (firewallHelper.startFirewall() != null) {
-                                val fragment = SinglePermissionFragment.newInstance(
-                                    IPermissionsManager.VPN_CODE,
-                                    object : SinglePermissionFragment.SinglePermissionCallback {
-
-                                        override fun onGranted() {
-                                            firewallHelper.startFirewall()
-                                        }
-
-                                        override fun onDenied() {
-                                            buttonView.isChecked = false
-
-                                            Toast.makeText(
-                                                getApplication(),
-                                                getApplication<DatwallApplication>()
-                                                    .getString(R.string.stoped_missing_vpn_permissions_title_notification),
-                                                Toast.LENGTH_SHORT)
-                                                .show()
-                                        }
-                                    }
-                                )
-
-                                withContext(Dispatchers.Main) {
-                                    fragment.show(fm, null)
-                                }
-                            }
-                        }
+                    switch.setOnCheckedChangeListener { buttonView, isChecked ->
+                        onFirewallChangeListener(buttonView, isChecked, fm)
                     }
-                } else {
-                    firewallHelper.stopFirewall()
                 }
             }
         }
     }
 
-    fun setFirewallDynamicModeListener(dynamicRadio: RadioButton, staticRadio: RadioButton) {
+    private fun onFirewallChangeListener(
+        buttonView: CompoundButton,
+        isChecked: Boolean,
+        fm: FragmentManager
+    ) {
+        if (isChecked) {
+
+            viewModelScope.launch(Dispatchers.IO) {
+                if (firewallHelper.allAccess(appRepository.all())) {
+
+                    withContext(Dispatchers.Main) {
+                        buttonView.isChecked = false
+
+                        Toast.makeText(
+                            getApplication(),
+                            getApplication<DatwallApplication>()
+                                .getString(R.string.error_starting_firewall_for_all_access),
+                            Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    if (firewallHelper.startFirewall() != null) {
+                        val fragment = SinglePermissionFragment.newInstance(
+                            IPermissionsManager.VPN_CODE,
+                            object : SinglePermissionFragment.SinglePermissionCallback {
+
+                                override fun onGranted() {
+                                    firewallHelper.startFirewall()
+                                }
+
+                                override fun onDenied() {
+                                    buttonView.isChecked = false
+
+                                    Toast.makeText(
+                                        getApplication(),
+                                        getApplication<DatwallApplication>()
+                                            .getString(R.string.stoped_missing_vpn_permissions_title_notification),
+                                        Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            }
+                        )
+
+                        withContext(Dispatchers.Main) {
+                            fragment.show(fm, null)
+                        }
+                    }
+                }
+            }
+        } else {
+            firewallHelper.stopFirewall()
+        }
+    }
+
+    fun setFirewallDynamicModeListener(
+        dynamicRadio: RadioButton,
+        staticRadio: RadioButton,
+        fm: FragmentManager
+    ) {
         viewModelScope.launch {
             val dataStore = getApplication<DatwallApplication>().dataStore
 
@@ -251,11 +226,11 @@ class DashboardViewModel @Inject constructor(
                                     }
 
                                     override fun onDenied() {
-                                        buttonView.isChecked = false
+                                        staticRadio.isChecked = true
                                     }
 
                                 }
-                            )
+                            ).show(fm, null)
                         }
                     } else {
                         viewModelScope.launch {
@@ -277,70 +252,177 @@ class DashboardViewModel @Inject constructor(
 
     fun setBubbleSwitchListener(bubble: SwitchCompat, childFragmentManager: FragmentManager) {
         viewModelScope.launch(Dispatchers.IO) {
+
             val dataStore = getApplication<DatwallApplication>().dataStore
 
-            val bubbleEnabled = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.ENABLED_BUBBLE_FLOATING) == true
+            dataStore.data.collect {
 
-            withContext(Dispatchers.Main) {
-                bubble.isChecked = bubbleEnabled
-            }
+                withContext(Dispatchers.Main) {
+                    bubble.setOnCheckedChangeListener(null)
 
-            bubble.setOnCheckedChangeListener { buttonView, isChecked ->
+                    bubble.isChecked = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
 
-                if (isChecked) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        val permission = findDrawOverPermission()
-
-                        if (permission.checkPermission(permission, getApplication())) {
-
-                            viewModelScope.launch {
-                                dataStore.edit {
-                                    it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
-                                }
-                            }
-                        } else {
-                            SinglePermissionFragment.newInstance(
-                                IPermissionsManager.DRAW_OVERLAYS_CODE,
-                                object : SinglePermissionFragment.SinglePermissionCallback {
-                                    override fun onGranted() {
-                                        viewModelScope.launch {
-                                            dataStore.edit {
-                                                it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
-                                            }
-                                        }
-                                    }
-
-                                    override fun onDenied() {
-                                        buttonView.isChecked = false
-                                    }
-                                }
-                            ).show(childFragmentManager, null)
-                        }
-                    } else {
-                        viewModelScope.launch {
-                            dataStore.edit {
-                                it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
-                            }
-                        }
-                    }
-                } else {
-                    viewModelScope.launch {
-                        dataStore.edit {
-                            it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = false
-                        }
+                    bubble.setOnCheckedChangeListener { buttonView, isChecked ->
+                        onBubbleChangeListener(
+                            buttonView,
+                            isChecked,
+                            childFragmentManager,
+                            dataStore
+                        )
                     }
                 }
             }
         }
     }
 
-    fun setTransparencyListener(bubbleTransparency: AppCompatSeekBar) {
+    private fun onBubbleChangeListener(
+        buttonView: CompoundButton,
+        isChecked: Boolean,
+        fm: FragmentManager,
+        dataStore: DataStore<Preferences>
+    ) {
+        if (isChecked) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val permission = findDrawOverPermission()
 
+                if (permission.checkPermission(permission, getApplication())) {
+
+                    viewModelScope.launch {
+                        dataStore.edit {
+                            it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
+                        }
+                    }
+                } else {
+                    SinglePermissionFragment.newInstance(
+                        IPermissionsManager.DRAW_OVERLAYS_CODE,
+                        object : SinglePermissionFragment.SinglePermissionCallback {
+                            override fun onGranted() {
+                                viewModelScope.launch {
+                                    dataStore.edit {
+                                        it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
+                                    }
+                                }
+                            }
+
+                            override fun onDenied() {
+                                buttonView.isChecked = false
+                            }
+                        }
+                    ).show(fm, null)
+                }
+            } else {
+                viewModelScope.launch {
+                    dataStore.edit {
+                        it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
+                    }
+                }
+            }
+        } else {
+            viewModelScope.launch {
+                dataStore.edit {
+                    it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = false
+                }
+            }
+        }
     }
 
-    fun setSizeListener(bubbleSize: AppCompatSeekBar) {
+    fun setTransparencyListener(bubbleTransparency: AppCompatSeekBar, bubbleExample: View) {
+        viewModelScope.launch {
+            val dataStore = getApplication<DatwallApplication>().dataStore
 
+            val transparency = dataStore.data
+                .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY) ?:
+                BubbleFloatingService.TRANSPARENCY
+
+            bubbleTransparency.max = 10
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                bubbleTransparency.setProgress((transparency * 10).toInt(), true)
+            else
+                bubbleTransparency.progress = (transparency * 10).toInt()
+
+            bubbleExample.alpha = transparency
+
+            bubbleTransparency.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    val newTransparency = progress.toFloat() / 10f
+                    bubbleExample.alpha = newTransparency
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    val newTransparency = seekBar.progress.toFloat() / 10f
+
+                    viewModelScope.launch {
+                        dataStore.edit {
+                            it[PreferencesKeys.BUBBLE_TRANSPARENCY] = newTransparency
+                        }
+                    }
+                }
+
+            })
+        }
+    }
+
+    fun setSizeListener(bubbleSize: AppCompatSeekBar, bubbleExample: View) {
+        viewModelScope.launch {
+            val dataStore = getApplication<DatwallApplication>().dataStore
+
+            val size = BubbleFloatingService.BubbleSize.valueOf(
+                dataStore.data.firstOrNull()?.get(PreferencesKeys.BUBBLE_SIZE) ?:
+                BubbleFloatingService.SIZE.name
+            )
+
+            BubbleFloatingService.setSizeBubble(
+                getApplication(),
+                bubbleExample,
+                size
+            )
+
+            bubbleSize.max = 2
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                bubbleSize.setProgress(size.ordinal, true)
+            else
+                bubbleSize.progress = size.ordinal
+
+            bubbleSize.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    val newSize = BubbleFloatingService.BubbleSize.values()[progress]
+
+                    BubbleFloatingService.setSizeBubble(
+                        getApplication(),
+                        bubbleExample,
+                        newSize
+                    )
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    val newSize = BubbleFloatingService.BubbleSize.values()[seekBar.progress]
+
+                    viewModelScope.launch {
+                        dataStore.edit {
+                            it[PreferencesKeys.BUBBLE_SIZE] = newSize.name
+                        }
+                    }
+                }
+
+            })
+        }
     }
 
     fun setBubbleAllWayListener(allWay: AppCompatRadioButton, onlyConsume: AppCompatRadioButton) {
@@ -348,7 +430,8 @@ class DashboardViewModel @Inject constructor(
             val dataStore = getApplication<DatwallApplication>().dataStore
 
             val allWayStore = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW) == true
+                .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW) ?:
+                BubbleFloatingService.ALWAYS_SHOW
 
             if (allWayStore)
                 allWay.isChecked = true

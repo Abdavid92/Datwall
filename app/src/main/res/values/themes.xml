@@ -7,14 +7,12 @@
         <item name="colorPrimaryVariant">@color/purple_dark</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/blue_medium</item>
-        <item name="colorSecondaryVariant">@color/blue_medium_dark</item>
+        <item name="colorSecondary">@color/purple_light</item>
+        <item name="colorSecondaryVariant">@color/purple_medium</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="android:windowBackground">@color/background_light</item>
-        <item name="android:colorBackground">@color/background_light</item>
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
         <item name="tabStyle">@style/TabLayoutStyle</item>

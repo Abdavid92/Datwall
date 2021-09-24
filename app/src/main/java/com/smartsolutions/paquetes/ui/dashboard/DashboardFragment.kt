@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
-import androidx.appcompat.widget.AppCompatSeekBar
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentDashboardBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,7 +16,8 @@ class DashboardFragment : Fragment() {
 
     private val viewModel by viewModels<DashboardViewModel>()
 
-    private lateinit var binding: FragmentDashboardBinding
+    lateinit var binding: FragmentDashboardBinding
+        private set
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -38,41 +38,41 @@ class DashboardFragment : Fragment() {
 
         setFirewallSettings()
         setBubbleSettings()
-        setMoreConsumeSettings()
         setUssdButtonsSettings()
     }
 
     private fun setFirewallSettings() {
         viewModel.setFirewallSwitchListener(binding.firewall, childFragmentManager)
-        viewModel.setFirewallDynamicModeListener(binding.dynamicMode, binding.staticMode)
 
-        viewModel.appsData.observe(viewLifecycleOwner) {
-            binding.allowedApps.text = getString(R.string.allowed_apps, it[0])
-            binding.blockedApps.text = getString(R.string.blocked_apps, it[1])
-            binding.allApps.text = getString(R.string.all_apps, it[2])
+        binding.firewallControl.setOnClickListener {
+            val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                requireActivity(),
+                Pair(binding.firewallControl, IControls.CARD_VIEW),
+                Pair(binding.firewallHeader, IControls.HEADER),
+                Pair(binding.firewall, IControls.SWITCH)
+            )
+
+            startActivity(
+                FirewallControls.getLaunchIntent(requireContext()),
+                activityOptions.toBundle()
+            )
         }
     }
 
     private fun setBubbleSettings() {
         viewModel.setBubbleSwitchListener(binding.bubble, childFragmentManager)
-        viewModel.setTransparencyListener(binding.bubbleTransparency)
-        viewModel.setSizeListener(binding.bubbleSize)
-        viewModel.setBubbleAllWayListener(binding.allWay, binding.onlyConsume)
-    }
 
-    private fun setMoreConsumeSettings() {
-        viewModel.appMoreConsume.observe(viewLifecycleOwner) {
-
-            if (it != null) {
-
-                viewModel.setAppIcon(it, binding.iconMoreConsume)
-                binding.titleAppMoreConsume.text = it.name
-                binding.valueAppMoreConsume.text = it.traffic?.totalBytes.toString()
-                binding.valueAppMoreConsume.visibility = View.VISIBLE
-            } else {
-
-                binding.titleAppMoreConsume.text = getString(R.string.failed_find_app_more_consume)
-            }
+        binding.bubbleControl.setOnClickListener {
+            val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                requireActivity(),
+                Pair(binding.bubbleControl, IControls.CARD_VIEW),
+                Pair(binding.bubbleHeader, IControls.HEADER),
+                Pair(binding.bubble, IControls.SWITCH)
+            )
+            startActivity(
+                BubbleControls.getLaunchIntent(requireContext()),
+                activityOptions.toBundle()
+            )
         }
     }
 
@@ -83,6 +83,10 @@ class DashboardFragment : Fragment() {
 
         binding.queryBonus.setOnClickListener {
             viewModel.launchUssdCode("*222*266#", childFragmentManager)
+        }
+
+        binding.queryMb.setOnClickListener {
+            viewModel.launchUssdCode("*222*328#", childFragmentManager)
         }
     }
 }

@@ -16,7 +16,7 @@ import com.smartsolutions.paquetes.services.FirewallService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -157,6 +157,21 @@ class FirewallHelper @Inject constructor(
     suspend fun firewallEnabled(): Boolean {
         return context.dataStore.data
             .firstOrNull()?.get(PreferencesKeys.ENABLED_FIREWALL) == true
+    }
+
+    /**
+     * Observa los cambios de estados del cortafuegos (encendido, apagado)
+     * El hecho de que este método retorne `true` no significa
+     * que el cortafuegos está encendido ya que este se enciende y apaga
+     * dependiendo de los datos móbiles.
+     *
+     * @return [Flow]
+     * */
+    fun observeFirewallState(): Flow<Boolean> {
+        return context.dataStore.data
+            .map {
+                return@map it[PreferencesKeys.ENABLED_FIREWALL] ?: false
+            }
     }
 
     companion object {
