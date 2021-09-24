@@ -13,7 +13,10 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentHistoryHolderBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
@@ -83,7 +86,6 @@ class HistoryHolderFragment : Fragment() {
     }
 
 
-
     private fun setAdapter(list: List<IPurchasedPackage>) {
         if (adapter == null){
             adapter = HistoryRecyclerAdapter(list)
@@ -94,9 +96,9 @@ class HistoryHolderFragment : Fragment() {
     }
 
 
-
     private fun configureBarChart(){
         binding.barChart.apply {
+            renderer = RoundedBarChartRender(this, animator, viewPortHandler)
             description.isEnabled = false
             axisRight.isEnabled = false
             setDrawValueAboveBar(false)
@@ -122,7 +124,6 @@ class HistoryHolderFragment : Fragment() {
             }
         }
     }
-
 
     private fun setValuesBarCHart(list: List<IPurchasedPackage>){
 
@@ -159,10 +160,26 @@ class HistoryHolderFragment : Fragment() {
 
         binding.barChart.apply {
             data = BarData(dataSet)
-            data.barWidth = 0.65f
+            setOnChartValueSelectedListener(object: OnChartValueSelectedListener{
+
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    e?.let {
+                        val item =list[entries.indexOf(it)] as HistoryViewModel.HeaderPurchasedPackage
+                        adapter?.filter(item)
+                    }
+                }
+
+                override fun onNothingSelected() {
+                    adapter?.filter(null)
+                }
+
+            })
+            animateY(700)
         }.invalidate()
 
     }
+
+
 
     companion object {
 
