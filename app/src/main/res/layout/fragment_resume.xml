@@ -82,7 +82,7 @@
         android:src="@drawable/ic_sync_24"
         android:text="@string/syncronize"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:backgroundTint="@color/color_primary"
+        app:backgroundTint="?attr/colorPrimary"
         app:icon="@drawable/ic_sync_24"
         android:textColor="@color/white"
         app:iconTint="@color/white"

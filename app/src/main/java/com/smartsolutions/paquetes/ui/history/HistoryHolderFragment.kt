@@ -155,7 +155,7 @@ class HistoryHolderFragment : Fragment() {
                 }
             valueTextSize = 16f
             valueTextColor = Color.WHITE
-            colors = arrayOf(ContextCompat.getColor(requireContext(), R.color.color_primary)).toMutableList()
+            colors = arrayOf(uiHelper.getColorTheme(R.attr.colorPrimary)).toMutableList()
         }
 
         binding.barChart.apply {
