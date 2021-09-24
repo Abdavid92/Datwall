@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import com.smartsolutions.paquetes.databinding.BubbleControlsBinding
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.CARD_VIEW
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.HEADER
+import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.SUMMARY
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.SWITCH
 
 @Keep
@@ -82,6 +83,7 @@ class BubbleControls(
         ViewCompat.setTransitionName(binding.bubbleControls, CARD_VIEW)
         ViewCompat.setTransitionName(binding.header, HEADER)
         ViewCompat.setTransitionName(binding.bubble, SWITCH)
+        ViewCompat.setTransitionName(binding.bubbleSummary, SUMMARY)
     }
 
     companion object {

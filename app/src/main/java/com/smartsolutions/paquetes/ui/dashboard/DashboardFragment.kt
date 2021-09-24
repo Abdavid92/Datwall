@@ -49,7 +49,8 @@ class DashboardFragment : Fragment() {
                 requireActivity(),
                 Pair(binding.firewallControl, IControls.CARD_VIEW),
                 Pair(binding.firewallHeader, IControls.HEADER),
-                Pair(binding.firewall, IControls.SWITCH)
+                Pair(binding.firewall, IControls.SWITCH),
+                Pair(binding.firewallSummary, IControls.SUMMARY)
             )
 
             startActivity(
@@ -67,7 +68,8 @@ class DashboardFragment : Fragment() {
                 requireActivity(),
                 Pair(binding.bubbleControl, IControls.CARD_VIEW),
                 Pair(binding.bubbleHeader, IControls.HEADER),
-                Pair(binding.bubble, IControls.SWITCH)
+                Pair(binding.bubble, IControls.SWITCH),
+                Pair(binding.bubbleSummary, IControls.SUMMARY)
             )
             startActivity(
                 BubbleControls.getLaunchIntent(requireContext()),

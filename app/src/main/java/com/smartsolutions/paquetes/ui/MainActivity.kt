@@ -27,6 +27,8 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setTheme(R.style.Theme_Datwall_Blue)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

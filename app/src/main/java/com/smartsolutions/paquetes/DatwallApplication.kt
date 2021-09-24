@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes
 
 import android.app.Application
 import androidx.annotation.RestrictTo
+import androidx.core.app.ActivityCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
@@ -43,6 +44,7 @@ class DatwallApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+
         if (!exceptionsController.isRegistered) {
             exceptionsController.register()
         }

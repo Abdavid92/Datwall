@@ -18,6 +18,15 @@
         <item name="tabStyle">@style/TabLayoutStyle</item>
     </style>
 
+    <style name="Theme.Datwall.Blue">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/blue_medium_dark</item>
+        <item name="colorPrimaryVariant">@color/blue_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+    </style>
+
     <style name="WelcomeTheme" parent="WelcomeScreenTheme">
         <item name="welcomeButtonDoneText">OK</item>
     </style>

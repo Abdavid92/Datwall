@@ -11,6 +11,7 @@ import com.smartsolutions.paquetes.databinding.FirewallControlsBinding
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.SWITCH
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.CARD_VIEW
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.HEADER
+import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.SUMMARY
 
 @Keep
 class FirewallControls(
@@ -75,13 +76,13 @@ class FirewallControls(
         binding.allowedApps.visibility = View.INVISIBLE
         binding.blockedApps.visibility = View.INVISIBLE
         binding.allApps.visibility = View.INVISIBLE
-        binding.firewallSummary.visibility = View.INVISIBLE
     }
 
     private fun setTransitionNames() {
         ViewCompat.setTransitionName(binding.firewallControls, CARD_VIEW)
         ViewCompat.setTransitionName(binding.firewallHeader, HEADER)
         ViewCompat.setTransitionName(binding.firewall, SWITCH)
+        ViewCompat.setTransitionName(binding.firewallSummary, SUMMARY)
     }
 
     companion object {

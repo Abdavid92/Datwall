@@ -14,5 +14,6 @@ interface IControls {
         const val CARD_VIEW = "control:card_view"
         const val HEADER = "control:header"
         const val SWITCH = "control:switch"
+        const val SUMMARY = "control:summary"
     }
 }
