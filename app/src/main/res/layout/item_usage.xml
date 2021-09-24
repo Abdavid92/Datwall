@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
+    android:background="?android:attr/selectableItemBackground"
     android:padding="8dp">
 
     <com.smartsolutions.paquetes.ui.CircleView

@@ -25,15 +25,16 @@
                 android:layout_height="80dp"
                 app:arc_finished_color="?attr/colorPrimary"
                 app:arc_max="100"
-                app:arc_progress="60"
+                app:arc_progress="100"
                 app:arc_stroke_width="5dp"
+                app:arc_suffix_text_size="10sp"
                 app:arc_text_color="?attr/colorPrimary"
                 app:arc_text_size="26sp"
-                app:arc_suffix_text_size="10sp"
                 app:arc_unfinished_color="@color/gray_400"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.461" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

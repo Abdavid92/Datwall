@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.history.HistoryFragment">
+    tools:context=".ui.history.HistoryFragment"
+    android:background="?attr/colorPrimary">
 
 
     <com.google.android.material.appbar.AppBarLayout
-        style="@style/Theme.Datwall.AppBarOverlay"
+        android:theme="@style/Theme.Datwall.AppBarOverlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -40,12 +41,14 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"
+        style="@style/BackgroundStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"

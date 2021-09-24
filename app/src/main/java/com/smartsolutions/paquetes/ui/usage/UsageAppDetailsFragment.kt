@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import android.graphics.Color
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.view.LayoutInflater
@@ -120,7 +121,9 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         binding.lineChart.apply {
             data = LineData(LineDataSet(entries, "Consumo").apply {
                 setDrawFilled(false)
+                colors = arrayOf(uiHelper.getColorTheme(R.attr.colorPrimary) ?: Color.BLUE).toMutableList()
                 valueTextSize = 0f
+                circleColors = arrayOf(uiHelper.getColorTheme(R.attr.colorPrimary) ?: Color.BLUE).toMutableList()
                 isHighlightPerTapEnabled = true
                 circleRadius = 3f
                 setDrawCircleHole(true)

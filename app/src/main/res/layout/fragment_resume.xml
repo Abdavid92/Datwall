@@ -4,14 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/colorPrimary"
     tools:context=".ui.resume.ResumeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        style="@style/Theme.Datwall.AppBarOverlay"
+        android:theme="@style/Theme.Datwall.AppBarOverlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
        <androidx.appcompat.widget.Toolbar
+           app:popupTheme="@style/Theme.Datwall.PopupOverlay"
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
            app:layout_scrollFlags="scroll|enterAlways">
@@ -31,16 +33,11 @@
                    android:textSize="20sp" />
 
                <androidx.appcompat.widget.AppCompatImageButton
-                   android:id="@+id/button_history"
-                   android:layout_width="45dp"
-                   android:layout_height="45dp"
-                   android:src="@drawable/ic_history_24"
-                   style="@style/Widget.AppCompat.ButtonBar.AlertDialog"/>
-
-               <androidx.appcompat.widget.AppCompatImageButton
                    android:id="@+id/button_filter"
+                   android:background="?android:attr/selectableItemBackground"
                    android:layout_width="45dp"
                    android:layout_height="45dp"
+                   android:layout_marginRight="4dp"
                    android:src="@drawable/ic_filter_list"
                    style="@style/Widget.AppCompat.ButtonBar.AlertDialog"/>
 
@@ -66,8 +63,9 @@
 
 
     <androidx.viewpager2.widget.ViewPager2
+        style="@style/BackgroundStyle"
+        android:padding="8dp"
         android:id="@+id/pager"
-        android:layout_margin="8dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
