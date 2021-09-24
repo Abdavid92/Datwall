@@ -146,8 +146,8 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             adapterFragment = ResumePagerAdapter(this, sims)
             binding.pager.adapter = adapterFragment
         } else {
-            adapterFragment!!.sims = sims
-            adapterFragment!!.notifyDataSetChanged()
+            adapterFragment?.sims = sims
+            adapterFragment?.notifyDataSetChanged()
         }
     }
 

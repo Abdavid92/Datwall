@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HistoryRecyclerAdapter constructor(
-    private var history: List<IPurchasedPackage>
+    var history: List<IPurchasedPackage>
 ) : RecyclerView.Adapter<HistoryRecyclerAdapter.AbstractItemHolder>() {
 
     private var historyShow = history
@@ -43,6 +43,27 @@ class HistoryRecyclerAdapter constructor(
         historyShow = history
 
         result.dispatchUpdatesTo(this)
+    }
+
+
+    fun filter(header: HistoryViewModel.HeaderPurchasedPackage?){
+        if (header == null){
+            historyShow = history
+            notifyDataSetChanged()
+        }else {
+            val list = mutableListOf<IPurchasedPackage>()
+            var index = history.indexOf(header)
+            for (i in 0..header.cuantity) {
+                try {
+                    list.add(history[index])
+                    index++
+                }catch (e: Exception){
+                    break
+                }
+            }
+            historyShow = list
+            notifyDataSetChanged()
+        }
     }
 
 
