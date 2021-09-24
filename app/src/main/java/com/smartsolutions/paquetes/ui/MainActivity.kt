@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GravityCompat
@@ -18,16 +19,14 @@ import com.smartsolutions.paquetes.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListener {
+class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListener {
 
     private lateinit var navController: NavController
 
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setTheme(R.style.Theme_Datwall_Blue)
+       super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -35,7 +34,7 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
         navController = findNavController(R.id.nav_host_fragment)
 
 
-                binding.navView.setupWithNavController(navController)
+        binding.navView.setupWithNavController(navController)
         binding.navView.setOnItemSelectedListener(this)
 
         handleIntent()

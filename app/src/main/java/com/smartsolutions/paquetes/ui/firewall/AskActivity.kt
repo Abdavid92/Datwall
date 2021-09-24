@@ -6,11 +6,12 @@ import androidx.activity.viewModels
 import com.smartsolutions.paquetes.managers.IconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.ui.AbstractActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AskActivity : AppCompatActivity(R.layout.activity_ask) {
+class AskActivity : AbstractActivity(R.layout.activity_ask) {
 
     private val viewModel: AskViewModel by viewModels()
 

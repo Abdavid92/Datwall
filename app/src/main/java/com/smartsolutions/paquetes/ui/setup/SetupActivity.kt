@@ -4,11 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.activation.PurchasedFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SetupActivity : AppCompatActivity(R.layout.activity_setup), OnCompletedListener {
+class SetupActivity : AbstractActivity(R.layout.activity_setup), OnCompletedListener {
 
     private val viewModel by viewModels<SetupViewModel>()
 

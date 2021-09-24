@@ -124,4 +124,9 @@ object PreferencesKeys {
      * Filtro que organiza los userDataBytes que se muestran al usuario
      */
     val RESUME_FILTER = stringPreferencesKey("resume_filter")
+
+    /**
+     * Tema principal de la aplicación
+     * */
+    val APP_THEME = intPreferencesKey("app_theme")
 }

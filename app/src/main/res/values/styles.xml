@@ -29,6 +29,7 @@
     <style name="CardViewStyle" parent="CardView.Light">
         <item name="cardCornerRadius">@dimen/card_view_radius</item>
         <item name="cardElevation">@dimen/card_view_elevation</item>
+        <item name="cardBackgroundColor">@color/background_light</item>
     </style>
 
     <style name="BottomNavViewStyle" parent="Widget.MaterialComponents.BottomNavigationView">
@@ -43,7 +44,15 @@
     </style>
 
     <style name="BackgroundStyle">
-        <item name="android:background">@drawable/background_fragments</item>
+        <item name="android:background">@drawable/background_fragments_light</item>
+    </style>
+
+    <style name="BottomSheetDialogStyle" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="@style/Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/background_fragments_light</item>
     </style>
 
     <style name="Widget.Theme.Datwall.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">

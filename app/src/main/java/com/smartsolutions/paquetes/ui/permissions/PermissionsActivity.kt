@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.Permission
+import com.smartsolutions.paquetes.ui.AbstractActivity
 import dagger.hilt.android.AndroidEntryPoint
 import moe.feng.common.stepperview.VerticalStepperView
 
@@ -15,7 +16,7 @@ import moe.feng.common.stepperview.VerticalStepperView
  * Actividad de los permisos.
  * */
 @AndroidEntryPoint
-class PermissionsActivity : AppCompatActivity(R.layout.activity_permissions) {
+class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
     private val viewModel by viewModels<PermissionsViewModel>()
 

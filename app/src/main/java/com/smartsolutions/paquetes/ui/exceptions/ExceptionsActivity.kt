@@ -11,6 +11,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
+import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,7 +19,7 @@ import javax.inject.Inject
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
-class ExceptionsActivity : AppCompatActivity() {
+class ExceptionsActivity : AbstractActivity() {
 
     @Inject
     lateinit var localFileHelper: LocalFileHelper

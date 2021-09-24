@@ -16,6 +16,8 @@
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
         <item name="tabStyle">@style/TabLayoutStyle</item>
+        <item name="alertDialogTheme">@style/Theme.Datwall.AlertDialogStyle</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogStyle</item>
     </style>
 
     <style name="Theme.Datwall.Blue">

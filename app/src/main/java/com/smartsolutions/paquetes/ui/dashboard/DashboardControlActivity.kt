@@ -3,10 +3,11 @@ package com.smartsolutions.paquetes.ui.dashboard
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import com.smartsolutions.paquetes.ui.AbstractActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DashboardControlActivity : AppCompatActivity() {
+class DashboardControlActivity : AbstractActivity() {
 
     private lateinit var controls: IControls
 

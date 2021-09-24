@@ -13,6 +13,7 @@ import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
+import com.smartsolutions.paquetes.ui.AbstractActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -28,7 +29,7 @@ const val VIEW_NAME_HEADER_LAYOUT = "control:header:layout"
  * Actividad que contiene los controles de una [App]
  * */
 @AndroidEntryPoint
-class AppControlActivity : AppCompatActivity() {
+class AppControlActivity : AbstractActivity() {
 
     /**
      * Enlace a la vista.

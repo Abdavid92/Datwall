@@ -43,9 +43,7 @@
                 android:layout_marginEnd="8dp"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/background_light"
-                app:cardElevation="0dp">
+                android:focusable="true">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -97,9 +95,7 @@
                 android:layout_marginStart="8dp"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/background_light"
-                app:cardElevation="0dp">
+                android:focusable="true">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -152,8 +148,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="?attr/colorPrimary"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="?attr/colorPrimary">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
@@ -178,8 +173,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="?attr/colorPrimary"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="?attr/colorPrimary">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
@@ -204,8 +198,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="?attr/colorPrimary"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="?attr/colorPrimary">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
