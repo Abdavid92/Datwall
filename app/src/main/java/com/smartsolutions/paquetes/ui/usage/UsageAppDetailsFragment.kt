@@ -31,6 +31,7 @@ import java.util.*
 import javax.inject.Inject
 
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 
 
 const val ARG_APP = "app"
@@ -89,6 +90,8 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         binding.lineChart.apply{
             description.isEnabled = false
             axisRight.isEnabled = false
+            legend.textColor = uiHelper.getTextColorByTheme()
+
             xAxis.apply {
                 setDrawGridLines(false)
                 position = XAxis.XAxisPosition.BOTTOM
@@ -121,9 +124,10 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         binding.lineChart.apply {
             data = LineData(LineDataSet(entries, "Consumo").apply {
                 setDrawFilled(false)
-                colors = arrayOf(uiHelper.getColorTheme(R.attr.colorPrimary) ?: Color.BLUE).toMutableList()
+                val colours = arrayOf(uiHelper.getColorTheme(R.attr.colorAccent) ?: Color.BLUE).toMutableList()
+                colors = colours
                 valueTextSize = 0f
-                circleColors = arrayOf(uiHelper.getColorTheme(R.attr.colorPrimary) ?: Color.BLUE).toMutableList()
+                circleColors = colours
                 isHighlightPerTapEnabled = true
                 circleRadius = 3f
                 setDrawCircleHole(true)
@@ -191,7 +195,6 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
     private fun setAdapter(traffics: Pair<List<Traffic>, NetworkUsageUtils.MyTimeUnit>){
         if (adapter == null){
             adapter = UsageAppDetailsRecyclerAdapter(traffics)
-            binding.recyclerUsage.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
             binding.recyclerUsage.adapter = adapter
         }else {
             adapter!!.traffics = traffics

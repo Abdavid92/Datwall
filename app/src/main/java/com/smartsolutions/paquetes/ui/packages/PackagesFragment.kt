@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.databinding.FragmentPackagesBinding
 
 class PackagesFragment : Fragment() {
 
@@ -14,19 +16,28 @@ class PackagesFragment : Fragment() {
         fun newInstance() = PackagesFragment()
     }
 
-    private lateinit var viewModel: PackagesViewModel
+    private val viewModel by viewModels<PackagesViewModel> ()
+
+    private lateinit var binding: FragmentPackagesBinding
+    
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_packages, container, false)
+    ): View {
+        binding = FragmentPackagesBinding.inflate(layoutInflater, container, false)
+        return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(PackagesViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.getPackagesAndSims().observe(viewLifecycleOwner){
+
+        }
+
     }
+
+
 
 }

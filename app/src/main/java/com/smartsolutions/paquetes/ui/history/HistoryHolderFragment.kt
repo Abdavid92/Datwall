@@ -103,6 +103,8 @@ class HistoryHolderFragment : Fragment() {
             axisRight.isEnabled = false
             setDrawValueAboveBar(false)
 
+            legend.textColor = uiHelper.getTextColorByTheme()
+
             xAxis.apply {
                 setDrawGridLines(false)
                 position = XAxis.XAxisPosition.BOTTOM
@@ -155,7 +157,7 @@ class HistoryHolderFragment : Fragment() {
                 }
             valueTextSize = 16f
             valueTextColor = Color.WHITE
-            colors = arrayOf(uiHelper.getColorTheme(R.attr.colorPrimary)).toMutableList()
+            colors = arrayOf(uiHelper.getColorTheme(R.attr.colorAccent)).toMutableList()
         }
 
         binding.barChart.apply {
