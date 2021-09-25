@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_light">#BE5DBF</color>
+    <color name="purple_light">#E0B6F4</color>
     <color name="purple_medium">#7800b2</color>
-    <color name="purple_dark">#FF3700B3</color>
+    <color name="purple_dark">#430063</color>
     <color name="blue_light">#049CEF</color>
     <color name="blue_medium">#03A9F4</color>
     <color name="blue_medium_dark">#1565C0</color>
     <color name="blue_dark">#00001c</color>
-    <color name="yellow_light">#FFF59D</color>
+    <color name="yellow_light">#f6ff75</color>
     <color name="yellow_medium">#FDD835</color>
-    <color name="yellow_medium_dark">#B39309</color>
+    <color name="yellow_dark">#9e8621</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="green">#57C55C</color>
+    <color name="green">#3ab200</color>
     <color name="reed">#F34F4F</color>
     <color name="background_dark">#3C3C3C</color>
-    <color name="background_light">#F0F0F0</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="light_blue_A200">#FF40C4FF</color>
@@ -34,5 +33,6 @@
     <color name="magent">#18FFFF</color>
     <color name="purple">#E040FB</color>
     <color name="blue">#536DFE</color>
-
+    <color name="card_background_light">#F0F0F0</color>
+    <color name="card_background_dark">#292929</color>
 </resources>

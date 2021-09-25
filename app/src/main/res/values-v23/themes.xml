@@ -7,8 +7,8 @@
         <item name="colorPrimaryVariant">@color/purple_dark</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/purple_light</item>
-        <item name="colorSecondaryVariant">@color/purple_medium</item>
+        <item name="colorSecondary">@color/yellow_medium</item>
+        <item name="colorSecondaryVariant">@color/yellow_dark</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
@@ -31,5 +31,4 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 </resources>

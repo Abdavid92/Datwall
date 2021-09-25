@@ -29,11 +29,13 @@
     <style name="CardViewStyle" parent="CardView.Light">
         <item name="cardCornerRadius">@dimen/card_view_radius</item>
         <item name="cardElevation">@dimen/card_view_elevation</item>
-        <item name="cardBackgroundColor">@color/background_light</item>
+        <item name="cardBackgroundColor">@color/card_background_light</item>
     </style>
 
     <style name="BottomNavViewStyle" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="android:background">@drawable/bg_bottom_nav_view</item>
+        <item name="android:background">@drawable/background_nav_view_light</item>
+        <item name="itemIconTint">@color/item_navigation_bar_tint</item>
+        <item name="itemTextColor">@color/item_navigation_bar_tint</item>
     </style>
 
     <style name="TabLayoutStyle" parent="Widget.MaterialComponents.TabLayout.Colored">
@@ -41,10 +43,13 @@
         <item name="tabTextAppearance">@style/TextAppearance.AppCompat.Body2</item>
         <item name="tabMode">auto</item>
         <item name="tabGravity">center</item>
+        <item name="tabIndicator">@drawable/tab_indicator</item>
+        <item name="tabIndicatorGravity">center</item>
+        <item name="tabSelectedTextColor">@color/black</item>
     </style>
 
     <style name="BackgroundStyle">
-        <item name="android:background">@drawable/background_fragments_light</item>
+        <item name="android:background">@drawable/background_fragments</item>
     </style>
 
     <style name="BottomSheetDialogStyle" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
@@ -52,7 +57,7 @@
     </style>
 
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
-        <item name="android:background">@drawable/background_fragments_light</item>
+        <item name="android:background">@drawable/background_fragments</item>
     </style>
 
     <style name="Widget.Theme.Datwall.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">

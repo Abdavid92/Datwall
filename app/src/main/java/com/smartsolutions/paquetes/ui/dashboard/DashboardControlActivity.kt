@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.ui.dashboard
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.smartsolutions.paquetes.ui.AbstractActivity

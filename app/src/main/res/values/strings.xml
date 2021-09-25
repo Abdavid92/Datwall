@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Datwall</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_dashboard">Controles</string>
     <string name="title_notifications">Notifications</string>
     <string name="firewall_service_running">Cortafuegos iniciado</string>
     <string name="main_notification_channel_name">Canal principal de notificaciones</string>

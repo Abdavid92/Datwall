@@ -2,22 +2,35 @@
     <!-- Base application theme. -->
     <style name="Theme.Datwall" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_light</item>
-        <item name="colorPrimaryVariant">@color/purple_dark</item>
+        <item name="colorPrimary">@color/purple_medium</item>
+        <item name="colorPrimaryVariant">@color/purple_light</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorSecondary">@color/yellow_medium</item>
+        <item name="colorSecondaryVariant">@color/yellow_dark</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
+        <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
+        <item name="tabStyle">@style/TabLayoutStyle</item>
+        <item name="alertDialogTheme">@style/Theme.Datwall.AlertDialogStyle</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogStyle</item>
     </style>
 
     <style name="Theme.Datwall.Fullscreen">
+        <item name="android:actionBarStyle">@style/Widget.Theme.Datwall.ActionBar.Fullscreen</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?android:attr/colorBackground</item>
         <item name="android:windowBackground">@color/blue_dark</item>
+        <item name="android:colorBackground">@color/blue_dark</item>
         <item name="splash_icon">@drawable/splash_screen_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="elevation">0dp</item>
+        <item name="android:background">?attr/colorPrimary</item>
     </style>
 
     <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />

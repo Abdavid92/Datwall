@@ -1,3 +1,24 @@
 <resources>
+    <!--Estilo de los CardViews-->
+    <style name="CardViewStyle" parent="CardView.Dark">
+        <item name="cardCornerRadius">@dimen/card_view_radius</item>
+        <item name="cardElevation">@dimen/card_view_elevation</item>
+        <item name="cardBackgroundColor">@color/card_background_dark</item>
+    </style>
 
+    <style name="BottomNavViewStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:background">@drawable/background_nav_view_dark</item>
+        <item name="itemIconTint">@color/item_navigation_bar_tint</item>
+        <item name="itemTextColor">@color/item_navigation_bar_tint</item>
+    </style>
+
+    <style name="TabLayoutStyle" parent="Widget.MaterialComponents.TabLayout.PrimarySurface">
+        <item name="tabTextAppearance">@style/TextAppearance.AppCompat.Body2</item>
+        <item name="tabMode">auto</item>
+        <item name="tabGravity">center</item>
+        <item name="tabIndicator">@drawable/tab_indicator</item>
+        <item name="tabIndicatorColor">?android:attr/colorBackground</item>
+        <item name="tabIndicatorGravity">center</item>
+        <item name="tabSelectedTextColor">@color/white</item>
+    </style>
 </resources>
