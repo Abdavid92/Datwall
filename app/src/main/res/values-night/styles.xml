@@ -21,4 +21,12 @@
         <item name="tabIndicatorGravity">center</item>
         <item name="tabSelectedTextColor">@color/white</item>
     </style>
+
+    <style name="BottomSheetDialogStyle" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/background_fragments</item>
+    </style>
 </resources>

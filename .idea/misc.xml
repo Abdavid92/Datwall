@@ -27,7 +27,7 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable/ic_usage_menu.xml" value="0.26615384615384613" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable/primary_button_background.xml" value="0.2703125" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable/progres_bar_vertical.xml" value="0.16" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.4" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_splash.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/app_item.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.24074074074074073" />
@@ -35,7 +35,7 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_dashboard.xml" value="0.4" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_history.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_history_holder.xml" value="0.16" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_packages.xml" value="0.16944444444444445" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_packages.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_packages_configuration.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_resume.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_resume_holder.xml" value="0.176" />
@@ -48,10 +48,13 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_usage_place_holder.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/higlith_chart.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_datwall_service.xml" value="0.16944444444444445" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_header.xml" value="0.16944444444444445" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_header_history.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_header_packages.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_history.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_package.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_packages.xml" value="0.264" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_plan.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage_details.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_user_data_bytes.xml" value="0.2" />

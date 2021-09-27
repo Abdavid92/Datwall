@@ -189,4 +189,12 @@
     <string name="failed_find_app_more_consume">No se encontró ninguna app.</string>
     <string name="query_mb">Consultar megas</string>
     <string name="purchase">Comprar</string>
+    <string name="plan_title">Planes Combinados</string>
+    <string name="packages_title">Paquetes LTE</string>
+    <string name="no_sim_configured">Es necesario configurar la Sim actual para saber los paquetes y planes que están disponibles</string>
+    <string name="configure_button">Configurar Sim</string>
+    <string name="no_sim_default">No hay ninguna Sim predeterminada para Llamadas. Por favor configure la Sim antes de comprar un paquete</string>
+    <string name="purchasing_package">Comprando Paquete</string>
+    <string name="purchasing_package_failed">No se pudo comprar el paquete</string>
+    <string name="purchasing_package_permissions">Falta Permiso de Llamadas</string>
 </resources>

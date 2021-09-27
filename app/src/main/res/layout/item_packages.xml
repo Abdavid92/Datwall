@@ -1,60 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardUseCompatPadding="true"
     app:contentPadding="8dp">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
 
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
-
+        android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/package_title"
+            android:id="@+id/title_package"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Paquete 1 GB LTE"
+            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
+            android:textSize="18sp"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Plan Básico"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
+            android:text="$"
             android:textSize="16sp" />
 
-
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:text="100.00"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
+            android:textSize="30sp"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$"
-                android:textSize="16sp" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CUP"
+            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="125.00"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:text="CUP"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 
         <View
@@ -67,49 +66,12 @@
             android:background="?android:attr/listDivider" />
 
 
+
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
-
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Megas" />
-
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/international_all_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="800"
-                        android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/international_all_unit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="3dp"
-                        android:text="MB"
-                        android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                </androidx.appcompat.widget.LinearLayoutCompat>
-            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="wrap_content"
@@ -126,13 +88,15 @@
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="end"
                     android:orientation="horizontal">
 
                     <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/iternational_lte_value"
+                        android:id="@+id/international_lte_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="600"
+                        android:textAlignment="center"
+                        android:text="4.0\n + \n12.0(LTE)"
                         android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -142,9 +106,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="3dp"
-                        android:text="MB"
+                        android:text="GB"
                         android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="12sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -183,102 +147,7 @@
                         android:layout_marginLeft="3dp"
                         android:text="MB"
                         android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                </androidx.appcompat.widget.LinearLayoutCompat>
-            </androidx.appcompat.widget.LinearLayoutCompat>
-
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginRight="25dp"
-            android:layout_marginBottom="6dp"
-            android:background="?android:attr/listDivider" />
-
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Minutos" />
-
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/minutes_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="15"
-                        android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="3dp"
-                        android:text="min"
-                        android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                </androidx.appcompat.widget.LinearLayoutCompat>
-            </androidx.appcompat.widget.LinearLayoutCompat>
-
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SMS" />
-
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/sms_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="20"
-                        android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="3dp"
-                        android:text="sms"
-                        android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-                        android:textSize="12sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -293,10 +162,10 @@
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/button_purchase"
-                    android:layout_width="110dp"
-                    android:textSize="18sp"
+                    android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/purchase" />
+                    android:text="@string/purchase"
+                    android:textSize="18sp" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 

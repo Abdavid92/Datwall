@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/colorPrimary"
     tools:context=".ui.packages.PackagesFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:theme="@style/Theme.Datwall.AppBarOverlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.Datwall.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
-            app:popupTheme="@style/Theme.Datwall.PopupOverlay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|enterAlways">
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/Theme.Datwall.PopupOverlay">
 
             <androidx.appcompat.widget.LinearLayoutCompat
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="end|center_vertical">
+                android:gravity="end|center_vertical"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -32,29 +32,76 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textSize="20sp" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/button_filter"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_marginRight="4dp"
-                    android:src="@drawable/ic_filter_list"
-                    style="@style/Widget.AppCompat.ButtonBar.AlertDialog"/>
-
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        style="@style/BackgroundStyle"
         android:id="@+id/recycler"
-        android:padding="6dp"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        style="@style/BackgroundStyle"
         tools:listitem="@layout/item_packages"
-        tools:itemCount="3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        tools:ignore="SpeakableTextPresentCheck" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/lin_sim_not_configured"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_unarchive_24"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:textAlignment="center"
+            android:text="@string/no_sim_configured"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_configure_sim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/configure_button"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/lin_sim_not_default"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_unarchive_24"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:textAlignment="center"
+            android:text="@string/no_sim_default"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
