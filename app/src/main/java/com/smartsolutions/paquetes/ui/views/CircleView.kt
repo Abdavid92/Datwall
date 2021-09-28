@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.ui
+package com.smartsolutions.paquetes.ui.views
 
 import android.content.Context
 import android.graphics.Canvas

@@ -59,6 +59,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/backgroung_main.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/bg_bottom_nav_view.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/bg_bottom_sheet_dialog.xml" value="0.19583333333333333" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/btn_primary.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/card_background_dark.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/circle_shape.xml" value="1.321875" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/circular_progress_bar.xml" value="1.321875" />
@@ -68,11 +69,14 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_usage.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/primary_button_background.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/progres_bar_vertical.xml" value="0.2203125" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/secondary_button_background.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/tab_indicator.xml" value="0.2203125" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/transparent_background_dark.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout-land/activity_app_control.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_app_control.xml" value="0.13722826086956522" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_ask.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.4083333333333333" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_settings.xml" value="0.20416666666666666" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/app_item.xml" value="0.11775362318840579" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/bubble_close_floating_layout.xml" value="0.15579710144927536" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/bubble_controls.xml" value="0.17346014492753623" />
@@ -92,6 +96,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_resume_holder.xml" value="0.14402173913043478" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_settings.xml" value="0.17617753623188406" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_single_permission.xml" value="0.15" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_themes.xml" value="0.20416666666666666" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_usage.xml" value="0.22" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_usage_app_details.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_app.xml" value="0.15579710144927536" />
@@ -100,9 +105,13 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_usage_details.xml" value="0.14402173913043478" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_user_data_bytes.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/popup_menu_tab.xml" value="0.25" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/settings_activity.xml" value="0.20416666666666666" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/applications_menu.xml" value="0.12894736842105264" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/bottom_nav_menu.xml" value="0.1814814814814815" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/more_nav_menu.xml" value="0.1814814814814815" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/appaerance_preferences.xml" value="0.22" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/header_preferences.xml" value="0.20416666666666666" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/messages_preferences.xml" value="0.20416666666666666" />
       </map>
     </option>
   </component>

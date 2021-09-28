@@ -187,4 +187,34 @@
     <string name="total">Total:</string>
     <string name="month_purchased">Paquetes Comprados</string>
     <string name="no_data">No hay datos para mostrar</string>
+    <string name="query">Consultar</string>
+    <string name="title_activity_settings">Ajustes</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="appearance_header">Apariencia</string>
+    <string name="theme_mode">Modo del tema</string>
+    <string name="theme">Tema</string>
+    <string name="theme_summary">Tema principal de la aplicación</string>
+    <string name="title_interface">Interfaz</string>
+    <string name="random_theme">Aleatorizar la apariencia</string>
+    <string name="random_theme_summary">Establecer un tema y un color al azar</string>
+    <string name="other">Otro</string>
+    <string name="restore_default">Restablecer predeterminados</string>
+    <string name="restore_default_summary">Restaurar la configuración predeterminada</string>
+    <string name="need_restart">Reinicio necesario</string>
+    <string name="need_restart_summary">es necesario reiniciar la aplicación para aplicar los cambios.</string>
+    <string name="restart">Reiniciar</string>
 </resources>

@@ -36,12 +36,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
-
         <!-- Activities -->
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".ui.MainActivity"/>
         <activity
             android:name=".ui.dashboard.DashboardControlActivity"
             android:exported="true"
-            android:theme="@style/Theme.Datwall.Transparent"/>
+            android:theme="@style/Theme.Datwall.Transparent" />
         <activity
             android:name=".ui.applications.AppControlActivity"
             android:parentActivityName=".ui.MainActivity"
@@ -69,9 +73,7 @@
         <activity android:name=".ui.firewall.AskActivity" />
         <activity
             android:name=".ui.PresentationActivity"
-            android:theme="@style/WelcomeTheme" />
-
-        <!-- Services -->
+            android:theme="@style/WelcomeTheme" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:enabled="true"
@@ -83,8 +85,8 @@
             android:exported="false" />
         <service
             android:name=".services.UIScannerService"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
@@ -100,9 +102,7 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.net.VpnService" />
             </intent-filter>
-        </service>
-
-        <!-- Receivers -->
+        </service> <!-- Receivers -->
         <receiver
             android:name=".receivers.BootCompletedReceiver"
             android:enabled="true"
@@ -147,9 +147,7 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
-        </receiver>
-
-        <!-- Providers -->
+        </receiver> <!-- Providers -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.smartsolutions.paquetes.provider"

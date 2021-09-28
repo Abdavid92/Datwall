@@ -8,6 +8,7 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.smartsolutions.paquetes.databinding.FragmentDashboardBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,6 +40,22 @@ class DashboardFragment : Fragment() {
         setFirewallSettings()
         setBubbleSettings()
         setUssdButtonsSettings()
+        setFabSettings()
+    }
+
+    private fun setFabSettings() {
+        binding.fabQuery.setOnClickListener {
+            val fab = it as ExtendedFloatingActionButton
+
+            if (fab.isExtended) {
+                fab.shrink(object : ExtendedFloatingActionButton.OnChangedCallback() {
+
+                    override fun onShrunken(extendedFab: ExtendedFloatingActionButton?) {
+
+                    }
+                })
+            }
+        }
     }
 
     private fun setFirewallSettings() {

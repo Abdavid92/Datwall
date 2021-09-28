@@ -52,15 +52,17 @@
 
     <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
-    <style name="Theme.Datwall.Transparent">
+    <style name="Theme.Datwall.Transparent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:windowBackground">@drawable/transparent_background_dark</item>
+        <!--<item name="android:windowBackground">?attr/colorBackgroundFloating</item>-->
         <item name="windowNoTitle">true</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition</item>
         <item name="android:windowSharedElementExitTransition">@transition/app_control_transition</item>
+        <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
+        <item name="cardViewStyle">@style/CardViewStyle</item>
     </style>
 </resources>

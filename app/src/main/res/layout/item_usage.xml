@@ -8,7 +8,7 @@
     android:background="?android:attr/selectableItemBackground"
     android:padding="8dp">
 
-    <com.smartsolutions.paquetes.ui.CircleView
+    <com.smartsolutions.paquetes.ui.views.CircleView
         android:id="@+id/circle_colour"
         android:layout_width="15dp"
         android:layout_height="15dp"

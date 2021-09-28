@@ -14,11 +14,6 @@ val Context.uiDataStore: DataStore<Preferences> by preferencesDataStore(name = "
 object PreferencesKeys {
 
     /**
-     * Indica si es ya la aplicación fué abierta anteriormente.
-     * */
-    //val APP_WAS_OPEN = booleanPreferencesKey("app_was_open")
-
-    /**
      * Indica si el cortafuegos debe ser encendido o no.
      * Esta clave es de tipo Boolean.
      * */
@@ -129,4 +124,32 @@ object PreferencesKeys {
      * Tema principal de la aplicación
      * */
     val APP_THEME = intPreferencesKey("app_theme")
+
+    /**
+     * Modo del tema (claro, oscuro, predeterminado)
+     * */
+    val THEME_MODE = stringPreferencesKey("theme_mode")
+
+    /**
+     * Busca una clave de preferencia por el nombre.
+     *
+     * @param key
+     *
+     * @return [Preferences.Key]
+     * */
+    fun <T> findPreferenceByKey(key: String): Preferences.Key<T>? {
+        this.javaClass.declaredFields.forEach {
+
+            val name = it.type.name
+
+            if (name == Preferences.Key::class.java.name) {
+                val preferenceKey = it.get(null) as Preferences.Key<*>
+
+                if (preferenceKey.name == key)
+                    return preferenceKey as Preferences.Key<T>
+            }
+        }
+
+        return null
+    }
 }

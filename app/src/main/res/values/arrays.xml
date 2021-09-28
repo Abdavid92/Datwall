@@ -38,4 +38,29 @@
         <item>@color/purple</item>
         <item>@color/gray_400</item>
     </integer-array>
+
+    <!-- Reply Preference -->
+    <string-array name="reply_entries">
+        <item>Reply</item>
+        <item>Reply to all</item>
+    </string-array>
+
+    <string-array name="reply_values">
+        <item>reply</item>
+        <item>reply_all</item>
+    </string-array>
+
+    <!--Theme mode Preference-->
+    <string-array name="theme_mode_entries">
+        <item>Claro</item>
+        <item>Oscuro</item>
+        <item>Predeterminado del sistema</item>
+    </string-array>
+
+    <string-array name="theme_mode_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>default_system</item>
+    </string-array>
+
 </resources>

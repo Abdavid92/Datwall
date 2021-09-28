@@ -19,7 +19,7 @@ abstract class AbstractActivity : AppCompatActivity {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var currentTheme = runBlocking {
+        val currentTheme = runBlocking {
             dataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
         }
@@ -27,7 +27,7 @@ abstract class AbstractActivity : AppCompatActivity {
         if (currentTheme != R.style.Theme_Datwall)
             setTheme(currentTheme)
 
-        dataStore.data.asLiveData().observe(this) {
+        /*dataStore.data.asLiveData().observe(this) {
             val newTheme = it[PreferencesKeys.APP_THEME] ?: currentTheme
 
             if (currentTheme != newTheme) {
@@ -37,6 +37,6 @@ abstract class AbstractActivity : AppCompatActivity {
 
                 recreate()
             }
-        }
+        }*/
     }
 }

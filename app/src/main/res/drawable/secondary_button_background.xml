@@ -5,6 +5,6 @@
         android:width="@dimen/min_width_button" />
     <solid android:color="?android:attr/windowBackground" />
     <corners android:radius="25dp" />
-    <stroke android:color="?attr/colorPrimary"
+    <stroke android:color="?attr/colorPrimaryVariant"
         android:width="2dp" />
 </shape>

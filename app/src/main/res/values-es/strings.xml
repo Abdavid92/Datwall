@@ -188,4 +188,19 @@
     <string name="searching">Buscando...</string>
     <string name="failed_find_app_more_consume">No se encontró ninguna app.</string>
     <string name="query_mb">Consultar megas</string>
+    <string name="query">Consultar</string>
+    <string name="title_activity_settings">Ajustes</string>
+    <string name="appearance_header">Apariencia</string>
+    <string name="theme_mode">Modo del tema</string>
+    <string name="theme">Tema</string>
+    <string name="theme_summary">Tema principal de la aplicación</string>
+    <string name="title_interface">Interfaz</string>
+    <string name="random_theme">Aleatorizar la apariencia</string>
+    <string name="random_theme_summary">Establecer un tema y un color al azar</string>
+    <string name="other">Otro</string>
+    <string name="restore_default">Restablecer predeterminados</string>
+    <string name="restore_default_summary">Restaurar la configuración predeterminada</string>
+    <string name="need_restart">Reinicio necesario</string>
+    <string name="need_restart_summary">es necesario reiniciar la aplicación para aplicar los cambios.</string>
+    <string name="restart">Reiniciar</string>
 </resources>
