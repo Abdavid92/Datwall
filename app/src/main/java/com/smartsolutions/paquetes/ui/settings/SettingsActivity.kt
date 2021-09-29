@@ -1,22 +1,25 @@
 package com.smartsolutions.paquetes.ui.settings
 
-import android.content.Intent
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.Fragment
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
 import com.smartsolutions.paquetes.ui.AbstractActivity
-import com.smartsolutions.paquetes.ui.SplashActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.firstOrNull
 import kotlin.coroutines.CoroutineContext
 
 private const val TITLE_TAG = "settingsActivityTitle"
@@ -41,6 +44,15 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         supportFragmentManager.addOnBackStackChangedListener {
             if (supportFragmentManager.backStackEntryCount == 0) {
                 setTitle(R.string.title_activity_settings)
+            } else {
+                val fragments = supportFragmentManager
+                    .fragments
+
+                val fragment = fragments[fragments.size - 1]
+
+                if (fragment is TitleFragment) {
+                    title = fragment.title()
+                }
             }
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -64,7 +76,9 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         pref: Preference
     ): Boolean {
         // Instantiate the new Fragment
-        val args = pref.extras
+        val args = pref.extras.apply {
+            putCharSequence(TITLE_TAG, pref.title)
+        }
         val fragment = supportFragmentManager.fragmentFactory.instantiate(
             classLoader,
             pref.fragment
@@ -77,7 +91,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             .replace(R.id.settings, fragment)
             .addToBackStack(null)
             .commit()
-        title = pref.title
+        //title = pref.title
         return true
     }
 
@@ -101,7 +115,10 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 ?.setOnPreferenceClickListener {
 
                     preferenceManager.preferenceDataStore
-                        ?.putString(PreferencesKeys.THEME_MODE.name, "system")
+                        ?.putInt(
+                            PreferencesKeys.THEME_MODE.name,
+                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                        )
 
                     preferenceManager.preferenceDataStore
                         ?.putInt(PreferencesKeys.APP_THEME.name, R.style.Theme_Datwall_Blue)
@@ -120,8 +137,82 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
     }
 
-    class ThemesFragment : Fragment() {
+    class ThemesFragment : Fragment(), CoroutineScope, TitleFragment {
 
+        override val coroutineContext: CoroutineContext
+            get() = Dispatchers.Main
+
+        private lateinit var binding: FragmentThemesBinding
+
+        private lateinit var mTitle: CharSequence
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+
+            mTitle = arguments?.getCharSequence(TITLE_TAG) ?: "SettingsFragment"
+        }
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            binding = FragmentThemesBinding.inflate(
+                inflater,
+                container,
+                false
+            )
+
+            return binding.root
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+
+            launch {
+                var themeMode = requireContext().dataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.THEME_MODE) ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+
+                when (themeMode) {
+                    AppCompatDelegate.MODE_NIGHT_NO -> {
+                        binding.themeLight.isChecked = true
+                    }
+                    AppCompatDelegate.MODE_NIGHT_YES -> {
+                        binding.themeDark.isChecked = true
+                    }
+                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> {
+                        binding.themeSystem.isChecked = true
+                    }
+                }
+
+                binding.radioButtons.setOnCheckedChangeListener { _, id ->
+
+                    themeMode = when (id) {
+                        R.id.theme_light -> {
+                            AppCompatDelegate.MODE_NIGHT_NO
+                        }
+                        R.id.theme_dark -> {
+                            AppCompatDelegate.MODE_NIGHT_YES
+                        }
+                        R.id.theme_system -> {
+                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                        }
+                        else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                    }
+
+                    runBlocking {
+                        requireContext().dataStore.edit {
+                            it[PreferencesKeys.THEME_MODE] = themeMode
+                        }
+                        AppCompatDelegate.setDefaultNightMode(themeMode)
+                    }
+                }
+            }
+        }
+
+        override fun title(): CharSequence {
+            return mTitle
+        }
     }
 
     class MessagesFragment : PreferenceFragmentCompat() {
@@ -136,10 +227,18 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
     }
 
-    abstract class AbstractPreferenceFragmentCompat : PreferenceFragmentCompat() {
+    abstract class AbstractPreferenceFragmentCompat : PreferenceFragmentCompat(), TitleFragment {
+
+        private lateinit var mTitle: CharSequence
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().dataStore)
+            mTitle = arguments?.getCharSequence(TITLE_TAG) ?: "SettingsFragment"
+        }
+
+        override fun title(): CharSequence {
+            return mTitle
         }
 
         class PreferenceDataStore(
@@ -213,5 +312,9 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 }
             }
         }
+    }
+
+    interface TitleFragment {
+        fun title(): CharSequence
     }
 }

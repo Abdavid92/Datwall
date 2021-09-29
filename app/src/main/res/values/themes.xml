@@ -52,10 +52,10 @@
 
     <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
-    <style name="Theme.Datwall.Transparent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Datwall.Transparent">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:background">@android:color/transparent</item>
-        <!--<item name="android:windowBackground">?attr/colorBackgroundFloating</item>-->
+        <item name="android:windowBackground">@drawable/transparent_background_dark</item>
         <item name="windowNoTitle">true</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsFloating">false</item>

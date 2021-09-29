@@ -8,7 +8,7 @@
         <Preference
             app:title="@string/theme"
             app:summary="@string/theme_summary"
-            app:fragment="com.smartsolutions.paquete.ui.settings.SettingsActivity$ThemesFragment" />
+            app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$ThemesFragment" />
 
         <Preference
             app:title="@string/random_theme"

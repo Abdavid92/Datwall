@@ -17,15 +17,16 @@ abstract class AbstractActivity : AppCompatActivity {
     constructor(@LayoutRes contentLayoutRedId: Int): super(contentLayoutRedId)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
         val currentTheme = runBlocking {
             dataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
         }
 
-        if (currentTheme != R.style.Theme_Datwall)
+        if (currentTheme != R.style.Theme_Datwall) {
             setTheme(currentTheme)
+        }
+
+        super.onCreate(savedInstanceState)
 
         /*dataStore.data.asLiveData().observe(this) {
             val newTheme = it[PreferencesKeys.APP_THEME] ?: currentTheme

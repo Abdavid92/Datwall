@@ -203,4 +203,7 @@
     <string name="need_restart">Reinicio necesario</string>
     <string name="need_restart_summary">es necesario reiniciar la aplicación para aplicar los cambios.</string>
     <string name="restart">Reiniciar</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="theme_system">Predeterminado del sistema</string>
 </resources>

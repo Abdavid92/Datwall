@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui.applications
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.transition.Transition
 import android.view.View
@@ -13,7 +12,7 @@ import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.ui.AbstractActivity
+import com.smartsolutions.paquetes.ui.TransparentActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -29,7 +28,7 @@ const val VIEW_NAME_HEADER_LAYOUT = "control:header:layout"
  * Actividad que contiene los controles de una [App]
  * */
 @AndroidEntryPoint
-class AppControlActivity : AbstractActivity() {
+class AppControlActivity : TransparentActivity() {
 
     /**
      * Enlace a la vista.

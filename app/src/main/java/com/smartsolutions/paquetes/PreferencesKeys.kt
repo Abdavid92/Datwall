@@ -128,7 +128,7 @@ object PreferencesKeys {
     /**
      * Modo del tema (claro, oscuro, predeterminado)
      * */
-    val THEME_MODE = stringPreferencesKey("theme_mode")
+    val THEME_MODE = intPreferencesKey("theme_mode")
 
     /**
      * Busca una clave de preferencia por el nombre.
@@ -140,13 +140,11 @@ object PreferencesKeys {
     fun <T> findPreferenceByKey(key: String): Preferences.Key<T>? {
         this.javaClass.declaredFields.forEach {
 
-            val name = it.type.name
-
-            if (name == Preferences.Key::class.java.name) {
-                val preferenceKey = it.get(null) as Preferences.Key<*>
+            if (it.type.name == Preferences.Key::class.java.name) {
+                val preferenceKey = it.get(null) as Preferences.Key<T>
 
                 if (preferenceKey.name == key)
-                    return preferenceKey as Preferences.Key<T>
+                    return preferenceKey
             }
         }
 

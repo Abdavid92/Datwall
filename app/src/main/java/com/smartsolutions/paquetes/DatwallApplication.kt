@@ -2,12 +2,18 @@ package com.smartsolutions.paquetes
 
 import android.app.Application
 import androidx.annotation.RestrictTo
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Clase principal de la aplicación. Contiene el inyector y se
@@ -15,7 +21,10 @@ import javax.inject.Inject
  * callbacks y sembrar la base de datos.
  * */
 @HiltAndroidApp
-class DatwallApplication : Application(), Configuration.Provider {
+class DatwallApplication : Application(), Configuration.Provider, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
@@ -47,6 +56,15 @@ class DatwallApplication : Application(), Configuration.Provider {
 
         if (!exceptionsController.isRegistered) {
             exceptionsController.register()
+        }
+
+        val themeMode = runBlocking {
+            return@runBlocking dataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.THEME_MODE) ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+
+        if (themeMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            AppCompatDelegate.setDefaultNightMode(themeMode)
         }
     }
 

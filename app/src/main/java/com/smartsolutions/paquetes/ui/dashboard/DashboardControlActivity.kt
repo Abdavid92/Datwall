@@ -2,11 +2,11 @@ package com.smartsolutions.paquetes.ui.dashboard
 
 import android.os.Bundle
 import androidx.activity.viewModels
-import com.smartsolutions.paquetes.ui.AbstractActivity
+import com.smartsolutions.paquetes.ui.TransparentActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DashboardControlActivity : AbstractActivity() {
+class DashboardControlActivity : TransparentActivity() {
 
     private lateinit var controls: IControls
 
