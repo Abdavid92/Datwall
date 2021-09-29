@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,13 +18,19 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
+import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.ui.AbstractActivity
+import com.smartsolutions.paquetes.ui.SplashActivity
+import com.smartsolutions.paquetes.ui.activation.ActivationActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.Random
 
 private const val TITLE_TAG = "settingsActivityTitle"
 
+@AndroidEntryPoint
 class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
@@ -84,29 +91,51 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             pref.fragment
         ).apply {
             arguments = args
-            //setTargetFragment(caller, 0)
         }
         // Replace the existing Fragment with the new Fragment
         supportFragmentManager.beginTransaction()
             .replace(R.id.settings, fragment)
             .addToBackStack(null)
             .commit()
-        //title = pref.title
+
         return true
     }
 
     class HeaderFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.header_preferences, rootKey)
+
+            findPreference<Preference>("activation_key")
+                ?.setOnPreferenceClickListener {
+
+                    startActivity(Intent(requireContext(), ActivationActivity::class.java))
+
+                    return@setOnPreferenceClickListener true
+                }
         }
     }
 
     class UIFragment : AbstractPreferenceFragmentCompat() {
+
+        private val uiHelper by uiHelper()
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.appaerance_preferences, rootKey)
 
             findPreference<Preference>("random_theme")
                 ?.setOnPreferenceClickListener {
+
+                    val themes = uiHelper.getThemeList()
+
+                    val r = Random(System.currentTimeMillis())
+                        .nextInt(themes.size)
+
+                    val theme = themes[r]
+
+                    preferenceManager.preferenceDataStore
+                        ?.putInt(PreferencesKeys.APP_THEME.name, theme.id)
+
+                    showRestartDialog()
 
                     return@setOnPreferenceClickListener true
             }
@@ -121,16 +150,11 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                         )
 
                     preferenceManager.preferenceDataStore
-                        ?.putInt(PreferencesKeys.APP_THEME.name, R.style.Theme_Datwall_Blue)
+                        ?.putInt(PreferencesKeys.APP_THEME.name, R.style.Theme_Datwall)
 
-                    AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.need_restart)
-                        .setMessage(R.string.need_restart_summary)
-                        .setNegativeButton(R.string.btn_cancel, null)
-                        .setPositiveButton(R.string.restart
-                        ) { _,_ ->
-                            requireActivity().recreate()
-                        }.show()
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+
+                    showRestartDialog()
 
                     return@setOnPreferenceClickListener true
                 }
@@ -145,6 +169,12 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         private lateinit var binding: FragmentThemesBinding
 
         private lateinit var mTitle: CharSequence
+
+        private val uiHelper by uiHelper()
+
+        private val preferenceDataStore by lazy {
+            AbstractPreferenceFragmentCompat.PreferenceDataStore(requireContext().dataStore)
+        }
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -170,7 +200,9 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             super.onViewCreated(view, savedInstanceState)
 
             launch {
-                var themeMode = requireContext().dataStore.data.firstOrNull()
+                val dataStore = requireContext().dataStore
+
+                var themeMode = dataStore.data.firstOrNull()
                     ?.get(PreferencesKeys.THEME_MODE) ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 
                 when (themeMode) {
@@ -200,11 +232,29 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                         else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                     }
 
-                    runBlocking {
-                        requireContext().dataStore.edit {
-                            it[PreferencesKeys.THEME_MODE] = themeMode
-                        }
-                        AppCompatDelegate.setDefaultNightMode(themeMode)
+                    preferenceDataStore.putInt(
+                        PreferencesKeys.THEME_MODE.name,
+                        themeMode
+                    )
+
+                    AppCompatDelegate.setDefaultNightMode(themeMode)
+                }
+
+                val currentTheme = dataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
+
+                binding.themeList.adapter = ThemesAdapter(
+                    uiHelper,
+                    currentTheme
+                ).apply {
+                    onThemeChange = { newTheme ->
+
+                        preferenceDataStore.putInt(
+                            PreferencesKeys.APP_THEME.name,
+                            newTheme
+                        )
+
+                        showRestartDialog()
                     }
                 }
             }
@@ -215,16 +265,26 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
     }
 
-    class MessagesFragment : PreferenceFragmentCompat() {
+    class NotificationsFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.messages_preferences, rootKey)
+            setPreferencesFromResource(R.xml.notifications_preferences, rootKey)
         }
     }
 
-    class SyncFragment : PreferenceFragmentCompat() {
+    class HistoryFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.sync_preferences, rootKey)
+            setPreferencesFromResource(R.xml.history_preferences, rootKey)
         }
+    }
+
+    class UpdatesFragment : AbstractPreferenceFragmentCompat() {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.updates_preferences, rootKey)
+        }
+    }
+
+    class AboutFragment : Fragment() {
+
     }
 
     abstract class AbstractPreferenceFragmentCompat : PreferenceFragmentCompat(), TitleFragment {
@@ -317,4 +377,16 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     interface TitleFragment {
         fun title(): CharSequence
     }
+}
+
+fun Fragment.showRestartDialog() {
+    AlertDialog.Builder(requireContext())
+        .setTitle(R.string.need_restart)
+        .setMessage(R.string.need_restart_summary)
+        .setNegativeButton(R.string.btn_cancel, null)
+        .setPositiveButton(R.string.restart
+        ) { _,_ ->
+            startActivity(Intent(requireContext(), SplashActivity::class.java))
+            requireActivity().finishAffinity()
+        }.show()
 }

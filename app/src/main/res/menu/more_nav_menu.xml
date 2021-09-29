@@ -9,7 +9,7 @@
 
     <item android:id="@+id/navigation_history"
         android:title="@string/title_history"
-        android:icon="@drawable/ic_history_24"
+        android:icon="@drawable/ic_history"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/navigation_settings"

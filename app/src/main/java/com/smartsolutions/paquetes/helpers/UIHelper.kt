@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
 import android.content.res.Configuration.*
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
@@ -21,11 +22,13 @@ import android.widget.CompoundButton
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.models.ThemeWrapper
 import com.smartsolutions.paquetes.repositories.models.IApp
 import kotlinx.coroutines.runBlocking
 import kotlin.Exception
@@ -125,11 +128,6 @@ class UIHelper(
                 res
             else
                 null
-            /*R.drawable::class.java
-                .getDeclaredField(
-                    resourceName
-                )
-                .getInt(drawable::class.java)*/
         }catch (e: Exception) {
             null
         }
@@ -146,14 +144,61 @@ class UIHelper(
     fun getColorTheme(@AttrRes resId: Int): Int? {
         val theme = context.theme
 
+        return getColorTheme(resId, theme)
+    }
+
+    /**
+     * Obtiene los colores del tema dado.
+     *
+     * @param resId - Id del atributo del color a obtener. Ej: R.attr.colorPrimary
+     * @param theme - Tema
+     *
+     * @return [Int] Color resuelto o null si no se pudo resolver.
+     * */
+    fun getColorTheme(@AttrRes resId: Int, theme: Resources.Theme): Int? {
         val colorTypedValue = TypedValue()
         theme.resolveAttribute(resId, colorTypedValue, true)
 
         if (colorTypedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
-                colorTypedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            colorTypedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
             return ContextCompat.getColor(context, colorTypedValue.resourceId)
         }
         return null
+    }
+
+    /**
+     * Crea un nuevo tema usando el estilo dado.
+     *
+     * @param resId - Id del estilo a usar.
+     * @param force - Indica si se debe forzar la aplicación completa del
+     * estilo dado.
+     *
+     * @return [Resources.Theme]
+     * */
+    fun newTheme(@StyleRes resId: Int, force: Boolean = true): Resources.Theme {
+        val theme = context.resources.newTheme()
+        theme.setTo(context.theme)
+        theme.applyStyle(resId, force)
+
+        return theme
+    }
+
+    /**
+     * Obtiene la lista de temas disponibles para la aplicación.
+     *
+     * @return [Array]
+     * */
+    fun getThemeList(): Array<ThemeWrapper> {
+        return arrayOf(
+            ThemeWrapper(
+                R.style.Theme_Datwall,
+                newTheme(R.style.Theme_Datwall)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_Blue,
+                newTheme(R.style.Theme_Datwall_Blue)
+            )
+        )
     }
 
     /**

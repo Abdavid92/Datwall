@@ -63,9 +63,13 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/card_background_dark.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/circle_shape.xml" value="1.321875" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/circular_progress_bar.xml" value="1.321875" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_appearance.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_bubble.xml" value="0.2203125" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_history_24.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_launch.xml" value="0.675" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_launcher_background.xml" value="0.675" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_notifications.xml" value="0.165234375" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_usage.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/primary_button_background.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/progres_bar_vertical.xml" value="0.2203125" />
@@ -113,7 +117,10 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/more_nav_menu.xml" value="0.1814814814814815" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/appaerance_preferences.xml" value="0.22" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/header_preferences.xml" value="0.20416666666666666" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/history_preferences.xml" value="0.153125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/messages_preferences.xml" value="0.20416666666666666" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/notifications_preferences.xml" value="0.153125" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/updates_preferences.xml" value="0.153125" />
       </map>
     </option>
   </component>

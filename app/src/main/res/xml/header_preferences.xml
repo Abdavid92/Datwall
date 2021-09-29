@@ -3,19 +3,36 @@
     <Preference
         app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$UIFragment"
         app:icon="@drawable/ic_appearance"
-        app:key="appearance_header"
+        app:key="appearance_key"
         app:title="@string/appearance_header" />
 
     <Preference
-        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$MessagesFragment"
-        app:icon="@drawable/messages"
-        app:key="messages_header"
-        app:title="@string/messages_header" />
+        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$NotificationsFragment"
+        app:icon="@drawable/ic_notifications"
+        app:key="notifications_key"
+        app:title="@string/notification_header" />
 
     <Preference
-        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$SyncFragment"
-        app:icon="@drawable/sync"
-        app:key="sync_header"
-        app:title="@string/sync_header" />
+        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$HistoryFragment"
+        app:icon="@drawable/ic_history"
+        app:key="history_key"
+        app:title="@string/history_cache_header" />
+
+    <Preference
+        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$UpdatesFragment"
+        app:icon="@drawable/ic_download"
+        app:key="updates_key"
+        app:title="@string/updates" />
+
+    <Preference
+        app:icon="@drawable/ic_money"
+        app:key="activation_key"
+        app:title="@string/activation_header" />
+
+    <Preference
+        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$AboutFragment"
+        app:icon="@drawable/ic_info"
+        app:key="about_key"
+        app:title="@string/about" />
 
 </PreferenceScreen>

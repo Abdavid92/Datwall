@@ -6,7 +6,7 @@
         app:title="@string/title_interface">
 
         <Preference
-            app:title="@string/theme"
+            app:title="@string/themes"
             app:summary="@string/theme_summary"
             app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$ThemesFragment" />
 
