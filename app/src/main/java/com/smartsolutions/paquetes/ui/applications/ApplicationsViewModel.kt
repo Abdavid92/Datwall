@@ -5,13 +5,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.combine
@@ -67,7 +67,7 @@ class ApplicationsViewModel @Inject constructor(
 
         viewModelScope.launch {
             getApplication<Application>()
-                .uiDataStore.edit {
+                .dataStore.edit {
                     it[PreferencesKeys.APPS_FILTER] = filter.name
                 }
         }
@@ -75,7 +75,7 @@ class ApplicationsViewModel @Inject constructor(
 
     fun getApps(key: String): LiveData<Pair<AppsFilter, List<IApp>>> {
         return appRepository.flowByGroup()
-            .combine(getApplication<Application>().uiDataStore.data) { apps, preferences ->
+            .combine(getApplication<Application>().dataStore.data) { apps, preferences ->
 
                 delay(500)
 

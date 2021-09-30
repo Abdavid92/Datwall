@@ -6,12 +6,22 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 
 val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "settings")
-val Context.uiDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_ui")
+//val Context.uiDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_ui")
 
 /**
  * Contiene las claves de las preferencias.
  * */
 object PreferencesKeys {
+
+    /**
+     * Indica si se deben descargar automáticamente las actualizaciones.
+     * */
+    val AUTO_DOWNLOAD_UPDATE = booleanPreferencesKey("auto_download_update")
+
+    /**
+     * Indica si se debe notificar cuando haya una actualización disponible.
+     * */
+    val ENABLED_NOTIFICATION_UPDATE = booleanPreferencesKey("enabled_notification_update")
 
     /**
      * Indica si el cortafuegos debe ser encendido o no.

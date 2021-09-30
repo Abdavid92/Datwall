@@ -176,11 +176,10 @@ class UIHelper(
      * @return [Resources.Theme]
      * */
     fun newTheme(@StyleRes resId: Int, force: Boolean = true): Resources.Theme {
-        val theme = context.resources.newTheme()
-        theme.setTo(context.theme)
-        theme.applyStyle(resId, force)
-
-        return theme
+        return context.resources.newTheme().apply {
+            setTo(context.theme)
+            applyStyle(resId, force)
+        }
     }
 
     /**

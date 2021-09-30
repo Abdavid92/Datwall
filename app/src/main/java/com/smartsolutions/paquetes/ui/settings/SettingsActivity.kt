@@ -6,17 +6,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioGroup
+import android.widget.Toast
+import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.preference.*
+import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.databinding.FragmentAboutBinding
 import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.ui.AbstractActivity
@@ -115,6 +119,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
     }
 
+    @Keep
     class UIFragment : AbstractPreferenceFragmentCompat() {
 
         private val uiHelper by uiHelper()
@@ -161,6 +166,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
     }
 
+    @Keep
     class ThemesFragment : Fragment(), CoroutineScope, TitleFragment {
 
         override val coroutineContext: CoroutineContext
@@ -265,29 +271,119 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
     }
 
+    @Keep
     class NotificationsFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.notifications_preferences, rootKey)
         }
     }
 
+    @Keep
+    @AndroidEntryPoint
     class HistoryFragment : AbstractPreferenceFragmentCompat() {
+
+        private val viewModel by viewModels<SettingsViewModel>()
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.history_preferences, rootKey)
+
+            findPreference<Preference>("clear_history")
+                ?.setOnPreferenceClickListener {
+
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(R.string.clear_history)
+                        .setMessage(R.string.clear_history_confirmation)
+                        .setNegativeButton(R.string.btn_not, null)
+                        .setPositiveButton(R.string.btn_yes) { _,_ ->
+                            viewModel.clearHistory()
+                        }.show()
+
+                    return@setOnPreferenceClickListener true
+                }
+
+            findPreference<Preference>("clear_icon_cache")
+                ?.setOnPreferenceClickListener {
+
+                    viewModel.clearIconCache()
+
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.clear_icon_cache_confirmation,
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    return@setOnPreferenceClickListener true
+                }
         }
     }
 
+    @Keep
     class UpdatesFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.updates_preferences, rootKey)
+
+            launch {
+                requireContext().dataStore.data
+                    .firstOrNull()?.let {
+                        val notificationUpdate = it[PreferencesKeys.ENABLED_NOTIFICATION_UPDATE]
+
+                        findPreference<SwitchPreferenceCompat>("enabled_notification_update")
+                            ?.isChecked = notificationUpdate ?: false
+
+                        val autoDownloadUpdate = it[PreferencesKeys.AUTO_DOWNLOAD_UPDATE]
+
+                        findPreference<SwitchPreferenceCompat>("auto_download_update")
+                            ?.isChecked = autoDownloadUpdate ?: false
+                    }
+            }
         }
     }
 
-    class AboutFragment : Fragment() {
+    @Keep
+    class AboutFragment : Fragment(), TitleFragment {
 
+        private lateinit var binding: FragmentAboutBinding
+
+        private lateinit var mTitle: String
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+
+            mTitle = arguments?.getString(TITLE_TAG) ?: "About..."
+        }
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            binding = FragmentAboutBinding.inflate(
+                inflater,
+                container,
+                false
+            )
+
+            return binding.root
+        }
+
+        @SuppressLint("SetTextI18n")
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+
+            binding.appVersion.text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+        }
+
+        override fun title(): CharSequence {
+            return mTitle
+        }
     }
 
-    abstract class AbstractPreferenceFragmentCompat : PreferenceFragmentCompat(), TitleFragment {
+    abstract class AbstractPreferenceFragmentCompat : PreferenceFragmentCompat(),
+        TitleFragment,
+        CoroutineScope {
+
+        override val coroutineContext: CoroutineContext
+            get() = Dispatchers.Main
 
         private lateinit var mTitle: CharSequence
 

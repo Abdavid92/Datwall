@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StyleRes
@@ -39,6 +40,7 @@ class ThemesAdapter(
         private val binding: ItemThemeBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        @SuppressLint("NotifyDataSetChanged")
         fun bind(themeWrapper: ThemeWrapper) {
             uiHelper.getColorTheme(R.attr.colorPrimary, themeWrapper.theme)?.let {
                 binding.cardPrimary.setCardBackgroundColor(it)

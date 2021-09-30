@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:title="@string/enable_notification_update"
+        app:summary="@string/enable_notification_update_summary"
+        app:key="enabled_notification_update" />
+
+    <SwitchPreferenceCompat
+        app:title="@string/auto_download_update"
+        app:summary="@string/auto_download_update_summary"
+        app:key="auto_download_update" />
 
 </PreferenceScreen>

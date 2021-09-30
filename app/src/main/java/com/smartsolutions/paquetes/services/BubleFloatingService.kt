@@ -32,7 +32,6 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
-import com.smartsolutions.paquetes.uiDataStore
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -147,7 +146,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
             }
         }
         launch {
-            this@BubbleFloatingService.uiDataStore.data.collect {
+            this@BubbleFloatingService.dataStore.data.collect {
                 SIZE = BubbleSize.valueOf(
                     it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.SMALL.name
                 )

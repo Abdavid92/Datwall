@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Datwall</string>
+    <string name="app_name">Mis Datos</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Controles</string>
     <string name="title_notifications">Notifications</string>
@@ -223,6 +223,18 @@
     <string name="notification_header">Notificaciones</string>
     <string name="updates">Actualizaciones</string>
     <string name="history_cache_header">Historial y caché</string>
-    <string name="about">Acerca de...</string>
+    <string name="about">Acerca de…</string>
     <string name="activation_header">Activación</string>
+    <string name="clear_history">Borrar historial</string>
+    <string name="clear_history_summary">Borrar el historial de paquetes comprados</string>
+    <string name="clear_icon_cache">Limpiar caché de íconos</string>
+    <string name="clear_icon_cache_summary">Limpiar la caché de íconos. Usa esto si la caché crece mucho o si no se muestran correctamente los íconos de las aplicaciones</string>
+    <string name="clear_history_confirmation">¿Está seguro que desea borrar el historial de paquetes comprados?</string>
+    <string name="btn_not">No</string>
+    <string name="btn_yes">Si</string>
+    <string name="clear_icon_cache_confirmation">Caché de íconos limpiada</string>
+    <string name="enable_notification_update">Notificar las actualizaciones</string>
+    <string name="enable_notification_update_summary">Notificar cuando se detecte una nueva actualización</string>
+    <string name="auto_download_update">Descargar actualizaciones automáticamente</string>
+    <string name="auto_download_update_summary">Descargar las actualizaciones automáticamente y después notificar para instalar</string>
 </resources>

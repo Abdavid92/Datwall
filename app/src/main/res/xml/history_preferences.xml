@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:title="@string/clear_history"
+        app:summary="@string/clear_history_summary"
+        app:key="clear_history" />
+
+    <Preference
+        app:title="@string/clear_icon_cache"
+        app:summary="@string/clear_icon_cache_summary"
+        app:key="clear_icon_cache" />
 
 </PreferenceScreen>

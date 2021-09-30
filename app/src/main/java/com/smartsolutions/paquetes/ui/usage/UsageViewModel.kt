@@ -19,7 +19,7 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.uiDataStore
+import com.smartsolutions.paquetes.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -44,7 +44,7 @@ class UsageViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().uiDataStore.data.collect {
+            getApplication<Application>().dataStore.data.collect {
                 period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
                 filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
                 liveData.postValue(getTraffic(period, filter))
@@ -57,7 +57,7 @@ class UsageViewModel @Inject constructor(
 
     fun setUsagePeriod(@Period period: Int){
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().uiDataStore.edit {
+            getApplication<Application>().dataStore.edit {
                 it[PreferencesKeys.USAGE_PERIOD] = period
             }
         }
@@ -65,7 +65,7 @@ class UsageViewModel @Inject constructor(
 
     fun setUsageFilter(filter: UsageFilters) {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().uiDataStore.edit {
+            getApplication<Application>().dataStore.edit {
                 it[PreferencesKeys.USAGE_FILTER] = filter.name
             }
         }
