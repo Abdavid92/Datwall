@@ -1,18 +1,14 @@
 package com.smartsolutions.paquetes.services
 
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
-import android.os.Build
 import android.os.IBinder
-import android.widget.RemoteViews
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.DatwallKernel
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
@@ -21,7 +17,6 @@ import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -49,8 +44,6 @@ class DatwallService : Service(), CoroutineScope {
 
     private val uiHelper by uiHelper()
 
-    private var notificationEmpty = false
-
     @Inject
     lateinit var userDataBytesRepository: IUserDataBytesRepository
 
@@ -65,37 +58,11 @@ class DatwallService : Service(), CoroutineScope {
 
     private lateinit var watcherThread: Thread
 
-    private var remoteViews: RemoteViews? = null
-
-    private var expandedRemoteViews: RemoteViews? = null
-
-    private val notificationManager by lazy {
+    private val mNotificationManager by lazy {
         NotificationManagerCompat.from(this)
     }
 
-    private val notificationBuilder by lazy {
-        return@lazy NotificationCompat
-            .Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher_foreground)
-            .setCustomContentView(remoteViews)
-            .setCustomBigContentView(expandedRemoteViews)
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setContentIntent(PendingIntent
-                .getActivity(
-                    this,
-                    0,
-                    Intent(this, SplashActivity::class.java)
-                        .setFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        ),
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                    } else {
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                    }
-                ))
-            .setOngoing(true)
-    }
+    private lateinit var mNotificationBuilder: NotificationBuilder
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -104,19 +71,21 @@ class DatwallService : Service(), CoroutineScope {
     override fun onCreate() {
         super.onCreate()
 
-        setTheme(R.style.Theme_Datwall)
+        mNotificationBuilder = CircularNotificationBuilder(
+            this,
+            NotificationHelper.MAIN_CHANNEL_ID
+        )
 
-        runCatching {
-            startForeground(
-                NotificationHelper.MAIN_NOTIFICATION_ID,
-                notificationBuilder.build()
-            )
-        }
+        startForeground(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
+            mNotificationBuilder.build()
+        )
 
         kernel.tryRestoreState()
 
         registerBandWithCollector()
         registerUserDataBytesCollector()
+        registerNotificationChangesCollector()
 
         watcherThread = Thread(watcher)
 
@@ -125,7 +94,14 @@ class DatwallService : Service(), CoroutineScope {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
-            notificationBuilder.setOngoing(false)
+
+            mNotificationManager.notify(
+                NotificationHelper.MAIN_NOTIFICATION_ID,
+                mNotificationBuilder.apply {
+                    setOngoing(false)
+                }.build()
+            )
+
             stopForeground(true)
             stopSelf()
 
@@ -143,12 +119,28 @@ class DatwallService : Service(), CoroutineScope {
                 .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
                 .filter { it.exists() }
 
-            if (userData.isNotEmpty()) {
-                notificationEmpty = false
+            updateNotification(userData)
+        }
+    }
+
+    private fun registerNotificationChangesCollector() {
+        launch {
+            dataStore.data.collect { preferences ->
+
+                val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS] ?:
+                LinearNotificationBuilder::class.java.canonicalName
+
+                mNotificationBuilder = NotificationBuilder.newInstance(
+                    notificationClass,
+                    this@DatwallService,
+                    NotificationHelper.MAIN_CHANNEL_ID
+                )
+
+                val userData = userDataBytesRepository
+                    .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
+                    .filter { it.exists() }
+
                 updateNotification(userData)
-            } else {
-                notificationEmpty = true
-                setEmptyNotification()
             }
         }
     }
@@ -183,31 +175,9 @@ class DatwallService : Service(), CoroutineScope {
                     }
                 }
                 .collect { userData ->
-                    if (userData.isNotEmpty()) {
-                        notificationEmpty = false
-                        updateNotification(userData)
-                    } else {
-                        notificationEmpty = true
-                        setEmptyNotification()
-                    }
+                    updateNotification(userData)
                 }
         }
-    }
-
-    /**
-     * Establece una notificación con el texto de que no hay datos disponibles
-     * para consumir.
-     * */
-    private fun setEmptyNotification() {
-        notificationManager.notify(
-            NotificationHelper.MAIN_NOTIFICATION_ID,
-            notificationBuilder.apply {
-                setCustomContentView(null)
-                setCustomBigContentView(null)
-                setContentTitle(getString(R.string.empty_noti_title))
-                setContentText(getString(R.string.empty_noti_text))
-            }.build()
-        )
     }
 
     /**
@@ -217,221 +187,11 @@ class DatwallService : Service(), CoroutineScope {
      * los valores de la notificación.
      * */
     private fun updateNotification(userData: List<UserDataBytes>) {
-        //remoteViews.removeAllViews(R.id.content_view)
-        //expandedRemoteViews.removeAllViews(R.id.content_view)
-        remoteViews = RemoteViews(packageName, R.layout.datwall_service_notification)
-        expandedRemoteViews = RemoteViews(packageName, R.layout.datwall_service_notification_expanded)
-
-        for (i in userData.indices) {
-
-            val title = getDataTitle(userData[i].type)
-
-            addRemoteViewsContent(
-                userData[i],
-                title,
-                i != 0
-            )
-
-            addExpandedRemoteViewContent(
-                userData[i],
-                title,
-                i != 0
-            )
-        }
-
-        setFirstExpiredDate(userData)
-
-        val color = if (uiHelper.isUIDarkTheme())
-            ContextCompat.getColor(this, R.color.background_dark)
-        else
-            ContextCompat.getColor(this, R.color.white)
-
-        notificationManager.notify(
+        mNotificationManager.notify(
             NotificationHelper.MAIN_NOTIFICATION_ID,
-            notificationBuilder.apply {
-                setCustomContentView(remoteViews)
-                setCustomBigContentView(expandedRemoteViews)
-                setColor(color)
-            }.build()
+            mNotificationBuilder.setNotificationData(userData)
+                .build()
         )
-    }
-
-    /**
-     * Obtiene un título legible a establecer en la notificación
-     * usando el dataType dado.
-     *
-     * @param dataType - [DataBytes.DataType]
-     *
-     * @return [String] el título legible.
-     * */
-    private fun getDataTitle(dataType: DataBytes.DataType): String {
-        return when (dataType) {
-            DataBytes.DataType.International -> "Internacional"
-            DataBytes.DataType.InternationalLte -> "Lte"
-            DataBytes.DataType.PromoBonus -> "Promoción"
-            DataBytes.DataType.National -> "Nacional"
-            DataBytes.DataType.DailyBag -> "Bolsa diaria"
-        }
-    }
-
-    /**
-     * Establece la fecha de expiración del paquete más próximo a vencer
-     * en la notificación expandida.
-     *
-     * @param userData
-     * */
-    private fun setFirstExpiredDate(userData: List<UserDataBytes>) {
-        if (userData.isEmpty())
-            return
-
-        var data = userData[0]
-
-        userData.forEach {
-            if (data.expiredTime > it.expiredTime)
-                data = it
-            else if (data.expiredTime == it.expiredTime && data.priority < it.priority)
-                data = it
-        }
-
-        val date = Date(data.expiredTime)
-
-        val dateFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
-
-        val dataTitle = getDataTitle(data.type)
-
-        expandedRemoteViews?.setTextViewText(
-            R.id.date_exp,
-            getString(R.string.date_exp, dataTitle, dateFormat.format(date))
-        )
-        expandedRemoteViews?.setInt(
-            R.id.date_exp,
-            "setTextColor",
-            if (uiHelper.isUIDarkTheme())
-                Color.LTGRAY
-            else
-                Color.DKGRAY
-        )
-    }
-
-    /**
-     * Agrega el nuevo contenido a la notificación colapsada.
-     *
-     * @param userDataBytes - [UserDataBytes] con los valores a usar.
-     * @param title - Título del contenido.
-     * @param addSeparator - Indica si se debe agregar un separador antes del contenido.
-     * */
-    private fun addRemoteViewsContent(
-        userDataBytes: UserDataBytes,
-        title: String,
-        addSeparator: Boolean
-    ) {
-        val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
-            .toInt()
-
-        val color = if (uiHelper.isUIDarkTheme())
-            Color.LTGRAY
-        else
-            Color.DKGRAY
-
-        if (addSeparator) {
-            val separator = RemoteViews(packageName, R.layout.item_datwall_service_separator)
-                .apply {
-
-                    if (uiHelper.isUIDarkTheme())
-                        setInt(
-                            R.id.separator,
-                            "setBackgroundColor",
-                            Color.LTGRAY
-                        )
-                }
-
-            remoteViews?.addView(R.id.content_view, separator)
-        }
-
-        val childRemotes = RemoteViews(packageName, R.layout.item_datwall_service).apply {
-            setTextViewText(R.id.data_title, title)
-            setInt(R.id.data_title, "setTextColor", color)
-
-            setProgressBar(
-                R.id.data_progress,
-                100,
-                percent,
-                false
-            )
-
-            setTextViewText(
-                R.id.data_percent,
-                if (userDataBytes.isExpired()) "exp" else "$percent%"
-            )
-            setInt(R.id.data_percent, "setTextColor", color)
-        }
-
-        remoteViews?.addView(R.id.content_view, childRemotes)
-    }
-
-    /**
-     * Agrega el nuevo contenido a la notificación expandida.
-     *
-     * @param userDataBytes - [UserDataBytes] con los valores a usar.
-     * @param title - Título del contenido.
-     * @param addSeparator - Indica si se debe agregar un separador antes del contenido.
-     * */
-    private fun addExpandedRemoteViewContent(
-        userDataBytes: UserDataBytes,
-        title: String,
-        addSeparator: Boolean
-    ) {
-        val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
-            .toInt()
-
-        val color = if (uiHelper.isUIDarkTheme())
-            Color.LTGRAY
-        else
-            Color.DKGRAY
-
-        if (addSeparator) {
-            val separator = RemoteViews(packageName, R.layout.item_datwall_service_separator)
-                .apply {
-
-                    if (uiHelper.isUIDarkTheme())
-                        setInt(
-                            R.id.separator,
-                            "setBackgroundColor",
-                            Color.LTGRAY
-                        )
-                }
-
-            expandedRemoteViews?.addView(R.id.content_view, separator)
-        }
-
-        val childRemotes = RemoteViews(packageName, R.layout.item_datwall_service_expanded).apply {
-            setTextViewText(R.id.data_title, title)
-            setInt(R.id.data_title, "setTextColor", color)
-
-
-            setProgressBar(
-                R.id.data_progress,
-                100,
-                percent,
-                false
-            )
-
-            setTextViewText(
-                R.id.data_percent,
-                if (userDataBytes.isExpired()) "exp" else "$percent%"
-            )
-            setInt(R.id.data_percent, "setTextColor", color)
-
-            val dataBytes = DataUnitBytes(userDataBytes.bytes)
-
-            setTextViewText(
-                R.id.data_bytes,
-                dataBytes.toString()
-            )
-            setInt(R.id.data_bytes, "setTextColor", color)
-        }
-
-        expandedRemoteViews?.addView(R.id.content_view, childRemotes)
     }
 
     /**
@@ -443,19 +203,11 @@ class DatwallService : Service(), CoroutineScope {
      * @param txBytes - Bytes de subida.
      * */
     private fun updateBandWith(rxBytes: Long, txBytes: Long) {
-        notificationBuilder.setSmallIcon(getIcon( rxBytes + txBytes))
-
-        if (notificationEmpty) {
-            setEmptyNotification()
-        } else {
-            notificationManager.notify(
-                NotificationHelper.MAIN_NOTIFICATION_ID,
-                notificationBuilder.apply {
-                    setCustomContentView(this@DatwallService.remoteViews)
-                    setCustomBigContentView(this@DatwallService.expandedRemoteViews)
-                }.build()
-            )
-        }
+        mNotificationManager.notify(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
+            mNotificationBuilder.setSmallIcon(getIcon(rxBytes + txBytes))
+                .build()
+        )
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes
 
 import android.app.Application
+import android.content.res.Resources
 import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
@@ -58,9 +59,14 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             exceptionsController.register()
         }
 
-        val themeMode = runBlocking {
-            return@runBlocking dataStore.data.firstOrNull()
-                ?.get(PreferencesKeys.THEME_MODE) ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        val themeMode: Int
+
+        runBlocking {
+            val preferences = dataStore.data
+                .firstOrNull()
+
+            themeMode = preferences?.get(PreferencesKeys.THEME_MODE) ?:
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
 
         if (themeMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {

@@ -223,4 +223,5 @@
     <string name="enable_notification_update_summary">Notificar cuando se detecte una nueva actualización</string>
     <string name="auto_download_update">Descargar actualizaciones automáticamente</string>
     <string name="auto_download_update_summary">Descargar las actualizaciones automáticamente y después notificar para instalar</string>
+    <string name="rest_text">Restante: %s</string>
 </resources>

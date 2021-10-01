@@ -14,6 +14,11 @@ val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "s
 object PreferencesKeys {
 
     /**
+     * Implementación de la notificación principal.
+     * */
+    val NOTIFICATION_CLASS = stringPreferencesKey("notification_class")
+
+    /**
      * Indica si se deben descargar automáticamente las actualizaciones.
      * */
     val AUTO_DOWNLOAD_UPDATE = booleanPreferencesKey("auto_download_update")
