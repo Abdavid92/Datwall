@@ -93,6 +93,10 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
     }
 
+    override fun onPause() {
+        super.onPause()
+        adapterFragment = null
+    }
 
     private fun showFilterOptions(){
         AlertDialog.Builder(requireContext())
