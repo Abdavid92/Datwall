@@ -162,13 +162,6 @@ class DashboardViewModel @Inject constructor(
 
                                 override fun onDenied() {
                                     buttonView.isChecked = false
-
-                                    Toast.makeText(
-                                        getApplication(),
-                                        getApplication<DatwallApplication>()
-                                            .getString(R.string.stoped_missing_vpn_permissions_title_notification),
-                                        Toast.LENGTH_SHORT)
-                                        .show()
                                 }
                             }
                         )

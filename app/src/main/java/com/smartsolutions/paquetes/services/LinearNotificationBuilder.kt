@@ -4,14 +4,21 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.annotation.Keep
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.ui.SplashActivity
+import kotlin.random.Random
 
 @Keep
 class LinearNotificationBuilder(
@@ -23,22 +30,7 @@ class LinearNotificationBuilder(
         setSmallIcon(R.mipmap.ic_launcher_foreground)
         setContentTitle(context.getString(R.string.empty_noti_title))
         setContentText(context.getString(R.string.empty_noti_text))
-        setContentIntent(
-            PendingIntent
-                .getActivity(
-                    context,
-                    0,
-                    Intent(context, SplashActivity::class.java)
-                        .setFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        ),
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                    } else {
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                    }
-                )
-        )
+        setContentIntent(getSplashActivityPendingIntent(context))
         setOngoing(true)
         color = getBackgroundColor()
     }
@@ -87,9 +79,44 @@ class LinearNotificationBuilder(
                 )
             }
 
+            val textColor = if (uiHelper.isUIDarkTheme()) {
+                Color.LTGRAY
+            } else {
+                Color.DKGRAY
+            }
+
+            val methodName = "setTextColor"
+
+            remoteViews.setInt(R.id.rest_date, methodName, textColor)
+            remoteViews.setInt(R.id.date_exp, methodName, textColor)
+
             setCustomContentView(remoteViews)
         }
 
         return this
+    }
+
+    @SuppressLint("RestrictedApi", "SetTextI18n")
+    override fun getSample(parent: ViewGroup?): View {
+        val inflater = LayoutInflater.from(mContext)
+
+        val view = inflater.inflate(R.layout.linear_notification, parent, false)
+
+        view.findViewById<ProgressBar>(R.id.data_progress)
+            .progress = Random(System.currentTimeMillis())
+            .nextInt(100)
+
+        view.findViewById<TextView>(R.id.rest_date)
+            .text = "Restante: 1.5 GB"
+
+        view.findViewById<TextView>(R.id.date_exp)
+            .text = "Internacional expira el 29/11"
+
+        return view
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun getSummary(): String {
+        return mContext.getString(R.string.lineal_notification_summary)
     }
 }

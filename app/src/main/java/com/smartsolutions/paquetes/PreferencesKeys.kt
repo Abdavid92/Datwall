@@ -146,6 +146,21 @@ object PreferencesKeys {
     val THEME_MODE = intPreferencesKey("theme_mode")
 
     /**
+     * Notificaciones secundarias
+     * */
+    val SHOW_SECONDARY_NOTIFICATIONS = booleanPreferencesKey("show_secondary_notifications")
+
+    val INTERNATIONAL_NOTIFICATION = intPreferencesKey("international_notification")
+
+    val INTERNATIONAL_LTE_NOTIFICATION = intPreferencesKey("international_lte_notification")
+
+    val PROMO_BONUS_NOTIFICATION = intPreferencesKey("promo_bonus_notification")
+
+    val NATIONAL_NOTIFICATION = intPreferencesKey("national_notification")
+
+    val DAILY_BAG_NOTIFICATION = intPreferencesKey("daily_bag_notification")
+
+    /**
      * Busca una clave de preferencia por el nombre.
      *
      * @param key

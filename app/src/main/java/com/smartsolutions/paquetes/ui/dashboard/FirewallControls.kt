@@ -90,7 +90,7 @@ class FirewallControls(
             return Intent(context, DashboardControlActivity::class.java)
                 .putExtra(
                     DashboardControlActivity.EXTRA_CONTROLS_CLASS_NAME,
-                    FirewallControls::class.java.canonicalName
+                    FirewallControls::class.java.name
                 )
         }
     }

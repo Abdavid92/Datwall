@@ -91,7 +91,7 @@ class BubbleControls(
             return Intent(context, DashboardControlActivity::class.java)
                 .putExtra(
                     DashboardControlActivity.EXTRA_CONTROLS_CLASS_NAME,
-                    BubbleControls::class.java.canonicalName
+                    BubbleControls::class.java.name
                 )
         }
     }

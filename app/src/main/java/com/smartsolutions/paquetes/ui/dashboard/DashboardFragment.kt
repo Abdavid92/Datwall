@@ -1,9 +1,13 @@
 package com.smartsolutions.paquetes.ui.dashboard
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.graphics.Point
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
@@ -31,6 +35,8 @@ class DashboardFragment : Fragment() {
             false
         )
 
+        setFabSettings()
+
         return binding.root
     }
 
@@ -40,18 +46,95 @@ class DashboardFragment : Fragment() {
         setFirewallSettings()
         setBubbleSettings()
         setUssdButtonsSettings()
-        setFabSettings()
     }
 
     private fun setFabSettings() {
+        binding.queryCredit.shrink()
+        binding.queryBonus.shrink()
+        binding.queryMb.shrink()
+
         binding.fabQuery.setOnClickListener {
             val fab = it as ExtendedFloatingActionButton
 
+            val interpolator = AnimationUtils.loadInterpolator(
+                requireContext(),
+                android.R.interpolator.decelerate_quint
+            )
+            
             if (fab.isExtended) {
                 fab.shrink(object : ExtendedFloatingActionButton.OnChangedCallback() {
 
                     override fun onShrunken(extendedFab: ExtendedFloatingActionButton?) {
+                        binding.queryCredit.visibility = View.VISIBLE
+                        binding.queryBonus.visibility = View.VISIBLE
+                        binding.queryMb.visibility = View.VISIBLE
 
+                        val ratio = 280
+
+                        val coordinates = Point(ratio / 2, ratio / 2)
+
+                        binding.queryCredit.animate()
+                            .rotation(360f)
+                            .translationX(-ratio.toFloat())
+                            .interpolator = interpolator
+
+                        binding.queryBonus.animate()
+                            .rotation(360f)
+                            .translationY(-coordinates.y.toFloat())
+                            .translationX(-coordinates.x.toFloat())
+                            .setStartDelay(100)
+                            .interpolator = interpolator
+
+                        binding.queryMb.animate()
+                            .rotation(360f)
+                            .translationY(-ratio.toFloat())
+                            .setInterpolator(interpolator)
+                            .setStartDelay(200)
+                            .setListener(object : AnimatorListenerAdapter() {
+
+                                override fun onAnimationEnd(animation: Animator?) {
+
+                                    binding.queryCredit.extend()
+                                    binding.queryBonus.extend()
+                                    binding.queryMb.extend()
+                                }
+                            })
+                    }
+                })
+            } else {
+                binding.queryCredit.shrink()
+                binding.queryBonus.shrink()
+                binding.queryMb.shrink(object : ExtendedFloatingActionButton.OnChangedCallback() {
+
+                    override fun onShrunken(extendedFab: ExtendedFloatingActionButton?) {
+
+                        binding.queryCredit.animate()
+                            .rotation(360f)
+                            .translationX(0f)
+                            .interpolator = interpolator
+
+                        binding.queryBonus.animate()
+                            .rotation(360f)
+                            .translationY(0f)
+                            .translationX(0f)
+                            .setStartDelay(100)
+                            .interpolator = interpolator
+
+                        binding.queryMb.animate()
+                            .rotation(360f)
+                            .translationY(0f)
+                            .setStartDelay(200)
+                            .setInterpolator(interpolator)
+                            .setListener(object : AnimatorListenerAdapter() {
+
+                                override fun onAnimationEnd(animation: Animator?) {
+                                    binding.queryCredit.visibility = View.INVISIBLE
+                                    binding.queryBonus.visibility = View.INVISIBLE
+                                    binding.queryMb.visibility = View.INVISIBLE
+
+                                    fab.extend()
+                                }
+                            })
                     }
                 })
             }

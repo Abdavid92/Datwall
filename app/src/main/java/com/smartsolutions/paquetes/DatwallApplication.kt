@@ -1,10 +1,8 @@
 package com.smartsolutions.paquetes
 
 import android.app.Application
-import android.content.res.Resources
 import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.smartsolutions.paquetes.exceptions.ExceptionsController

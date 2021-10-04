@@ -137,84 +137,42 @@
 
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/query_credit"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/firewall_control"
-                app:layout_constraintStart_toStartOf="@id/firewall_control"
-                app:layout_constraintEnd_toEndOf="@id/firewall_control"
-                android:layout_marginTop="16dp"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="?attr/colorPrimary">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:layout_gravity="center"
-                    android:text="@string/query_credit"
-                    android:drawableTop="@drawable/ic_money"
-                    android:textColor="?attr/colorOnPrimary"
-                    app:drawableTint="?attr/colorOnPrimary" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/query_bonus"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/bubble_control"
-                app:layout_constraintStart_toStartOf="@id/bubble_control"
-                app:layout_constraintEnd_toEndOf="@id/bubble_control"
-                android:layout_marginTop="16dp"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="?attr/colorPrimary">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:padding="16dp"
-                    android:text="@string/query_bonus"
-                    android:drawableTop="@drawable/ic_money"
-                    android:textColor="?attr/colorOnPrimary"
-                    app:drawableTint="?attr/colorOnPrimary" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/query_mb"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/query_credit"
-                app:layout_constraintStart_toStartOf="@id/query_credit"
-                app:layout_constraintEnd_toEndOf="@id/query_credit"
-                android:layout_marginTop="16dp"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="?attr/colorPrimary">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:padding="16dp"
-                    android:text="@string/query_mb"
-                    android:drawableTop="@drawable/ic_money"
-                    android:textColor="?attr/colorOnPrimary"
-                    app:drawableTint="?attr/colorOnPrimary" />
-
-            </androidx.cardview.widget.CardView>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/query_credit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/query_credit"
+        app:icon="@drawable/ic_money"
+        android:visibility="invisible"
+        tools:visibility="invisible"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/query_bonus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/query_bonus"
+        app:icon="@drawable/ic_money"
+        android:visibility="invisible"
+        tools:visibility="invisible"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/query_mb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/query_mb"
+        app:icon="@drawable/ic_money"
+        android:visibility="invisible"
+        tools:visibility="invisible"/>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_query"
@@ -223,6 +181,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:text="@string/query"
-        app:icon="@drawable/ic_perm_phone_msg" />
+        app:icon="@drawable/ic_perm_phone_msg"
+        tools:visibility="visible"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

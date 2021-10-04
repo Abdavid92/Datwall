@@ -38,4 +38,5 @@
         <item>@color/purple</item>
         <item>@color/gray_400</item>
     </integer-array>
+
 </resources>

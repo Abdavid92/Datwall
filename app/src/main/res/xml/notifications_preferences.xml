@@ -1,4 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:title="@string/main_notification">
+
+        <Preference
+            app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$NotificationStyleFragment"
+            app:title="@string/notification_style"
+            app:summary="@string/notification_style_summary"
+            app:key="notification_style" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/secondary_notifications">
+
+        <SwitchPreferenceCompat
+            app:title="@string/show_secondary_notifications"
+            app:summary="@string/show_secondary_notifications_summary"
+            app:key="show_secondary_notifications"
+            app:defaultValue="true" />
+
+        <SeekBarPreference
+            app:title="@string/international_notification"
+            app:summary="@string/international_notification_summary"
+            app:key="international_notification"
+            app:defaultValue="5"
+            android:max="50"
+            app:showSeekBarValue="true"
+            app:dependency="show_secondary_notifications"/>
+
+        <SeekBarPreference
+            app:title="@string/international_lte_notification"
+            app:summary="@string/international_lte_notification_summary"
+            app:key="international_lte_notification"
+            app:defaultValue="5"
+            android:max="50"
+            app:showSeekBarValue="true"
+            app:dependency="show_secondary_notifications"/>
+
+        <SeekBarPreference
+            app:title="@string/promo_bonus_notification"
+            app:summary="@string/promo_bonus_notification_summary"
+            app:key="promo_bonus_notification"
+            app:defaultValue="5"
+            android:max="50"
+            app:showSeekBarValue="true"
+            app:dependency="show_secondary_notifications"/>
+
+        <SeekBarPreference
+            app:title="@string/national_notification"
+            app:summary="@string/national_notification_summary"
+            app:key="national_notification"
+            app:defaultValue="5"
+            android:max="50"
+            app:showSeekBarValue="true"
+            app:dependency="show_secondary_notifications"/>
+
+        <SeekBarPreference
+            app:title="@string/daily_bag_notification"
+            app:summary="@string/daily_bag_notification_summary"
+            app:key="daily_bag_notification"
+            app:defaultValue="5"
+            android:max="50"
+            app:showSeekBarValue="true"
+            app:dependency="show_secondary_notifications"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

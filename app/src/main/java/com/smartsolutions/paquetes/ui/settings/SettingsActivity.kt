@@ -21,8 +21,14 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.databinding.FragmentAboutBinding
+import com.smartsolutions.paquetes.databinding.FragmentNotificationStyleBinding
 import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
+import com.smartsolutions.paquetes.databinding.ItemNotificationSampleBinding
+import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.uiHelper
+import com.smartsolutions.paquetes.services.CircularNotificationBuilder
+import com.smartsolutions.paquetes.services.LinearNotificationBuilder
+import com.smartsolutions.paquetes.services.NotificationBuilder
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
@@ -125,6 +131,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         private val uiHelper by uiHelper()
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            super.onCreatePreferences(savedInstanceState, rootKey)
             setPreferencesFromResource(R.xml.appaerance_preferences, rootKey)
 
             findPreference<Preference>("random_theme")
@@ -159,8 +166,6 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 
-                    showRestartDialog()
-
                     return@setOnPreferenceClickListener true
                 }
         }
@@ -185,7 +190,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
-            mTitle = arguments?.getCharSequence(TITLE_TAG) ?: "SettingsFragment"
+            mTitle = arguments?.getCharSequence(TITLE_TAG) ?: "Themes"
         }
 
         override fun onCreateView(
@@ -274,7 +279,112 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     @Keep
     class NotificationsFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            super.onCreatePreferences(savedInstanceState, rootKey)
             setPreferencesFromResource(R.xml.notifications_preferences, rootKey)
+        }
+    }
+
+    @Keep
+    class NotificationStyleFragment : Fragment(),
+        CoroutineScope, TitleFragment {
+
+        override val coroutineContext: CoroutineContext
+            get() = Dispatchers.IO
+
+        private lateinit var mTitle: CharSequence
+
+        private lateinit var binding: FragmentNotificationStyleBinding
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+
+            mTitle = arguments?.getCharSequence(TITLE_TAG) ?: "Notification style"
+        }
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            binding = FragmentNotificationStyleBinding.inflate(
+                inflater,
+                container,
+                false
+            )
+
+            val circularNotification = CircularNotificationBuilder(
+                requireContext(),
+                NotificationHelper.ALERT_CHANNEL_ID
+            )
+
+            val circularLayout = ItemNotificationSampleBinding.inflate(
+                inflater,
+                container,
+                false
+            )
+            circularLayout.sampleContainer.addView(circularNotification.getSample(container))
+            circularLayout.summary.text = circularNotification.getSummary()
+            binding.circularNotificationSample.addView(circularLayout.root)
+
+            val linearNotification = LinearNotificationBuilder(
+                requireContext(),
+                NotificationHelper.ALERT_CHANNEL_ID
+            )
+
+            val linearLayout = ItemNotificationSampleBinding.inflate(
+                inflater,
+                container,
+                false
+            )
+
+            linearLayout.sampleContainer.addView(linearNotification.getSample(container))
+            linearLayout.summary.text = linearNotification.getSummary()
+            binding.linealNotificationSample.addView(linearLayout.root)
+
+            return binding.root
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+
+            runBlocking {
+                val dataStore = requireContext().dataStore
+
+                var className = dataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.NOTIFICATION_CLASS) ?:
+                    NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
+
+                when (className) {
+                    CircularNotificationBuilder::class.java.canonicalName -> {
+                        binding.radioGroup.check(R.id.circular_notification)
+                    }
+                    LinearNotificationBuilder::class.java.canonicalName -> {
+                        binding.radioGroup.check(R.id.linear_notification)
+                    }
+                }
+
+                binding.radioGroup.setOnCheckedChangeListener { _, i ->
+
+                    when (i) {
+                        R.id.circular_notification -> {
+                            className = CircularNotificationBuilder::class.java.name
+                        }
+                        R.id.linear_notification -> {
+                            className = LinearNotificationBuilder::class.java.name
+                        }
+                    }
+
+                    runBlocking(Dispatchers.IO) {
+                        requireContext().dataStore.edit {
+                            it[PreferencesKeys.NOTIFICATION_CLASS] = className
+                        }
+                    }
+                }
+            }
+        }
+
+        override fun title(): CharSequence {
+            return mTitle
         }
     }
 
@@ -285,6 +395,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         private val viewModel by viewModels<SettingsViewModel>()
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            super.onCreatePreferences(savedInstanceState, rootKey)
             setPreferencesFromResource(R.xml.history_preferences, rootKey)
 
             findPreference<Preference>("clear_history")
@@ -320,22 +431,8 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     @Keep
     class UpdatesFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            super.onCreatePreferences(savedInstanceState, rootKey)
             setPreferencesFromResource(R.xml.updates_preferences, rootKey)
-
-            launch {
-                requireContext().dataStore.data
-                    .firstOrNull()?.let {
-                        val notificationUpdate = it[PreferencesKeys.ENABLED_NOTIFICATION_UPDATE]
-
-                        findPreference<SwitchPreferenceCompat>("enabled_notification_update")
-                            ?.isChecked = notificationUpdate ?: false
-
-                        val autoDownloadUpdate = it[PreferencesKeys.AUTO_DOWNLOAD_UPDATE]
-
-                        findPreference<SwitchPreferenceCompat>("auto_download_update")
-                            ?.isChecked = autoDownloadUpdate ?: false
-                    }
-            }
         }
     }
 
@@ -389,8 +486,11 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().dataStore)
             mTitle = arguments?.getCharSequence(TITLE_TAG) ?: "SettingsFragment"
+        }
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().dataStore)
         }
 
         override fun title(): CharSequence {
@@ -405,20 +505,82 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 get() = Dispatchers.IO
 
             override fun putString(key: String, value: String?) {
-                value?.let { v ->
-                    PreferencesKeys.findPreferenceByKey<String>(key)?.let { preferenceKey ->
-                        launch {
-                            dataStore.edit {
-                                it[preferenceKey] = v
-                            }
-                        }
-                    }
-                }
+                putValue(key, value)
             }
 
             override fun putStringSet(key: String, values: MutableSet<String>?) {
-                values?.let { v ->
-                    PreferencesKeys.findPreferenceByKey<Set<String>>(key)?.let { preferenceKey ->
+                putValue(key, values)
+            }
+
+            override fun putInt(key: String, value: Int) {
+                putValue(key, value)
+            }
+
+            override fun putLong(key: String, value: Long) {
+                putValue(key, value)
+            }
+
+            override fun putFloat(key: String, value: Float) {
+                putValue(key, value)
+            }
+
+            override fun putBoolean(key: String, value: Boolean) {
+                putValue(key, value)
+            }
+
+            override fun getString(key: String?, defValue: String?): String? {
+                key?.let {
+                    return getValue(it)
+                }
+                return defValue
+            }
+
+            override fun getStringSet(
+                key: String?,
+                defValues: MutableSet<String>?
+            ): MutableSet<String> {
+                key?.let {
+                    return getValue(it) ?: mutableSetOf()
+                }
+
+                return defValues ?: mutableSetOf()
+            }
+
+            override fun getInt(key: String?, defValue: Int): Int {
+                key?.let {
+                    return getValue(it) ?: defValue
+                }
+
+                return defValue
+            }
+
+            override fun getLong(key: String?, defValue: Long): Long {
+                key?.let {
+                    return getValue(it) ?: defValue
+                }
+
+                return defValue
+            }
+
+            override fun getFloat(key: String?, defValue: Float): Float {
+                key?.let {
+                    return getValue(it) ?: defValue
+                }
+
+                return defValue
+            }
+
+            override fun getBoolean(key: String?, defValue: Boolean): Boolean {
+                key?.let {
+                    return getValue(it) ?: defValue
+                }
+
+                return defValue
+            }
+
+            private fun <T> putValue(key: String, value: T?) {
+                value?.let { v ->
+                    PreferencesKeys.findPreferenceByKey<T>(key)?.let { preferenceKey ->
                         launch {
                             dataStore.edit {
                                 it[preferenceKey] = v
@@ -428,44 +590,15 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 }
             }
 
-            override fun putInt(key: String, value: Int) {
-                PreferencesKeys.findPreferenceByKey<Int>(key)?.let { preferenceKey ->
-                    launch {
-                        dataStore.edit {
-                            it[preferenceKey] = value
-                        }
+            private fun <T> getValue(key: String): T? {
+                PreferencesKeys.findPreferenceByKey<T>(key)?.let { dataKey ->
+                    return runBlocking(Dispatchers.IO) {
+                        return@runBlocking dataStore.data.firstOrNull()
+                            ?.get(dataKey)
                     }
                 }
-            }
 
-            override fun putLong(key: String, value: Long) {
-                PreferencesKeys.findPreferenceByKey<Long>(key)?.let { preferenceKey ->
-                    launch {
-                        dataStore.edit {
-                            it[preferenceKey] = value
-                        }
-                    }
-                }
-            }
-
-            override fun putFloat(key: String, value: Float) {
-                PreferencesKeys.findPreferenceByKey<Float>(key)?.let { preferenceKey ->
-                    launch {
-                        dataStore.edit {
-                            it[preferenceKey] = value
-                        }
-                    }
-                }
-            }
-
-            override fun putBoolean(key: String, value: Boolean) {
-                PreferencesKeys.findPreferenceByKey<Boolean>(key)?.let { preferenceKey ->
-                    launch {
-                        dataStore.edit {
-                            it[preferenceKey] = value
-                        }
-                    }
-                }
+                return null
             }
         }
     }

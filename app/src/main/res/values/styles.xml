@@ -25,6 +25,10 @@
         <item name="android:textColor">@android:color/holo_red_dark</item>
     </style>
 
+    <style name="ExtendedFabButton" parent="Widget.MaterialComponents.ExtendedFloatingActionButton.Icon">
+        <item name="android:textAllCaps">false</item>
+    </style>
+
     <!--Estilo de los CardViews-->
     <style name="CardViewStyle" parent="CardView.Light">
         <item name="cardCornerRadius">@dimen/card_view_radius</item>

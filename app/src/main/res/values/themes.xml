@@ -18,6 +18,7 @@
         <item name="tabStyle">@style/TabLayoutStyle</item>
         <item name="alertDialogTheme">@style/Theme.Datwall.AlertDialogStyle</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialogStyle</item>
+        <item name="extendedFloatingActionButtonStyle">@style/ExtendedFabButton</item>
     </style>
 
     <style name="Theme.Datwall.Blue">

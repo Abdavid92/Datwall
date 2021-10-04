@@ -224,4 +224,26 @@
     <string name="auto_download_update">Descargar actualizaciones automáticamente</string>
     <string name="auto_download_update_summary">Descargar las actualizaciones automáticamente y después notificar para instalar</string>
     <string name="rest_text">Restante: %s</string>
+    <string name="notification_style">Estilo de la notificación</string>
+    <string name="notification_style_summary">Estilo que tendrá la notificación principal</string>
+    <string name="main_notification">Notificación principal</string>
+    <string name="secondary_notifications">Otras notificaciones</string>
+    <string name="daily_bag_notification">Bolsa diaria</string>
+    <string name="daily_bag_notification_summary">Notificar cuando quede el siguiente porcentaje de la bolsa diaria</string>
+    <string name="international_notification">Datos internacionales</string>
+    <string name="international_notification_summary">Notificar cuando quede el siguiente porcentaje de los datos internacionales</string>
+    <string name="international_lte_notification">Datos internacionales (Lte)</string>
+    <string name="international_lte_notification_summary">Notificar cuando quede el siguiente porcentaje de los datos internacionales lte</string>
+    <string name="promo_bonus_notification">Bono de promoción</string>
+    <string name="promo_bonus_notification_summary">Notificar cuando quede el siguiente porcentaje del bono de promoción</string>
+    <string name="national_notification">Datos nacionales</string>
+    <string name="national_notification_summary">Notificar cuando quede el siguiente porcentaje de los datos nacionales</string>
+    <string name="show_secondary_notifications">Notificaciones de alerta de consumo</string>
+    <string name="show_secondary_notifications_summary">Notificar cuando los diferentes tipos de datos se estén agotando. Para desabilitar una de las notificaciones solo debe establecer su valor en cero</string>
+    <string name="low_data_notification">Se están agotando los datos</string>
+    <string name="low_data_notification_text">Los datos clasificados como %s le quedan un %d porciento</string>
+    <string name="circular_notification">Estilo circular</string>
+    <string name="circular_notification_summary">Este estilo muestra los tipos de datos en barras circulares, lo cual permite exponer información más detallada del consumo.</string>
+    <string name="lineal_notification_summary">Este estilo muestra un resumen del consumo de datos en una única barra lineal.</string>
+    <string name="lineal_notification">Estilo lineal</string>
 </resources>

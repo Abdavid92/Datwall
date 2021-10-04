@@ -140,6 +140,9 @@ class AppsListAdapter constructor(
      * @param newList - Lista de aplicaciones.
      * */
     fun updateList(newFilter: AppsFilter, newList: List<IApp>) {
+        if (newFilter == appsFilter && newList == list)
+            return
+
         launch {
             val result = DiffUtil.calculateDiff(
                 DiffCallback(finalList, newList, appsFilter != newFilter),

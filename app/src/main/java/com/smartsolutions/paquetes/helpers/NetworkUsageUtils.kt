@@ -180,7 +180,7 @@ class NetworkUsageUtils @Inject constructor(
          * @param total - Valor base.
          * @param part - Valor relativo.
          * */
-        fun calculatePercent(total : Double, part : Double) : Int{
+        fun calculatePercent(total : Double, part : Double): Int {
             return (100 * part / total).toInt()
         }
 

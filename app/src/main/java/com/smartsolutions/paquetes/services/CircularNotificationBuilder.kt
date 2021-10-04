@@ -6,13 +6,17 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewParent
 import android.widget.RemoteViews
 import androidx.annotation.Keep
 import androidx.core.app.NotificationCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.ui.SplashActivity
+import kotlin.random.Random
 
 @Keep
 class CircularNotificationBuilder(
@@ -25,22 +29,7 @@ class CircularNotificationBuilder(
         setContentTitle(context.getString(R.string.empty_noti_title))
         setContentText(context.getString(R.string.empty_noti_text))
         setStyle(NotificationCompat.DecoratedCustomViewStyle())
-        setContentIntent(
-            PendingIntent
-                .getActivity(
-                    context,
-                    0,
-                    Intent(context, SplashActivity::class.java)
-                        .setFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        ),
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                    } else {
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                    }
-                )
-        )
+        setContentIntent(getSplashActivityPendingIntent(context))
         setOngoing(true)
         color = getBackgroundColor()
     }
@@ -91,6 +80,36 @@ class CircularNotificationBuilder(
         }
 
         return this
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun getSample(parent: ViewGroup?): View {
+        val remoteViews = RemoteViews(mContext.packageName, R.layout.circular_notification)
+
+        for (i in DataBytes.DataType.values().indices) {
+            val dataBytes = UserDataBytes(
+                "",
+                DataBytes.DataType.values()[i],
+                100,
+                Random(System.currentTimeMillis()).nextLong(100),
+                System.currentTimeMillis(),
+                System.currentTimeMillis() + 1000000
+            )
+
+            addRemoteViewsContent(
+                remoteViews,
+                dataBytes,
+                getDataTitle(dataBytes.type),
+                i != 0
+            )
+        }
+
+        return remoteViews.apply(mContext, parent)
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun getSummary(): String {
+        return mContext.getString(R.string.circular_notification_summary)
     }
 
     /**

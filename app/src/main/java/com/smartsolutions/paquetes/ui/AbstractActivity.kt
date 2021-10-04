@@ -27,17 +27,5 @@ abstract class AbstractActivity : AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState)
-
-        /*dataStore.data.asLiveData().observe(this) {
-            val newTheme = it[PreferencesKeys.APP_THEME] ?: currentTheme
-
-            if (currentTheme != newTheme) {
-                setTheme(newTheme)
-
-                currentTheme = newTheme
-
-                recreate()
-            }
-        }*/
     }
 }
