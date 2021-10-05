@@ -37,7 +37,7 @@ class DefaultSimRecyclerAdapter(
                     radioButtonVoiceDefault.isClickable = false
                     radioButtonDataDefault.isClickable = false
                 }else {
-                    //TODO
+                   //TODO Probar y crear en DualSim
                 }
             }
 

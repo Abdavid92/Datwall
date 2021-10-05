@@ -151,44 +151,6 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         }
     }
 
-    /**
-     * TODO Pendiente a eliminar
-    private fun showTabMenu(sim: Sim, view: View) {
-        val popupMenu = PopupWindow(requireContext())
-
-        val menuBind = PopupMenuTabBinding.inflate(
-            LayoutInflater.from(requireContext()),
-            null,
-            false
-        )
-
-        menuBind.radioButtonDataDefault.apply {
-            isChecked = sim.defaultData
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                isEnabled = false
-            }
-            setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked)
-                    viewModel.setDefaultSim(SimDelegate.SimType.DATA, sim)
-            }
-        }
-        menuBind.radioButtonVoiceDefault.apply {
-            isChecked = sim.defaultVoice
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                isEnabled = false
-            }
-            setOnCheckedChangeListener { _, isCheked ->
-                if (isCheked)
-                    viewModel.setDefaultSim(SimDelegate.SimType.VOICE, sim)
-            }
-        }
-
-        popupMenu.contentView = menuBind.root
-        popupMenu.isOutsideTouchable = true
-
-        popupMenu.showAsDropDown(view)
-    }
-    **/
 
     private fun animateFAB(animate: Boolean) {
         if (animate) {

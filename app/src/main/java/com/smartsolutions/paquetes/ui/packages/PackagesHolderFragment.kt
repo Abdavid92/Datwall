@@ -53,7 +53,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
 
         binding.buttonConfigureSim.setOnClickListener {
             val frag = SimsConfigurationFragment.newInstance()
-            //TODO Lanzar fragmento de configurar las Sims
+            childFragmentManager.beginTransaction().add(frag, "ConfigureSim").commit()
         }
 
         viewModel.getSimAndPackages(simId).observe(viewLifecycleOwner){
