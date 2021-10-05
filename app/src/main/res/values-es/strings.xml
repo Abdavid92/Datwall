@@ -252,4 +252,25 @@
     <string name="contacts">Contactos</string>
     <string name="telegram_channel">Síguenos en telegram</string>
     <string name="apklis">Apklis</string>
+    <string name="purchase">Comprar</string>
+    <string name="plan_title">Planes Combinados</string>
+    <string name="packages_title">Paquetes LTE</string>
+    <string name="no_sim_configured">Es necesario configurar la Sim actual para saber los paquetes y planes que están disponibles</string>
+    <string name="configure_button">Configurar Sim</string>
+    <string name="no_sim_default">No hay ninguna Sim predeterminada para Llamadas. Por favor configure la Sim antes de comprar un paquete</string>
+    <string name="purchasing_package">Comprando Paquete</string>
+    <string name="purchasing_package_failed">No se pudo comprar el paquete</string>
+    <string name="purchasing_package_permissions">Falta Permiso de Llamadas</string>
+    <string name="sim_default_all">Voz y Datos</string>
+    <string name="sim_default_data">Datos</string>
+    <string name="sim_default_voice">Voz</string>
+    <string name="not_execute_action">No se puede realizar la acción</string>
+    <string name="no_sim_default_data">La sim seleccionada no es la predeterminada para Datos Móviles</string>
+    <string name="no_sim_default_voice">La sim seleccionada no es la predeterminada para llamadas</string>
+    <string name="set_default_sim">Establecer Sim Predeterminada</string>
+    <string name="is_default_voice">Predeterminada Voz</string>
+    <string name="is_default_data">Predeterminada Datos</string>
+    <string name="sim_default_call">Llamadas</string>
+    <string name="sim_default_data_mobile">Datos Móviles</string>
+    <string name="set_default_sim_for">Predeterminada para:</string>
 </resources>

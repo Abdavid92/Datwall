@@ -13,7 +13,7 @@
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:tint="?attr/colorPrimary"
+        android:tint="?attr/colorPrimaryVariant"
         android:src="@drawable/ic_monetization_24"/>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="125 $"
-        android:textColor="?attr/colorPrimary"
+        android:textColor="?attr/colorPrimaryVariant"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="16sp"
         android:textStyle="bold"/>

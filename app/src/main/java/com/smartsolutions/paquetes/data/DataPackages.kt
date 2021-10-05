@@ -42,7 +42,9 @@ object DataPackages {
             NETWORK_3G_4G,
             1,
             GENERAL_DURATION,
-            "600MB +800MB LTE"
+            "600MB +800MB LTE",
+            minutes = 15,
+            sms = 20
         ),
         DataPackage(
             Combined_Medium,
@@ -57,7 +59,9 @@ object DataPackages {
             NETWORK_3G_4G,
             2,
             GENERAL_DURATION,
-            "1.5GB +2GB LTE"
+            "1.5GB +2GB LTE",
+            minutes = 35,
+            sms = 40
         ),
         DataPackage(
             Combined_Extra,
@@ -72,7 +76,9 @@ object DataPackages {
             NETWORK_3G_4G,
             3,
             GENERAL_DURATION,
-            "3.5GB +4.5GB LTE"
+            "3.5GB +4.5GB LTE",
+            minutes = 75,
+            sms = 80
         ),
         DataPackage(
             P_1GB_LTE,
@@ -107,7 +113,7 @@ object DataPackages {
             "Paquete 16 GB",
             "Proporciona 4GB para todas las redes más 12GB disponible solo para la red LTE. " +
                     "Tiene una vigencia de 30 dias a partir del primer uso.",
-            100f,
+            950f,
             DataValue(4.0, DataUnit.GB).toBytes(),
             DataValue(12.0, DataUnit.GB).toBytes(),
             DataValue(300.0, DataUnit.MB).toBytes(),

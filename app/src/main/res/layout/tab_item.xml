@@ -23,9 +23,9 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Title"
+            android:text="Sim 1"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textStyle="bold"/>
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -33,7 +33,7 @@
             android:id="@+id/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Subtitle"
+            android:text="Voz y Datos"
             android:textSize="11sp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 

@@ -47,16 +47,6 @@ class SimManager @Inject constructor(
         }
     }
 
-    /*@RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    private val simChangeListener = object : SubscriptionManager.OnSubscriptionsChangedListener() {
-        override fun onSubscriptionsChanged() {
-
-            launch {
-                getInstalledSims()
-            }
-        }
-    }*/
-
     override fun isSeveralSimsInstalled(): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP){
             return false

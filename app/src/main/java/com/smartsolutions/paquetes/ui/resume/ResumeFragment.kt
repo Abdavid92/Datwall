@@ -8,21 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
-import android.widget.PopupWindow
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
-import com.smartsolutions.paquetes.databinding.PopupMenuTabBinding
-import com.smartsolutions.paquetes.databinding.TabItemBinding
-import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
+import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -64,9 +61,10 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             installedSims = it
 
             setAdapter(it)
-            setTabLayoutMediator()
 
-            if (it.size == 1){
+            setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it, childFragmentManager)
+
+            if (it.size <= 1){
                 binding.tabs.visibility = View.GONE
             }else {
                 binding.tabs.visibility = View.VISIBLE
@@ -81,18 +79,20 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
                 viewModel.synchronizeUserDataBytes(this)
             } else {
                 val fragment =
-                    BottomSheetDialogBasic.newInstance(BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED_NOT_DEFAULT_SIM)
-                fragment.show(this.childFragmentManager, "BasicDialog")
+                   DefaultSimsDialogFragment.newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
+                fragment.show(childFragmentManager, "Not Default Fragment")
             }
         }
 
         binding.buttonFilter.setOnClickListener {
             showFilterOptions()
         }
-
-
     }
 
+    override fun onPause() {
+        super.onPause()
+        adapterFragment = null
+    }
 
     private fun showFilterOptions(){
         AlertDialog.Builder(requireContext())
@@ -151,79 +151,6 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         }
     }
 
-    private fun setTabLayoutMediator() {
-        try {
-            TabLayoutMediator(binding.tabs, binding.pager) { tab, pos ->
-                val tabBind =
-                    TabItemBinding.inflate(LayoutInflater.from(requireContext()), null, false)
-                val sim = installedSims[pos]
-
-                sim.icon?.let {
-                    tabBind.icon.setImageBitmap(it)
-                }
-
-                tabBind.title.text = "Sim ${sim.slotIndex + 1}"
-                tabBind.subtitle.text = if (sim.defaultVoice && sim.defaultData) {
-                    "Voz y Datos"
-                } else if (sim.defaultData) {
-                    "Datos"
-                } else if (sim.defaultVoice) {
-                    "Voz"
-                } else {
-                    tabBind.subtitle.visibility = View.GONE
-                    ""
-                }
-
-                tab.setCustomView(tabBind.root)
-
-                tab.view.setOnLongClickListener {
-                    showTabMenu(sim, it)
-                    true
-                }
-            }.also {
-                if (!it.isAttached) {
-                    it.attach()
-                }
-            }
-        } catch (e: Exception) {
-        }
-    }
-
-    private fun showTabMenu(sim: Sim, view: View) {
-        val popupMenu = PopupWindow(requireContext())
-
-        val menuBind = PopupMenuTabBinding.inflate(
-            LayoutInflater.from(requireContext()),
-            null,
-            false
-        )
-
-        menuBind.radioButtonDataDefault.apply {
-            isChecked = sim.defaultData
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                isEnabled = false
-            }
-            setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked)
-                    viewModel.setDefaultSim(SimDelegate.SimType.DATA, sim)
-            }
-        }
-        menuBind.radioButtonVoiceDefault.apply {
-            isChecked = sim.defaultVoice
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                isEnabled = false
-            }
-            setOnCheckedChangeListener { _, isCheked ->
-                if (isCheked)
-                    viewModel.setDefaultSim(SimDelegate.SimType.VOICE, sim)
-            }
-        }
-
-        popupMenu.contentView = menuBind.root
-        popupMenu.isOutsideTouchable = true
-
-        popupMenu.showAsDropDown(view)
-    }
 
     private fun animateFAB(animate: Boolean) {
         if (animate) {
@@ -239,7 +166,6 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
     override fun onSuccess() {
         animateFAB(false)
-        //Toast.makeText(requireContext(), "Sincronizado", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCallPermissionsDenied() {

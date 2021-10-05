@@ -54,6 +54,10 @@ class ResumeHolderFragment : Fragment() {
 
     }
 
+    override fun onPause() {
+        super.onPause()
+        adapter = null
+    }
 
     private fun setAdapter(userData: List<UserDataBytes>) {
         if (adapter == null){

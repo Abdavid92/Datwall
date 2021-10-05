@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="16dp"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_unarchive_24"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_marginLeft="4dp"
+        android:id="@+id/header_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="@string/packages_title"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.MaterialCompat.Body1" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

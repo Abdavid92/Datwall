@@ -34,5 +34,5 @@
     <color name="purple">#E040FB</color>
     <color name="blue">#536DFE</color>
     <color name="card_background_light">#F0F0F0</color>
-    <color name="card_background_dark">#292929</color>
+    <color name="card_background_dark">#3C3C3C</color>
 </resources>

@@ -17,57 +17,65 @@ data class DataPackage(
      * Id del paquete.
      * */
     @PrimaryKey
-    val id: DataPackages.PackageId,
+    override val id: DataPackages.PackageId,
     /**
      * Nombre.
      * */
-    val name: String,
+    override val name: String,
     /**
      * Descripción.
      * */
-    val description: String,
+    override val description: String,
     /**
      * Precio de compra.
      * */
-    val price: Float,
+    override val price: Float,
     /**
      * Bytes disponibles en todas la redes.
      * */
-    val bytes: Long,
+    override val bytes: Long,
     /**
      * Bytes disponibles en la red 4G
      * */
     @ColumnInfo(name = "bytes_lte")
-    val bytesLte: Long,
+    override val bytesLte: Long,
     /**
      * Bytes de navegación nacional.
      * */
     @ColumnInfo(name = "bonus_cu_bytes")
     @SerializedName("bonus_cu_bytes")
-    val nationalBytes: Long,
+    override val nationalBytes: Long,
     /**
      * Redes en la que está disponible este paquete.
      * */
     @Networks
-    val network: String,
+    override val network: String,
     /**
      * Índice en el menu de compra. Esto se usa para contruir el
      * código ussd.
      * */
-    val index: Int,
+    override val index: Int,
     /**
      * Duración en dias.
      * */
-    val duration: Int,
+    override val duration: Int,
     /**
      * Clave que identifica el paquete en el sms de compra.
      * */
-    val smsKey: String,
+    override val smsKey: String,
     /**
      * Indica si este paquete está obsoleto.
      * */
-    var deprecated: Boolean = false
-) : Parcelable {
+    override var deprecated: Boolean = false,
+    /**
+     * Minutos que incluye si es un plan combinado
+     */
+    override val minutes: Int = 0,
+    /**
+     * SMS que incluye si es un plan combinado
+     */
+    override val sms: Int = 0
+) : IDataPackage, Parcelable {
 
     @Ignore
     var ussd: String? = null
@@ -90,7 +98,9 @@ data class DataPackage(
         parcel.readInt(),
         parcel.readInt(),
         parcel.readString() ?: throw NullPointerException(),
-        parcel.readByte() != 0.toByte()
+        parcel.readByte() != 0.toByte(),
+        parcel.readInt(),
+        parcel.readInt()
     ) {
         sims = parcel.createTypedArrayList(Sim) ?: throw NullPointerException()
     }
@@ -109,6 +119,8 @@ data class DataPackage(
         parcel.writeString(smsKey)
         parcel.writeByte(if (deprecated) 1 else 0)
         parcel.writeTypedList(sims)
+        parcel.writeInt(minutes)
+        parcel.writeInt(sms)
     }
 
     override fun describeContents(): Int {

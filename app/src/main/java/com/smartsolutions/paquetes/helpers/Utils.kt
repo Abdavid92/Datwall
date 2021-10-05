@@ -1,13 +1,24 @@
 package com.smartsolutions.paquetes.helpers
 
 import android.app.Activity
+import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
+import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.databinding.TabItemBinding
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.GB
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.KB
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.MB
+import com.smartsolutions.paquetes.repositories.models.Sim
+import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
+import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 
 /**
  * Contruye el código ussd para comprar un
@@ -151,4 +162,40 @@ fun <T : View> Activity.findView(@IdRes resId: Int) = lazy {
  * */
 fun <T : View> Fragment.findView(@IdRes resId: Int) = lazy {
     view?.findViewById<T>(resId)
+}
+
+
+fun setTabLayoutMediatorSims(context: Context, tabLayout: TabLayout, pager2: ViewPager2, sims: List<Sim>, fragmentManager: FragmentManager) {
+    try {
+        TabLayoutMediator(tabLayout, pager2) { tab, pos ->
+            val tabBind =
+                TabItemBinding.inflate(LayoutInflater.from(context), null, false)
+            val sim = sims[pos]
+
+            sim.icon?.let {
+                tabBind.icon.setImageBitmap(it)
+            }
+
+            tabBind.title.text = "Sim ${sim.slotIndex + 1}"
+            tabBind.subtitle.text = if (sim.defaultVoice && sim.defaultData) {
+               context.getString(R.string.sim_default_all)
+            } else if (sim.defaultData) {
+               context.getString(R.string.sim_default_data)
+            } else if (sim.defaultVoice) {
+                context.getString(R.string.sim_default_voice)
+            } else {
+                tabBind.subtitle.visibility = View.GONE
+                ""
+            }
+
+            tab.customView = tabBind.root
+
+            tab.view.setOnLongClickListener {
+                val fragment = DefaultSimsDialogFragment.newInstance(null)
+                fragment.show(fragmentManager, "DefaultSims")
+                true
+            }
+        }.attach()
+    } catch (e: Exception) {
+    }
 }

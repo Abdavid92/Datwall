@@ -7,6 +7,7 @@ import android.os.Process
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
@@ -23,6 +24,9 @@ class ExceptionsActivity : AbstractActivity() {
 
     @Inject
     lateinit var localFileHelper: LocalFileHelper
+
+    @Inject
+    lateinit var kernel: DatwallKernel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +68,7 @@ class ExceptionsActivity : AbstractActivity() {
     }
 
     private fun close() {
+        kernel.stopAllDatwall()
         finishAffinity()
         Process.killProcess(Process.myPid())
         exitProcess(10)
