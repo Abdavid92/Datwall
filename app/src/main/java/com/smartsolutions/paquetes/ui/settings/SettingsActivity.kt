@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.ui.settings
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -468,6 +469,30 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             super.onViewCreated(view, savedInstanceState)
 
             binding.appVersion.text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+
+            binding.sendEmail.setOnClickListener {
+                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                    data = Uri.parse("mailto:")
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(BuildConfig.DEVELOPERS_EMAIL))
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+
+                startActivity(intent)
+            }
+
+            binding.telegramChannel.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                    .setData(Uri.parse(BuildConfig.TELEGRAM_CHANNEL))
+
+                startActivity(intent)
+            }
+
+            binding.apklisStore.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                    .setData(Uri.parse(BuildConfig.APKLIS_URL))
+
+                startActivity(intent)
+            }
         }
 
         override fun title(): CharSequence {

@@ -36,6 +36,7 @@ android {
         versionCode 18
         versionName "4.0"
         archivesBaseName = "Mis Datos-$versionName"
+        multiDexEnabled true
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner "com.smartsolutions.paquetes.HiltTestRunner"
@@ -57,6 +58,9 @@ android {
             buildConfigField "int", "TOKEN_DURATION", tokenDuration
             buildConfigField "String", "CONTENT_0", content0
             buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfreeapp.com/api/\""
+            buildConfigField "String", "APKLIS_URL", "\"https://apklis.cu/application/com.smartsolutions.paquetes\""
+            buildConfigField "String", "TELEGRAM_CHANNEL", "\"https://t.me/joinchat/EVsmSbeOo8diYmJh\""
+            buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
         debug {
             minifyEnabled false
@@ -67,6 +71,9 @@ android {
             buildConfigField "String", "CONTENT_0", content0
             buildConfigField "String", "REGISTRATION_SERVER_URL", "\"http://10.0.2.2/SmartSolutionsApps/api/\""
             //buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfreeapp.com/api/\""
+            buildConfigField "String", "APKLIS_URL", "\"https://apklis.cu/application/com.smartsolutions.paquetes\""
+            buildConfigField "String", "TELEGRAM_CHANNEL", "\"https://t.me/joinchat/EVsmSbeOo8diYmJh\""
+            buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
     }
     compileOptions {

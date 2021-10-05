@@ -66,6 +66,8 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/danger_button_background.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_appearance.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_bubble.xml" value="0.2203125" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_email.xml" value="0.165234375" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_error.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_history_24.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_launch.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_launcher_background.xml" value="0.675" />
@@ -124,6 +126,8 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/applications_menu.xml" value="0.12894736842105264" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/bottom_nav_menu.xml" value="0.1814814814814815" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/more_nav_menu.xml" value="0.1814814814814815" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.165234375" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.165234375" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/appaerance_preferences.xml" value="0.22" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/header_preferences.xml" value="0.20416666666666666" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/xml/history_preferences.xml" value="0.153125" />
