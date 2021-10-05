@@ -33,10 +33,13 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.24074074074074073" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_bottom_sheet_dialog_basic.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_dashboard.xml" value="0.4" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_default_sims_dialog.xml" value="0.2" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_default_sims_dialog_list_dialog_item.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_history.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_history_holder.xml" value="0.16" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_packages.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_packages_configuration.xml" value="0.16944444444444445" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_packages_holder.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_resume.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_resume_holder.xml" value="0.176" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_settings.xml" value="0.25416666666666665" />
@@ -55,6 +58,8 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_package.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_packages.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_plan.xml" value="0.264" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_sim_default.xml" value="0.2" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_sim_spinner.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage_details.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_user_data_bytes.xml" value="0.2" />
@@ -154,7 +159,7 @@
       </value>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

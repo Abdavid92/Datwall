@@ -1,26 +1,20 @@
 package com.smartsolutions.paquetes.ui.packages
 
 import android.app.Application
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
-import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.managers.DataPackageManager
-import com.smartsolutions.paquetes.managers.SimManager
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.repositories.SimRepository
+import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -29,15 +23,26 @@ import javax.inject.Inject
 class PackagesViewModel @Inject constructor(
     application: Application,
     private val simManager: ISimManager,
-    private val dataPackageManager: IDataPackageManager
+    private val dataPackageManager: IDataPackageManager,
+    private val simRepository: ISimRepository
 ) : AndroidViewModel(application) {
 
+    private var liveSimPackageInfo = MutableLiveData<Pair<Sim, List<IDataPackage>>>()
 
-    fun getSimDefaultVoice(): LiveData<Sim?> {
-        return simManager.flowInstalledSims(true).map {
-            return@map it.firstOrNull { it.defaultVoice }
-        }.asLiveData(Dispatchers.IO)
+    fun getInstalledSims(): LiveData<List<Sim>> {
+        return simManager.flowInstalledSims().asLiveData(Dispatchers.IO)
     }
+
+
+    fun getSimAndPackages(simID: String): LiveData<Pair<Sim, List<IDataPackage>>>{
+        viewModelScope.launch(Dispatchers.IO) {
+            simRepository.get(simID, true)?.let {
+                liveSimPackageInfo.postValue(it to prepareListPackages(it))
+            }
+        }
+        return liveSimPackageInfo
+    }
+
 
     fun prepareListPackages(sim: Sim): List<IDataPackage> {
         val list = mutableListOf<IDataPackage>()

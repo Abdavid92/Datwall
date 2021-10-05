@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:visibility="visible"
             app:tabGravity="start"
-            app:tabIndicatorGravity="bottom"
+            app:tabIndicatorGravity="center"
             app:tabInlineLabel="true"
             app:tabMode="auto"
             app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"

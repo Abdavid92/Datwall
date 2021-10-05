@@ -9,6 +9,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.databinding.FragmentHistoryBinding
+import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,20 +39,8 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.getInstalledSims().observe(viewLifecycleOwner){
-            try {
-                TabLayoutMediator(binding.tabs, binding.pager){ tab, position ->
-                    it[position].icon?.let { bitmap ->
-                        tab.icon = bitmap.toDrawable(resources)
-                    }
-                    tab.text = (it[position].slotIndex + 1).toString()
-                }.also {
-                    if (!it.isAttached){
-                        it.attach()
-                    }
-                }
-            }catch (e: Exception){ }
-
             setAdapter(it)
+            setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it, childFragmentManager)
             if (it.size <= 1){
                 binding.tabs.visibility = View.GONE
             }else {

@@ -10,8 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPackagesBinding
+import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
@@ -21,18 +23,16 @@ import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class PackagesFragment : Fragment(), PackagesViewModel.PurchaseResult {
+class PackagesFragment : Fragment() {
 
     companion object {
         fun newInstance() = PackagesFragment()
     }
 
     private val viewModel by viewModels<PackagesViewModel> ()
+    private var adapter: PackagesPagerAdapter? = null
 
     private lateinit var binding: FragmentPackagesBinding
-    private var adapter: PackagesRecyclerAdapter? = null
-
-    private var sim: Sim? = null
     
 
     override fun onCreateView(
@@ -46,76 +46,26 @@ class PackagesFragment : Fragment(), PackagesViewModel.PurchaseResult {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonConfigureSim.setOnClickListener {
-            val frag = SimsConfigurationFragment.newInstance()
-            //TODO Lanzar fragmento de configurar las Sims
-        }
+        viewModel.getInstalledSims().observe(viewLifecycleOwner) {
+            setAdapter(it)
+            setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it, childFragmentManager)
 
-        viewModel.getSimDefaultVoice().observe(viewLifecycleOwner) {
-            sim = it
-            if (it == null){
-                binding.apply {
-                    linSimNotDefault.visibility = View.VISIBLE
-                    linSimNotConfigured.visibility = View.GONE
-                    recycler.visibility = View.GONE
-                }
+            if (it.size <= 1){
+                binding.tabs.visibility = View.GONE
             }else {
-                if (it.packages.isNotEmpty()) {
-                    binding.apply {
-                        linSimNotDefault.visibility = View.GONE
-                        linSimNotConfigured.visibility = View.GONE
-                        recycler.visibility = View.VISIBLE
-                        setAdapter(viewModel.prepareListPackages(it))
-                    }
-                }else {
-                    binding.apply {
-                        linSimNotDefault.visibility = View.GONE
-                        linSimNotConfigured.visibility = View.VISIBLE
-                        recycler.visibility = View.GONE
-                    }
-                }
+                binding.tabs.visibility = View.VISIBLE
             }
         }
 
     }
 
-    private fun setAdapter(list: List<IDataPackage>){
+    private fun setAdapter(sims: List<Sim>){
         if (adapter == null){
-            adapter = PackagesRecyclerAdapter(this, list)
-            binding.recycler.adapter = adapter
-        }else {
-            adapter?.dataPackages = list
+            adapter = PackagesPagerAdapter(sims, this)
+            binding.pager.adapter = adapter
+        } else {
+            adapter?.sims = sims
             adapter?.notifyDataSetChanged()
-        }
-    }
-
-    fun purchasePackage(iDataPackage: IDataPackage){
-        val dataPackage = iDataPackage as DataPackage
-        sim?.let {
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Comprar ${dataPackage.name}")
-                .setMessage(dataPackage.description)
-                .setPositiveButton(getString(R.string.purchase)){_, _ ->
-                    viewModel.purchasePackage(it, dataPackage, this)
-                }
-                .setNegativeButton(getString(R.string.btn_cancel), null)
-                .show()
-        }
-    }
-
-    override fun onSuccess() {
-        Toast.makeText(requireContext(), getString(R.string.purchasing_package), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onFailed() {
-        Toast.makeText(requireContext(), getString(R.string.purchasing_package_failed), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onMissingPermission() {
-        Toast.makeText(requireContext(), getString(R.string.purchasing_package_permissions), Toast.LENGTH_SHORT).show()
-       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-           val frag = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
-           frag.show(childFragmentManager, "PermissionFragment")
         }
     }
 

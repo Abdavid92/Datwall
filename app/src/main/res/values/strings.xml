@@ -196,4 +196,16 @@
     <string name="purchasing_package">Comprando Paquete</string>
     <string name="purchasing_package_failed">No se pudo comprar el paquete</string>
     <string name="purchasing_package_permissions">Falta Permiso de Llamadas</string>
+    <string name="sim_default_all">Voz y Datos</string>
+    <string name="sim_default_data">Datos</string>
+    <string name="sim_default_voice">Voz</string>
+    <string name="not_execute_action">No se puede realizar la acción</string>
+    <string name="no_sim_default_data">La sim seleccionada no es la predeterminada para Datos Móviles</string>
+    <string name="no_sim_default_voice">La sim seleccionada no es la predeterminada para llamadas</string>
+    <string name="set_default_sim">Establecer Sim Predeterminada</string>
+    <string name="is_default_voice">Predeterminada Voz</string>
+    <string name="is_default_data">Predeterminada Datos</string>
+    <string name="sim_default_call">Llamadas</string>
+    <string name="sim_default_data_mobile">Datos Móviles</string>
+    <string name="set_default_sim_for">Predeterminada para:</string>
 </resources>

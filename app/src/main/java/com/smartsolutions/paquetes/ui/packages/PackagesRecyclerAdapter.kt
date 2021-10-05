@@ -14,7 +14,7 @@ import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 
 class PackagesRecyclerAdapter(
-    private val fragment: PackagesFragment,
+    private val fragment: PackagesHolderFragment,
     var dataPackages: List<IDataPackage>
 ): RecyclerView.Adapter<PackagesRecyclerAdapter.ItemHolder>() {
 

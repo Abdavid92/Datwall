@@ -35,73 +35,26 @@
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.Toolbar>
 
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:tabGravity="start"
+            app:tabIndicatorGravity="center"
+            app:tabInlineLabel="true"
+            app:tabMode="auto"
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
+            tools:ignore="SpeakableTextPresentCheck" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler"
-        android:paddingLeft="6dp"
-        android:paddingRight="6dp"
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
         style="@style/BackgroundStyle"
-        tools:listitem="@layout/item_packages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/lin_sim_not_configured"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/ic_unarchive_24"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
-            android:textAlignment="center"
-            android:text="@string/no_sim_configured"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button_configure_sim"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/configure_button"/>
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/lin_sim_not_default"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/ic_unarchive_24"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialCompat.Body1"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
-            android:textAlignment="center"
-            android:text="@string/no_sim_default"/>
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
