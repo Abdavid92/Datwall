@@ -179,7 +179,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        app:srcCompat="@drawable/ic_download_24"
+                        app:srcCompat="@drawable/ic_download"
                         app:tint="?attr/colorPrimaryVariant"/>
 
                     <TextView
