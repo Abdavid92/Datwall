@@ -11,7 +11,7 @@
         android:paddingLeft="6dp"
         android:paddingRight="6dp"
         style="@style/BackgroundStyle"
-        tools:listitem="@layout/item_packages"
+        tools:listitem="@layout/item_plan2"
         android:layout_width="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
