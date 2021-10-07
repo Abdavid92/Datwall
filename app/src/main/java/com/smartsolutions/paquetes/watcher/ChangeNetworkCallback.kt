@@ -5,10 +5,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Callback que contiene eventos que se llaman cuando hay un cambio de red.

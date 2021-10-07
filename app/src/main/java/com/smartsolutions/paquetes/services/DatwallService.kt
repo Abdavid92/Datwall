@@ -113,7 +113,7 @@ class DatwallService : Service(), CoroutineScope {
             mNotificationBuilder.build()
         )
 
-        kernel.tryRestoreState()
+        //kernel.tryRestoreState()
 
         registerBandWithCollector()
         registerUserDataBytesCollector()
