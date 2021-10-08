@@ -4,7 +4,7 @@
 
     <item android:id="@+id/navigation_packages"
         android:title="@string/title_packages"
-        android:icon="@drawable/ic_packages"
+        android:icon="@drawable/ic_data_24"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/navigation_history"

@@ -6,10 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.databinding.ItemHeaderBinding
-import com.smartsolutions.paquetes.databinding.ItemHeaderPackagesBinding
-import com.smartsolutions.paquetes.databinding.ItemPackagesBinding
-import com.smartsolutions.paquetes.databinding.ItemPlanBinding
+import com.smartsolutions.paquetes.databinding.*
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 
@@ -32,10 +29,10 @@ class PackagesRecyclerAdapter(
         val layoutInflater = LayoutInflater.from(parent.context)
         return when(viewType){
             0 -> HeaderHolder(ItemHeaderPackagesBinding.inflate(layoutInflater, parent, false))
-            1 -> PlanHolder(ItemPlanBinding.inflate(layoutInflater,parent, false))
-            2 -> PackagesHolder(ItemPackagesBinding.inflate(layoutInflater, parent, false))
+            1 -> PlanHolder(ItemPlan2Binding.inflate(layoutInflater,parent, false))
+            2 -> PackagesHolder(ItemPackage2Binding.inflate(layoutInflater, parent, false))
             else -> {
-              PackagesHolder(ItemPackagesBinding.inflate(layoutInflater, parent, false))
+              PackagesHolder(ItemPackage2Binding.inflate(layoutInflater, parent, false))
             }
         }
     }
@@ -61,7 +58,7 @@ class PackagesRecyclerAdapter(
 
     }
 
-    inner class PlanHolder(private val binding: ItemPlanBinding): ItemHolder(binding.root){
+    inner class PlanHolder(private val binding: ItemPlan2Binding): ItemHolder(binding.root){
 
         override fun onBind(iPackage: IDataPackage) {
             binding.apply {
@@ -69,18 +66,15 @@ class PackagesRecyclerAdapter(
                 val lteInternational = DataUnitBytes(iPackage.bytesLte).getValue()
                 val national = DataUnitBytes(iPackage.nationalBytes).getValue()
 
-                packageTitle.text = iPackage.name
-                price.text = iPackage.price.toString()
-                internationalAllValue.text = "${international.value}"
-                internationalAllUnit.text = "${international.dataUnit}"
-                internationalLteValue.text = "${lteInternational.value}"
-                internationalLteUnit.text = "${lteInternational.dataUnit}"
-                nationalValue.text = "${national.value}"
-                nationalUnit.text = "${national.dataUnit}"
-                minutesValue.text = iPackage.minutes.toString()
-                smsValue.text = iPackage.sms.toString()
+                titlePackage.text = iPackage.name
+                textPrice.text = iPackage.price.toString()
+                valueMb.text = "${international.value} ${international.dataUnit}"
+                valueMbLte.text = "${lteInternational.value} ${lteInternational.dataUnit}"
+                valueMbCu.text = "${national.value} ${national.dataUnit}"
+                valueMin.text = "${iPackage.minutes} min"
+                valueSms.text = "${iPackage.sms} sms"
 
-                buttonPurchase.setOnClickListener {
+                buttonBuy.setOnClickListener {
                     fragment.purchasePackage(iPackage)
                 }
             }
@@ -88,7 +82,7 @@ class PackagesRecyclerAdapter(
 
     }
 
-    inner class PackagesHolder(private val binding: ItemPackagesBinding): ItemHolder(binding.root){
+    inner class PackagesHolder(private val binding: ItemPackage2Binding): ItemHolder(binding.root){
 
         override fun onBind(iPackage: IDataPackage) {
             binding.apply {
@@ -100,16 +94,13 @@ class PackagesRecyclerAdapter(
 
                 if (iPackage.id == DataPackages.PackageId.P_4GB_12GB_LTE){
                     val international = DataUnitBytes(iPackage.bytes).getValue()
-                    internationalLteValue.text = "${international.value}\n + \n${lteInternational.value} (LTE)"
+                    valueMbLte.text = "${international.value}\n + \n${lteInternational.value} (LTE) ${lteInternational.dataUnit}"
                 }else {
-                    internationalLteValue.text = "${lteInternational.value}"
+                    valueMbLte.text = "${lteInternational.value} ${lteInternational.dataUnit}"
                 }
+                valueMbCu.text = "${national.value} ${national.dataUnit}"
 
-                internationalLteUnit.text = "${lteInternational.dataUnit}"
-                nationalValue.text = "${national.value}"
-                nationalUnit.text = "${national.dataUnit}"
-
-                buttonPurchase.setOnClickListener {
+                buttonBuy.setOnClickListener {
                     fragment.purchasePackage(iPackage)
                 }
             }
