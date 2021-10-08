@@ -4,40 +4,44 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.smartsolutions.paquetes.databinding.ItemSimDefault2Binding
 import com.smartsolutions.paquetes.databinding.ItemSimDefaultBinding
 import com.smartsolutions.paquetes.repositories.models.Sim
 
 class DefaultSimRecyclerAdapter(
-    var sims: List<Sim>
-): RecyclerView.Adapter<DefaultSimRecyclerAdapter.SimHolder>() {
+    private var fragment: DefaultSimsDialogFragment,
+    var sims: List<Sim>,
+    var isDefaultVoice: Boolean
+) : RecyclerView.Adapter<DefaultSimRecyclerAdapter.SimHolder>() {
 
 
-    class SimHolder(private val binding: ItemSimDefaultBinding): RecyclerView.ViewHolder(binding.root){
+    inner class SimHolder(private val binding: ItemSimDefault2Binding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun onBind(sim: Sim){
+        fun onBind(sim: Sim) {
             binding.apply {
                 sim.apply {
+
+                    if (isDefaultVoice) {
+                        radioButton.isChecked = defaultVoice
+                    } else {
+                        radioButton.isChecked = defaultData
+                    }
+
                     icon?.let {
-                        include.icon.setImageBitmap(it)
+                        iconSim.setImageBitmap(it)
                     }
-
-                    include.title.text ="Sim ${slotIndex + 1}"
-
-                    phone?.let {
-                        include.subtitle.text = it
-                        include.subtitle.visibility = View.VISIBLE
-                    }
-
-                    radioButtonDataDefault.isChecked = defaultData
-                    radioButtonVoiceDefault.isChecked = defaultVoice
+                    textSim.text = "Sim ${sim.slotIndex + 1}"
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                    radioButtonVoiceDefault.isClickable = false
-                    radioButtonDataDefault.isClickable = false
-                }else {
-                   //TODO Probar y crear en DualSim
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    radioButton.isClickable = false
+                } else {
+                    radioButton.setOnCheckedChangeListener { buttonView, isChecked ->
+                        fragment.setDefaultSim(sim, isDefaultVoice)
+                    }
                 }
             }
 
@@ -45,7 +49,13 @@ class DefaultSimRecyclerAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SimHolder {
-      return SimHolder(ItemSimDefaultBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return SimHolder(
+            ItemSimDefault2Binding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
     override fun onBindViewHolder(holder: SimHolder, position: Int) {
@@ -53,7 +63,7 @@ class DefaultSimRecyclerAdapter(
     }
 
     override fun getItemCount(): Int {
-       return sims.size
+        return sims.size
     }
 
 
