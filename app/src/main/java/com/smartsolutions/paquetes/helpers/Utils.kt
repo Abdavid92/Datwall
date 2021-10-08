@@ -2,9 +2,12 @@ package com.smartsolutions.paquetes.helpers
 
 import android.app.Activity
 import android.content.Context
+import android.text.Spannable
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.IdRes
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
@@ -163,7 +166,6 @@ fun <T : View> Activity.findView(@IdRes resId: Int) = lazy {
 fun <T : View> Fragment.findView(@IdRes resId: Int) = lazy {
     view?.findViewById<T>(resId)
 }
-
 
 fun setTabLayoutMediatorSims(context: Context, tabLayout: TabLayout, pager2: ViewPager2, sims: List<Sim>, fragmentManager: FragmentManager) {
     try {

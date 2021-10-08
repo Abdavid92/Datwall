@@ -273,4 +273,13 @@
     <string name="sim_default_call">Llamadas</string>
     <string name="sim_default_data_mobile">Datos Móviles</string>
     <string name="set_default_sim_for">Predeterminada para:</string>
+    <string name="mb_header">Megas</string>
+    <string name="mb_lte_header">Megas(LTE)</string>
+    <string name="bono_cu_header">Bono.CU</string>
+    <string name="dollar_symbol">$</string>
+    <string name="sms_header">SMS</string>
+    <string name="min_header">Minutos</string>
+    <string name="find_settings_dual_sim">Busque la configuración Dual Sim</string>
+    <string name="cant_not_open">No se pudo abrir</string>
+    <string name="change_default_sim_settings">Cambiar Predeterminada en Ajustes</string>
 </resources>
