@@ -78,7 +78,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textStyle="bold"
                     android:textColor="?attr/colorPrimaryVariant"
-                    android:text="@string/themes" />
+                    android:text="@string/themes_header" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/theme_list"

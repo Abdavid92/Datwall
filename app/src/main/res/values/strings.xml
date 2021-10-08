@@ -192,11 +192,10 @@
 
     <string name="appearance_header">Apariencia</string>
     <string name="theme_mode">Modo del tema</string>
-    <string name="themes">Temas</string>
+    <string name="themes_header">Temas</string>
     <string name="theme_summary">Tema principal de la aplicación</string>
     <string name="title_interface">Interfaz</string>
-    <string name="random_theme">Aleatorizar la apariencia</string>
-    <string name="random_theme_summary">Establecer un tema al azar</string>
+    <string name="random_theme">Aleatorio</string>
     <string name="other">Otro</string>
     <string name="restore_default">Restablecer predeterminados</string>
     <string name="restore_default_summary">Restaurar la configuración predeterminada</string>

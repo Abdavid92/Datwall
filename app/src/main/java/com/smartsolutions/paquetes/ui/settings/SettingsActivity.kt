@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
@@ -127,52 +125,6 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     }
 
     @Keep
-    class UIFragment : AbstractPreferenceFragmentCompat() {
-
-        private val uiHelper by uiHelper()
-
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            super.onCreatePreferences(savedInstanceState, rootKey)
-            setPreferencesFromResource(R.xml.appaerance_preferences, rootKey)
-
-            findPreference<Preference>("random_theme")
-                ?.setOnPreferenceClickListener {
-
-                    val themes = uiHelper.getThemeList()
-
-                    val r = Random(System.currentTimeMillis())
-                        .nextInt(themes.size)
-
-                    val theme = themes[r]
-
-                    preferenceManager.preferenceDataStore
-                        ?.putInt(PreferencesKeys.APP_THEME.name, theme.id)
-
-                    showRestartDialog()
-
-                    return@setOnPreferenceClickListener true
-            }
-
-            findPreference<Preference>("restore_default")
-                ?.setOnPreferenceClickListener {
-
-                    preferenceManager.preferenceDataStore
-                        ?.putInt(
-                            PreferencesKeys.THEME_MODE.name,
-                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        )
-
-                    preferenceManager.preferenceDataStore
-                        ?.putInt(PreferencesKeys.APP_THEME.name, R.style.Theme_Datwall)
-
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-
-                    return@setOnPreferenceClickListener true
-                }
-        }
-    }
-
-    @Keep
     class ThemesFragment : Fragment(), CoroutineScope, TitleFragment {
 
         override val coroutineContext: CoroutineContext
@@ -190,6 +142,8 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
+
+            setHasOptionsMenu(true)
 
             mTitle = arguments?.getCharSequence(TITLE_TAG) ?: "Themes"
         }
@@ -270,6 +224,46 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                     }
                 }
             }
+        }
+
+        override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+            super.onCreateOptionsMenu(menu, inflater)
+
+            inflater.inflate(R.menu.themes_menu, menu)
+        }
+
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+            when (item.itemId) {
+                R.id.action_random_theme -> {
+                    val themes = uiHelper.getThemeList()
+
+                    val r = Random(System.currentTimeMillis())
+                        .nextInt(themes.size)
+
+                    val theme = themes[r]
+
+                    preferenceDataStore.putInt(PreferencesKeys.APP_THEME.name, theme.id)
+
+                    showRestartDialog()
+                }
+                R.id.action_restore_default -> {
+                    preferenceDataStore.putInt(
+                            PreferencesKeys.THEME_MODE.name,
+                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                        )
+
+                    preferenceDataStore
+                        .putInt(PreferencesKeys.APP_THEME.name, R.style.Theme_Datwall)
+
+                    AppCompatDelegate
+                        .setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+
+                    requireActivity().recreate()
+                }
+            }
+
+            return super.onOptionsItemSelected(item)
         }
 
         override fun title(): CharSequence {

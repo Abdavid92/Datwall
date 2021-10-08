@@ -1,10 +1,10 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$UIFragment"
-        app:icon="@drawable/ic_appearance"
-        app:key="appearance_key"
-        app:title="@string/appearance_header" />
+        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$ThemesFragment"
+        app:icon="@drawable/ic_themes"
+        app:key="themes_key"
+        app:title="@string/themes_header" />
 
     <Preference
         app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$NotificationsFragment"
