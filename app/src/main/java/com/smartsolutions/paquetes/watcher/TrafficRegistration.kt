@@ -108,7 +108,7 @@ class TrafficRegistration @Inject constructor(
                         rxBytesLatest = 0
                         txBytesLatest = 0
 
-                        Log.i(TAG, "Traffic registered rx: ${it.first} tx: ${it.second}")
+                        Log.i(TAG, "Traffic registered")
                     }else {
                         rxBytesLatest += it.first
                         txBytesLatest += it.second
