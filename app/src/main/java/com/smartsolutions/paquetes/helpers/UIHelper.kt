@@ -194,8 +194,16 @@ class UIHelper(
                 newTheme(R.style.Theme_Datwall)
             ),
             ThemeWrapper(
-                R.style.Theme_Datwall_Blue,
-                newTheme(R.style.Theme_Datwall_Blue)
+                R.style.Theme_Datwall_BlueGreen,
+                newTheme(R.style.Theme_Datwall_BlueGreen)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_Green,
+                newTheme(R.style.Theme_Datwall_Green)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_GreenRed,
+                newTheme(R.style.Theme_Datwall_GreenRed)
             )
         )
     }

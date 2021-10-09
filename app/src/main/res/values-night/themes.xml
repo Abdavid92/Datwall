@@ -4,7 +4,7 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_medium</item>
         <item name="colorPrimaryVariant">@color/purple_light</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/yellow_medium</item>
         <item name="colorSecondaryVariant">@color/yellow_dark</item>
@@ -24,8 +24,8 @@
         <item name="android:actionBarStyle">@style/Widget.Theme.Datwall.ActionBar.Fullscreen</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:statusBarColor" tools:targetApi="l">?android:attr/colorBackground</item>
-        <item name="android:windowBackground">@color/blue_dark</item>
-        <item name="android:colorBackground">@color/blue_dark</item>
+        <item name="android:windowBackground">?attr/colorPrimary</item>
+        <item name="android:colorBackground">?attr/colorPrimary</item>
         <item name="splash_icon">@drawable/splash_screen_dark</item>
     </style>
 
@@ -37,5 +37,35 @@
     <style name="Theme.Datwall.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 
     <style name="ThemeOverlay.Datwall.FullscreenContainer" parent="">
+    </style>
+
+
+    <!-- Themes for App -->
+
+    <style name="Theme.Datwall.BlueGreen">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/blue_medium_dark</item>
+        <item name="colorPrimaryVariant">@color/blue_light</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_500</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+    </style>
+
+    <style name="Theme.Datwall.Green">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/green_dark</item>
+        <item name="colorPrimaryVariant">@color/green_medium</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/green_medium</item>
+        <item name="colorSecondaryVariant">@color/green_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.GreenRed">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/green_dark</item>
+        <item name="colorPrimaryVariant">@color/green_medium</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/red_medium</item>
+        <item name="colorSecondaryVariant">@color/red_dark</item>
     </style>
 </resources>

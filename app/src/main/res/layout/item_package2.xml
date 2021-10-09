@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="Paquete 1GB LTE"
+            android:textColor="?attr/colorPrimaryVariant"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="18dp"
 

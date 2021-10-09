@@ -281,5 +281,5 @@
     <string name="min_header">Minutos</string>
     <string name="find_settings_dual_sim">Busque la configuración Dual Sim</string>
     <string name="cant_not_open">No se pudo abrir</string>
-    <string name="change_default_sim_settings">Cambiar Predeterminada en Ajustes</string>
+    <string name="change_default_sim_settings">Cambiar Sim Predeterminada en Ajustes</string>
 </resources>
