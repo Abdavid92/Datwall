@@ -10,10 +10,11 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/permission_name"
+        android:padding="6dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="?attr/colorOnSecondary"
+        android:textColor="?attr/colorPrimaryVariant"
         tools:text="Title"/>
 
     <include layout="@layout/item_permission" />

@@ -11,6 +11,7 @@
     <color name="yellow_medium">#FDD835</color>
     <color name="yellow_dark">#9e8621</color>
     <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_500">#04BCAA</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
@@ -29,10 +30,15 @@
     <color name="brow">#CD734F</color>
     <color name="orange">#FFAB40</color>
     <color name="yellow">#FFEB3B</color>
-    <color name="green_light">#B2FF59</color>
     <color name="magent">#18FFFF</color>
     <color name="purple">#E040FB</color>
     <color name="blue">#536DFE</color>
     <color name="card_background_light">#F0F0F0</color>
     <color name="card_background_dark">#3C3C3C</color>
+    <color name="green_light">#B2FF59</color>
+    <color name="green_medium">#5ADC22</color>
+    <color name="green_dark">#329800</color>
+    <color name="red_light">#FF7B7B</color>
+    <color name="red_medium">#FF0000</color>
+    <color name="red_dark">#B50000</color>
 </resources>

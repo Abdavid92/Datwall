@@ -32,12 +32,17 @@ class TrafficRegistration @Inject constructor(
     private val watcher: RxWatcher
 ) : CoroutineScope {
 
-    private val mainJob = Job()
+    private var isRegistered = false
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + mainJob
+        get() = Dispatchers.IO
 
     private var running = false
+
+    private var currentJob: Job? = null
+
+    private var mainJob: Job? = null
+
 
     /**
      * Tiempo de Inicio que se usará a partir de Android 6 con NetworkStatsManager para comenzar
@@ -62,42 +67,51 @@ class TrafficRegistration @Inject constructor(
      */
     private var lastTime = 0L
 
-    fun start() {
-        if (!running) {
-            running = true
 
-            launch {
+    fun register() {
+        if (!isRegistered) {
+            isRegistered = true
+            mainJob = launch {
                 appRepository.flow().collect {
                     apps = it
                 }
             }
+        }
+    }
 
-            launch {
+    fun unregister() {
+        if (isRegistered) {
+            isRegistered = false
+            stop()
+            mainJob?.cancel()
+            mainJob = null
+        }
+    }
+
+
+    fun start() {
+        if (!running && isRegistered) {
+            running = true
+
+            currentJob = launch {
+
                 watcher.bandWithFlow.collect {
 
-                    if (it.first > 0 || it.second > 0) {
-                        launch {
+                    val currentTime = System.currentTimeMillis()
 
-                            val currentTime = System.currentTimeMillis()
+                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
+                        val start = lastTime
+                        lastTime = currentTime
+                        registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
+                        registerTraffic(start)
 
-                            /*Este método se le debe pasar el currentTime como argumento porque
-                             el se demora un poco en hacer su trabajo y se pueden crear discordancias
-                             en el tiempo por esta demora.*/
-                            registerLollipopTraffic(
-                                it.first,
-                                it.second,
-                                currentTime
-                            )
+                        rxBytesLatest = 0
+                        txBytesLatest = 0
 
-                            if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
-                                val start = lastTime
-                                lastTime = currentTime
-
-                                registerTraffic(start)
-                            }
-
-                            Log.i(TAG, "Traffic registered rx: ${it.first} tx: ${it.second}")
-                        }
+                        Log.i(TAG, "Traffic registered")
+                    }else {
+                        rxBytesLatest += it.first
+                        txBytesLatest += it.second
                     }
                 }
             }
@@ -108,7 +122,8 @@ class TrafficRegistration @Inject constructor(
 
     fun stop() {
         running = false
-        mainJob.cancel()
+        currentJob?.cancel()
+        currentJob = null
     }
 
     /**
@@ -163,9 +178,9 @@ class TrafficRegistration @Inject constructor(
                     TrafficStats.getUidTxBytes(app.uid),
                     sim.id
                 ).apply {
-                    network = if (isLTE()){
+                    network = if (isLTE()) {
                         Networks.NETWORK_4G
-                    }else {
+                    } else {
                         Networks.NETWORK_3G
                     }
 
@@ -186,7 +201,7 @@ class TrafficRegistration @Inject constructor(
 
         lastTraffics = traffics.toMutableList()
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             trafficRepository.create(toRegister)
         }
 
@@ -217,5 +232,7 @@ class TrafficRegistration @Inject constructor(
 
     companion object {
         const val TAG = "TrafficRegistration"
+        private var rxBytesLatest = 0L
+        private var txBytesLatest = 0L
     }
 }

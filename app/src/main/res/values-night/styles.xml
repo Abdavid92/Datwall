@@ -1,4 +1,17 @@
 <resources>
+
+    <!--Botón primario-->
+    <style name="BaseButton.PrimaryButton">
+        <item name="android:background">@drawable/btn_primary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+
+    <!--Botón secundario-->
+    <style name="BaseButton.SecondaryButton">
+        <item name="android:background">@drawable/btn_secondary</item>
+        <item name="android:textColor">?attr/colorPrimaryVariant</item>
+    </style>
+
     <!--Estilo de los CardViews-->
     <style name="CardViewStyle" parent="CardView.Dark">
         <item name="cardCornerRadius">@dimen/card_view_radius</item>

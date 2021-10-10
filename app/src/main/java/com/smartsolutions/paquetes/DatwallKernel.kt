@@ -207,6 +207,8 @@ class DatwallKernel @Inject constructor(
     override fun setDataMobileStateOn() {
         (context as DatwallApplication).dataMobileOn = true
 
+        trafficRegistration.start()
+
         launch {
             if (FIREWALL_ON) {
                 startFirewall()
@@ -229,6 +231,8 @@ class DatwallKernel @Inject constructor(
      * */
     override fun setDataMobileStateOff() {
         (context as DatwallApplication).dataMobileOn = false
+
+        trafficRegistration.stop()
 
         if (FIREWALL_ON) {
           stopFirewall()
@@ -292,7 +296,7 @@ class DatwallKernel @Inject constructor(
         simManager.registerSubscriptionChangedListener()
 
         //Inicio el registro del tráfico de datos
-        trafficRegistration.start()
+        trafficRegistration.register()
 
         //En apis 22 o menor se registra un receiver para escuchar los cambios de redes.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -397,7 +401,7 @@ class DatwallKernel @Inject constructor(
         context.startService(Intent(context, DatwallService::class.java)
             .setAction(DatwallService.ACTION_STOP))
 
-        trafficRegistration.stop()
+        trafficRegistration.unregister()
         stopBubbleFloating()
         stopFirewall()
     }
