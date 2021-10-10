@@ -408,7 +408,7 @@ class DatwallKernel @Inject constructor(
 
     private suspend fun startFirewall() {
         if (activationManager.canWork().first) {
-            if (!firewallHelper.startFirewallService())
+            if (firewallHelper.startFirewallService() != null)
                 throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
         }
     }

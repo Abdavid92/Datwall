@@ -134,6 +134,10 @@ class App(
         return "$access$tempAccess".toLong()
     }
 
+    override fun toString(): String {
+        return "$name - $packageName"
+    }
+
     class TrafficTypeConverter {
 
         @TypeConverter

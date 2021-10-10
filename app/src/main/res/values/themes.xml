@@ -5,7 +5,7 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_medium</item>
         <item name="colorPrimaryVariant">@color/purple_dark</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/yellow_medium</item>
         <item name="colorSecondaryVariant">@color/yellow_dark</item>
@@ -86,5 +86,13 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/red_medium</item>
         <item name="colorSecondaryVariant">@color/red_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.Transparent.AskDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@style/Animation.AppCompat.Dialog</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+
     </style>
 </resources>

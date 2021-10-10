@@ -47,9 +47,9 @@ class FirewallControls(
                     )
 
                     viewModel.appsData.observe(activity) {
-                        binding.allowedApps.text = activity.getString(R.string.allowed_apps, it[0])
-                        binding.blockedApps.text = activity.getString(R.string.blocked_apps, it[1])
-                        binding.allApps.text = activity.getString(R.string.all_apps, it[2])
+                        binding.allowedAppsValue.text = it[0].toString()
+                        binding.blockedAppsValue.text = it[1].toString()
+                        binding.allAppsValue.text = it[2].toString()
                     }
                 }
 
@@ -76,6 +76,9 @@ class FirewallControls(
         binding.allowedApps.visibility = View.INVISIBLE
         binding.blockedApps.visibility = View.INVISIBLE
         binding.allApps.visibility = View.INVISIBLE
+        binding.allowedAppsValue.visibility = View.INVISIBLE
+        binding.blockedAppsValue.visibility = View.INVISIBLE
+        binding.allowedAppsValue.visibility = View.INVISIBLE
     }
 
     private fun setTransitionNames() {

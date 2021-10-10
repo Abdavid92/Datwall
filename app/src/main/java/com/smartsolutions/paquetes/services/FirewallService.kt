@@ -1,9 +1,13 @@
 package com.smartsolutions.paquetes.services
 
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
 import android.net.VpnService
+import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.abdavid92.vpncore.*
 import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
@@ -11,7 +15,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.ui.MainActivity
+import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,18 +29,18 @@ import java.net.Socket
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+private const val TAG = "FirewallService"
+
 /**
  * Servicio del cortafuegos.
  * */
 @AndroidEntryPoint
 class FirewallService : VpnService(), IProtectSocket, IObserverPacket, CoroutineScope {
 
-    private val TAG = "FirewallService"
-
     private val job = Job()
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = Dispatchers.Default + job
 
     /**
      * Conexión del vpn
@@ -48,7 +52,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
      * */
     private var vpnConnectionThread: Thread? = null
 
-    private var enabledDynamicFirewall = false
+    private var lastApp: String? = null
 
     /**
      * Repositorio de aplicaciones
@@ -65,15 +69,12 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     override fun onCreate() {
         super.onCreate()
 
+        launchNotification()
+
         //Configuración extra del vpn
         vpnConnection = BasicVpnConnection(this)
             .setSessionName(getString(R.string.app_name))
-            .setPendingIntent(PendingIntent.getActivity(
-                this,
-                FIREWALL_SERVICE_REQUEST_CODE,
-                Intent(this, MainActivity::class.java),
-                PendingIntent.FLAG_UPDATE_CURRENT
-            ))
+            .setPendingIntent(getLaunchPendingIntent())
 
         vpnConnection.subscribe(this)
 
@@ -83,7 +84,6 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
         vpnConnectionThread = Thread(vpnConnection)
 
-        launchNotification()
         registerFlows()
     }
 
@@ -101,11 +101,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             }
         }
 
-        //Inicio el vpn
-        if (!vpnConnection.isConnected)
-            vpnConnectionThread?.start()
-
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
     override fun observe(packet: Packet) {
@@ -114,19 +110,18 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     }
 
     private fun registerFlows() {
-        launch {
-            dataStore.data.collect {
-                enabledDynamicFirewall = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] ?: false
-            }
-        }
-
         observeAppList()
         observeForegroundApp()
     }
 
     private fun observeAppList() {
-        launch {
+        launch(Dispatchers.IO) {
             appRepository.flow().collect {
+
+                //Inicio el vpn
+                if (!vpnConnection.isConnected)
+                    vpnConnectionThread?.start()
+
                 vpnConnection.setAllowedPackageNames(it.filter { app ->
                     app.access || app.tempAccess
                 }.map { transformApp ->
@@ -137,6 +132,15 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     }
 
     private fun observeForegroundApp() {
+
+        var dynamicMode = false
+
+        launch {
+            dataStore.data.collect {
+                dynamicMode = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] == true
+            }
+        }
+
         launch {
             watcher.currentAppFlow.collect {
                 //Aplicación en primer plano
@@ -144,28 +148,39 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                 //Aplicación que dejó el primer plano
                 val delayApp = it.second
 
-                //Si la aplicación tiene acceso en primer plano
-                if (foregroundApp.foregroundAccess) {
-                    //Concedo acceso temporal y actualiza en el repostorio
-                    foregroundApp.tempAccess = true
-                    appRepository.update(foregroundApp)
+                if (dynamicMode &&
+                    foregroundApp.packageName != lastApp &&
+                    foregroundApp.packageName != packageName) {
 
-                /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
-                 * y se puede preguntar por ella
-                 * */
-                } else if (
-                    !foregroundApp.access &&
-                    foregroundApp.executable &&
-                    foregroundApp.internet &&
-                    foregroundApp.ask) {
-                    //Lanzo el AskActivity con la aplicación
-                    val askIntent = Intent(this@FirewallService, AskActivity::class.java)
-                        .putExtra(AskActivity.EXTRA_FOREGROUND_APP, foregroundApp)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    lastApp = foregroundApp.packageName
 
-                    startActivity(askIntent)
-                } else {
-                    Log.i(TAG, "observeForegroundApp: Empty action for ${foregroundApp.packageName}")
+                    //Si la aplicación tiene acceso en primer plano
+                    if (foregroundApp.foregroundAccess) {
+                        //Concedo acceso temporal y actualizo en el repostorio
+                        foregroundApp.tempAccess = true
+                        appRepository.update(foregroundApp)
+
+                 /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
+                  * y se puede preguntar por ella
+                  * */
+                    } else if (
+                        !foregroundApp.access &&
+                        foregroundApp.executable &&
+                        foregroundApp.internet &&
+                        foregroundApp.ask
+                    ) {
+                        //Lanzo el AskActivity con la aplicación
+                        val askIntent = Intent(this@FirewallService, AskActivity::class.java)
+                            .putExtra(AskActivity.EXTRA_FOREGROUND_APP, foregroundApp)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                        startActivity(askIntent)
+                    } else {
+                        Log.i(
+                            TAG,
+                            "observeForegroundApp: Empty action for ${foregroundApp.packageName}"
+                        )
+                    }
                 }
 
                 delayApp?.let { app ->
@@ -198,7 +213,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         job.cancel()
 
         //Detengo el servicio en primer plano
-        stopForeground(true)
+        stopForeground(false)
         stopSelf()
     }
 
@@ -208,16 +223,26 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     private fun launchNotification() {
         startForeground(NotificationHelper.MAIN_NOTIFICATION_ID,
             notificationHelper.buildNotification(NotificationHelper.MAIN_CHANNEL_ID).apply {
-                //TODO: Ícono temporal
-                setSmallIcon(R.mipmap.ic_launcher_round)
+                setSmallIcon(R.drawable.ic_main_notification)
                 setContentTitle(getString(R.string.app_name))
                 setContentText(getString(R.string.firewall_service_running))
         }.build())
     }
 
     override fun onRevoke() {
+        val notificationManager = ContextCompat
+            .getSystemService(this, NotificationManager::class.java)
+
+        val notification = NotificationCompat.Builder(this, NotificationHelper.ALERT_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_main_notification)
+            .setContentTitle(getString(R.string.firewall_force_stop))
+            .setContentText(getString(R.string.firewall_force_stop_summary))
+            .setStyle(NotificationCompat.BigTextStyle())
+            .setContentIntent(getLaunchPendingIntent())
+
+        notificationManager?.notify(NotificationHelper.ALERT_NOTIFICATION_ID, notification.build())
+
         stopService()
-        //TODO: Notificar que se murió el vpn.
     }
 
     override fun protectSocket(socket: Socket) {
@@ -230,6 +255,30 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
     override fun protectSocket(socket: DatagramSocket) {
         this.protect(socket)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (vpnConnectionThread?.isInterrupted == false)
+            vpnConnectionThread?.interrupt()
+
+        vpnConnectionThread = null
+
+        job.cancel()
+    }
+
+    private fun getLaunchPendingIntent(): PendingIntent {
+        return PendingIntent.getActivity(
+            this,
+            FIREWALL_SERVICE_REQUEST_CODE,
+            Intent(this, SplashActivity::class.java),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
     }
 
     companion object {

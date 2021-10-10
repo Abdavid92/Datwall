@@ -167,6 +167,7 @@ object PreferencesKeys {
      *
      * @return [Preferences.Key]
      * */
+    @Suppress("UNCHECKED_CAST")
     fun <T> findPreferenceByKey(key: String): Preferences.Key<T>? {
         this.javaClass.declaredFields.forEach {
 

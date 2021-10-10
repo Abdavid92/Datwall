@@ -3,7 +3,7 @@
     android:shape="rectangle">
     <size android:height="@dimen/min_height_button"
         android:width="@dimen/min_width_button" />
-    <solid android:color="?android:attr/windowBackground" />
+    <solid android:color="?android:attr/colorBackground" />
     <corners android:radius="25dp" />
     <stroke android:color="?attr/colorPrimaryVariant"
         android:width="2dp" />

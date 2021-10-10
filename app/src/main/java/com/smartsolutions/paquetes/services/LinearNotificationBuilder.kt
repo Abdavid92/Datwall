@@ -27,11 +27,12 @@ class LinearNotificationBuilder(
 ) : NotificationBuilder(context, channelId) {
 
     init {
-        setSmallIcon(R.mipmap.ic_launcher_foreground)
+        setSmallIcon(R.drawable.ic_main_notification)
         setContentTitle(context.getString(R.string.empty_noti_title))
         setContentText(context.getString(R.string.empty_noti_text))
         setContentIntent(getSplashActivityPendingIntent(context))
         setOngoing(true)
+        setColorized(true)
         color = getBackgroundColor()
     }
 
