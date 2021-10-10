@@ -79,7 +79,7 @@ class FirewallHelper @Inject constructor(
     fun startFirewall(): Intent? {
         establishFirewallEnabled(true)
 
-        val intent = VpnService.prepare(context)
+        var intent: Intent? = null
 
         val application = context.applicationContext as DatwallApplication
 
@@ -87,10 +87,13 @@ class FirewallHelper @Inject constructor(
             Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
 
             launch {
-                if (intent == null && activationManager.canWork().first) {
-                    startFirewallService()
+                if (activationManager.canWork().first) {
+                    intent = startFirewallService()
+
+                    if (intent != null)
+                        Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
                 } else {
-                    Log.i(TAG, "startVpn: Can not have permission by start the firewall.")
+                    Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
                 }
             }
         } else {
@@ -118,17 +121,16 @@ class FirewallHelper @Inject constructor(
      * ningún cambio en el dataStore y no revisa que los datos móbiles
      * estén encendidos.
      *
-     * @return `true` si se pudo encender el cortafuegos.
+     * @return [Intent] si el cortafuegos no tiene permiso para encender
      * */
-    fun startFirewallService(): Boolean {
+    fun startFirewallService(): Intent? {
+        val intent: Intent? = VpnService.prepare(context)
 
-        return try {
+        if (intent == null) {
             context.startService(Intent(context, FirewallService::class.java))
-
-            true
-        } catch (e: Exception) {
-            false
         }
+
+        return intent
     }
 
     /**

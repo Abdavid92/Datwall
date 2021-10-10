@@ -4,11 +4,8 @@ import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
@@ -24,10 +21,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -73,6 +66,8 @@ class DatwallService : Service(), CoroutineScope {
 
     private var showSecondaryNotifications = true
 
+    private val notificationMetadata = mutableMapOf<DataBytes.DataType, Boolean>()
+
     @Inject
     lateinit var userDataBytesRepository: IUserDataBytesRepository
 
@@ -84,9 +79,6 @@ class DatwallService : Service(), CoroutineScope {
 
     @Inject
     lateinit var watcher: RxWatcher
-
-    @Inject
-    lateinit var gson: Gson
 
     private lateinit var watcherThread: Thread
 
@@ -113,7 +105,7 @@ class DatwallService : Service(), CoroutineScope {
             mNotificationBuilder.build()
         )
 
-        //kernel.tryRestoreState()
+        kernel.tryRestoreState()
 
         registerBandWithCollector()
         registerUserDataBytesCollector()
@@ -239,58 +231,58 @@ class DatwallService : Service(), CoroutineScope {
                 //Este es el porcentaje establecido para lanzar la notificación
                 val percent = percents[userDataBytes.type.ordinal]
 
-                /*Si el porcentaje configurado es cero significa que no se debe lanzar la notificación.*/
+                /* Si el porcentaje configurado es cero significa que no se debe lanzar
+                 * la notificación.*/
                 if (percent > 0) {
 
-                    /*Estos son los bytes guardados desde la última vez que se consideró lanzar
-                    * una notificación*/
-                    val metadata = getNotificationMetadata()[userDataBytes.type]
-
-                    if (BuildConfig.DEBUG && metadata == null)
-                        Log.i(
-                            TAG,
-                            "sendDataNotifications: metadata is null with ${userDataBytes.type}"
-                        )
-
-                    //Porcentaje con precisión decimal para saber exactamente por donde va el consumo
+                    //Porcentaje para saber exactamente por donde va el consumo
                     val userPercent =
-                        100f * userDataBytes.bytes.toFloat() / userDataBytes.initialBytes.toFloat()
+                        (100f * userDataBytes.bytes / userDataBytes.initialBytes).toInt()
 
-                    /* Si metadata es null significa que todavía no se ha lanzado ninguna notificación
-                    * para este userDataBytes y si metadata es menor que los bytes significa que el userDataBytes
-                    * ha sido reabastecido. En ese caso se debe considerar lanzar la notificación.
-                    * Si el porcentaje del userDataBytes es exactamente igual al porcentaje
-                    * configurado se lanza la notificación.*/
-                    if (userPercent == percent.toFloat() && (metadata == null || metadata < userDataBytes.bytes)) {
-                        val notification = NotificationCompat.Builder(
-                            this,
-                            NotificationHelper.ALERT_CHANNEL_ID
-                        ).setSmallIcon(R.drawable.splash_screen)
-                            .setContentTitle(getString(R.string.low_data_notification))
-                            .setContentIntent(
-                                NotificationBuilder.getSplashActivityPendingIntent(
-                                    this
-                                )
-                            )
-                            .setStyle(
-                                NotificationCompat.BigTextStyle()
-                                    .bigText(
-                                        getString(
-                                            R.string.low_data_notification_text,
-                                            NotificationBuilder.getDataTitle(userDataBytes.type),
-                                            percent
-                                        )
+                    /* Si el porcentaje del userDataBytes es igual al porcentaje
+                     * configurado se considera lanzar la notificación.*/
+                    if (userPercent == percent) {
+
+                        /*Si los metadatos de la notificación son falsos significa que no se ha
+                         * lanzado todavía.*/
+                        if (notificationMetadata[userDataBytes.type] != true) {
+                            val notification = NotificationCompat.Builder(
+                                this,
+                                NotificationHelper.ALERT_CHANNEL_ID
+                            ).setSmallIcon(R.drawable.splash_screen)
+                                .setContentTitle(getString(R.string.low_data_notification))
+                                .setContentIntent(
+                                    NotificationBuilder.getSplashActivityPendingIntent(
+                                        this
                                     )
+                                )
+                                .setStyle(
+                                    NotificationCompat.BigTextStyle()
+                                        .bigText(
+                                            getString(
+                                                R.string.low_data_notification_text,
+                                                NotificationBuilder.getDataTitle(userDataBytes.type),
+                                                percent
+                                            )
+                                        )
+                                )
+                                .build()
+
+                            mNotificationManager.notify(
+                                NotificationHelper.ALERT_NOTIFICATION_ID,
+                                notification
                             )
-                            .build()
+                        }
 
-                        mNotificationManager.notify(
-                            NotificationHelper.ALERT_NOTIFICATION_ID,
-                            notification
-                        )
+                        /* Establezco los metadatos en true para saber que ya se lanzó la
+                         * notificación. Esto será así mientras los porcentajes coincidan.
+                         * Así se evita lanzar la notificación varias veces.*/
+                        notificationMetadata[userDataBytes.type] = true
+                    } else {
+                        /*Cuando los porcentajes no coinciden establezco los metadatos en false
+                         * para volver la lanzar la notificación cuando vuelvan a coincidir.*/
+                        notificationMetadata[userDataBytes.type] = false
                     }
-
-                    setNotificationMetadata(userDataBytes.type, userDataBytes.bytes)
                 }
             }
         }
@@ -360,53 +352,6 @@ class DatwallService : Service(), CoroutineScope {
         }
 
         return uiHelper.getResource(name) ?: R.mipmap.ic_launcher_foreground
-    }
-
-    private fun setNotificationMetadata(type: DataBytes.DataType, value: Long) {
-        val metadata = getNotificationMetadata()
-
-        metadata[type] = value
-
-        val file = File(cacheDir, "notification_metadata")
-
-        if (!file.exists() && !file.createNewFile())
-            throw IOException("Can not create notification_metadata file")
-
-        runCatching {
-            val json = gson.toJson(metadata)
-
-            val output = FileOutputStream(file)
-
-            output.write(json.toByteArray())
-
-            output.flush()
-            output.close()
-        }
-    }
-
-    /**
-     * Metadatos de las notificaciones que se han lanzado que se usan
-     * para decidir si se deben volver a lanzar.
-     * */
-    private fun getNotificationMetadata(): MutableMap<DataBytes.DataType, Long> {
-        val file = File(cacheDir, "notification_metadata")
-
-        if (!file.exists())
-            return mutableMapOf()
-
-        try {
-            val json = FileInputStream(file)
-                .bufferedReader()
-                .readText()
-
-            val typeToken = object : TypeToken<MutableMap<DataBytes.DataType, Long>>() {}.type
-
-            return gson.fromJson(json, typeToken)
-        } catch (e: Exception) {
-
-        }
-
-        return mutableMapOf()
     }
 
     override fun onDestroy() {

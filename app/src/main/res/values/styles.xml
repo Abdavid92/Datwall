@@ -16,7 +16,7 @@
     <!--Botón secundario-->
     <style name="BaseButton.SecondaryButton">
         <item name="android:background">@drawable/btn_secondary</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorPrimaryVariant</item>
     </style>
 
     <!--Botón de alerta-->

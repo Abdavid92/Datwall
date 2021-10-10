@@ -403,10 +403,13 @@ class DatwallKernel @Inject constructor(
     }
 
     private suspend fun startFirewall() {
-        if (activationManager.canWork().first) {
-            if (!firewallHelper.startFirewallService())
+        /*if (activationManager.canWork().first) {
+            if (firewallHelper.startFirewallService() != null)
                 throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
-        }
+        }*/
+        //TODO: Quitar esto y dejar lo de arriba
+        if (firewallHelper.startFirewallService() != null)
+            throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
     }
 
     private suspend fun startBubbleFloating(){

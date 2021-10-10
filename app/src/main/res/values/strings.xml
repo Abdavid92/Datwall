@@ -176,10 +176,10 @@
     <string name="app_more_consume">App de más consumo</string>
     <string name="query_bonus">Consultar bono</string>
     <string name="error_starting_firewall_for_all_access">No se puede encender el cortafuegos si todas las aplicaciones tienen acceso.</string>
-    <string name="allowed_apps">Apps permitidas %d</string>
-    <string name="blocked_apps">Apps bloqueadas %d</string>
-    <string name="all_apps">Total de apps %d</string>
-    <string name="searching">Buscando...</string>
+    <string name="allowed_apps">Apps permitidas:</string>
+    <string name="blocked_apps">Apps bloqueadas:</string>
+    <string name="all_apps">Total de apps:</string>
+    <string name="searching">Buscando…</string>
     <string name="failed_find_app_more_consume">No se encontró ninguna app.</string>
     <string name="query_mb">Consultar megas</string>
     <string name="date_exp_others">%s y otros expiran el %s</string>
@@ -281,4 +281,10 @@
     <string name="find_settings_dual_sim">Busque la configuración Dual Sim</string>
     <string name="cant_not_open">No se pudo abrir</string>
     <string name="change_default_sim_settings">Cambiar Predeterminada en Ajustes</string>
+    <string name="btn_block_text">Bloquear</string>
+    <string name="btn_allow_text">Permitir</string>
+    <string name="remember_election_text">Recordar elección</string>
+    <string name="info_text">¿Desea permtitir que esta aplicación use los datos móviles por ahora?</string>
+    <string name="firewall_force_stop">Cortafuegos detenido</string>
+    <string name="firewall_force_stop_summary">Se ha forzado el apagado del cortafuegos. Esto podría causar fuga de datos.</string>
 </resources>

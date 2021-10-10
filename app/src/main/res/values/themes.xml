@@ -66,4 +66,12 @@
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
     </style>
+
+    <style name="Theme.Datwall.Transparent.AskDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@style/Animation.AppCompat.Dialog</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+
+    </style>
 </resources>
