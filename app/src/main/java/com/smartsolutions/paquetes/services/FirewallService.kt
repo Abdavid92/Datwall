@@ -119,8 +119,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             appRepository.flow().collect {
 
                 //Inicio el vpn
-                /*if (!vpnConnection.isConnected)
-                    vpnConnectionThread?.start()*/
+                if (!vpnConnection.isConnected)
+                    vpnConnectionThread?.start()
 
                 vpnConnection.setAllowedPackageNames(it.filter { app ->
                     app.access || app.tempAccess
