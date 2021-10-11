@@ -64,8 +64,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
             setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it, childFragmentManager)
 
-            //TODO temporal
-            if (it.size > 1){
+            if (it.size <= 1){
                 binding.tabs.visibility = View.GONE
             }else {
                 binding.tabs.visibility = View.VISIBLE

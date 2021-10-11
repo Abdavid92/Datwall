@@ -69,6 +69,7 @@ class PackagesConfigurationFragment @Inject constructor(
         binding.btnContinue.setOnClickListener {
             it.isEnabled = false
             binding.progressContinue.visibility = View.VISIBLE
+
             complete()
         }
 

@@ -119,6 +119,7 @@ dependencies {
     implementation 'com.stephentuso:welcome:1.4.1'
     implementation 'org.apache:commons-lang:2.4'
     implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
+    implementation 'com.github.razir.progressbutton:progressbutton:2.1.0'
 
     //Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"

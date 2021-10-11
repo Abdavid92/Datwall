@@ -35,8 +35,6 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
             if (!WelcomeHelper(this, PresentationActivity::class.java)
                     .show(savedInstanceState)) {
 
-                //viewModel.main(this)
-
                 viewModel.launchActivity().observe(this) {
                     startActivity(Intent(this, it))
                     finish()
@@ -51,7 +49,7 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST) {
-            //viewModel.main(this)
+
             viewModel.launchActivity().observe(this) {
                 startActivity(Intent(this, it))
                 finish()

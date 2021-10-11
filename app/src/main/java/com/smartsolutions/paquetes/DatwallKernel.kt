@@ -18,7 +18,6 @@ import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
-import com.smartsolutions.paquetes.ui.PresentationActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
@@ -27,7 +26,9 @@ import com.smartsolutions.paquetes.watcher.*
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -67,7 +68,7 @@ class DatwallKernel @Inject constructor(
 
     }
 
-    val launchActivity = MutableLiveData<Class<out Activity>>()
+    val nextActivity = MutableLiveData<Class<out Activity>>()
 
     init {
         launch {
@@ -80,10 +81,9 @@ class DatwallKernel @Inject constructor(
     }
 
     /**
-     * Función principal que maqueta e inicia todos los servicios de la aplicación
-     * y la actividad principal si está en primer plano.
+     * Función principal que maqueta e inicia todos los servicios de la aplicación.
      * */
-    fun main(activity: Activity? = null) {
+    suspend fun main() {
 
         //Crea los canales de notificaciones
         createNotificationChannels()
@@ -91,10 +91,58 @@ class DatwallKernel @Inject constructor(
         //Restablece la configuración de la versión anterior
         setLegacyConfiguration()
 
-        if (isInForeground()/*activity != null*/) {
-            mainInForeground(activity)
+        //Crea o actualiza los paquetes de datos
+        createOrUpdatePackages()
+
+        when {
+            //Verifica los permisos
+            missingSomePermission() -> {
+                openPermissionsActivity()
+                considerNotify(
+                    context.getString(R.string.missing_permmissions_title_notification),
+                    context.getString(R.string.missing_permmissions_description_notification)
+                )
+            }
+            //Verfica el registro y la activación
+            !isRegisteredAndValid() -> {
+                openActivationActivity()
+                considerNotify(
+                    context.getString(R.string.generic_needed_action_title_notification),
+                    context.getString(R.string.generic_needed_action_description_notification)
+                )
+            }
+            //Verfica las configuraciones iniciales
+            missingSomeConfiguration() -> {
+                openSetupActivity()
+                considerNotify(
+                    context.getString(R.string.missing_configuration_title_notification),
+                    context.getString(R.string.missing_configuration_description_notification)
+                )
+            }
+            else -> {
+                //Sincroniza la base de datos y enciende el rastreador
+                synchronizeDatabase()
+                //Inicia los servicios
+                startServices()
+                //Registra los broadcasts y los callbacks
+                registerBroadcastsAndCallbacks()
+                //Registra los workers
+                registerWorkers()
+                //Inicia la actividad principal
+                startMainActivity()
+            }
+        }
+
+        /*if (isInForeground()/*activity != null*/) {
+            mainInForeground()
         } else {
             mainInBackground()
+        }*/
+    }
+
+    private fun considerNotify(title: String, description: String) {
+        if (!isInForeground()) {
+            notify(title, description)
         }
     }
 
@@ -102,73 +150,67 @@ class DatwallKernel @Inject constructor(
      * Función principal que maqueta e inicia todos los servicios de la aplicación
      * y la actividad principal.
      * */
-    private fun mainInForeground(activity: Activity?) {
+    private suspend fun mainInForeground() {
 
-        launch {
-            //Crea o actualiza los paquetes de datos
-            createOrUpdatePackages()
+        //Crea o actualiza los paquetes de datos
+        createOrUpdatePackages()
 
-            when {
-                //Verifica los permisos
-                missingSomePermission() -> {
-                    openPermissionsActivity()
-                }
-                //Verfica el registro y la activación
-                !isRegisteredAndValid() -> {
-                    openActivationActivity()
-                }
-                //Verfica las configuraciones iniciales
-                missingSomeConfiguration() -> {
-                    openSetupActivity()
-                }
-                else -> {
-                    //Sincroniza la base de datos y enciende el rastreador
-                    synchronizeDatabase()
-                    //Inicia los servicios
-                    startServices()
-                    //Registra los broadcasts y los callbacks
-                    registerBroadcastsAndCallbacks()
-                    //Registra los workers
-                    registerWorkers()
-                    //Inicia la actividad principal
-                    startMainActivity()
-                }
+        when {
+            //Verifica los permisos
+            missingSomePermission() -> {
+                openPermissionsActivity()
             }
-            //Cierra la actividad anterior
-            activity?.finish()
+            //Verfica el registro y la activación
+            !isRegisteredAndValid() -> {
+                openActivationActivity()
+            }
+            //Verfica las configuraciones iniciales
+            missingSomeConfiguration() -> {
+                openSetupActivity()
+            }
+            else -> {
+                //Sincroniza la base de datos y enciende el rastreador
+                synchronizeDatabase()
+                //Inicia los servicios
+                startServices()
+                //Registra los broadcasts y los callbacks
+                registerBroadcastsAndCallbacks()
+                //Registra los workers
+                registerWorkers()
+                //Inicia la actividad principal
+                startMainActivity()
+            }
         }
     }
 
-    private fun mainInBackground() {
+    private suspend fun mainInBackground() {
 
-        launch {
-            createOrUpdatePackages()
+        createOrUpdatePackages()
 
-            when {
-                missingSomePermission() -> {
-                    notify(
-                        context.getString(R.string.missing_permmissions_title_notification),
-                        context.getString(R.string.missing_permmissions_description_notification)
-                    )
-                }
-                !isRegisteredAndValid() -> {
-                    notify(
-                        context.getString(R.string.generic_needed_action_title_notification),
-                        context.getString(R.string.generic_needed_action_description_notification)
-                    )
-                }
-                missingSomeConfiguration() -> {
-                    notify(
-                        context.getString(R.string.missing_configuration_title_notification),
-                        context.getString(R.string.missing_configuration_description_notification)
-                    )
-                }
-                else -> {
-                    synchronizeDatabase()
-                    startServices()
-                    registerBroadcastsAndCallbacks()
-                    registerWorkers()
-                }
+        when {
+            missingSomePermission() -> {
+                notify(
+                    context.getString(R.string.missing_permmissions_title_notification),
+                    context.getString(R.string.missing_permmissions_description_notification)
+                )
+            }
+            !isRegisteredAndValid() -> {
+                notify(
+                    context.getString(R.string.generic_needed_action_title_notification),
+                    context.getString(R.string.generic_needed_action_description_notification)
+                )
+            }
+            missingSomeConfiguration() -> {
+                notify(
+                    context.getString(R.string.missing_configuration_title_notification),
+                    context.getString(R.string.missing_configuration_description_notification)
+                )
+            }
+            else -> {
+                synchronizeDatabase()
+                startServices()
+                registerBroadcastsAndCallbacks()
+                registerWorkers()
             }
         }
     }
@@ -247,7 +289,7 @@ class DatwallKernel @Inject constructor(
                 status != IActivationManager.ApplicationStatuses.TooMuchOld
     }
 
-    private fun openActivationActivity() {
+    private suspend fun openActivationActivity() {
         openActivity(ActivationActivity::class.java)
     }
 
@@ -259,7 +301,7 @@ class DatwallKernel @Inject constructor(
             .isNotEmpty()
     }
 
-    private fun openSetupActivity() {
+    private suspend fun openSetupActivity() {
         openActivity(SetupActivity::class.java)
     }
 
@@ -273,7 +315,7 @@ class DatwallKernel @Inject constructor(
     /**
      * Pide los permisos faltantes.
      * */
-    private fun openPermissionsActivity() {
+    private suspend fun openPermissionsActivity() {
         openActivity(PermissionsActivity::class.java)
     }
 
@@ -360,7 +402,7 @@ class DatwallKernel @Inject constructor(
     /**
      * Inicia la actividad principal.
      * */
-    private fun startMainActivity() {
+    private suspend fun startMainActivity() {
         openActivity(MainActivity::class.java)
     }
 
@@ -446,8 +488,10 @@ class DatwallKernel @Inject constructor(
         firewallHelper.stopFirewallService()
     }
 
-    private fun openActivity(activity: Class<out Activity>) {
-        launchActivity.postValue(activity)
+    private suspend fun openActivity(activity: Class<out Activity>) {
+        withContext(Dispatchers.Main) {
+            nextActivity.value = activity
+        }
         /*ContextCompat.startActivity(
             context,
             Intent(context, activity)
@@ -481,7 +525,8 @@ class DatwallKernel @Inject constructor(
                         context,
                         0,
                         Intent(context, SplashActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         } else {

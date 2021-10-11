@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.setup
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -19,6 +20,11 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup), OnCompletedList
         viewModel.configurations.observe(this) {
             nextOrComplete()
         }
+
+        viewModel.nextActivity().observe(this) {
+            startActivity(Intent(this, it))
+            finish()
+        }
     }
 
     override fun onCompleted() {
@@ -31,7 +37,8 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup), OnCompletedList
                 .replace(R.id.setup_container, viewModel.nextConfiguration()!!.fragment.get())
                 .commit()
         } else {
-            viewModel.continueWithRun(this)
+            //viewModel.continueWithRun(this)
+            viewModel.next()
         }
     }
 }

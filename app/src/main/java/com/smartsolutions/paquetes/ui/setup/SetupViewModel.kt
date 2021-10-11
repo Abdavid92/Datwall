@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.models.Configuration
+import com.smartsolutions.paquetes.ui.NextViewModelDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,8 +16,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SetupViewModel @Inject constructor(
     private val configurationManager: IConfigurationManager,
-    private val kernel: DatwallKernel
+    kernel: DatwallKernel
 ) : ViewModel() {
+
+    private val nextViewModelDelegate = NextViewModelDelegate(kernel, viewModelScope)
 
     private var index = 0
 
@@ -44,7 +47,11 @@ class SetupViewModel @Inject constructor(
                 false
     }
 
-    fun continueWithRun(activity: SetupActivity) {
+    fun nextActivity() = nextViewModelDelegate.nextActivity()
+
+    fun next() = nextViewModelDelegate.next()
+
+    /*fun continueWithRun(activity: SetupActivity) {
         kernel.main(activity)
-    }
+    }*/
 }

@@ -221,12 +221,15 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
      * Crea la notificación persistente del servicio.
      * */
     private fun launchNotification() {
-        startForeground(NotificationHelper.MAIN_NOTIFICATION_ID,
-            notificationHelper.buildNotification(NotificationHelper.MAIN_CHANNEL_ID).apply {
-                setSmallIcon(R.drawable.ic_main_notification)
-                setContentTitle(getString(R.string.app_name))
-                setContentText(getString(R.string.firewall_service_running))
-        }.build())
+        startForeground(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
+            NotificationCompat.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_main_notification)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.firewall_service_running))
+                .setContentIntent(getLaunchPendingIntent())
+                .build()
+        )
     }
 
     override fun onRevoke() {
@@ -272,7 +275,9 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         return PendingIntent.getActivity(
             this,
             FIREWALL_SERVICE_REQUEST_CODE,
-            Intent(this, SplashActivity::class.java),
+            Intent(this, SplashActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             } else {

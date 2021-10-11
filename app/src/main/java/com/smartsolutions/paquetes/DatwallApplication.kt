@@ -14,6 +14,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -24,7 +25,10 @@ import kotlin.coroutines.CoroutineContext
  * callbacks y sembrar la base de datos.
  * */
 @HiltAndroidApp
-class DatwallApplication : Application(), Configuration.Provider {
+class DatwallApplication : Application(), Configuration.Provider, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
@@ -71,7 +75,9 @@ class DatwallApplication : Application(), Configuration.Provider {
             AppCompatDelegate.setDefaultNightMode(themeMode)
         }
 
-        kernel.main()
+        launch {
+            kernel.main()
+        }
     }
 
     override fun getWorkManagerConfiguration() =

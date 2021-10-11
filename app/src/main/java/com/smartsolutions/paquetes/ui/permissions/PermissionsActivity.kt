@@ -30,6 +30,11 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
         steppers = findViewById(R.id.steppers)
 
         steppers.stepperAdapter = StepperAdapter(viewModel.permissions, this)
+
+        viewModel.nextActivity().observe(this) {
+            startActivity(Intent(this, it))
+            finish()
+        }
     }
 
     fun nextStep() {
@@ -37,7 +42,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
         if (steppers.canNext())
             steppers.nextStep()
         else {
-            viewModel.finish(this)
+            viewModel.next()
         }
     }
 
