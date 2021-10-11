@@ -115,6 +115,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:text="@string/btn_continue"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:enabled="@{network != Networks.NETWORK_NONE}" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

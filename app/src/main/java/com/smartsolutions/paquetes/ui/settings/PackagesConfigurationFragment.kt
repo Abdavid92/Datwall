@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,10 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import com.github.razir.progressbutton.attachTextChangeAnimator
+import com.github.razir.progressbutton.bindProgressButton
+import com.github.razir.progressbutton.hideProgress
+import com.github.razir.progressbutton.showProgress
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
@@ -42,33 +47,43 @@ class PackagesConfigurationFragment @Inject constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-            binding.btnStartConfiguration.setOnClickListener {
-                if (binding.automatic == true) {
-                    viewModel.configureDataPackages(
-                        this,
-                        childFragmentManager
-                    )
-                } else {
-                    val network = when (binding.simNetwork.selectedItemPosition) {
-                        1 -> Networks.NETWORK_3G_4G
-                        2 -> Networks.NETWORK_3G
-                        else -> Networks.NETWORK_NONE
-                    }
+        viewLifecycleOwner.bindProgressButton(binding.btnContinue)
+        binding.btnContinue.attachTextChangeAnimator()
 
-                    if (network != Networks.NETWORK_NONE) {
-                        viewModel.setManualConfiguration(network)
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            R.string.invalid_network_option,
-                            Toast.LENGTH_SHORT).show()
-                    }
+        binding.btnStartConfiguration.setOnClickListener {
+            if (binding.automatic == true) {
+                viewModel.configureDataPackages(
+                    this,
+                    childFragmentManager
+                )
+            } else {
+                val network = when (binding.simNetwork.selectedItemPosition) {
+                    1 -> Networks.NETWORK_3G_4G
+                    2 -> Networks.NETWORK_3G
+                    else -> Networks.NETWORK_NONE
+                }
+
+                if (network != Networks.NETWORK_NONE) {
+                    viewModel.setManualConfiguration(network)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.invalid_network_option,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        }
 
         binding.btnContinue.setOnClickListener {
-            it.isEnabled = false
-            binding.progressContinue.visibility = View.VISIBLE
+            //it.isEnabled = false
+            //binding.progressContinue.visibility = View.VISIBLE
+            binding.btnContinue.isClickable = false
+            binding.btnContinue.showProgress {
+                buttonTextRes = R.string.loading
+                progressColor = Color.WHITE
+                textMarginPx = 4
+            }
 
             complete()
         }
