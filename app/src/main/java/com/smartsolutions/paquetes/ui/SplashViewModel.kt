@@ -20,4 +20,6 @@ class SplashViewModel @Inject constructor(
             kernel.main(activity)
         }
     }
+
+    fun launchActivity() = kernel.launchActivity
 }

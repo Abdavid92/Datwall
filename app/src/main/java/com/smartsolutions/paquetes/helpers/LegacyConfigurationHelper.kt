@@ -7,7 +7,6 @@ import com.smartsolutions.paquetes.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -40,7 +39,6 @@ class LegacyConfigurationHelper @Inject constructor(
      * @return [List] con los nombres de paquetes de las aplicaciones
      * permitidas por el cortafuegos.
      * */
-    @Deprecated("Se eliminara en próximas versiones")
     fun getLegacyRules(): List<String> {
         val db = context.openOrCreateDatabase("rules.db", Context.MODE_PRIVATE, null)
 
@@ -80,7 +78,6 @@ class LegacyConfigurationHelper @Inject constructor(
      * Establece en el SharedPreferences que la configuración
      * ya fué restaurada.
      * */
-    @Deprecated("Se eliminará en próximas versiones")
     fun setConfigurationRestored() {
         preferences.edit()
             .putBoolean(DB_CONFIGURATION_RESTORED, true)
@@ -91,7 +88,6 @@ class LegacyConfigurationHelper @Inject constructor(
      * Indica si la configuración de la base de datos
      * ya fué restaurada.
      * */
-    @Deprecated("Se eliminará en próximas versiones")
     fun isConfigurationRestored(): Boolean {
         return preferences.getBoolean(DB_CONFIGURATION_RESTORED, false)
     }
@@ -99,7 +95,6 @@ class LegacyConfigurationHelper @Inject constructor(
     /**
      * Establece en el dataStore la configuración del cortafuegos de la versión anterior.
      * */
-    @Deprecated("Se eliminará en próximas versiones")
     fun setFirewallLegacyConfiguration() {
         val preferences = context.getSharedPreferences(
             "com.smartsolutions.paquetes_preferences",
@@ -118,7 +113,6 @@ class LegacyConfigurationHelper @Inject constructor(
      * Establece en el dataStore la configuración de la burbuja
      * flotante de la versión anterior.
      * */
-    @Deprecated("Se eliminará en próximas versiones")
     fun setBubbleFloatingLegacyConfiguration() {
         val preferences = context.getSharedPreferences(
             "com.smartsolutions.paquetes_preferences",
@@ -134,8 +128,6 @@ class LegacyConfigurationHelper @Inject constructor(
     }
 
     companion object {
-
-        @Deprecated("Se eliminará en próximas versiones")
         const val DB_CONFIGURATION_RESTORED = "db_configuration_restored"
     }
 }

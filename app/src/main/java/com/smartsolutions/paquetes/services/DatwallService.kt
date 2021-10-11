@@ -3,7 +3,9 @@ package com.smartsolutions.paquetes.services
 import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Binder
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.smartsolutions.paquetes.*
@@ -16,6 +18,7 @@ import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesReposito
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.watcher.RxWatcher
+import com.smartsolutions.paquetes.watcher.TrafficRegistration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -75,12 +78,10 @@ class DatwallService : Service(), CoroutineScope {
     lateinit var simManager: ISimManager
 
     @Inject
-    lateinit var kernel: DatwallKernel
-
-    @Inject
     lateinit var watcher: RxWatcher
 
-    private lateinit var watcherThread: Thread
+    @Inject
+    lateinit var trafficRegistration: TrafficRegistration
 
     private val mNotificationManager by lazy {
         NotificationManagerCompat.from(this)
@@ -88,12 +89,14 @@ class DatwallService : Service(), CoroutineScope {
 
     private lateinit var mNotificationBuilder: NotificationBuilder
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
+    override fun onBind(intent: Intent): IBinder {
+        return DatwallBinder(this)
     }
 
     override fun onCreate() {
         super.onCreate()
+
+        Log.i(TAG, "Starting service")
 
         mNotificationBuilder = LinearNotificationBuilder(
             this,
@@ -105,15 +108,13 @@ class DatwallService : Service(), CoroutineScope {
             mNotificationBuilder.build()
         )
 
-        kernel.tryRestoreState()
-
         registerBandWithCollector()
         registerUserDataBytesCollector()
         dataStoreCollector()
 
-        watcherThread = Thread(watcher)
+        watcher.start()
 
-        watcherThread.start()
+        trafficRegistration.register()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -131,7 +132,7 @@ class DatwallService : Service(), CoroutineScope {
 
             return START_NOT_STICKY
         }
-        return START_STICKY
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -243,7 +244,7 @@ class DatwallService : Service(), CoroutineScope {
                      * configurado se considera lanzar la notificación.*/
                     if (userPercent == percent) {
 
-                        /*Si los metadatos de la notificación son falsos significa que no se ha
+                        /* Si los metadatos de la notificación son falsos significa que no se ha
                          * lanzado todavía.*/
                         if (notificationMetadata[userDataBytes.type] != true) {
                             val notification = NotificationCompat.Builder(
@@ -359,7 +360,25 @@ class DatwallService : Service(), CoroutineScope {
 
         watcher.stop()
 
+        trafficRegistration.stop()
+        trafficRegistration.unregister()
+
         super.onDestroy()
+
+        Log.i(TAG, "Service was destroyed")
+    }
+
+    class DatwallBinder(
+        private val service: DatwallService
+    ) : Binder() {
+
+        fun startTrafficRegistration() {
+            service.trafficRegistration.start()
+        }
+
+        fun stopTrafficRegistration() {
+            service.trafficRegistration.stop()
+        }
     }
 
     companion object {

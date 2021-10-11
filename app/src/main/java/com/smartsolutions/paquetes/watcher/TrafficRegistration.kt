@@ -93,6 +93,8 @@ class TrafficRegistration @Inject constructor(
         if (!running && isRegistered) {
             running = true
 
+            Log.i(TAG, "Traffic's registration started")
+
             currentJob = launch {
 
                 watcher.bandWithFlow.collect {
@@ -105,10 +107,10 @@ class TrafficRegistration @Inject constructor(
                         registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
                         registerTraffic(start)
 
+                        Log.i(TAG, "Traffic registered: rx - $rxBytesLatest tx - $txBytesLatest")
+
                         rxBytesLatest = 0
                         txBytesLatest = 0
-
-                        Log.i(TAG, "Traffic registered")
                     }else {
                         rxBytesLatest += it.first
                         txBytesLatest += it.second
@@ -124,6 +126,8 @@ class TrafficRegistration @Inject constructor(
         running = false
         currentJob?.cancel()
         currentJob = null
+
+        Log.i(TAG, "Traffic's registration stopped")
     }
 
     /**

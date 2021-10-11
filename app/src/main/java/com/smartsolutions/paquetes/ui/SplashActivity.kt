@@ -1,24 +1,16 @@
 package com.smartsolutions.paquetes.ui
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
-import android.view.WindowInsets
-import android.widget.ProgressBar
 import androidx.activity.viewModels
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.stephentuso.welcome.WelcomeHelper
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 /**
  * Actividad de inicio y punto de entrada frontend de la aplicación.
@@ -39,23 +31,31 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
 
         val handler = Handler(Looper.getMainLooper())
 
-        /*Después de 1000 milisegundos intento iniciar la PresentationActivity.
-        * Si tiene éxito, espero el resultado en el onActivityResult. Sino,
-        * inicio el kernel.*/
         handler.postDelayed({
             if (!WelcomeHelper(this, PresentationActivity::class.java)
                     .show(savedInstanceState)) {
 
-                viewModel.main(this)
+                //viewModel.main(this)
+
+                viewModel.launchActivity().observe(this) {
+                    startActivity(Intent(this, it))
+                    finish()
+                }
             }
         }, 500)
+
     }
 
+    @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST) {
-            viewModel.main(this)
+            //viewModel.main(this)
+            viewModel.launchActivity().observe(this) {
+                startActivity(Intent(this, it))
+                finish()
+            }
         }
     }
 }

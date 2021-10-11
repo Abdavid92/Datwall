@@ -1,11 +1,15 @@
 package com.smartsolutions.paquetes
 
+import android.app.Activity
 import android.app.Application
+import android.content.ComponentCallbacks
+import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
+import com.smartsolutions.paquetes.ui.SplashActivity
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,16 +24,16 @@ import kotlin.coroutines.CoroutineContext
  * callbacks y sembrar la base de datos.
  * */
 @HiltAndroidApp
-class DatwallApplication : Application(), Configuration.Provider, CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+class DatwallApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
     lateinit var exceptionsController: ExceptionsController
+
+    @Inject
+    lateinit var kernel: DatwallKernel
 
     /**
      * Indica si los datos móbiles están encendidos.
@@ -45,10 +49,6 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
      * Indica si el servicio está listo para trabajar.
      * */
     var uiScannerServiceReady = false
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    var kernel: DatwallKernel? = null
-
 
     override fun onCreate() {
         super.onCreate()
@@ -70,9 +70,9 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
         if (themeMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
             AppCompatDelegate.setDefaultNightMode(themeMode)
         }
+
+        kernel.main()
     }
-
-
 
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()

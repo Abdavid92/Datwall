@@ -19,12 +19,12 @@ class RxWatcher @Inject constructor(
     private val packageMonitor: Lazy<PackageMonitor>,
     private val watcherUtils: WatcherUtils,
     private val appRepository: IAppRepository
-) : CoroutineScope, Runnable {
-
-    private val job = Job()
+) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job
+        get() = Dispatchers.Default
+
+    private var watcherJob: Job? = null
 
     /**
      * Indica si el Watcher está corriendo o no.
@@ -53,7 +53,7 @@ class RxWatcher @Inject constructor(
      * */
     val bandWithFlow: Flow<Pair<Long, Long>> = MutableSharedFlow()
 
-    override fun run() {
+    fun start() {
         Log.i(TAG, "Starting watcher")
 
         if (!running) {
@@ -61,24 +61,25 @@ class RxWatcher @Inject constructor(
 
             Log.i(TAG, "Watcher started success")
 
-            while (running && !Thread.currentThread().isInterrupted) {
+            watcherJob = launch {
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    launch(Dispatchers.IO) {
-                        packageMonitor.get().synchronizeDatabase()
+                while (this.isActive && running) {
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        launch(Dispatchers.IO) {
+                            packageMonitor.get().synchronizeDatabase()
+                        }
                     }
-                }
 
-                getCurrentApp()
+                    getCurrentApp()
 
-                runBlocking {
                     getBandWith()
+
+                    delay(1000)
                 }
 
-                Thread.sleep(1000)
+                Log.i(TAG, "Watcher was stopped")
             }
-
-            Log.i(TAG, "Watcher was stopped")
         } else {
             Log.w(TAG, "Failed starting watcher. Was started")
         }
@@ -138,8 +139,8 @@ class RxWatcher @Inject constructor(
         Log.i(TAG, "Stopping watcher")
 
         this.running = false
-        Thread.currentThread().interrupt()
-        job.cancel()
+        watcherJob?.cancel()
+        watcherJob = null
     }
 
     companion object {

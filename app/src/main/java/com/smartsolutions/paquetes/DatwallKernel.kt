@@ -3,17 +3,14 @@ package com.smartsolutions.paquetes
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.net.ConnectivityManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
+import android.os.IBinder
 import android.provider.Settings
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import androidx.lifecycle.MutableLiveData
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
@@ -21,6 +18,7 @@ import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
+import com.smartsolutions.paquetes.ui.PresentationActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
@@ -47,16 +45,29 @@ class DatwallKernel @Inject constructor(
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
-    private val watcher: RxWatcher,
     private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
-    private val trafficRegistration: TrafficRegistration,
     private val simManager: ISimManager,
     private val firewallHelper: FirewallHelper
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
+
+    private var datwallBinder: DatwallService.DatwallBinder? = null
+
+    private val mainServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            datwallBinder = service as DatwallService.DatwallBinder
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            datwallBinder = null
+        }
+
+    }
+
+    val launchActivity = MutableLiveData<Class<out Activity>>()
 
     init {
         launch {
@@ -80,7 +91,7 @@ class DatwallKernel @Inject constructor(
         //Restablece la configuración de la versión anterior
         setLegacyConfiguration()
 
-        if (activity != null) {
+        if (isInForeground()/*activity != null*/) {
             mainInForeground(activity)
         } else {
             mainInBackground()
@@ -88,29 +99,10 @@ class DatwallKernel @Inject constructor(
     }
 
     /**
-     * Restaura el estado de la aplicación (Registra los broadcast y callbacks de nuevo
-     * y registra los workers si no lo están).
-     * */
-    fun tryRestoreState() {
-        launch {
-            val grantedAllPermissions = !missingSomePermission()
-            val completedAllConfiguration = !missingSomeConfiguration()
-            val registeredAndValid = isRegisteredAndValid()
-
-            if (grantedAllPermissions &&
-                completedAllConfiguration /*&&
-                registeredAndValid*/) {
-                registerBroadcastsAndCallbacks()
-                registerWorkers()
-            }
-        }
-    }
-
-    /**
      * Función principal que maqueta e inicia todos los servicios de la aplicación
      * y la actividad principal.
      * */
-    private fun mainInForeground(activity: Activity) {
+    private fun mainInForeground(activity: Activity?) {
 
         launch {
             //Crea o actualiza los paquetes de datos
@@ -122,9 +114,9 @@ class DatwallKernel @Inject constructor(
                     openPermissionsActivity()
                 }
                 //Verfica el registro y la activación
-                /*!isRegisteredAndValid() -> {
+                !isRegisteredAndValid() -> {
                     openActivationActivity()
-                }*/
+                }
                 //Verfica las configuraciones iniciales
                 missingSomeConfiguration() -> {
                     openSetupActivity()
@@ -138,12 +130,12 @@ class DatwallKernel @Inject constructor(
                     registerBroadcastsAndCallbacks()
                     //Registra los workers
                     registerWorkers()
-                    //Inicia la activiada principal
+                    //Inicia la actividad principal
                     startMainActivity()
                 }
             }
             //Cierra la actividad anterior
-            activity.finish()
+            activity?.finish()
         }
     }
 
@@ -193,7 +185,6 @@ class DatwallKernel @Inject constructor(
      *
      * Este método se eliminará en versiones posteriores.
      * */
-    @Deprecated("Se eliminará en próximas versiones")
     private fun setLegacyConfiguration() {
         if (!legacyConfiguration.isConfigurationRestored()) {
             legacyConfiguration.setFirewallLegacyConfiguration()
@@ -207,7 +198,7 @@ class DatwallKernel @Inject constructor(
     override fun setDataMobileStateOn() {
         (context as DatwallApplication).dataMobileOn = true
 
-        trafficRegistration.start()
+        datwallBinder?.startTrafficRegistration()
 
         launch {
             if (FIREWALL_ON) {
@@ -232,7 +223,7 @@ class DatwallKernel @Inject constructor(
     override fun setDataMobileStateOff() {
         (context as DatwallApplication).dataMobileOn = false
 
-        trafficRegistration.stop()
+        datwallBinder?.stopTrafficRegistration()
 
         if (FIREWALL_ON) {
           stopFirewall()
@@ -295,9 +286,6 @@ class DatwallKernel @Inject constructor(
         //Detecta los cambios de las Sim
         simManager.registerSubscriptionChangedListener()
 
-        //Inicio el registro del tráfico de datos
-        trafficRegistration.register()
-
         //En apis 22 o menor se registra un receiver para escuchar los cambios de redes.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             val filter = IntentFilter()
@@ -348,12 +336,10 @@ class DatwallKernel @Inject constructor(
      * Sincroniza la base de datos.
      * */
     private suspend fun synchronizeDatabase() {
-        if (!watcher.running) {
-            /* Fuerzo la sincronización de la base de datos para
-             * garantizar la integridad de los datos. Esto no sobrescribe
-             * los valores de acceso existentes.*/
-            packageMonitor.forceSynchronization()
-        }
+        /* Fuerzo la sincronización de la base de datos para
+         * garantizar la integridad de los datos. Esto no sobrescribe
+         * los valores de acceso existentes.*/
+        packageMonitor.forceSynchronization()
     }
 
     /**
@@ -367,6 +353,8 @@ class DatwallKernel @Inject constructor(
         } else {
             ContextCompat.startForegroundService(context, datwallServiceIntent)
         }
+
+        context.bindService(datwallServiceIntent, mainServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
     /**
@@ -398,10 +386,11 @@ class DatwallKernel @Inject constructor(
 
         updateManager.cancelUpdateApplicationStatusWorker()
 
+        context.unbindService(mainServiceConnection)
+
         context.startService(Intent(context, DatwallService::class.java)
             .setAction(DatwallService.ACTION_STOP))
 
-        trafficRegistration.unregister()
         stopBubbleFloating()
         stopFirewall()
     }
@@ -458,12 +447,13 @@ class DatwallKernel @Inject constructor(
     }
 
     private fun openActivity(activity: Class<out Activity>) {
-        ContextCompat.startActivity(
+        launchActivity.postValue(activity)
+        /*ContextCompat.startActivity(
             context,
             Intent(context, activity)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             null
-        )
+        )*/
     }
 
     fun isInForeground(): Boolean {
