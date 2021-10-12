@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.exceptions
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -28,7 +29,6 @@ class ExceptionsController @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val localFileHelper: LocalFileHelper,
-    private val kernel: DatwallKernel,
     private val notificationHelper: NotificationHelper
 ) : Thread.UncaughtExceptionHandler {
 
@@ -53,13 +53,11 @@ class ExceptionsController @Inject constructor(
 
         e.printStackTrace()
 
-        val isForeground = kernel.isInForeground()
+
 
         if (e is MissingPermissionException) {
             when {
                 e.permission.contains(Settings.ACTION_MANAGE_OVERLAY_PERMISSION) -> {
-                    kernel.stopFirewall(true)
-                    kernel.stopBubbleFloating(true)
                     notify(
                         context.getString(R.string.stoped_missing_overlay_permissions_title_notification),
                         context.getString(R.string.stoped_missing_overlay_permissions_description_notification)
@@ -67,7 +65,6 @@ class ExceptionsController @Inject constructor(
                 }
 
                 e.permission.contains(IPermissionsManager.VPN_PERMISSION_KEY) -> {
-                    kernel.stopFirewall(true)
                     notify(
                         context.getString(R.string.stoped_missing_vpn_permissions_title_notification),
                         context.getString(R.string.stoped_missing_vpn_permissions_description_notification)
@@ -75,7 +72,6 @@ class ExceptionsController @Inject constructor(
                 }
 
                 else -> {
-                    kernel.stopAllDatwall()
                     notify(
                         context.getString(R.string.missing_permmissions_title_notification),
                         context.getString(R.string.missing_permmissions_description_notification),
@@ -84,9 +80,8 @@ class ExceptionsController @Inject constructor(
                 }
             }
         } else {
-            kernel.stopAllDatwall()
             saveException(e)
-            if (isForeground) {
+            if (isInForeground()) {
                 ContextCompat.startActivity(
                     context,
                     Intent(context, ExceptionsActivity::class.java)
@@ -107,6 +102,7 @@ class ExceptionsController @Inject constructor(
 
 
     private fun closeThread(t: Thread) {
+        notificationHelper.cancelNotification(NotificationHelper.MAIN_NOTIFICATION_ID)
         t.interrupt()
         Process.killProcess(Process.myPid())
         exitProcess(10)
@@ -157,6 +153,13 @@ class ExceptionsController @Inject constructor(
         )
     }
 
+
+    private fun isInForeground(): Boolean {
+        return ContextCompat.getSystemService(context, ActivityManager::class.java)?.runningAppProcesses?.any {
+            it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+                    it.processName == context.packageName
+        } ?: false
+    }
 
     companion object{
         const val EXCEPTION_FILE_NAME = "exception.json"
