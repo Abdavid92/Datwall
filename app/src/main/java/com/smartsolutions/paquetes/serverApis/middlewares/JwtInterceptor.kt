@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.serverApis.middlewares
 
 import android.util.Log
+import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.serverApis.contracts.IJwtGenerator
 import com.smartsolutions.paquetes.serverApis.models.JwtData
 import okhttp3.Interceptor
@@ -27,6 +28,7 @@ class JwtInterceptor @Inject constructor(
             }
         }
         builder.addHeader("Accept", "application/json")
+
         return chain.proceed(builder.build())
     }
 

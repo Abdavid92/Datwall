@@ -9,14 +9,14 @@ plugins {
 //Duración de los json web tokens
 def tokenDuration = "5"
 //Clave secreta con encriptación que se usa para firmar los tokens
-def secretKey = "\"Nk5pV3RhMFZwMFVaZGhSRDZDSkxkd3VYcnBPZE9HZW1zWGhOY3RwNVdnVW1MVG0xQldGVktDZWVPSDU2MlVaSg==\""
+def secretKey = "\"ZjluOTRuRE1JOFlCOWRmOTNuRk93bXZuNzViTEU5M21KODluMzIybk1JRk8zMk1mbjNvZmo0TmY3NE5mY3IzTQ==\""
 
 /*Nombre de la aplicación.*/
 def name = "Mis Datos"
 /*Clave de la aplicación.*/
 def applicationKey = "WIwzfl2mFbZa3fRCEQUcLeSASxrERxt1C23oPpWcu53n43tZ3tcY4ZAApNl7uJrm1AhV9DLAt29liGq8"
 /*Audiencia.*/
-def audience = "https://smartsolutions-apps.infinityfreeapp.com"
+def audience = "https://licenses.apps-smartsolutions.com"
 
 /*Contenido encriptado que contiene
 * el nombre, la audiencia y la clave
@@ -33,7 +33,7 @@ android {
         applicationId "com.smartsolutions.paquetes"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 18
+        versionCode 22
         versionName "4.0"
         archivesBaseName = "Mis Datos-$versionName"
 

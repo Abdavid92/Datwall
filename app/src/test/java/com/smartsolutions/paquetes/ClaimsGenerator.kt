@@ -24,7 +24,7 @@ class ClaimsGenerator {
 
     @Test
     fun generateSecretKey() {
-        val secretKey = "6NiWta0Vp0UZdhRD6CJLdwuXrpOdOGemsXhNctp5WgUmLTm1BWFVKCeeOH562UZJ"
+        val secretKey = "f9n94nDMI8YB9df93nFOwmvn75bLE93mJ89n322nMIFO32Mfn3ofj4Nf74Nfcr3M"
 
         val bytes = Base64.getEncoder().encode(secretKey.toByteArray())
 

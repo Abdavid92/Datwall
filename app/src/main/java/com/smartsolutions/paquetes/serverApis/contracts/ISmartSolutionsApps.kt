@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.serverApis.contracts
 
 import com.smartsolutions.paquetes.serverApis.models.Device
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.serverApis.models.License
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
@@ -28,4 +29,13 @@ interface ISmartSolutionsApps {
 
     @PUT("deviceApps/{id}")
     fun updateDeviceApp(@Path("id") id: String, @Body deviceApp: DeviceApp): Call<ResponseBody>
+
+    @GET("licences/{device_id}")
+    suspend fun getLicense(@Path("device_id") deviceId: String): License?
+
+    @POST("licences")
+    suspend fun postLicense(@Body license: License)
+
+    @PUT("licences/{device_id}")
+    suspend fun putLicense(@Path("device_id") deviceId: String, @Body license: License)
 }

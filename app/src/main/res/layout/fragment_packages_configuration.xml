@@ -22,12 +22,14 @@
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            android:theme="@style/Theme.Datwall.AppBarOverlay">
 
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:title="@string/title_packages_configuration"/>
+                app:title="@string/title_packages_configuration"
+                app:popupTheme="@style/Theme.Datwall.PopupOverlay"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -92,7 +94,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/btn_start_configuration"
+                app:layout_constraintBottom_toTopOf="@id/btn_continue"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="16sp"
                 android:textAlignment="center"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 tools:text="Resultado de la operación" />
