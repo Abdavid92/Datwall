@@ -1,9 +1,6 @@
 package com.smartsolutions.paquetes.serverApis
 
 import android.content.Context
-import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
-import com.squareup.duktape.Duktape
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -56,7 +53,7 @@ class HttpDelegate @Inject constructor(
     }
 
     private fun generateCookies(body: String) {
-        val a = getVar(body, "a")
+        /*val a = getVar(body, "a")
         val b = getVar(body, "b")
         val c = getVar(body, "c")
 
@@ -72,7 +69,7 @@ class HttpDelegate @Inject constructor(
             val proxy = duktape.get("Proxy", Proxy::class.java)
 
             COOKIES = proxy.getCookieValue(a, b, c)
-        }
+        }*/
     }
 
     private fun getVar(body: String, type: String): String? {

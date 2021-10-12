@@ -1,21 +1,17 @@
 package com.smartsolutions.paquetes
 
-import android.app.Activity
 import android.app.Application
-import android.content.ComponentCallbacks
-import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
-import com.smartsolutions.paquetes.ui.SplashActivity
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.lang.RuntimeException
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -38,11 +34,6 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
     @Inject
     lateinit var kernel: DatwallKernel
-
-    /**
-     * Indica si los datos móbiles están encendidos.
-     * */
-    var dataMobileOn = false
 
     /**
      * Indica si el servicio está encendido.
@@ -77,6 +68,16 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
         launch {
             kernel.main()
+        }
+
+        if (BuildConfig.DEBUG) {
+            try {
+                Class.forName("dalvik.system.CloseGuard")
+                    .getMethod("setEnabled", Boolean::class.javaPrimitiveType)
+                    .invoke(null, true)
+            } catch (e: ReflectiveOperationException) {
+                throw RuntimeException(e)
+            }
         }
     }
 

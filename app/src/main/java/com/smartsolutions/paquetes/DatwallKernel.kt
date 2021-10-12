@@ -7,6 +7,7 @@ import android.content.*
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.IBinder
+import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
@@ -26,9 +27,7 @@ import com.smartsolutions.paquetes.watcher.*
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -57,9 +56,15 @@ class DatwallKernel @Inject constructor(
 
     private var datwallBinder: DatwallService.DatwallBinder? = null
 
+    private val activityManager = ContextCompat
+        .getSystemService(context, ActivityManager::class.java) ?: throw NullPointerException()
+
     private val mainServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             datwallBinder = service as DatwallService.DatwallBinder
+
+            if (DATA_MOBILE_ON)
+                datwallBinder?.startTrafficRegistration()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -132,86 +137,11 @@ class DatwallKernel @Inject constructor(
                 startMainActivity()
             }
         }
-
-        /*if (isInForeground()/*activity != null*/) {
-            mainInForeground()
-        } else {
-            mainInBackground()
-        }*/
     }
 
     private fun considerNotify(title: String, description: String) {
         if (!isInForeground()) {
             notify(title, description)
-        }
-    }
-
-    /**
-     * Función principal que maqueta e inicia todos los servicios de la aplicación
-     * y la actividad principal.
-     * */
-    private suspend fun mainInForeground() {
-
-        //Crea o actualiza los paquetes de datos
-        createOrUpdatePackages()
-
-        when {
-            //Verifica los permisos
-            missingSomePermission() -> {
-                openPermissionsActivity()
-            }
-            //Verfica el registro y la activación
-            !isRegisteredAndValid() -> {
-                openActivationActivity()
-            }
-            //Verfica las configuraciones iniciales
-            missingSomeConfiguration() -> {
-                openSetupActivity()
-            }
-            else -> {
-                //Sincroniza la base de datos y enciende el rastreador
-                synchronizeDatabase()
-                //Inicia los servicios
-                startServices()
-                //Registra los broadcasts y los callbacks
-                registerBroadcastsAndCallbacks()
-                //Registra los workers
-                registerWorkers()
-                //Inicia la actividad principal
-                startMainActivity()
-            }
-        }
-    }
-
-    private suspend fun mainInBackground() {
-
-        createOrUpdatePackages()
-
-        when {
-            missingSomePermission() -> {
-                notify(
-                    context.getString(R.string.missing_permmissions_title_notification),
-                    context.getString(R.string.missing_permmissions_description_notification)
-                )
-            }
-            !isRegisteredAndValid() -> {
-                notify(
-                    context.getString(R.string.generic_needed_action_title_notification),
-                    context.getString(R.string.generic_needed_action_description_notification)
-                )
-            }
-            missingSomeConfiguration() -> {
-                notify(
-                    context.getString(R.string.missing_configuration_title_notification),
-                    context.getString(R.string.missing_configuration_description_notification)
-                )
-            }
-            else -> {
-                synchronizeDatabase()
-                startServices()
-                registerBroadcastsAndCallbacks()
-                registerWorkers()
-            }
         }
     }
 
@@ -238,7 +168,7 @@ class DatwallKernel @Inject constructor(
      * Se invoca cuando se encienden los datos móbiles.
      * */
     override fun setDataMobileStateOn() {
-        (context as DatwallApplication).dataMobileOn = true
+        DATA_MOBILE_ON = true
 
         datwallBinder?.startTrafficRegistration()
 
@@ -263,7 +193,7 @@ class DatwallKernel @Inject constructor(
      * Se invoca cuando se apagan los datos móbiles.
      * */
     override fun setDataMobileStateOff() {
-        (context as DatwallApplication).dataMobileOn = false
+        DATA_MOBILE_ON = false
 
         datwallBinder?.stopTrafficRegistration()
 
@@ -390,11 +320,7 @@ class DatwallKernel @Inject constructor(
     private fun startServices() {
         val datwallServiceIntent = Intent(context, DatwallService::class.java)
 
-        if (isInForeground()) {
-            context.startService(datwallServiceIntent)
-        } else {
-            ContextCompat.startForegroundService(context, datwallServiceIntent)
-        }
+        ContextCompat.startForegroundService(context, datwallServiceIntent)
 
         context.bindService(datwallServiceIntent, mainServiceConnection, Context.BIND_AUTO_CREATE)
     }
@@ -435,6 +361,10 @@ class DatwallKernel @Inject constructor(
 
         stopBubbleFloating()
         stopFirewall()
+
+        activityManager.runningAppProcesses.firstOrNull {it.processName == context.packageName}?.let {
+            Process.killProcess(it.pid)
+        }
     }
 
     private suspend fun startFirewall() {
@@ -492,24 +422,13 @@ class DatwallKernel @Inject constructor(
         withContext(Dispatchers.Main) {
             nextActivity.value = activity
         }
-        /*ContextCompat.startActivity(
-            context,
-            Intent(context, activity)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            null
-        )*/
     }
 
     fun isInForeground(): Boolean {
-        val activityManager = ContextCompat.getSystemService(
-            context,
-            ActivityManager::class.java
-        ) ?: return false
-
-        return activityManager.runningAppProcesses.any {
+        return activityManager.runningAppProcesses?.any {
             it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
                     it.processName == context.packageName
-        }
+        } ?: false
     }
 
     private fun notify(title: String, description: String) {
@@ -542,5 +461,10 @@ class DatwallKernel @Inject constructor(
         private var updateApplicationStatusJob: Job? = null
         private var BUBBLE_ON = false
         private var FIREWALL_ON = false
+
+        /**
+         * Indica si los datos móbiles están encendidos.
+         * */
+        var DATA_MOBILE_ON = false
     }
 }

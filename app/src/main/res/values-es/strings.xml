@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Mis Datos</string>
+    <string name="main_service_description">Servicio principal encargado de registrar el tráfico de datos y el ancho de banda de la red</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Controles</string>
     <string name="title_notifications">Notifications</string>

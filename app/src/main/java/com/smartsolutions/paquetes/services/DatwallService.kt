@@ -132,7 +132,7 @@ class DatwallService : Service(), CoroutineScope {
 
             return START_NOT_STICKY
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -146,6 +146,12 @@ class DatwallService : Service(), CoroutineScope {
 
             updateNotification(userData)
         }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+
+        Log.i(TAG, "Me estoy quedando sin memoria")
     }
 
     private fun dataStoreCollector() {

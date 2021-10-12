@@ -82,7 +82,7 @@
             android:name=".services.DatwallService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:description="@string/main_service_description"/>
         <service
             android:name=".services.BubbleFloatingService"
             android:enabled="true"

@@ -6,6 +6,7 @@ import android.net.VpnService
 import android.util.Log
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.DatwallApplication
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
@@ -81,9 +82,7 @@ class FirewallHelper @Inject constructor(
 
         var intent: Intent? = null
 
-        val application = context.applicationContext as DatwallApplication
-
-        if (application.dataMobileOn) {
+        if (DatwallKernel.DATA_MOBILE_ON) {
             Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
 
             launch {
@@ -109,9 +108,7 @@ class FirewallHelper @Inject constructor(
     fun stopFirewall() {
         establishFirewallEnabled(false)
 
-        val application = context.applicationContext as DatwallApplication
-
-        if (application.dataMobileOn) {
+        if (DatwallKernel.DATA_MOBILE_ON) {
             stopFirewallService()
         }
     }

@@ -59,6 +59,8 @@ abstract class AbstractNetworkUsage(
                     buckets.add(bucket)
                 }
             }
+
+            networkStats.close()
         } catch (e: Exception) {
             return null
         }

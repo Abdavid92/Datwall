@@ -76,9 +76,9 @@ class PackagesConfigurationFragment @Inject constructor(
         }
 
         binding.btnContinue.setOnClickListener {
-            //it.isEnabled = false
-            //binding.progressContinue.visibility = View.VISIBLE
+
             binding.btnContinue.isClickable = false
+
             binding.btnContinue.showProgress {
                 buttonTextRes = R.string.loading
                 progressColor = Color.WHITE
