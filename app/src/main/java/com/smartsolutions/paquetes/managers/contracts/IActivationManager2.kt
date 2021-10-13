@@ -9,7 +9,8 @@ interface IActivationManager2 {
 
     /**
      * Indica si la aplicación puede trabajar dependiendo del
-     * estado.
+     * estado. Este método se conecta al servidor cuando no encuentra la licencia
+     * local.
      * */
     suspend fun canWork(): Pair<Boolean, ApplicationStatuses>
 
@@ -46,7 +47,9 @@ interface IActivationManager2 {
     suspend fun isWaitingPurchased(): Boolean
 
     /**
-     * Obtiene la licencia del servidor
+     * Obtiene la licencia del servidor y la guarda en el dataStore.
+     *
+     * @return [Result]
      * */
     suspend fun getLicense(): Result<License>
 

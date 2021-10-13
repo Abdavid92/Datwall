@@ -6,8 +6,11 @@ import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.managers.ActivationManager2
+import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
 import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
 import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result.Failure
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -20,21 +23,22 @@ class ActivationWorker @AssistedInject constructor(
     @Assisted
     params: WorkerParameters,
     private val gson: Gson,
-    private val client: IRegistrationClient
+    private val client: IActivationClient
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         return try {
-            val deviceApp = gson.fromJson(
-                applicationContext.dataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.DEVICE_APP),
-                DeviceApp::class.java
+            val data = applicationContext.dataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.LICENCE) ?: return Result.failure()
+
+            val license = gson.fromJson(
+                ActivationManager2.decrypt(data),
+                License::class.java
             )
 
-            deviceApp.purchased = true
-            deviceApp.waitingPurchase = false
+            license.isPurchased = true
 
-            val result = client.updateDeviceApp(deviceApp)
+            val result = client.updateLicense(license)
 
             if (result.isSuccess)
                 Result.success()

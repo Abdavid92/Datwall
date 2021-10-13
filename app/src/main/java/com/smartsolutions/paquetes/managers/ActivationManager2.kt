@@ -93,7 +93,7 @@ class ActivationManager2 @Inject constructor(
 
     override suspend fun transferCreditByUSSD(key: String, license: License): Result<Unit> {
         val price = license.androidApp.price
-        if (key.isEmpty() || key.isBlank() || key.length != 4 || price - price != 0){
+        if (key.isEmpty() || key.isBlank() || key.length != 4){
             return Result.Failure(IllegalArgumentException())
         }
 
@@ -161,7 +161,15 @@ class ActivationManager2 @Inject constructor(
     }
 
     override suspend fun getLicense(): Result<License> {
-        return client.getLicense(getDeviceId())
+        val result = client.getLicense(getDeviceId())
+
+        if (result.isSuccess) {
+            context.dataStore.edit {
+                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(result.getOrThrow()))
+            }
+        }
+
+        return result
     }
 
     override suspend fun getLocalLicense(): License? {
@@ -312,11 +320,13 @@ class ActivationManager2 @Inject constructor(
         }
     }
 
-    private fun encrypt(data: String?): String {
-        return String(Base64.encode(data?.toByteArray(), Base64.DEFAULT))
-    }
+    companion object {
+        fun encrypt(data: String?): String {
+            return String(Base64.encode(data?.toByteArray(), Base64.DEFAULT))
+        }
 
-    private fun decrypt(data: String?): String {
-        return String(Base64.decode(data, Base64.DEFAULT))
+        fun decrypt(data: String?): String {
+            return String(Base64.decode(data, Base64.DEFAULT))
+        }
     }
 }
