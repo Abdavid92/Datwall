@@ -5,12 +5,10 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
-import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.ConnectException
 
@@ -73,7 +71,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
     }
 
     private fun registerUssdResultObserver() {
-        viewModel.ussdTranferenceResult.observe(viewLifecycleOwner) {
+        viewModel.ussdTransferenceResult.observe(viewLifecycleOwner) {
             if (it.isSuccess) {
 
                 complete()

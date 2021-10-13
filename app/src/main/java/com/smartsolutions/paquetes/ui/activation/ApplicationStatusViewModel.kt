@@ -7,20 +7,18 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import com.smartsolutions.paquetes.DatwallApplication
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class ApplicationStatusViewModel @Inject constructor(
     application: Application,
-    private val activationManager: IActivationManager
+    private val activationManager: IActivationManager2
 ) : AndroidViewModel(application) {
 
-    fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener): Boolean {
+    fun getApplicationStatus(listener: IActivationManager2.ApplicationStatusListener): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !isWifiEnabled() && !requestEnableWifi()) {
             return false
         }

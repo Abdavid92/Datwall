@@ -37,7 +37,6 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup), OnCompletedList
                 .replace(R.id.setup_container, viewModel.nextConfiguration()!!.fragment.get())
                 .commit()
         } else {
-            //viewModel.continueWithRun(this)
             viewModel.next()
         }
     }

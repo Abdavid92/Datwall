@@ -4,22 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.databinding.FragmentApplicationStatusBinding
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
+import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
-import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ApplicationStatusFragment :
     AbstractSettingsFragment(R.layout.fragment_application_status),
-    IActivationManager.ApplicationStatusListener
+    IActivationManager2.ApplicationStatusListener
 {
 
     private val viewModel by viewModels<ApplicationStatusViewModel>()
@@ -54,10 +52,10 @@ class ApplicationStatusFragment :
         }
     }
 
-    override fun onPurchased(deviceApp: DeviceApp) {
+    override fun onPurchased(license: License) {
         var msgText = "Se ha restaurado su licencia. Puede usar la app sin limites."
 
-        if (deviceApp.androidApp.status == ApplicationStatus.DISCONTINUED) {
+        if (license.androidApp.status == ApplicationStatus.DISCONTINUED) {
             msgText += " Sin embargo la aplicación ha sido descontinuada, por lo que no recibirá más actualizaciones."
         }
 
@@ -67,7 +65,7 @@ class ApplicationStatusFragment :
         }
     }
 
-    override fun onDiscontinued(deviceApp: DeviceApp) {
+    override fun onDiscontinued(license: License) {
         binding.message.text = "La app ha sido descontinuada y no puede ser utilizada."
 
         enableBtnAction("Cerrar") {
@@ -75,18 +73,18 @@ class ApplicationStatusFragment :
         }
     }
 
-    override fun onDeprecated(deviceApp: DeviceApp) {
+    override fun onDeprecated(license: License) {
         binding.message.text = "Loco actualiza que estas en la pre-historia."
 
         enableBtnAction("Actualizar") {
-            UpdateFragment(deviceApp.androidApp)
+            UpdateFragment(license.androidApp)
                 .show(childFragmentManager, null)
         }
     }
 
-    override fun onTrialPeriod(deviceApp: DeviceApp, isTrialPeriod: Boolean) {
+    override fun onTrialPeriod(license: License, isTrialPeriod: Boolean) {
         if (isTrialPeriod) {
-            val days = deviceApp.androidApp.trialPeriod - deviceApp.daysInUse()
+            val days = license.androidApp.trialPeriod - license.daysInUse()
 
             binding.message.text = "Licencia en periodo de prueba. Días restantes: $days"
 
@@ -105,7 +103,7 @@ class ApplicationStatusFragment :
         }
     }
 
-    override fun onTooMuchOld(deviceApp: DeviceApp) {
+    override fun onTooMuchOld(license: License) {
 
     }
 
