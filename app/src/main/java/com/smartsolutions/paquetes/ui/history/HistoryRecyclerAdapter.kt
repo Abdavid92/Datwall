@@ -51,17 +51,8 @@ class HistoryRecyclerAdapter constructor(
             historyShow = history
             notifyDataSetChanged()
         }else {
-            val list = mutableListOf<IPurchasedPackage>()
-            var index = history.indexOf(header)
-            for (i in 0..header.cuantity) {
-                try {
-                    list.add(history[index])
-                    index++
-                }catch (e: Exception){
-                    break
-                }
-            }
-            historyShow = list
+            val index = history.indexOf(header)
+            historyShow = history.subList(index, index + header.cuantity)
             notifyDataSetChanged()
         }
     }

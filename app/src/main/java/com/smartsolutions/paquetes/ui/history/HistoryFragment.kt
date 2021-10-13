@@ -38,6 +38,8 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.seedOldPurchasedPackages()
+
         viewModel.getInstalledSims().observe(viewLifecycleOwner){
             setAdapter(it)
             setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it, childFragmentManager)

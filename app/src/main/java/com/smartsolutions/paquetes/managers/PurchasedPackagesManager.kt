@@ -1,10 +1,20 @@
 package com.smartsolutions.paquetes.managers
 
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
+import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.helpers.SmsInboxReaderHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -12,7 +22,11 @@ import org.apache.commons.lang.time.DateUtils
 import javax.inject.Inject
 
 class PurchasedPackagesManager @Inject constructor(
-    private val purchasedPackageRepository: IPurchasedPackageRepository
+    @ApplicationContext
+    private val context: Context,
+    private val purchasedPackageRepository: IPurchasedPackageRepository,
+    private val smsReader: SmsInboxReaderHelper,
+    private val simDelegate: SimDelegate
 ) : IPurchasedPackagesManager {
 
     override suspend fun newPurchased(
@@ -79,4 +93,44 @@ class PurchasedPackagesManager @Inject constructor(
                 purchasedPackageRepository.delete(it)
             }
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    override suspend fun seedOldPurchasedPackages() {
+        if (context.dataStore.data.firstOrNull()?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true) {
+
+            context.dataStore.edit {
+                it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
+            }
+
+            val smses = smsReader.getAllSmsReceived().filter { it.number.contains("cubacel", true) }
+            val packages = mutableListOf<PurchasedPackage>()
+
+            try {
+                smses.forEach { sms ->
+                    for (pack in DataPackages.PACKAGES) {
+                        if (sms.body.contains(pack.smsKey, true)) {
+                            simDelegate.getSubcriptionInfo(sms.subscriptionId.toInt())?.let {
+                                packages.add(
+                                    PurchasedPackage(
+                                        System.currentTimeMillis(),
+                                        sms.date,
+                                        IDataPackageManager.ConnectionMode.USSD,
+                                        simDelegate.getSimId(it),
+                                        false,
+                                        pack.id
+                                    )
+                                )
+                            }
+                            break
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+            }
+
+            purchasedPackageRepository.create(packages)
+        }
+    }
+
 }

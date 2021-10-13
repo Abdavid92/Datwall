@@ -1,5 +1,7 @@
 package com.smartsolutions.paquetes.managers.contracts
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import kotlinx.coroutines.flow.Flow
@@ -17,4 +19,7 @@ interface IPurchasedPackagesManager {
     fun getHistory(): Flow<List<PurchasedPackage>>
 
     suspend fun clearHistory()
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    suspend fun seedOldPurchasedPackages()
 }

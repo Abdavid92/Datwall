@@ -116,6 +116,17 @@ class SimDelegate @Inject constructor(
         subscriptionManager.removeOnSubscriptionsChangedListener(listener)
     }
 
+    fun getSubcriptionInfo(subscriptionId: Int): SubscriptionInfo? {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return null
+        }
+        return subscriptionManager.getActiveSubscriptionInfo(subscriptionId)
+    }
+
     enum class SimType {
         VOICE,
         DATA

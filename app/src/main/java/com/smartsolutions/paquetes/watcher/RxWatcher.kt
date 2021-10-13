@@ -155,7 +155,7 @@ class RxWatcher @Inject constructor(
         @JvmStatic
         private var txBytes = 0L
 
-        var lastRxBytes = 0L
-        var lastTxBytes = 0L
+        var lastRxBytes = -1L
+        var lastTxBytes = -1L
     }
 }

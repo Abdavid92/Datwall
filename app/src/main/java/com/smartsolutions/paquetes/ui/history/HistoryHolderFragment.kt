@@ -68,7 +68,7 @@ class HistoryHolderFragment : Fragment() {
         viewModel.getPurchasedPackages(simId).observe(viewLifecycleOwner) {
             binding.progressBar.visibility = View.GONE
             setAdapter(it)
-            setValuesBarCHart(it.filterIsInstance<HistoryViewModel.HeaderPurchasedPackage>())
+            setValuesBarCHart(it.filterIsInstance<HistoryViewModel.HeaderPurchasedPackage>().sortedBy { it.date })
 
             if(it.isEmpty()){
                 binding.apply {
@@ -163,7 +163,8 @@ class HistoryHolderFragment : Fragment() {
         binding.barChart.apply {
             data = BarData(dataSet)
             data.barWidth = 0.65f
-            setOnChartValueSelectedListener(object: OnChartValueSelectedListener{
+            //TODO Falta arreglar el OnSelected
+            /*setOnChartValueSelectedListener(object: OnChartValueSelectedListener{
 
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
                     e?.let {
@@ -176,7 +177,7 @@ class HistoryHolderFragment : Fragment() {
                     adapter?.filter(null)
                 }
 
-            })
+            })*/
             animateY(700)
         }.invalidate()
 

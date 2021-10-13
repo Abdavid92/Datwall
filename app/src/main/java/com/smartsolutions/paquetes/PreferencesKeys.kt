@@ -166,6 +166,11 @@ object PreferencesKeys {
     val SYNCHRONIZATION_ONLY_DUMMY = booleanPreferencesKey("synchronization_only_dummy")
 
     /**
+     * Indica si ya fueron sembrados los paquetes comprados anteriormente
+     */
+    val IS_SEED_OLD_PURCHASED_PACKAGES = booleanPreferencesKey("is_seed_old_purchased_packages")
+
+    /**
      * Busca una clave de preferencia por el nombre.
      *
      * @param key

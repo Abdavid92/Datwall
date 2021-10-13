@@ -1,8 +1,11 @@
 package com.smartsolutions.paquetes.ui.history
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.helpers.NetworkUsageUtils.Companion.isSameMonth
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
@@ -14,6 +17,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.apache.commons.lang.time.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -36,6 +40,15 @@ class HistoryViewModel @Inject constructor(
             return@map orderListPurchasedPackages(list.filter { it.simId == simId && !it.pending }
                 .sortedByDescending { it.date })
         }.asLiveData(Dispatchers.IO)
+    }
+
+
+    fun seedOldPurchasedPackages(){
+        viewModelScope.launch {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                purchasePackageManager.seedOldPurchasedPackages()
+            }
+        }
     }
 
 
@@ -62,7 +75,6 @@ class HistoryViewModel @Inject constructor(
 
         return ordered
     }
-
 
 
     private fun getMonthHeader(purchasedPackages: List<PurchasedPackage>): HeaderPurchasedPackage {

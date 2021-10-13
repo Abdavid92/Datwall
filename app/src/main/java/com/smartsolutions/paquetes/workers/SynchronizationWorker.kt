@@ -33,9 +33,11 @@ class SynchronizationWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         var canExecute = true
 
-        val onlyInternational =  context.dataStore.data.firstOrNull()
+        val onlyInternational = context.dataStore.data.firstOrNull()
             ?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_INTERNATIONAL) ?: true
-        val onlyDummy = context.dataStore.data.firstOrNull()?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_DUMMY) ?: true
+        val onlyDummy =
+            context.dataStore.data.firstOrNull()?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_DUMMY)
+                ?: true
 
         if (onlyInternational) {
             try {
@@ -43,18 +45,21 @@ class SynchronizationWorker @AssistedInject constructor(
                     simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
                     DataBytes.DataType.International
                 ).exists()
-            }catch (e: Exception){}
+            } catch (e: Exception) {
+            }
         }
 
-        if (onlyDummy && canExecute){
-            canExecute = RxWatcher.lastRxBytes + RxWatcher.lastTxBytes <= 5 * 1000
+        if (onlyDummy && canExecute) {
+            canExecute =
+                (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (5L * 1000L) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
         }
 
         if (canExecute) {
             try {
                 Log.i("SYNCHRONIZATION", "Start Sincro $canExecute")
                 synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+            }
         }
 
         Log.i("SYNCHRONIZATION", "Sincronizado $canExecute")
