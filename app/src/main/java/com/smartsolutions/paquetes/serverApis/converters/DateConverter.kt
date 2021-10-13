@@ -23,14 +23,9 @@ class DateConverter : JsonSerializer<Date>, JsonDeserializer<Date> {
         typeOfT: Type?,
         context: JsonDeserializationContext?
     ): Date {
-        return if (typeOf<Long>().javaType == typeOfT)
-            Date(json.asLong)
-        else
-            try {
-                Date(json.asLong)
-            } catch (e: Exception) {
-                Date(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-                    .parse(json.asString)?.time ?: System.currentTimeMillis())
-            }
+        val date = json.asString
+
+        return Date(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+            .parse(date)?.time ?: System.currentTimeMillis())
     }
 }

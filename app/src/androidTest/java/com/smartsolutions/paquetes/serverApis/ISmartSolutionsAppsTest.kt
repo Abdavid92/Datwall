@@ -42,6 +42,8 @@ class ISmartSolutionsAppsTest {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+
+                throw e
             }
         }
     }
@@ -50,12 +52,14 @@ class ISmartSolutionsAppsTest {
     fun postLicense() {
 
         val license = License(
-            0,
             Build.SERIAL,
             false,
             false,
             Build.MANUFACTURER,
             Build.MODEL,
+            null,
+            null,
+            Date(),
             Date(),
             "com.smartsolutions.paquetes"
         )
@@ -72,6 +76,35 @@ class ISmartSolutionsAppsTest {
                 }
                 throw e
             }
+        }
+    }
+
+    @Test
+    fun putLicense() {
+        val license = License(
+            Build.SERIAL,
+            true,
+            false,
+            Build.MANUFACTURER,
+            Build.MODEL,
+            null,
+            null,
+            Date(),
+            Date(),
+            "com.smartsolutions.paquetes"
+        )
+
+        runBlocking {
+
+            try {
+                api.putLicense(license.deviceId, license)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+
+                throw e
+            }
+
         }
     }
 }
