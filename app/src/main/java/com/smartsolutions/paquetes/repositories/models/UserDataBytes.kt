@@ -68,8 +68,8 @@ class UserDataBytes(
         get() = when (type) {
             DataType.National -> 0 //Prioridad nula
             DataType.DailyBag -> 1
-            DataType.InternationalLte -> 2
-            DataType.PromoBonus -> 3
+            DataType.PromoBonus -> 2
+            DataType.InternationalLte -> 3
             DataType.International -> 4
         }
 

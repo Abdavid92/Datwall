@@ -93,8 +93,7 @@ class DatwallService : Service(), CoroutineScope {
         return DatwallBinder(this)
     }
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         Log.i(TAG, "Starting service")
 
@@ -115,9 +114,7 @@ class DatwallService : Service(), CoroutineScope {
         watcher.start()
 
         trafficRegistration.register()
-    }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
 
             mNotificationManager.notify(

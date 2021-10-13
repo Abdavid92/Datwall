@@ -35,15 +35,15 @@
 
     <!--Permissions-->
     <string name="call_permission">Permiso de llamadas</string>
-    <string name="call_permission_description">Permiso de realizar llamadas</string>
+    <string name="call_permission_description">Es necesario para poder realizar las consultas de los códigos USSD y la sincronización de los datos con Etecsa</string>
     <string name="sms_permission">Permiso de sms</string>
-    <string name="sms_permission_description">Descripción del permiso de sms</string>
+    <string name="sms_permission_description">Se necesita para poder detectar los sms de los nuevos paquetes o planes que adquiera y registrarlos en la app</string>
     <string name="usage_access_permission">Acceso a Datos de Uso</string>
-    <string name="usage_access_permission_description">Descripción del permsio de acceso a datos de uso.</string>
+    <string name="usage_access_permission_description">Este permiso permite obtener del sistema la cantidad de megas consumidos por cada app en diferentes períodos de tiempo</string>
     <string name="draw_overlays_permission">Permiso para sobreponerse a otras apps</string>
-    <string name="draw_overlays_permission_description">Descripción del permiso de sobreponerse a otras apps</string>
+    <string name="draw_overlays_permission_description">Se necesita para que se pueda mostrar la Burbuja Flotante sobre otras apps</string>
     <string name="vpn_permission">Permiso para crear vpn</string>
-    <string name="vpn_permission_description">Este permiso se utiliza para poder crear un cortafuegos mediante del uso de una vpn.</string>
+    <string name="vpn_permission_description">Es necesario para crear una VPN que se utilizará como un cortafuegos para ahorrar sus megas</string>
     <string name="btn_continue">Continuar</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_ok">Aceptar</string>
@@ -98,7 +98,7 @@
     </string>
     <string name="btn_save">Guardar</string>
     <string name="start_accessibility_service_title">Servicio de accesibilidad</string>
-    <string name="start_accessibility_service_summary">Es necesarió encender el servicio de accesibilidad para poder efectuar esta operación.</string>
+    <string name="start_accessibility_service_summary">Es necesario encender el servicio de accesibilidad para poder efectuar esta operación.</string>
     <string name="open_settings">Abrir ajustes</string>
     <string name="packages_configuration_summary">Vamos a configurar los paquetes disponibles para la linea actual.</string>
     <string name="start_packages_configuration">Iniciar configuración</string>
@@ -143,7 +143,7 @@
     <string name="tab_free">Gratis</string>
     <string name="title_usage">Consumo</string>
     <string name="battery_optimization_permission">Permiso de optimización de batería</string>
-    <string name="battery_optimization_permission_description">Descripción del permiso de optimización de batería.</string>
+    <string name="battery_optimization_permission_description">Es necesario para que la app pueda mantenerse funcionando en segundo plano y se mantenga la información actualizada</string>
     <string name="title_more">Más</string>
     <string name="title_resume">Resumen</string>
     <string name="title_packages">Paquetes</string>

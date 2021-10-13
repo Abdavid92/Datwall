@@ -29,11 +29,8 @@ interface IPermissionsManager {
     }
 
     companion object {
-        @RequiresApi(Build.VERSION_CODES.M)
         const val CALL_CODE = 34
-        @RequiresApi(Build.VERSION_CODES.M)
         const val SMS_CODE = 22
-        @RequiresApi(Build.VERSION_CODES.M)
         const val DRAW_OVERLAYS_CODE = 356
         const val VPN_CODE = 248
         const val USAGE_ACCESS_CODE = 854

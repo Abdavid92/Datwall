@@ -23,6 +23,7 @@ class StepperAdapter(
             "Ya han sido concedidos todos los permisos necesarios. Puede continuar",
             Permission.Category.Required,
             0,
+            21,
             { return@Permission true },
             {}
         )

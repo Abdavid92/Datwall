@@ -12,20 +12,35 @@ import kotlinx.coroutines.runBlocking
 
 abstract class AbstractActivity : AppCompatActivity {
 
+    private var currentTheme: Int = R.style.Theme_Datwall
+
     constructor(): super()
 
     constructor(@LayoutRes contentLayoutRedId: Int): super(contentLayoutRedId)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val currentTheme = runBlocking {
-            dataStore.data.firstOrNull()
-                ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
-        }
+
+        currentTheme = getThemeConfigured()
 
         if (currentTheme != R.style.Theme_Datwall) {
             setTheme(currentTheme)
         }
 
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (currentTheme != getThemeConfigured()){
+            recreate()
+        }
+    }
+
+
+    private fun getThemeConfigured(): Int{
+        return runBlocking {
+            dataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
+        }
     }
 }

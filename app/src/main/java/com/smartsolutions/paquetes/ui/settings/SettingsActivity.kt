@@ -220,7 +220,9 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                             newTheme
                         )
 
-                        showRestartDialog()
+                        //TODO Pendiente a aprobación este método
+                        activity?.recreate()
+                        //showRestartDialog()
                     }
                 }
             }

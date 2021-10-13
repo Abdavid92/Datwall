@@ -5,21 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="?attr/colorPrimary"
     tools:context=".ui.permissions.PermissionsActivity">
 
     <include layout="@layout/secondary_toolbar" />
 
-    <androidx.appcompat.widget.AppCompatImageButton
+    <!-- <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btn_help"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/ic_help"
         android:layout_gravity="end"
-        style="@style/Widget.AppCompat.Button.Borderless" />
+        style="@style/Widget.AppCompat.Button.Borderless" /> -->
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        style="@style/BackgroundStyle"
         android:layout_weight="1">
 
         <moe.feng.common.stepperview.VerticalStepperView

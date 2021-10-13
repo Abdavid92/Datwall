@@ -23,15 +23,4 @@ class ManagersModule {
         else
             legacyImpl.get()
     }
-
-    @Provides
-    fun providePermissionsManager(
-        impl: Provider<PermissionsManagerM>,
-        legacyImpl: Provider<PermissionsManager>
-    ): IPermissionsManager {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            impl.get()
-        else
-            legacyImpl.get()
-    }
 }

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/activity_horizontal_margin"
+    android:paddingBottom="8dp"
     tools:context=".ui.permissions.StartAccessibilityServiceFragment">
 
     <com.google.android.material.textview.MaterialTextView
@@ -13,17 +13,20 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/start_accessibility_service_title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="16sp"
+        android:paddingTop="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textAlignment="center"/>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/summary"
+        android:padding="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
         android:text="@string/start_accessibility_service_summary"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textAlignment="center" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -31,16 +34,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/btn_cancel"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        style="@style/BaseButton.SecondaryButton"
         app:layout_constraintTop_toBottomOf="@id/summary"
-        app:layout_constraintEnd_toStartOf="@id/btn_open_settings" />
+        app:layout_constraintEnd_toStartOf="@id/btn_open_settings"
+        android:layout_marginEnd="8dp"/>
 
-    <com.google.android.material.button.MaterialButton
+    <androidx.appcompat.widget.AppCompatButton
+        style="@style/BaseButton.PrimaryButton"
         android:id="@+id/btn_open_settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/summary"
+        android:layout_marginEnd="8dp"
         android:text="@string/open_settings" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

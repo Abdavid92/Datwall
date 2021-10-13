@@ -40,4 +40,7 @@ interface BindingManagerModule {
 
     @Binds
     fun bindISynchronizationManager(impl: SynchronizationManager): ISynchronizationManager
+
+    @Binds
+    fun bindIPermissionsManager(impl: PermissionsManager): IPermissionsManager
 }

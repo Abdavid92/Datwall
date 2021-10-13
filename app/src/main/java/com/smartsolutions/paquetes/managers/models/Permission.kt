@@ -13,6 +13,7 @@ data class Permission(
     val description: String,
     val category: Category,
     val requestCode: Int,
+    val minSdk: Int,
     val checkPermission: Permission.(context: Context) -> Boolean = { context ->
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

@@ -16,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
  * Actividad de inicio y punto de entrada frontend de la aplicación.
  * */
 @AndroidEntryPoint
-class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
+class SplashActivity : AbstractActivity(R.layout.activity_splash) {
 
     private val viewModel by viewModels<SplashViewModel>()
 
@@ -40,7 +40,7 @@ class SplashActivity : AppCompatActivity(R.layout.activity_splash) {
                     finish()
                 }
             }
-        }, 500)
+        }, 300)
 
     }
 
