@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.smartsolutions.paquetes.workers.SynchronizationWorker
 
 val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "settings")
 //val Context.uiDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_ui")
@@ -49,11 +50,6 @@ object PreferencesKeys {
      * Modo de sincronización de los datos.
      * */
     val SYNCHRONIZATION_MODE = stringPreferencesKey("synchronization_mode")
-
-    /**
-     * Linea predeterminada para ejecutar la sincronización automática.
-     * */
-    val DEFAULT_SYNCHRONIZATION_SIM_ID = stringPreferencesKey("default_synchronization_sim_id")
 
     /**
      * Indica si el dispositotivo se puede conectar a la red LTE
@@ -159,6 +155,15 @@ object PreferencesKeys {
     val NATIONAL_NOTIFICATION = intPreferencesKey("national_notification")
 
     val DAILY_BAG_NOTIFICATION = intPreferencesKey("daily_bag_notification")
+
+    /**
+     * Estado y Restricciones de la sincronización en segundo plano
+     */
+    val SYNCHRONIZATION_STATUS = booleanPreferencesKey("synchronization_status")
+
+    val SYNCHRONIZATION_ONLY_INTERNATIONAL = booleanPreferencesKey("synchronization_only_international_exist")
+
+    val SYNCHRONIZATION_ONLY_DUMMY = booleanPreferencesKey("synchronization_only_dummy")
 
     /**
      * Busca una clave de preferencia por el nombre.

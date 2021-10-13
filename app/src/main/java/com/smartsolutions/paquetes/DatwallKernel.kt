@@ -28,6 +28,7 @@ import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -48,7 +49,8 @@ class DatwallKernel @Inject constructor(
     private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
     private val simManager: ISimManager,
-    private val firewallHelper: FirewallHelper
+    private val firewallHelper: FirewallHelper,
+    private val synchronizationManager: ISynchronizationManager
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -291,6 +293,12 @@ class DatwallKernel @Inject constructor(
                 }
             }
         }
+
+        launch {
+            if (context.dataStore.data.firstOrNull()?.get(PreferencesKeys.SYNCHRONIZATION_STATUS) != false){
+                synchronizationManager.scheduleUserDataBytesSynchronization(30)
+            }
+        }
     }
 
     /**
@@ -353,6 +361,8 @@ class DatwallKernel @Inject constructor(
         }
 
         updateManager.cancelUpdateApplicationStatusWorker()
+
+        synchronizationManager.cancelScheduleUserDataBytesSynchronization()
 
         context.unbindService(mainServiceConnection)
 

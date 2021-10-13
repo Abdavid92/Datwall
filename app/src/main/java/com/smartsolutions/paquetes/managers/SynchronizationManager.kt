@@ -12,6 +12,7 @@ import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
+import com.smartsolutions.paquetes.workers.SynchronizationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -77,7 +78,10 @@ class SynchronizationManager @Inject constructor(
             data.addAll(obtainDataBytesPackages(bytesPackages))
             data.addAll(obtainDataByteBonus(bonusPackages))
 
-            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), simManager.getDefaultSim(SimDelegate.SimType.VOICE).id)
+            userDataBytesManager.synchronizeUserDataBytes(
+                fillMissingDataBytes(data),
+                simManager.getDefaultSim(SimDelegate.SimType.VOICE).id
+            )
         }
 
         simRepository.update(sim.apply {
@@ -85,28 +89,14 @@ class SynchronizationManager @Inject constructor(
         })
     }
 
-    override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int, sim: Sim?) {
-        if (intervalInMinutes < 1 || intervalInMinutes > 15)
+    override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int) {
+        if (intervalInMinutes < 15 || intervalInMinutes > 120)
             return
-
-        if (synchronizationMode == IDataPackageManager.ConnectionMode.USSD)
-            return
-
-        launch {
-            context.dataStore.edit {
-                if (sim != null)
-                    it[PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID] = sim.id
-                else
-                    it[PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID] = "null"
-            }
-        }
 
         val workRequest = PeriodicWorkRequestBuilder<SynchronizationWorker>(
             intervalInMinutes.toLong(),
-            TimeUnit.MINUTES)
-            .setConstraints(Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build())
+            TimeUnit.MINUTES
+        )
             .addTag(SYNCHRONIZATION_WORKER_TAG)
             .build()
 
@@ -114,6 +104,11 @@ class SynchronizationManager @Inject constructor(
 
         workManager.cancelAllWorkByTag(SYNCHRONIZATION_WORKER_TAG)
         workManager.enqueue(workRequest)
+    }
+
+    override fun cancelScheduleUserDataBytesSynchronization() {
+        val workManager = WorkManager.getInstance(context)
+        workManager.cancelAllWorkByTag(SYNCHRONIZATION_WORKER_TAG)
     }
 
     private fun obtainDataBytesPackages(bytesPackages: Array<CharSequence>): Collection<DataBytes> {
@@ -125,8 +120,14 @@ class SynchronizationManager @Inject constructor(
             data.addAll(getInternationals(response))
 
         val value = getBytesFromText(DIARIA, response)
-        if (value > 0){
-            data.add(DataBytes(DataBytes.DataType.DailyBag, value, getExpireDatePackages(response, true)))
+        if (value > 0) {
+            data.add(
+                DataBytes(
+                    DataBytes.DataType.DailyBag,
+                    value,
+                    getExpireDatePackages(response, true)
+                )
+            )
         }
 
         return data
@@ -138,13 +139,25 @@ class SynchronizationManager @Inject constructor(
         val data = mutableListOf<DataBytes>()
 
         var value = getBytesFromText(PROMO_BONO, response)
-        if (value >= 0){
-            data.add(DataBytes(DataBytes.DataType.PromoBonus, value, getExpireDateBonus(PROMO_BONO, response)))
+        if (value >= 0) {
+            data.add(
+                DataBytes(
+                    DataBytes.DataType.PromoBonus,
+                    value,
+                    getExpireDateBonus(PROMO_BONO, response)
+                )
+            )
         }
 
         value = getBytesFromText(NATIONAL, response)
-        if (value >= 0){
-            data.add(DataBytes(DataBytes.DataType.National, value, getExpireDateBonus(NATIONAL, response)))
+        if (value >= 0) {
+            data.add(
+                DataBytes(
+                    DataBytes.DataType.National,
+                    value,
+                    getExpireDateBonus(NATIONAL, response)
+                )
+            )
         }
 
         return data
@@ -180,25 +193,33 @@ class SynchronizationManager @Inject constructor(
         }
 
         return listOf(
-            DataBytes(DataBytes.DataType.International, international, getExpireDatePackages(text, false)),
-            DataBytes(DataBytes.DataType.InternationalLte, internationalLte, getExpireDatePackages(text, false))
+            DataBytes(
+                DataBytes.DataType.International,
+                international,
+                getExpireDatePackages(text, false)
+            ),
+            DataBytes(
+                DataBytes.DataType.InternationalLte,
+                internationalLte,
+                getExpireDatePackages(text, false)
+            )
         )
     }
 
     private fun getExpireDatePackages(text: String, isBolsa: Boolean): Long {
-        if (isBolsa && !text.contains(DIARIA) || !isBolsa && !text.contains(PAQUETES)){
+        if (isBolsa && !text.contains(DIARIA) || !isBolsa && !text.contains(PAQUETES)) {
             return 0L
         }
 
-        val start = if (isBolsa){
+        val start = if (isBolsa) {
             text.indexOf("validos", text.indexOf(DIARIA)) + 7
-        }else {
+        } else {
             text.indexOf("validos", text.indexOf(PAQUETES)) + 7
         }
 
-        val finish = if (isBolsa){
+        val finish = if (isBolsa) {
             text.indexOf("horas", start)
-        }else {
+        } else {
             text.indexOf("dias", start)
         }
 
@@ -206,20 +227,20 @@ class SynchronizationManager @Inject constructor(
             val value = text.substring(start, finish).trimStart().trimEnd().toInt()
             if (isBolsa) {
                 DateUtils.addHours(Date(), value).time
-            }else {
+            } else {
                 var date = DateUtils.addDays(Date(), value)
                 date = DateUtils.setHours(date, 23)
                 date = DateUtils.setMinutes(date, 59)
                 date = DateUtils.setSeconds(date, 59)
                 date.time
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             0L
         }
     }
 
     private fun getExpireDateBonus(find: String, text: String): Long {
-        if (!text.contains(find)){
+        if (!text.contains(find)) {
             return 0L
         }
         val start = text.indexOf("->", text.indexOf(find)) + 2
@@ -232,7 +253,7 @@ class SynchronizationManager @Inject constructor(
             date = DateUtils.setMinutes(date, 59)
             date = DateUtils.setSeconds(date, 59)
             date?.time ?: 0
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             0L
         }
     }
@@ -254,33 +275,5 @@ class SynchronizationManager @Inject constructor(
         const val LTE = "LTE"
 
         const val SYNCHRONIZATION_WORKER_TAG = "synchronization_worker"
-    }
-
-    inner class SynchronizationWorker(
-        appContext: Context,
-        workerParams: WorkerParameters
-    ) : Worker(appContext, workerParams) {
-
-        override fun doWork(): Result {
-            return runBlocking {
-                if (synchronizationMode != IDataPackageManager.ConnectionMode.USSD) {
-
-                    val simID = applicationContext.dataStore.data.firstOrNull()?.get(PreferencesKeys.DEFAULT_SYNCHRONIZATION_SIM_ID)
-
-                    val sim = if (simID != null && simID != "null"){
-                        simRepository.get(simID, true)
-                    }else {
-                        simManager.getDefaultSim(SimDelegate.SimType.DATA, true)
-                    }
-
-                    sim?.let {
-                        synchronizeUserDataBytes(it)
-                    }
-
-                }
-                return@runBlocking Result.success()
-            }
-        }
-
     }
 }
