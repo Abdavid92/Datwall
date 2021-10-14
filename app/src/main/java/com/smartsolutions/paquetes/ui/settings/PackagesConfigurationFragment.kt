@@ -80,9 +80,8 @@ class PackagesConfigurationFragment @Inject constructor(
             binding.btnContinue.isClickable = false
 
             binding.btnContinue.showProgress {
-                buttonTextRes = R.string.loading
                 progressColor = Color.WHITE
-                textMarginPx = 4
+                buttonText = null
             }
 
             complete()

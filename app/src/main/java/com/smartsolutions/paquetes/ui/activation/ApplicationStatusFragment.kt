@@ -135,9 +135,7 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
     private fun waiting(waiting: Boolean, text: String = getString(R.string.btn_continue)) {
         if (waiting) {
             binding.btnAction.showProgress {
-                buttonText = text
                 progressColor = Color.WHITE
-                textMarginPx = 4
             }
             binding.btnAction.isEnabled = false
         } else {
