@@ -118,23 +118,6 @@ class DashboardViewModel @Inject constructor(
         return firewallHelper.observeFirewallState().asLiveData()
     }
 
-    fun setFirewallSwitchListener(switch: SwitchCompat, fm: FragmentManager) {
-        viewModelScope.launch(Dispatchers.IO) {
-
-            firewallHelper.observeFirewallState().collect {
-                withContext(Dispatchers.Main) {
-                    switch.setOnCheckedChangeListener(null)
-
-                    switch.isChecked = it
-
-                    switch.setOnCheckedChangeListener { buttonView, isChecked ->
-                        onFirewallChangeListener(buttonView, fm)
-                    }
-                }
-            }
-        }
-    }
-
     fun onFirewallChangeListener(
         buttonView: CompoundButton,
         fm: FragmentManager
