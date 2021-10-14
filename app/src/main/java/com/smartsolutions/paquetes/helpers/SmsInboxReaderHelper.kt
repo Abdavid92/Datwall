@@ -15,7 +15,7 @@ class SmsInboxReaderHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+
     fun getAllSmsReceived(): List<SMS>{
         val list = mutableListOf<SMS>()
 
@@ -27,7 +27,11 @@ class SmsInboxReaderHelper @Inject constructor(
                         cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.DATE)),
                         cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.ADDRESS)),
                         cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.BODY)),
-                        cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.SUBSCRIPTION_ID))
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.SUBSCRIPTION_ID))
+                        } else {
+                           -1L
+                        }
                     ))
                 }
             }

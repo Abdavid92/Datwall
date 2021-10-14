@@ -26,7 +26,8 @@ class PurchasedPackagesManager @Inject constructor(
     private val context: Context,
     private val purchasedPackageRepository: IPurchasedPackageRepository,
     private val smsReader: SmsInboxReaderHelper,
-    private val simDelegate: SimDelegate
+    private val simDelegate: SimDelegate,
+    private val simManager: ISimManager
 ) : IPurchasedPackagesManager {
 
     override suspend fun newPurchased(
@@ -95,7 +96,6 @@ class PurchasedPackagesManager @Inject constructor(
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     override suspend fun seedOldPurchasedPackages() {
         if (context.dataStore.data.firstOrNull()?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true) {
 
@@ -110,13 +110,26 @@ class PurchasedPackagesManager @Inject constructor(
                 smses.forEach { sms ->
                     for (pack in DataPackages.PACKAGES) {
                         if (sms.body.contains(pack.smsKey, true)) {
-                            simDelegate.getSubcriptionInfo(sms.subscriptionId.toInt())?.let {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                                simDelegate.getSubcriptionInfo(sms.subscriptionId.toInt())?.let {
+                                    packages.add(
+                                        PurchasedPackage(
+                                            System.currentTimeMillis(),
+                                            sms.date,
+                                            IDataPackageManager.ConnectionMode.USSD,
+                                            simDelegate.getSimId(it),
+                                            false,
+                                            pack.id
+                                        )
+                                    )
+                                }
+                            }else {
                                 packages.add(
                                     PurchasedPackage(
                                         System.currentTimeMillis(),
                                         sms.date,
                                         IDataPackageManager.ConnectionMode.USSD,
-                                        simDelegate.getSimId(it),
+                                        simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
                                         false,
                                         pack.id
                                     )

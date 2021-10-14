@@ -45,9 +45,7 @@ class HistoryViewModel @Inject constructor(
 
     fun seedOldPurchasedPackages(){
         viewModelScope.launch {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                purchasePackageManager.seedOldPurchasedPackages()
-            }
+            purchasePackageManager.seedOldPurchasedPackages()
         }
     }
 

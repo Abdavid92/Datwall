@@ -20,6 +20,5 @@ interface IPurchasedPackagesManager {
 
     suspend fun clearHistory()
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     suspend fun seedOldPurchasedPackages()
 }
