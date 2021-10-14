@@ -33,6 +33,7 @@ class WatcherUtils @Inject constructor(
             getLollipopLastApp()
     }
 
+    @Suppress("DEPRECATION")
     private fun getLollipopLastApp(): String? {
         val tasks = try {
             activityManager.getRecentTasks(1, ActivityManager.RECENT_IGNORE_UNAVAILABLE)

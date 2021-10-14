@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.NetworkInterface
 import java.util.*
 import javax.inject.Inject
@@ -72,21 +73,26 @@ class ActivationManager2 @Inject constructor(
 
                 val status = processApplicationStatus(license)
 
-                when (status.second) {
-                    IActivationManager2.ApplicationStatuses.TooMuchOld ->
-                        listener.onTooMuchOld(license)
-                    IActivationManager2.ApplicationStatuses.Purchased ->
-                        listener.onPurchased(license)
-                    IActivationManager2.ApplicationStatuses.TrialPeriod ->
-                        listener.onTrialPeriod(license, status.first)
-                    IActivationManager2.ApplicationStatuses.Discontinued ->
-                        listener.onDiscontinued(license)
-                    IActivationManager2.ApplicationStatuses.Deprecated ->
-                        listener.onDeprecated(license)
-                    else -> listener.onFailed(Exception())
+                withContext(Dispatchers.Main) {
+                    when (status.second) {
+                        IActivationManager2.ApplicationStatuses.TooMuchOld ->
+                            listener.onTooMuchOld(license)
+                        IActivationManager2.ApplicationStatuses.Purchased ->
+                            listener.onPurchased(license)
+                        IActivationManager2.ApplicationStatuses.TrialPeriod ->
+                            listener.onTrialPeriod(license, status.first)
+                        IActivationManager2.ApplicationStatuses.Discontinued ->
+                            listener.onDiscontinued(license)
+                        IActivationManager2.ApplicationStatuses.Deprecated ->
+                            listener.onDeprecated(license)
+                        else -> listener.onFailed(Exception())
+                    }
                 }
             } catch (e: Exception) {
-                listener.onFailed(e)
+
+                withContext(Dispatchers.Main) {
+                    listener.onFailed(e)
+                }
             }
         }
     }
@@ -179,7 +185,7 @@ class ActivationManager2 @Inject constructor(
                 try {
                     return gson.fromJson(decrypt(it), License::class.java)
                 } catch (e: Exception) {
-
+                    e.printStackTrace()
                 }
             }
 

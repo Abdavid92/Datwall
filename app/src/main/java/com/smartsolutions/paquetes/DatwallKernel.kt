@@ -36,7 +36,7 @@ import kotlin.coroutines.CoroutineContext
 class DatwallKernel @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val activationManager: IActivationManager,
+    private val activationManager: IActivationManager2,
     private val permissionManager: IPermissionsManager,
     private val configurationManager: IConfigurationManager,
     private val updateManager: IUpdateManager,
@@ -213,10 +213,10 @@ class DatwallKernel @Inject constructor(
     private suspend fun isRegisteredAndValid(): Boolean {
         val status = activationManager.canWork().second
 
-        return status != IActivationManager.ApplicationStatuses.Discontinued &&
-                status != IActivationManager.ApplicationStatuses.Unknown &&
-                status != IActivationManager.ApplicationStatuses.Deprecated &&
-                status != IActivationManager.ApplicationStatuses.TooMuchOld
+        return status != IActivationManager2.ApplicationStatuses.Discontinued &&
+                status != IActivationManager2.ApplicationStatuses.Unknown &&
+                status != IActivationManager2.ApplicationStatuses.Deprecated &&
+                status != IActivationManager2.ApplicationStatuses.TooMuchOld
     }
 
     private suspend fun openActivationActivity() {

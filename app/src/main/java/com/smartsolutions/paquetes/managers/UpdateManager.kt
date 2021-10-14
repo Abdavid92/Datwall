@@ -22,6 +22,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import com.smartsolutions.paquetes.workers.UpdateApplicationStatusWorker
@@ -32,6 +33,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.Exception
+import kotlin.coroutines.CoroutineContext
 
 
 private const val updateApplicationStatusWorkerTag = "update_application_status_worker_tag"
@@ -39,9 +41,12 @@ private const val updateApplicationStatusWorkerTag = "update_application_status_
 class UpdateManager @Inject constructor(
     @ApplicationContext
     val context: Context,
-    val activationManager: IActivationManager,
+    val activationManager: IActivationManager2,
     private val localFileHelper: LocalFileHelper
-) : IUpdateManager {
+) : IUpdateManager, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 
     private val downloadManager = ContextCompat
         .getSystemService(context, DownloadManager::class.java)
@@ -49,7 +54,7 @@ class UpdateManager @Inject constructor(
 
 
     override suspend fun findUpdate(): AndroidApp? {
-        activationManager.getDeviceApp()
+        activationManager.getLicense()
             .getOrNull()?.let {
                 if (it.androidApp.version > BuildConfig.VERSION_CODE) {
                     return it.androidApp
@@ -112,7 +117,7 @@ class UpdateManager @Inject constructor(
 
 
     override fun getStatusDownload(id: Long, callback: IUpdateManager.DownloadStatus): Job {
-        return GlobalScope.launch(Dispatchers.IO) {
+        return launch {
 
             var isFinished = false
 
@@ -269,7 +274,7 @@ class UpdateManager @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun requestInstallPermission(requestCode: Int, activity: Activity) {
         val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-            setData(Uri.parse("package:${context.packageName}"))
+            data = Uri.parse("package:${context.packageName}")
         }
         activity.startActivityForResult(intent, requestCode)
     }

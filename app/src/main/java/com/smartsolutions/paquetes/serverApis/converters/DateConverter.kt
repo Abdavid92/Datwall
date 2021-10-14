@@ -9,12 +9,14 @@ import kotlin.reflect.typeOf
 
 class DateConverter : JsonSerializer<Date>, JsonDeserializer<Date> {
 
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+
     override fun serialize(
         src: Date,
         typeOfSrc: Type?,
         context: JsonSerializationContext?
     ): JsonElement {
-        return JsonPrimitive(src.time)
+        return JsonPrimitive(dateFormat.format(src))
     }
 
     @ExperimentalStdlibApi
@@ -25,7 +27,6 @@ class DateConverter : JsonSerializer<Date>, JsonDeserializer<Date> {
     ): Date {
         val date = json.asString
 
-        return Date(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-            .parse(date)?.time ?: System.currentTimeMillis())
+        return Date(dateFormat.parse(date)?.time ?: System.currentTimeMillis())
     }
 }

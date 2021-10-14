@@ -9,9 +9,11 @@ import android.telephony.SmsMessage
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.firstOrNull
@@ -26,6 +28,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SmsReceiver : BroadcastReceiver() {
 
+    private val scope = CoroutineScope(Dispatchers.Default)
+
     /**
      * [IDataPackageManager] encargado de registrar los nuevos
      * paquetes comprados.
@@ -34,11 +38,11 @@ class SmsReceiver : BroadcastReceiver() {
     lateinit var dataPackageManager: IDataPackageManager
 
     /**
-     * [IActivationManager] encargado de confirmar y activar la compra de
+     * [IActivationManager2] encargado de confirmar y activar la compra de
      * la aplicación.
      * */
     @Inject
-    lateinit var activationManager: Lazy<IActivationManager>
+    lateinit var activationManager: Lazy<IActivationManager2>
 
     override fun onReceive(context: Context, intent: Intent) {
         val sms: Array<SmsMessage>? = Telephony.Sms.Intents.getMessagesFromIntent(intent)
@@ -62,7 +66,7 @@ class SmsReceiver : BroadcastReceiver() {
 
         number?.let { phoneNumber ->
 
-            GlobalScope.launch(Dispatchers.IO) {
+            scope.launch {
                 if (phoneNumber.equals("cubacel", true))
                     dataPackageManager.registerDataPackage(body, simIndex)
 

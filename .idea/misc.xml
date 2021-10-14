@@ -85,6 +85,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/ic_usage.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/drawable/primary_button_background.xml" value="0.2203125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout-land/activity_app_control.xml" value="0.1" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_activation.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_app_control.xml" value="0.13722826086956522" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_ask.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.4083333333333333" />
@@ -96,6 +97,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_item_user_data_byte.xml" value="0.125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_normal.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/firewall_controls.xml" value="0.182518115942029" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_application_status.xml" value="0.18" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.21" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_bottom_sheet_dialog_basic.xml" value="0.15579710144927536" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_dashboard.xml" value="0.21" />
