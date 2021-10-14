@@ -7,41 +7,26 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.serverApis.contracts.IJwtGenerator
 import com.smartsolutions.paquetes.serverApis.contracts.ITimeApi
 import com.smartsolutions.paquetes.serverApis.converters.LongConverterFactory
-import com.smartsolutions.paquetes.serverApis.middlewares.CookieJarProcessor
 import com.smartsolutions.paquetes.serverApis.models.JwtData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
-import okhttp3.OkHttpClient
 import org.apache.commons.lang.time.DateUtils
 import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
-import javax.net.ssl.SSLContext
-import javax.net.ssl.X509TrustManager
 
 class DefaultJwtGenerator @Inject constructor(
     @ApplicationContext
-    private val context: Context,
-    sslContext: SSLContext,
-    trustManager: X509TrustManager
+    private val context: Context
 ) : IJwtGenerator {
 
-    private val api: ITimeApi
-
-    init {
-        val client = OkHttpClient.Builder()
-                .cookieJar(CookieJarProcessor())
-                .sslSocketFactory(sslContext.socketFactory, trustManager)
-                .build()
-        api = Retrofit.Builder()
-                .baseUrl(BuildConfig.REGISTRATION_SERVER_URL)
-                .addConverterFactory(LongConverterFactory())
-                .client(client)
-                .build()
-                .create(ITimeApi::class.java)
-    }
+    private val api = Retrofit.Builder()
+            .baseUrl(BuildConfig.REGISTRATION_SERVER_URL)
+            .addConverterFactory(LongConverterFactory())
+            .build()
+            .create(ITimeApi::class.java)
 
     override fun encode(jwtData: JwtData): String? {
         val iat = getServerTime()

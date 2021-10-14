@@ -10,9 +10,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,13 +23,13 @@ import javax.inject.Inject
 @HiltViewModel
 class PurchasedViewModel @Inject constructor(
     application: Application,
-    private val activationManager: IActivationManager,
+    private val activationManager: IActivationManager2,
     private val permissionManager: IPermissionsManager
 ) : AndroidViewModel(application) {
 
     private var cardCopied = false
 
-    private var deviceApp: DeviceApp? = null
+    private var license: License? = null
 
     /**
      * Esta propiedad se debe llamar antes de usar cualquier método de este viewmodel.
@@ -48,22 +48,16 @@ class PurchasedViewModel @Inject constructor(
     /**
      * Resultado de la tranferencia por código ussd.
      * */
-    val ussdTranferenceResult: LiveData<Result<Unit>> = MutableLiveData()
+    val ussdTransferenceResult: LiveData<Result<Unit>> = MutableLiveData()
 
     fun initDeviceAppAndActivation() {
         viewModelScope.launch(Dispatchers.IO) {
-            val deviceAppResult = activationManager.getDeviceApp()
+            val licenseResult = activationManager.getLicense()
 
-            if (deviceAppResult.isFailure)
-                _beginActivationResult.postValue(Result.Failure((deviceAppResult as Result.Failure).throwable))
+            if (licenseResult.isFailure)
+                _beginActivationResult.postValue(Result.Failure((licenseResult as Result.Failure).throwable))
             else {
-                deviceApp = deviceAppResult.getOrNull()
-
-                deviceApp?.let {
-                    _beginActivationResult.postValue(
-                        activationManager.beginActivation(it)
-                    )
-                }
+                license = licenseResult.getOrNull()
             }
         }
     }
@@ -72,9 +66,9 @@ class PurchasedViewModel @Inject constructor(
      * Copia el número de tarjeta en el portapapeles.
      * */
     fun copyDebitCardToClipboard() {
-        checkDeviceApp()
+        checkLicense()
 
-        deviceApp?.let {
+        license?.let {
 
             val clipboardManager = ContextCompat.getSystemService(
                 getApplication(),
@@ -98,9 +92,9 @@ class PurchasedViewModel @Inject constructor(
     }
 
     fun getDebitCardNumber(): String? {
-        checkDeviceApp()
+        checkLicense()
 
-        deviceApp?.let {
+        license?.let {
             return it.androidApp.debitCard
         }
         return null
@@ -128,11 +122,11 @@ class PurchasedViewModel @Inject constructor(
     }
 
     fun transferCreditByUSSD(key: String) {
-        checkDeviceApp()
+        checkLicense()
 
-        deviceApp?.let {
+        license?.let {
             viewModelScope.launch(Dispatchers.IO) {
-                (ussdTranferenceResult as MutableLiveData).postValue(
+                (ussdTransferenceResult as MutableLiveData).postValue(
                     activationManager.transferCreditByUSSD(key, it)
                 )
             }
@@ -140,9 +134,9 @@ class PurchasedViewModel @Inject constructor(
     }
 
     fun getPrice(): String {
-        checkDeviceApp()
+        checkLicense()
 
-        deviceApp?.let {
+        license?.let {
             return "${it.androidApp.price}$"
         }
         return "30$"
@@ -168,9 +162,9 @@ class PurchasedViewModel @Inject constructor(
         }
     }
 
-    private fun checkDeviceApp() {
-        if (deviceApp == null)
-            throw Exception("DeviceApp is null. First call property beginActivationResult " +
-                    "or method initDeviceAppAndActivation()")
+    private fun checkLicense() {
+        if (license == null)
+            throw Exception("License is null. First call " +
+                    "method initDeviceAppAndActivation()")
     }
 }

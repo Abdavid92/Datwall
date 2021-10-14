@@ -1,12 +1,10 @@
 package com.smartsolutions.paquetes.serverApis.modules
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Base64
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.serverApis.contracts.ISmartSolutionsApps
-import com.smartsolutions.paquetes.serverApis.middlewares.CookieJarProcessor
 import com.smartsolutions.paquetes.serverApis.middlewares.JwtInterceptor
 import com.smartsolutions.paquetes.serverApis.models.JwtData
 import dagger.Module
@@ -17,10 +15,6 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.X509TrustManager
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -49,37 +43,9 @@ class WebApisModule {
             .create(ISmartSolutionsApps::class.java)
 
     @Provides
-    fun provideOkHttpClient(interceptor: JwtInterceptor, sslContext: SSLContext): OkHttpClient {
-        val trustManager = provideTrustManagerArray()
-
+    fun provideOkHttpClient(interceptor: JwtInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
-            .cookieJar(CookieJarProcessor())
             .addInterceptor(interceptor)
-            .sslSocketFactory(sslContext.socketFactory, trustManager[0])
             .build()
     }
-
-    @Provides
-    fun provideSSLContext(trustAllCert: Array<X509TrustManager>): SSLContext {
-        val sslContext = SSLContext.getInstance("SSL")
-        sslContext.init(null, trustAllCert, SecureRandom())
-        return sslContext
-    }
-
-    @Provides
-    fun provideTrustManager(): X509TrustManager = provideTrustManagerArray()[0]
-
-    @Provides
-    fun provideTrustManagerArray(): Array<X509TrustManager> =
-        arrayOf(object : X509TrustManager {
-            @SuppressLint("TrustAllX509TrustManager")
-            override fun checkClientTrusted(p0: Array<out X509Certificate>?, p1: String?) {}
-
-            @SuppressLint("TrustAllX509TrustManager")
-            override fun checkServerTrusted(p0: Array<out X509Certificate>?, p1: String?) {}
-
-            override fun getAcceptedIssuers(): Array<X509Certificate> {
-                return emptyArray()
-            }
-        })
 }

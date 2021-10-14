@@ -15,6 +15,11 @@ val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "s
 object PreferencesKeys {
 
     /**
+     * Licencia de la aplicación.
+     * */
+    val LICENCE = stringPreferencesKey("license")
+
+    /**
      * Implementación de la notificación principal.
      * */
     val NOTIFICATION_CLASS = stringPreferencesKey("notification_class")

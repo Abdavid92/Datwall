@@ -157,7 +157,9 @@ class DashboardViewModel @Inject constructor(
                             object : SinglePermissionFragment.SinglePermissionCallback {
 
                                 override fun onGranted() {
-                                    firewallHelper.startFirewall()
+                                    viewModelScope.launch {
+                                        firewallHelper.startFirewall()
+                                    }
                                 }
 
                                 override fun onDenied() {

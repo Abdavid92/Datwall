@@ -27,7 +27,7 @@ class SetupViewModel @Inject constructor(
     val configurations: LiveData<Array<Configuration>>
         get() {
             if (_configurations.value == null) {
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch(Dispatchers.Default) {
                     _configurations.postValue(configurationManager.getUncompletedConfigurations())
                 }
             }
@@ -50,8 +50,4 @@ class SetupViewModel @Inject constructor(
     fun nextActivity() = nextViewModelDelegate.nextActivity()
 
     fun next() = nextViewModelDelegate.next()
-
-    /*fun continueWithRun(activity: SetupActivity) {
-        kernel.main(activity)
-    }*/
 }

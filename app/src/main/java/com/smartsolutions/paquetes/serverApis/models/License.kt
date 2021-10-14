@@ -12,12 +12,6 @@ import java.util.*
  * */
 data class License(
     /**
-     * Id.
-     * */
-    @SerializedName("id")
-    val id: Long,
-
-    /**
      * Id del dispositivo.
      * */
     @SerializedName("device_id")
@@ -50,17 +44,33 @@ data class License(
     val model: String,
 
     /**
+     * Transacción de la compra.
+     * */
+    @SerializedName("transaction")
+    var transaction: String?,
+
+    /**
+     * Número de teléfono que realizó la compra.
+     * */
+    @SerializedName("phone")
+    var phone: String?,
+
+    /**
      * Fecha de creación.
      * */
     @SerializedName("created_at")
     @JsonAdapter(DateConverter::class)
     val createdAt: Date,
 
+    @SerializedName("last_query")
+    @JsonAdapter(DateConverter::class)
+    val lastQuery: Date,
+
     /**
      * Relación foránea.
      * */
     @SerializedName("package_name")
-    val packageName: String
+    var packageName: String?
 ) {
 
     /**

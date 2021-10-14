@@ -31,7 +31,7 @@ interface ISmartSolutionsApps {
     fun updateDeviceApp(@Path("id") id: String, @Body deviceApp: DeviceApp): Call<ResponseBody>
 
     @GET("licences/{device_id}")
-    suspend fun getLicense(@Path("device_id") deviceId: String): License?
+    suspend fun getLicense(@Path("device_id") deviceId: String): License
 
     @POST("licences")
     suspend fun postLicense(@Body license: License)

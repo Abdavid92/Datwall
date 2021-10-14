@@ -1,7 +1,9 @@
 package com.smartsolutions.paquetes.serverApis.modules
 
+import com.smartsolutions.paquetes.serverApis.ActivationClientImpl
 import com.smartsolutions.paquetes.serverApis.DefaultJwtGenerator
 import com.smartsolutions.paquetes.serverApis.RegistrationClientImpl
+import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
 import com.smartsolutions.paquetes.serverApis.contracts.IJwtGenerator
 import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
 import dagger.Binds
@@ -19,4 +21,7 @@ interface BindingsModule {
 
     @Binds
     fun bindIRegistrationClient(impl: RegistrationClientImpl): IRegistrationClient
+
+    @Binds
+    fun bindIActivationClient(impl: ActivationClientImpl): IActivationClient
 }

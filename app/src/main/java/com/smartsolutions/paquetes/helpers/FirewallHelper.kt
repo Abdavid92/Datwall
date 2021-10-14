@@ -10,6 +10,7 @@ import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.dataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
@@ -28,7 +29,7 @@ import kotlin.coroutines.CoroutineContext
 class FirewallHelper @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val activationManager: IActivationManager
+    private val activationManager: IActivationManager2
 ) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -69,15 +70,15 @@ class FirewallHelper @Inject constructor(
 
     /**
      * Establece en el dataStore que el cortafuegos está encendido.
-     * Si los datos móviles están encendidos y [IActivationManager]
+     * Si los datos móviles están encendidos y [IActivationManager2]
      * concede el permiso de trabajo, enciende el vpn.
      *
      * @return [Intent] si el vpn no tiene permiso para encender. Si 
-     * [IActivationManager] no concedió el permiso de trabajo el
+     * [IActivationManager2] no concedió el permiso de trabajo el
      * cortafuegos no encenderá pero se retornará null en caso de que
      * el permiso del sistema esté concedido.
      * */
-    fun startFirewall(): Intent? {
+    suspend fun startFirewall(): Intent? {
         establishFirewallEnabled(true)
 
         var intent: Intent? = null
@@ -85,15 +86,13 @@ class FirewallHelper @Inject constructor(
         if (DatwallKernel.DATA_MOBILE_ON) {
             Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
 
-            launch {
-                if (activationManager.canWork().first) {
-                    intent = startFirewallService()
+            if (activationManager.canWork().first) {
+                intent = startFirewallService()
 
-                    if (intent != null)
-                        Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
-                } else {
+                if (intent != null)
                     Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
-                }
+            } else {
+                Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
             }
         } else {
             Log.i(TAG, "startVpn: Data mobile is off. For now the firewall will off.")

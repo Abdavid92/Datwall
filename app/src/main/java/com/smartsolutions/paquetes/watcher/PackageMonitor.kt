@@ -183,7 +183,6 @@ class PackageMonitor @Inject constructor(
     /**
      * Restaura las configuraciones de la versión anterior de la aplicación.
      * */
-    @Deprecated("En la próxima versión se eliminara la retro-compatibilidad")
     private suspend fun restoreOldConfiguration() {
         if (!legacyConfiguration.isConfigurationRestored()) {
 

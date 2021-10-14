@@ -39,7 +39,7 @@ class DefaultSimRecyclerAdapter(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     radioButton.isClickable = false
                 } else {
-                    radioButton.setOnCheckedChangeListener { buttonView, isChecked ->
+                    radioButton.setOnCheckedChangeListener { _,_ ->
                         fragment.setDefaultSim(sim, isDefaultVoice)
                     }
                 }
