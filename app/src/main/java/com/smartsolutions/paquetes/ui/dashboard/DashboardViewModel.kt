@@ -49,12 +49,12 @@ class DashboardViewModel @Inject constructor(
     application: Application,
     private val appRepository: IAppRepository,
     private val permissionManager: IPermissionsManager,
-    private val iconManager: IIconManager,
     private val firewallHelper: FirewallHelper,
     private val ussdHelper: USSDHelper
-): AndroidViewModel(application) {
+) : AndroidViewModel(application) {
 
     private val _appsData = MutableLiveData<IntArray>()
+
     /**
      * LiveData que contiene un Array de tres items.
      * El primero es el total de aplicaciones permitidas,
@@ -75,26 +75,6 @@ class DashboardViewModel @Inject constructor(
 
             return _appsData
         }
-
-    /**
-     * Establece el ícono de la app en el imageView de manera asincrónica y
-     * le da visibilidad al imageView si está invisible.
-     *
-     * @param app
-     * @param imageView
-     * */
-    fun setAppIcon(app: App, imageView: ImageView) {
-        iconManager.getAsync(
-            packageName = app.packageName,
-            versionCode = app.version,
-            callback = {
-                imageView.setImageBitmap(it)
-
-                if (imageView.visibility != View.VISIBLE)
-                    imageView.visibility = View.VISIBLE
-            }
-        )
-    }
 
     fun launchUssdCode(ussd: String, fm: FragmentManager) {
         viewModelScope.launch {
@@ -147,34 +127,56 @@ class DashboardViewModel @Inject constructor(
                             getApplication(),
                             getApplication<DatwallApplication>()
                                 .getString(R.string.error_starting_firewall_for_all_access),
-                            Toast.LENGTH_SHORT).show()
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
-                    if (firewallHelper.startFirewall() != null) {
-                        val fragment = SinglePermissionFragment.newInstance(
-                            IPermissionsManager.VPN_CODE,
-                            object : SinglePermissionFragment.SinglePermissionCallback {
 
-                                override fun onGranted() {
-                                    viewModelScope.launch {
-                                        firewallHelper.startFirewall()
-                                    }
-                                }
+                    val dynamic = getApplication<DatwallApplication>().dataStore.data
+                        .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
 
-                                override fun onDenied() {
-                                    buttonView.isChecked = false
+                    if (dynamic) {
+                        requestDrawOverPermission(fm,
+                            onGranted = {
+                                launch {
+                                    startFirewall(buttonView, fm)
                                 }
+                            },
+                            onDenied = {
+                                buttonView.isChecked = false
                             }
                         )
-
-                        withContext(Dispatchers.Main) {
-                            fragment.show(fm, null)
-                        }
+                    }else {
+                        startFirewall(buttonView, fm)
                     }
                 }
             }
         } else {
             firewallHelper.stopFirewall()
+        }
+    }
+
+    private suspend fun startFirewall(buttonView: CompoundButton, fm: FragmentManager){
+        if (firewallHelper.startFirewall() != null) {
+            val fragment = SinglePermissionFragment.newInstance(
+                IPermissionsManager.VPN_CODE,
+                object : SinglePermissionFragment.SinglePermissionCallback {
+
+                    override fun onGranted() {
+                        viewModelScope.launch {
+                            firewallHelper.startFirewall()
+                        }
+                    }
+
+                    override fun onDenied() {
+                        buttonView.isChecked = false
+                    }
+                }
+            )
+
+            withContext(Dispatchers.Main) {
+                fragment.show(fm, null)
+            }
         }
     }
 
@@ -184,12 +186,9 @@ class DashboardViewModel @Inject constructor(
         fm: FragmentManager
     ) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().dataStore
 
-            val defaultDynamic = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-
-            val dynamic = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: defaultDynamic
+            val dynamic = getApplication<DatwallApplication>().dataStore.data
+                .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
 
             if (dynamic)
                 dynamicRadio.isChecked = true
@@ -198,47 +197,16 @@ class DashboardViewModel @Inject constructor(
 
             dynamicRadio.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (isChecked) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        val permission = findDrawOverPermission()
-
-                        if (permission.checkPermission(permission, getApplication())) {
-                            viewModelScope.launch {
-                                dataStore.edit {
-                                    it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] = true
-                                }
-                            }
-                        } else {
-                            SinglePermissionFragment.newInstance(
-                                IPermissionsManager.DRAW_OVERLAYS_CODE,
-                                object : SinglePermissionFragment.SinglePermissionCallback {
-                                    override fun onGranted() {
-                                        viewModelScope.launch {
-                                            dataStore.edit {
-                                                it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] = true
-                                            }
-                                        }
-                                    }
-
-                                    override fun onDenied() {
-                                        staticRadio.isChecked = true
-                                    }
-
-                                }
-                            ).show(fm, null)
-                        }
-                    } else {
-                        viewModelScope.launch {
-                            dataStore.edit {
-                                it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] = true
-                            }
-                        }
-                    }
+                    requestDrawOverPermission(fm,
+                        onGranted = {
+                            writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, true)
+                        },
+                        onDenied = {
+                            writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, false)
+                            staticRadio.isChecked
+                        })
                 } else {
-                    viewModelScope.launch {
-                        dataStore.edit {
-                            it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] = false
-                        }
-                    }
+                    writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, false)
                 }
             }
         }
@@ -260,8 +228,7 @@ class DashboardViewModel @Inject constructor(
                         onBubbleChangeListener(
                             buttonView,
                             isChecked,
-                            childFragmentManager,
-                            dataStore
+                            childFragmentManager
                         )
                     }
                 }
@@ -272,51 +239,18 @@ class DashboardViewModel @Inject constructor(
     private fun onBubbleChangeListener(
         buttonView: CompoundButton,
         isChecked: Boolean,
-        fm: FragmentManager,
-        dataStore: DataStore<Preferences>
+        fm: FragmentManager
     ) {
         if (isChecked) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val permission = findDrawOverPermission()
-
-                if (permission.checkPermission(permission, getApplication())) {
-
-                    viewModelScope.launch {
-                        dataStore.edit {
-                            it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
-                        }
-                    }
-                } else {
-                    SinglePermissionFragment.newInstance(
-                        IPermissionsManager.DRAW_OVERLAYS_CODE,
-                        object : SinglePermissionFragment.SinglePermissionCallback {
-                            override fun onGranted() {
-                                viewModelScope.launch {
-                                    dataStore.edit {
-                                        it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
-                                    }
-                                }
-                            }
-
-                            override fun onDenied() {
-                                buttonView.isChecked = false
-                            }
-                        }
-                    ).show(fm, null)
-                }
-            } else {
-                viewModelScope.launch {
-                    dataStore.edit {
-                        it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = true
-                    }
-                }
-            }
+           requestDrawOverPermission(fm,
+           onGranted = {
+               writeChangesDataStore(PreferencesKeys.ENABLED_BUBBLE_FLOATING, true)
+           },
+           onDenied = {
+               buttonView.isChecked = false
+           })
         } else {
-            viewModelScope.launch {
-                dataStore.edit {
-                    it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = false
-                }
-            }
+            writeChangesDataStore(PreferencesKeys.ENABLED_BUBBLE_FLOATING, false)
         }
     }
 
@@ -325,8 +259,8 @@ class DashboardViewModel @Inject constructor(
             val dataStore = getApplication<DatwallApplication>().dataStore
 
             val transparency = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY) ?:
-                BubbleFloatingService.TRANSPARENCY
+                .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY)
+                ?: BubbleFloatingService.TRANSPARENCY
 
             bubbleTransparency.max = 10
 
@@ -370,8 +304,8 @@ class DashboardViewModel @Inject constructor(
             val dataStore = getApplication<DatwallApplication>().dataStore
 
             val size = BubbleFloatingService.BubbleSize.valueOf(
-                dataStore.data.firstOrNull()?.get(PreferencesKeys.BUBBLE_SIZE) ?:
-                BubbleFloatingService.SIZE.name
+                dataStore.data.firstOrNull()?.get(PreferencesKeys.BUBBLE_SIZE)
+                    ?: BubbleFloatingService.SIZE.name
             )
 
             BubbleFloatingService.setSizeBubble(
@@ -424,8 +358,8 @@ class DashboardViewModel @Inject constructor(
             val dataStore = getApplication<DatwallApplication>().dataStore
 
             val allWayStore = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW) ?:
-                BubbleFloatingService.ALWAYS_SHOW
+                .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW)
+                ?: BubbleFloatingService.ALWAYS_SHOW
 
             if (allWayStore)
                 allWay.isChecked = true
@@ -442,8 +376,49 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+
+    private fun writeChangesDataStore(preferences: Preferences.Key<Boolean>, value: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getApplication<Application>().dataStore.edit {
+                it[preferences] = value
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
     private fun findDrawOverPermission() = permissionManager
-        .findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE) ?:
-        throw NullPointerException("Incorrect permission code")
+        .findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
+        ?: throw NullPointerException("Incorrect permission code")
+
+    private fun requestDrawOverPermission(
+        fm: FragmentManager,
+        onGranted: () -> Unit,
+        onDenied: (() -> Unit)? = null
+    ): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val permission = findDrawOverPermission()
+
+            if (permission.checkPermission(permission, getApplication())) {
+                onGranted()
+            } else {
+                SinglePermissionFragment.newInstance(
+                    IPermissionsManager.DRAW_OVERLAYS_CODE,
+                    object : SinglePermissionFragment.SinglePermissionCallback {
+                        override fun onGranted() {
+                            onGranted()
+                        }
+
+                        override fun onDenied() {
+                            onDenied?.invoke()
+                        }
+                    }
+                ).show(fm, null)
+
+                return false
+            }
+        } else
+            onGranted()
+
+        return true
+    }
 }

@@ -3,6 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">smartsolutions-apps.infinityfreeapp.com</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">192.168.234.134</domain>
         <domain includeSubdomains="true">mi.cubacel.net</domain>
     </domain-config>
 </network-security-config>

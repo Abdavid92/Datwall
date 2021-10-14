@@ -39,15 +39,8 @@ class FirewallControls(
                 override fun onTransitionEnd(transition: Transition?) {
                     transition?.removeListener(this)
 
-                    viewModel.firewallState().observe(activity) {
-                        binding.firewall.setOnCheckedChangeListener(null)
+                   viewModel.setFirewallSwitchListener(binding.firewall, activity.supportFragmentManager)
 
-                        binding.firewall.isChecked = it
-
-                        binding.firewall.setOnCheckedChangeListener { buttonView,_ ->
-                            viewModel.onFirewallChangeListener(buttonView, activity.supportFragmentManager)
-                        }
-                    }
                     viewModel.setFirewallDynamicModeListener(
                         binding.dynamicMode,
                         binding.staticMode,

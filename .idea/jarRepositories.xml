@@ -61,5 +61,50 @@
       <option name="name" value="maven2" />
       <option name="url" value="https://maven.aliyun.com/repository/jcenter" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_android-gradle-plugin-4.2.1" />
+      <option name="name" value="injected_offline_android-gradle-plugin-4.2.1" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/android-gradle-plugin-4.2.1/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_kotlin-gradle-plugin-1.5.31" />
+      <option name="name" value="injected_offline_kotlin-gradle-plugin-1.5.31" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/kotlin-gradle-plugin-1.5.31/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_android_gradle_plugin_7_0_0_Untested" />
+      <option name="name" value="injected_offline_android_gradle_plugin_7_0_0_Untested" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/android_gradle_plugin_7_0_0_Untested/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_corretto-1.8.0_302" />
+      <option name="name" value="injected_offline_corretto-1.8.0_302" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/corretto-1.8.0_302/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_gmaven_stable" />
+      <option name="name" value="injected_offline_gmaven_stable" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/gmaven_stable/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_android-gradle-plugin-4.0.2" />
+      <option name="name" value="injected_offline_android-gradle-plugin-4.0.2" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/android-gradle-plugin-4.0.2/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
+      <option name="name" value="injected_offline_kotlin-gradle-plugin-1.3.72" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/kotlin-gradle-plugin-1.3.72/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_android-gradle-plugin-3.2.1" />
+      <option name="name" value="injected_offline_android-gradle-plugin-3.2.1" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/android-gradle-plugin-3.2.1/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="injected_offline_kotlin-gradle-plugin-1.5.0" />
+      <option name="name" value="injected_offline_kotlin-gradle-plugin-1.5.0" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../Repository/kotlin-gradle-plugin-1.5.0/" />
+    </remote-repository>
   </component>
 </project>
