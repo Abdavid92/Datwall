@@ -39,6 +39,10 @@ class DatwallService : Service(), CoroutineScope {
 
     private val job = Job()
 
+    private var bandWidthJob: Job? = null
+    private var userDataByteJob: Job? = null
+    private var dataStoreJob: Job? = null
+
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
@@ -152,7 +156,10 @@ class DatwallService : Service(), CoroutineScope {
     }
 
     private fun dataStoreCollector() {
-        launch {
+        if (dataStoreJob != null)
+            return
+
+        dataStoreJob = launch {
             dataStore.data.collect { preferences ->
 
                 val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS] ?:
@@ -196,7 +203,10 @@ class DatwallService : Service(), CoroutineScope {
      * Registra un colector para la velocidad de ancho de banda de la red.
      * */
     private fun registerBandWithCollector() {
-        launch {
+        if (bandWidthJob != null)
+            return
+
+        bandWidthJob = launch {
             watcher.bandWithFlow.collect {
                 updateBandWith(it.first, it.second)
             }
@@ -208,7 +218,10 @@ class DatwallService : Service(), CoroutineScope {
      * de dataBytes de la linea predeterminada de datos.
      * */
     private fun registerUserDataBytesCollector() {
-        launch {
+        if (userDataByteJob != null)
+            return
+
+        userDataByteJob = launch {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
                     val defaultDataSim = sims.first { it.defaultData }
@@ -360,6 +373,10 @@ class DatwallService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         job.cancel()
+        bandWidthJob?.cancel()
+        userDataByteJob?.cancel()
+        dataStoreJob?.cancel()
+
 
         watcher.stop()
 
