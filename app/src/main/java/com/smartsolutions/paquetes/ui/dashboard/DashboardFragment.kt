@@ -142,15 +142,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setFirewallSettings() {
-        viewModel.firewallState().observe(viewLifecycleOwner) {
-            binding.firewall.setOnCheckedChangeListener(null)
-
-            binding.firewall.isChecked = it
-
-            binding.firewall.setOnCheckedChangeListener { buttonView,_ ->
-                viewModel.onFirewallChangeListener(buttonView, childFragmentManager)
-            }
-        }
+        viewModel.setFirewallSwitchListener(binding.firewall, childFragmentManager)
 
         binding.firewallControl.setOnClickListener {
             val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(

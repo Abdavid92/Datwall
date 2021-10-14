@@ -114,10 +114,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun firewallState(): LiveData<Boolean> {
-        return firewallHelper.observeFirewallState().asLiveData()
-    }
-
     fun setFirewallSwitchListener(switch: SwitchCompat, fm: FragmentManager) {
         viewModelScope.launch(Dispatchers.IO) {
 
