@@ -4,11 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.datastore.preferences.core.edit
-import com.smartsolutions.paquetes.DatwallKernel
-import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.services.BubbleFloatingService
@@ -26,7 +23,7 @@ class BubbleServiceHelper @Inject constructor(
 ) {
 
     @Throws(MissingPermissionException::class)
-    suspend fun startBubble(turnOn: Boolean = false) {
+    suspend fun startBubble(turnOn: Boolean) {
         if (turnOn)
             writeChangesDataStore(true)
 
@@ -72,7 +69,7 @@ class BubbleServiceHelper @Inject constructor(
         enabled: Boolean
     ) {
         withContext(Dispatchers.IO) {
-            context.internalDataStore.edit {
+            context.settingsDataStore.edit {
                 it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = enabled
             }
         }

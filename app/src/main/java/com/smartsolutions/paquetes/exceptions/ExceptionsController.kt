@@ -9,20 +9,24 @@ import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
-import com.smartsolutions.paquetes.BuildConfig
-import com.smartsolutions.paquetes.DatwallKernel
-import com.smartsolutions.paquetes.R
+import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.exceptions.ExceptionsActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 import kotlin.system.exitProcess
 
 class ExceptionsController @Inject constructor(
@@ -30,7 +34,7 @@ class ExceptionsController @Inject constructor(
     private val context: Context,
     private val localFileHelper: LocalFileHelper,
     private val notificationHelper: NotificationHelper
-) : Thread.UncaughtExceptionHandler {
+) : Thread.UncaughtExceptionHandler, CoroutineScope {
 
     var isRegistered = false
         private set
@@ -51,34 +55,20 @@ class ExceptionsController @Inject constructor(
 
     override fun uncaughtException(t: Thread, e: Throwable) {
 
+        launch {
+            context.internalDataStore.edit {
+                it[PreferencesKeys.IS_THROWED] = true
+            }
+        }
+
         e.printStackTrace()
 
-
-
         if (e is MissingPermissionException) {
-            when {
-                e.permission.contains(Settings.ACTION_MANAGE_OVERLAY_PERMISSION) -> {
-                    notify(
-                        context.getString(R.string.stoped_missing_overlay_permissions_title_notification),
-                        context.getString(R.string.stoped_missing_overlay_permissions_description_notification)
-                    )
-                }
-
-                e.permission.contains(IPermissionsManager.VPN_PERMISSION_KEY) -> {
-                    notify(
-                        context.getString(R.string.stoped_missing_vpn_permissions_title_notification),
-                        context.getString(R.string.stoped_missing_vpn_permissions_description_notification)
-                    )
-                }
-
-                else -> {
-                    notify(
-                        context.getString(R.string.missing_permmissions_title_notification),
-                        context.getString(R.string.missing_permmissions_description_notification),
-                        SplashActivity::class.java
-                    )
-                }
-            }
+            notify(
+                context.getString(R.string.missing_permmissions_title_notification),
+                context.getString(R.string.missing_permmissions_description_notification),
+                SplashActivity::class.java
+            )
         } else {
             saveException(e)
             if (isInForeground()) {
@@ -164,5 +154,8 @@ class ExceptionsController @Inject constructor(
     companion object{
         const val EXCEPTION_FILE_NAME = "exception.json"
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 
 }

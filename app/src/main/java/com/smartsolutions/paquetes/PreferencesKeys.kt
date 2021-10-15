@@ -177,6 +177,11 @@ object PreferencesKeys {
     val IS_SEED_OLD_PURCHASED_PACKAGES = booleanPreferencesKey("is_seed_old_purchased_packages")
 
     /**
+     * Indica si la app se cerro previamente debido a una excepcion y por lo tanto el Kernel no debe iniciar sus servicios
+     */
+    val IS_THROWED = booleanPreferencesKey("is_throwed")
+
+    /**
      * Busca una clave de preferencia por el nombre.
      *
      * @param key

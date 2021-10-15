@@ -50,6 +50,7 @@ class DatwallKernel @Inject constructor(
     private val legacyConfiguration: LegacyConfigurationHelper,
     private val simManager: ISimManager,
     private val firewallHelper: FirewallHelper,
+    private val bubbleServiceHelper: BubbleServiceHelper,
     private val synchronizationManager: ISynchronizationManager
 ) : IChangeNetworkHelper, CoroutineScope {
 
@@ -91,6 +92,16 @@ class DatwallKernel @Inject constructor(
      * Función principal que maqueta e inicia todos los servicios de la aplicación.
      * */
     suspend fun main() {
+
+        //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
+        if (withContext(Dispatchers.IO){
+                val isThrowed = context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_THROWED) == true
+                context.internalDataStore.edit {
+                    it[PreferencesKeys.IS_THROWED] = false
+                }
+                return@withContext isThrowed
+            })
+            return
 
         //Crea los canales de notificaciones
         createNotificationChannels()
@@ -203,10 +214,10 @@ class DatwallKernel @Inject constructor(
             if (FIREWALL_ON) {
                 stopFirewall()
             }
-        }
 
-        if (BUBBLE_ON) {
-            stopBubbleFloating()
+            if (BUBBLE_ON) {
+                stopBubbleFloating()
+            }
         }
     }
 
@@ -391,39 +402,11 @@ class DatwallKernel @Inject constructor(
     }
 
     private suspend fun startBubbleFloating() {
-        val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val permission = permissionManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
-            if (permission?.checkPermission?.invoke(permission, context) == true){
-                true
-            }else {
-                throw MissingPermissionException(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-            }
-        } else {
-            true
-        }
-
-        if (isGranted && activationManager.canWork().first) {
-            try {
-                context.startService(Intent(context, BubbleFloatingService::class.java))
-            }catch (e: Exception){
-
-            }
-        }
+       bubbleServiceHelper.startBubble(false)
     }
 
-    fun stopBubbleFloating(turnOf: Boolean = false){
-        if (turnOf){
-            launch {
-                context.settingsDataStore.edit {
-                    it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = false
-                }
-            }
-        }
-        try {
-            context.stopService(Intent(context, BubbleFloatingService::class.java))
-        }catch (e: Exception){
-
-        }
+    private suspend fun stopBubbleFloating(){
+       bubbleServiceHelper.stopBubble()
     }
 
     private suspend fun stopFirewall(turnOf: Boolean = false){
