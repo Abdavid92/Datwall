@@ -143,13 +143,11 @@ class PackageMonitor @Inject constructor(
                 app = App()
 
                 appRepository.fillNewApp(app, info)
-                //appsToAdd.add(app)
                 appsToCreateOrReplace.add(app)
             } else if (versionNotEquals(app.version, info)) {
                 /*Pero si la encuentro reviso que la version sea diferente.
                 * Si lo es, la actualizo.*/
                 appRepository.fillApp(app, info)
-                //appsToUpdate.add(app)
                 appsToCreateOrReplace.add(app)
             }
         }

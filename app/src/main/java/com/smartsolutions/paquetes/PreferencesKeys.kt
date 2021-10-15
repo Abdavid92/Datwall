@@ -6,8 +6,9 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.smartsolutions.paquetes.workers.SynchronizationWorker
 
-val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "settings")
-//val Context.uiDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_ui")
+val Context.settingsDataStore by preferencesDataStore(name = "settings")
+val Context.uiDataStore by preferencesDataStore(name = "settings_ui")
+val Context.internalDataStore by preferencesDataStore(name = "internal_settings")
 
 /**
  * Contiene las claves de las preferencias.
@@ -164,7 +165,7 @@ object PreferencesKeys {
     /**
      * Estado y Restricciones de la sincronización en segundo plano
      */
-    val SYNCHRONIZATION_STATUS = booleanPreferencesKey("synchronization_status")
+    val ENABLE_DATA_SYNCHRONIZATION = booleanPreferencesKey("enable_data_synchronization")
 
     val SYNCHRONIZATION_ONLY_INTERNATIONAL = booleanPreferencesKey("synchronization_only_international_exist")
 

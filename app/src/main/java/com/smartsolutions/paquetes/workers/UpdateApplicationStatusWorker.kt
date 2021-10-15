@@ -6,7 +6,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import dagger.assisted.Assisted
@@ -26,7 +26,7 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         updateManager.findUpdate()?.let { androidApp ->
-            val isAutoUpdate = applicationContext.dataStore.data
+            val isAutoUpdate = applicationContext.settingsDataStore.data
                     .firstOrNull()
                     ?.get(PreferencesKeys.AUTO_UPDATE) ?: false
 

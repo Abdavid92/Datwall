@@ -12,14 +12,11 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.managers.ActivationManager
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint

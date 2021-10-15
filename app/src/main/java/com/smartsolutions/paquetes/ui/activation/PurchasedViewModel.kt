@@ -10,7 +10,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PurchasedViewModel @Inject constructor(
     application: Application,
-    private val activationManager: IActivationManager2,
+    private val activationManager: IActivationManager,
     private val permissionManager: IPermissionsManager
 ) : AndroidViewModel(application) {
 

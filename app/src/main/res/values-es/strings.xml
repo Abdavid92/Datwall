@@ -289,4 +289,7 @@
     <string name="firewall_force_stop">Cortafuegos detenido</string>
     <string name="firewall_force_stop_summary">Se ha forzado el apagado del cortafuegos. Esto podría causar fuga de datos.</string>
     <string name="loading">Cargando</string>
+    <string name="enable_data_synchronization">Activar la sincronización</string>
+    <string name="enable_data_synchronization_summary">Ahora te explico</string>
+    <string name="synchonization">Sincronización</string>
 </resources>

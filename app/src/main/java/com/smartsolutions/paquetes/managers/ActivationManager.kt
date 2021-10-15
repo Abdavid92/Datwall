@@ -8,24 +8,25 @@ import android.provider.Settings
 import android.util.Base64
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.BuildConfig
-import com.smartsolutions.paquetes.workers.ActivationWorker
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
-import com.smartsolutions.paquetes.dataStore
-import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
-import com.smartsolutions.paquetes.serverApis.models.Device
-import com.smartsolutions.paquetes.serverApis.models.DeviceApp
+import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
+import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
+import com.smartsolutions.paquetes.workers.ActivationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -33,189 +34,83 @@ import kotlinx.coroutines.withContext
 import java.net.NetworkInterface
 import java.util.*
 import javax.inject.Inject
-import kotlin.NoSuchElementException
+import kotlin.coroutines.CoroutineContext
 
 class ActivationManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val registrationClient: IRegistrationClient,
-    private val ussdHelper: USSDHelper,
     private val gson: Gson,
-    private val simManager: ISimManager,
-    private val legacyConfiguration: LegacyConfigurationHelper
-) : IActivationManager {
+    private val client: IActivationClient,
+    private val ussdHelper: USSDHelper,
+    private val simManager: ISimManager
+) : IActivationManager, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
-        getSavedDeviceApp()?.let {
+        getLocalLicense()?.let {
             return processApplicationStatus(it)
         }
-        return Pair(false, IActivationManager.ApplicationStatuses.Unknown)
+
+        return false to IActivationManager.ApplicationStatuses.Unknown
     }
 
     override suspend fun isInTrialPeriod(): Boolean {
-        getSavedDeviceApp()?.let {
+        getLocalLicense()?.let {
             return it.inTrialPeriod()
         }
+
         return false
     }
 
-    override suspend fun getDevice(): Result<Device> {
-
-        val deviceId = getDeviceId()
-        val packageName = context.packageName
-
-        val device = Device(
-            deviceId,
-            Build.MANUFACTURER,
-            Build.MODEL,
-            Build.VERSION.SDK_INT
-        )
-
-        val deviceApp = DeviceApp(
-            id = DeviceApp.buildDeviceAppId(packageName, deviceId),
-            purchased = legacyConfiguration.isPurchased(),
-            restored = legacyConfiguration.isPurchased(),
-            trialPeriod = true,
-            lastQuery = Date(System.currentTimeMillis()),
-            transaction = null,
-            phone = null,
-            waitingPurchase = false,
-            deviceId = deviceId,
-            androidAppPackageName = packageName,
-            createdAt = Date(System.currentTimeMillis())
-        )
-
-        device.deviceApps = listOf(deviceApp)
-
-        val result = registrationClient.getOrRegister(device)
-
-        if (result.isSuccess) {
-            result.getOrNull()
-                ?.deviceApps
-                ?.firstOrNull { it.androidAppPackageName == packageName }
-                ?.let { onlineDeviceApp ->
-                    context.dataStore.edit {
-                        it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(onlineDeviceApp))
-                    }
-                }
-        }
-
-        return result
-    }
-
-    override suspend fun getDeviceApp(ignoreCache: Boolean): Result<DeviceApp> {
-
-        if (!ignoreCache) {
-            val savedDeviceApp = getSavedDeviceApp()
-
-            if (savedDeviceApp != null && isNotOldDeviceApp(savedDeviceApp)) {
-                return Result.Success(savedDeviceApp)
-            }
-        }
-
-        val deviceId = getDeviceId()
-        val packageName = context.packageName
-
-        val deviceApp = DeviceApp(
-            id = DeviceApp.buildDeviceAppId(packageName, deviceId),
-            purchased = legacyConfiguration.isPurchased(),
-            restored = legacyConfiguration.isPurchased(),
-            trialPeriod = true,
-            lastQuery = Date(System.currentTimeMillis()),
-            transaction = null,
-            phone = null,
-            waitingPurchase = false,
-            deviceId = deviceId,
-            androidAppPackageName = packageName,
-            createdAt = Date(System.currentTimeMillis())
-        )
-        val result = registrationClient.getOrRegisterDeviceApp(deviceApp.id, deviceApp)
-
-        if (result.isSuccess) {
-            result.getOrNull()?.let { onlineDeviceApp ->
-                context.dataStore.edit {
-                    it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(onlineDeviceApp))
-                }
-            }
-        }
-
-        return result
-    }
-
-    override suspend fun getSavedDeviceApp(): DeviceApp? {
-        context.dataStore.data
-            .firstOrNull()
-            ?.get(PreferencesKeys.DEVICE_APP)
-            ?.let {
-                try {
-                    return gson.fromJson(decrypt(it), DeviceApp::class.java)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        return null
-    }
-
     override fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val result = getDevice()
+        launch {
+            val result = getLicense()
 
-            withContext(Dispatchers.Main) {
-                try {
-                    val deviceApp = result.getOrThrow()
-                        .deviceApps!!.first { it.androidAppPackageName == context.packageName }
+            try {
+                val license = result.getOrThrow()
 
-                    val status = processApplicationStatus(deviceApp)
+                val status = processApplicationStatus(license)
 
+                withContext(Dispatchers.Main) {
                     when (status.second) {
                         IActivationManager.ApplicationStatuses.TooMuchOld ->
-                            listener.onTooMuchOld(deviceApp)
+                            listener.onTooMuchOld(license)
                         IActivationManager.ApplicationStatuses.Purchased ->
-                            listener.onPurchased(deviceApp)
+                            listener.onPurchased(license)
                         IActivationManager.ApplicationStatuses.TrialPeriod ->
-                            listener.onTrialPeriod(deviceApp, status.first)
+                            listener.onTrialPeriod(license, status.first)
                         IActivationManager.ApplicationStatuses.Discontinued ->
-                            listener.onDiscontinued(deviceApp)
+                            listener.onDiscontinued(license)
                         IActivationManager.ApplicationStatuses.Deprecated ->
-                            listener.onDeprecated(deviceApp)
+                            listener.onDeprecated(license)
                         else -> listener.onFailed(Exception())
                     }
-                } catch (e: Exception) {
+                }
+            } catch (e: Exception) {
+
+                withContext(Dispatchers.Main) {
                     listener.onFailed(e)
                 }
             }
         }
     }
 
-    override suspend fun beginActivation(deviceApp: DeviceApp): Result<Unit> {
-        /*return try {
-            registrationClient.updateDeviceApp(getDeviceApp().getOrThrow().apply {
-                waitingPurchase = true
-            })
-        } catch (e: Exception) {
-            Result.Failure(e)
-        }*/
-
-        //Temp: NO es la implementación definitiva.
-        context.dataStore.edit {
-            it[PreferencesKeys.WAITING_PURCHASED] = true
-            it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
-        }
-        return Result.Success(Unit)
-    }
-
-    override suspend fun transferCreditByUSSD(key: String, deviceApp: DeviceApp): Result<Unit> {
-        val price = deviceApp.androidApp.price
-        if (key.isEmpty() || key.isBlank() || key.length != 4 || price - price != 0){
+    override suspend fun transferCreditByUSSD(key: String, license: License): Result<Unit> {
+        val price = license.androidApp.price
+        if (key.isEmpty() || key.isBlank() || key.length != 4){
             return Result.Failure(IllegalArgumentException())
         }
 
-        if (context.dataStore.data.first()[PreferencesKeys.WAITING_PURCHASED] == false)
-            throw IllegalStateException("First call the method beginActivation()")
+        context.settingsDataStore.edit {
+            it[PreferencesKeys.WAITING_PURCHASED] = true
+            it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
+        }
 
         try {
             ussdHelper.sendUSSDRequestLegacy(
-                "*234*1*${deviceApp.androidApp.phone}*$key*${price.toInt()}#",
+                "*234*1*${license.androidApp.phone}*$key*${price}#",
                 false)
         }catch (e: Exception){
             return Result.Failure(e)
@@ -223,90 +118,139 @@ class ActivationManager @Inject constructor(
         return Result.Success(Unit)
     }
 
-    override suspend fun confirmPurchase(smsBody: String, phone: String, simIndex: Int): Result<Unit> {
+    override suspend fun confirmPurchase(
+        smsBody: String,
+        phone: String,
+        simIndex: Int
+    ): Result<Unit> {
         if (!isWaitingPurchased() || !phone.contains("PAGOxMOVIL", true) &&
             !phone.contains("Cubacel", true)){
             return Result.Failure(IllegalStateException())
         }
 
-       try {
-           val data = context.dataStore.data.first()[PreferencesKeys.DEVICE_APP]
-           val deviceApp = gson.fromJson(
+        try {
+            val data = context.settingsDataStore.data.first()[PreferencesKeys.LICENCE]
+            val license = gson.fromJson(
                 decrypt(data),
-                DeviceApp::class.java
-           )
+                License::class.java
+            )
 
-           val androidApp = deviceApp.androidApp
-           val price = androidApp.price.toString()
+            val androidApp = license.androidApp
+            val price = androidApp.price.toString()
 
-           val priceTransfermovil = "${androidApp.price}.00"
+            val priceTransfermovil = "${androidApp.price}.00"
 
-           if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)){
-               deviceApp.transaction = readTransaction(smsBody)
-           }else if(smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
-               fillPhone(simIndex, deviceApp)
-           }else{
-               return Result.Failure(NoSuchElementException())
-           }
+            if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)){
+                license.transaction = readTransaction(smsBody)
+            }else if(smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
+                fillPhone(simIndex, license)
+            }else{
+                return Result.Failure(NoSuchElementException())
+            }
 
-           deviceApp.purchased = true
-           deviceApp.waitingPurchase = false
+            license.isPurchased = true
 
-           context.dataStore.edit {
-               it[PreferencesKeys.DEVICE_APP] = encrypt(gson.toJson(deviceApp))
-               it[PreferencesKeys.WAITING_PURCHASED] = false
-               scheduleWorker()
-           }
+            context.settingsDataStore.edit {
+                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
+                it[PreferencesKeys.WAITING_PURCHASED] = false
+                scheduleWorker()
+            }
 
-           return Result.Success(Unit)
-        }catch (e: Exception){
+            return Result.Success(Unit)
+        } catch (e: Exception) {
             return Result.Failure(e)
         }
-
     }
 
     override suspend fun isWaitingPurchased(): Boolean {
-        return context.dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
+        return context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
     }
 
-    /**
-     * Procesa el estado de el deviceApp.
-     *
-     * @return [Pair] con una Boolean indicando si se puede trabajar y la razón.
-     * */
-    private fun processApplicationStatus(deviceApp: DeviceApp): Pair<Boolean, IActivationManager.ApplicationStatuses> {
+    override suspend fun getLicense(): Result<License> {
+        val result = client.getLicense(getDeviceId())
+
+        if (result.isSuccess) {
+            context.settingsDataStore.edit {
+                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(result.getOrThrow()))
+            }
+        }
+
+        return result
+    }
+
+    override suspend fun getLocalLicense(): License? {
+        context.settingsDataStore.data.firstOrNull()
+            ?.get(PreferencesKeys.LICENCE)
+            ?.let {
+                try {
+                    return gson.fromJson(decrypt(it), License::class.java)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+        return null
+    }
+
+    private fun readTransaction(body: String): String {
+        val toFind = "Nro. Transaccion "
+        return body.substring(body.indexOf(toFind) + toFind.length, body.length)
+    }
+
+    private suspend fun fillPhone(simIndex: Int, license: License) {
+        try {
+            license.phone = simManager.getSimBySlotIndex(simIndex)?.phone
+        } catch (e: Exception) {
+
+        }
+    }
+
+    private fun scheduleWorker() {
+        val workRequest = OneTimeWorkRequestBuilder<ActivationWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build())
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueue(workRequest)
+    }
+
+    private fun processApplicationStatus(license: License): Pair<Boolean, IActivationManager.ApplicationStatuses> {
         var canWork = false
         val statuses: IActivationManager.ApplicationStatuses
-        
+
         when {
-            deviceAppMuchOld(deviceApp) -> {
+            licenseMuchOld(license) -> {
                 statuses = IActivationManager.ApplicationStatuses.TooMuchOld
             }
-            deviceApp.androidApp.status == ApplicationStatus.DISCONTINUED &&
-                    !deviceApp.purchased -> {
+            license.androidApp.status == ApplicationStatus.DISCONTINUED &&
+                    !license.isPurchased -> {
                 statuses = IActivationManager.ApplicationStatuses.Discontinued
             }
-            deviceApp.androidApp.minVersion > BuildConfig.VERSION_CODE -> {
+            license.androidApp.minVersion > BuildConfig.VERSION_CODE -> {
                 statuses = IActivationManager.ApplicationStatuses.Deprecated
             }
-            deviceApp.purchased -> {
+            license.isPurchased -> {
                 canWork = true
                 statuses = IActivationManager.ApplicationStatuses.Purchased
             }
             else -> {
-                canWork = deviceApp.inTrialPeriod()
+                canWork = license.inTrialPeriod()
                 statuses = IActivationManager.ApplicationStatuses.TrialPeriod
             }
         }
-        return Pair(canWork, statuses)
+
+        return canWork to statuses
     }
 
     /**
-     * Indica si el deviceApp tiene más de un mes de antiguedad.
+     * Indica si la licencia tiene más de un mes de antiguedad.
      * */
-    private fun deviceAppMuchOld(deviceApp: DeviceApp): Boolean {
+    private fun licenseMuchOld(license: License): Boolean {
         val calendar = Calendar.getInstance().apply {
-            time = deviceApp.lastQuery
+            time = license.lastQuery
         }
 
         val currentCalendar = Calendar.getInstance()
@@ -316,36 +260,13 @@ class ActivationManager @Inject constructor(
         return isBigger && calendar.get(Calendar.MONTH) != currentCalendar.get(Calendar.MONTH)
     }
 
-    private fun readTransaction(body: String): String {
-        val toFind = "Nro. Transaccion "
-        return body.substring(body.indexOf(toFind) + toFind.length, body.length)
-    }
-
-    private suspend fun fillPhone(simIndex: Int, deviceApp: DeviceApp) {
-        try {
-            deviceApp.phone = simManager.getSimBySlotIndex(simIndex)?.phone
-        } catch (e: Exception) {
-
-        }
-    }
-
-    private fun scheduleWorker() {
-        val workRequest = OneTimeWorkRequestBuilder<ActivationWorker>()
-            .setConstraints(Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build())
-            .build()
-
-        WorkManager.getInstance(context)
-            .enqueue(workRequest)
-    }
-
     @SuppressLint("HardwareIds")
+    @Suppress("DEPRECATION")
     private suspend fun getDeviceId(): String {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> {
 
-                var deviceId = context.dataStore.data
+                var deviceId = context.settingsDataStore.data
                     .firstOrNull()
                     ?.get(PreferencesKeys.DEVICE_ID)
 
@@ -355,7 +276,7 @@ class ActivationManager @Inject constructor(
 
                 val wifiManager = ContextCompat
                     .getSystemService(context, WifiManager::class.java) ?:
-                    throw NullPointerException()
+                throw NullPointerException()
 
                 if (!wifiManager.isWifiEnabled) {
                     throw IllegalStateException("Wifi must be enabled.")
@@ -365,7 +286,7 @@ class ActivationManager @Inject constructor(
                     .Secure
                     .getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
-                context.dataStore.edit {
+                context.settingsDataStore.edit {
                     it[PreferencesKeys.DEVICE_ID] = deviceId!!
                 }
 
@@ -405,18 +326,13 @@ class ActivationManager @Inject constructor(
         }
     }
 
-    private fun isNotOldDeviceApp(savedDeviceApp: DeviceApp): Boolean {
-        val time = savedDeviceApp.lastQuery.time + (60000 * 5)
-        val current = System.currentTimeMillis()
+    companion object {
+        fun encrypt(data: String?): String {
+            return String(Base64.encode(data?.toByteArray(), Base64.DEFAULT))
+        }
 
-        return time > current
-    }
-
-    private fun encrypt(data: String?): String {
-        return String(Base64.encode(data?.toByteArray(), Base64.DEFAULT))
-    }
-
-    private fun decrypt(data: String?): String {
-        return String(Base64.decode(data, Base64.DEFAULT))
+        fun decrypt(data: String?): String {
+            return String(Base64.decode(data, Base64.DEFAULT))
+        }
     }
 }

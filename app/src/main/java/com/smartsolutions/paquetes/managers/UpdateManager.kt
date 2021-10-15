@@ -10,7 +10,6 @@ import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.datastore.preferences.core.edit
 import androidx.work.Constraints
 import androidx.work.NetworkType
@@ -19,17 +18,15 @@ import androidx.work.WorkManager
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import com.smartsolutions.paquetes.workers.UpdateApplicationStatusWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
-import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.Exception
@@ -41,7 +38,7 @@ private const val updateApplicationStatusWorkerTag = "update_application_status_
 class UpdateManager @Inject constructor(
     @ApplicationContext
     val context: Context,
-    val activationManager: IActivationManager2,
+    val activationManager: IActivationManager,
     private val localFileHelper: LocalFileHelper
 ) : IUpdateManager, CoroutineScope {
 
@@ -283,7 +280,7 @@ class UpdateManager @Inject constructor(
     override fun getSavedDownloadId(): Long? {
         var id: Long?
         runBlocking {
-            id = context.dataStore.data.firstOrNull()?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
+            id = context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
         }
         if (id == -1L){
             id = null
@@ -294,7 +291,7 @@ class UpdateManager @Inject constructor(
 
     override fun saveIdDownload(id: Long?) {
         runBlocking {
-            context.dataStore.edit {
+            context.settingsDataStore.edit {
                 it[PreferencesKeys.DOWNLOAD_UPDATE_ID] = id ?: -1
             }
         }

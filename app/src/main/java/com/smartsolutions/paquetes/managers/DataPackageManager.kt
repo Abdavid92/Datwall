@@ -6,7 +6,7 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
@@ -45,7 +45,7 @@ class DataPackageManager @Inject constructor(
         get() = _buyMode
         set(value) {
             launch {
-                context.dataStore.edit {
+                context.settingsDataStore.edit {
                     it[PreferencesKeys.BUY_MODE] = value.name
                 }
             }
@@ -54,7 +54,7 @@ class DataPackageManager @Inject constructor(
 
     init {
         launch {
-            context.dataStore.data.collect {
+            context.settingsDataStore.data.collect {
                 _buyMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.ConnectionMode.USSD.name)
             }
@@ -62,13 +62,13 @@ class DataPackageManager @Inject constructor(
     }
 
     override suspend fun createOrUpdateDataPackages() {
-        val oldVersion = context.dataStore.data
+        val oldVersion = context.settingsDataStore.data
             .firstOrNull()?.get(PreferencesKeys.CURRENT_PACKAGES_VERSION) ?: 0
 
         if (oldVersion < DataPackages.PACKAGES_VERSION) {
             dataPackageRepository.createOrUpdate(DataPackages.PACKAGES.toList())
 
-            context.dataStore.edit {
+            context.settingsDataStore.edit {
                 it[PreferencesKeys.CURRENT_PACKAGES_VERSION] = DataPackages.PACKAGES_VERSION
             }
         }

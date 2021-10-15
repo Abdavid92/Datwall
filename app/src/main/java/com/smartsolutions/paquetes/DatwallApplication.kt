@@ -55,7 +55,7 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
         val themeMode: Int
 
         runBlocking {
-            val preferences = dataStore.data
+            val preferences = settingsDataStore.data
                 .firstOrNull()
 
             themeMode = preferences?.get(PreferencesKeys.THEME_MODE) ?:

@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.preference.PreferenceDataStore
 import androidx.test.platform.app.InstrumentationRegistry
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -24,7 +24,7 @@ class PreferenceDataStoreTest {
         val context = InstrumentationRegistry.getInstrumentation()
             .targetContext
 
-        dataStore = context.dataStore
+        dataStore = context.settingsDataStore
 
         preferenceDataStore = SettingsActivity.AbstractPreferenceFragmentCompat.PreferenceDataStore(dataStore)
     }

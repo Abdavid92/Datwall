@@ -1,19 +1,14 @@
 package com.smartsolutions.paquetes.ui.activation
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.github.razir.progressbutton.attachTextChangeAnimator
-import com.github.razir.progressbutton.bindProgressButton
-import com.github.razir.progressbutton.hideProgress
-import com.github.razir.progressbutton.showProgress
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.databinding.FragmentApplicationStatusBinding
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import com.smartsolutions.paquetes.ui.settings.UpdateFragment
@@ -21,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ApplicationStatusFragment : AbstractSettingsFragment(),
-    IActivationManager2.ApplicationStatusListener
+    IActivationManager.ApplicationStatusListener
 {
 
     private val viewModel by viewModels<ApplicationStatusViewModel>()
@@ -39,10 +34,7 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
             false
         )
 
-        //binding.waiting = false
-
-        viewLifecycleOwner.bindProgressButton(binding.btnAction)
-        binding.btnAction.attachTextChangeAnimator()
+        binding.waiting = false
 
         return binding.root
     }
@@ -52,8 +44,7 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
 
         binding.btnAction.setOnClickListener {
             if (viewModel.getApplicationStatus(this))
-                waiting(true)
-                //binding.waiting = true
+                binding.waiting = true
         }
         binding.btnLater.setOnClickListener {
             complete()
@@ -120,27 +111,13 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
 
         enableBtnAction("Reintentar") {
             viewModel.getApplicationStatus(this)
-            waiting(true, "Reintentar")
-            //binding.waiting = true
+            binding.waiting = true
         }
     }
 
     private fun enableBtnAction(text: String = "Continuar", listener: (view: View) -> Unit) {
         binding.btnAction.text = text
         binding.btnAction.setOnClickListener(listener)
-        waiting(false, text)
-        //binding.waiting = false
-    }
-
-    private fun waiting(waiting: Boolean, text: String = getString(R.string.btn_continue)) {
-        if (waiting) {
-            binding.btnAction.showProgress {
-                progressColor = Color.WHITE
-            }
-            binding.btnAction.isEnabled = false
-        } else {
-            binding.btnAction.hideProgress(text)
-            binding.btnAction.isEnabled = true
-        }
+        binding.waiting = false
     }
 }

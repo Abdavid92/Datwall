@@ -5,11 +5,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
-import com.smartsolutions.paquetes.managers.ActivationManager2
+import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.managers.ActivationManager
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
-import com.smartsolutions.paquetes.serverApis.contracts.IRegistrationClient
-import com.smartsolutions.paquetes.serverApis.models.DeviceApp
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result.Failure
 import dagger.assisted.Assisted
@@ -28,11 +26,11 @@ class ActivationWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            val data = applicationContext.dataStore.data.firstOrNull()
+            val data = applicationContext.settingsDataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.LICENCE) ?: return Result.failure()
 
             val license = gson.fromJson(
-                ActivationManager2.decrypt(data),
+                ActivationManager.decrypt(data),
                 License::class.java
             )
 

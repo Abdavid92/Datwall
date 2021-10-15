@@ -3,7 +3,7 @@ package com.smartsolutions.paquetes.helpers
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,7 +102,7 @@ class LegacyConfigurationHelper @Inject constructor(
         )
 
         launch {
-            context.dataStore.edit {
+            context.settingsDataStore.edit {
                 it[PreferencesKeys.ENABLED_FIREWALL] = preferences
                     .getBoolean("firewall_running", false)
             }
@@ -120,7 +120,7 @@ class LegacyConfigurationHelper @Inject constructor(
         )
 
         launch {
-            context.dataStore.edit {
+            context.settingsDataStore.edit {
                 it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = preferences
                     .getBoolean("widget_floating", false)
             }

@@ -3,10 +3,9 @@ package com.smartsolutions.paquetes.ui
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.asLiveData
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 
@@ -39,7 +38,7 @@ abstract class AbstractActivity : AppCompatActivity {
 
     private fun getThemeConfigured(): Int{
         return runBlocking {
-            dataStore.data.firstOrNull()
+            settingsDataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
         }
     }

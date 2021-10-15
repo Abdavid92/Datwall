@@ -68,7 +68,7 @@ android {
             buildConfigField "String", "SECRET_KEY", secretKey
             buildConfigField "int", "TOKEN_DURATION", tokenDuration
             buildConfigField "String", "CONTENT_0", content0
-            buildConfigField "String", "REGISTRATION_SERVER_URL", "\"http://192.168.234.134/SmartsolutionsApps/api/\""
+            buildConfigField "String", "REGISTRATION_SERVER_URL", "\"http://10.0.2.2/SmartSolutionsApps/api/\""
             //buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://smartsoultions-apps.infinityfreeapp.com/api/\""
             buildConfigField "String", "APKLIS_URL", "\"https://apklis.cu/application/com.smartsolutions.paquetes\""
             buildConfigField "String", "TELEGRAM_CHANNEL", "\"https://t.me/joinchat/EVsmSbeOo8diYmJh\""
@@ -136,9 +136,6 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
-    //Jsoup
-    implementation 'org.jsoup:jsoup:1.13.1'
-
     //Room database
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -152,7 +149,7 @@ dependencies {
     }
 
     //LeakCanary
-    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

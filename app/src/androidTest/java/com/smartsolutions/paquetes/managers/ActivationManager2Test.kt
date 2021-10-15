@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
@@ -15,7 +15,7 @@ import javax.inject.Inject
 class ActivationManager2Test {
 
     @Inject
-    lateinit var manager: IActivationManager2
+    lateinit var manager: IActivationManager
 
     @get:Rule
     val rule = HiltAndroidRule(this)

@@ -6,7 +6,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
@@ -16,7 +16,6 @@ import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.lastOrNull
 
 @HiltWorker
 class SynchronizationWorker @AssistedInject constructor(
@@ -33,10 +32,10 @@ class SynchronizationWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         var canExecute = true
 
-        val onlyInternational = context.dataStore.data.firstOrNull()
+        val onlyInternational = context.settingsDataStore.data.firstOrNull()
             ?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_INTERNATIONAL) ?: true
         val onlyDummy =
-            context.dataStore.data.firstOrNull()?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_DUMMY)
+            context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_DUMMY)
                 ?: true
 
         if (onlyInternational) {

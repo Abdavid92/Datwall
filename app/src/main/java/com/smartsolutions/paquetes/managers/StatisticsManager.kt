@@ -3,7 +3,7 @@ package com.smartsolutions.paquetes.managers
 import android.content.Context
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
@@ -48,7 +48,7 @@ class StatisticsManager @Inject constructor(
 
         val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
 
-        val enabledLte = context.dataStore.data.firstOrNull()
+        val enabledLte = context.settingsDataStore.data.firstOrNull()
             ?.get(PreferencesKeys.ENABLED_LTE) ?: false
 
         val list = if (enabledLte) {

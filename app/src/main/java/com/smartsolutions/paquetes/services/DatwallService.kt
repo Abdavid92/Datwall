@@ -160,7 +160,7 @@ class DatwallService : Service(), CoroutineScope {
             return
 
         dataStoreJob = launch {
-            dataStore.data.collect { preferences ->
+            settingsDataStore.data.collect { preferences ->
 
                 val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS] ?:
                 NotificationBuilder.DEFAULT_NOTIFICATION_IMPL

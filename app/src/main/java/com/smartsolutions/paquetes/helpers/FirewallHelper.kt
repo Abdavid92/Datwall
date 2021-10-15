@@ -2,26 +2,24 @@ package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
 import android.content.Intent
-import android.net.VpnService
 import android.util.Log
+import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.preferences.core.edit
-import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager2
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.services.FirewallService
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Utilidades para el vpn
@@ -29,11 +27,10 @@ import kotlin.coroutines.CoroutineContext
 class FirewallHelper @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val activationManager: IActivationManager2
-) : CoroutineScope {
+    private val activationManager: IActivationManager,
+    private val permissionManager: IPermissionsManager
+) {
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
 
     /**
      * Verifica si todas las aplicaciones de la lista tienen acceso
@@ -56,55 +53,53 @@ class FirewallHelper @Inject constructor(
 
     /**
      * Establece en el dataStore que el cortafuegos está abilitado.
-     * Este método es asincrónico.
      *
      * @param enabled
      * */
-    fun establishFirewallEnabled(enabled: Boolean) {
-        launch {
-            context.dataStore.edit {
-                it[PreferencesKeys.ENABLED_FIREWALL] = enabled
-            }
+    suspend fun establishFirewallEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit {
+            it[PreferencesKeys.ENABLED_FIREWALL] = enabled
         }
     }
 
     /**
-     * Establece en el dataStore que el cortafuegos está encendido.
-     * Si los datos móviles están encendidos y [IActivationManager2]
-     * concede el permiso de trabajo, enciende el vpn.
+     * Si los datos móviles están encendidos y [IActivationManager]
+     * concede el permiso de trabajo, enciende el vpn. Si
+     * [IActivationManager] no concedió el permiso de trabajo el
+     * cortafuegos no encenderá. Si no se concedió el permiso necesario
+     * el cortafuegos no encenderá, se apagará en el dataStore y se
+     * enviará una notificación informando.
      *
-     * @return [Intent] si el vpn no tiene permiso para encender. Si 
-     * [IActivationManager2] no concedió el permiso de trabajo el
-     * cortafuegos no encenderá pero se retornará null en caso de que
-     * el permiso del sistema esté concedido.
      * */
-    suspend fun startFirewall(): Intent? {
-        establishFirewallEnabled(true)
-
-        var intent: Intent? = null
+    suspend fun startFirewall() {
 
         if (DatwallKernel.DATA_MOBILE_ON) {
             Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
 
             if (activationManager.canWork().first) {
-                intent = startFirewallService()
-
-                if (intent != null)
+                if (!startFirewallService()) {
                     Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
+                    establishFirewallEnabled(false)
+
+                    notify(
+                        R.string.stoped_missing_vpn_permissions_title_notification,
+                        R.string.stoped_missing_vpn_permissions_description_notification
+                    )
+                }
+
             } else {
                 Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
             }
         } else {
-            Log.i(TAG, "startVpn: Data mobile is off. For now the firewall will off.")
+            Log.i(TAG, "startVpn: Data mobile is off. For now the firewall is off.")
         }
-        return intent
     }
 
     /**
      * Establece en el dataStore que el cortafuegos está apagado.
      * Si los datos móviles están encendidos, apaga el vpn.
      * */
-    fun stopFirewall() {
+    suspend fun stopFirewall() {
         establishFirewallEnabled(false)
 
         if (DatwallKernel.DATA_MOBILE_ON) {
@@ -117,16 +112,24 @@ class FirewallHelper @Inject constructor(
      * ningún cambio en el dataStore y no revisa que los datos móbiles
      * estén encendidos.
      *
-     * @return [Intent] si el cortafuegos no tiene permiso para encender
+     * @return `false` si el cortafuegos no tiene permiso para encender
      * */
-    fun startFirewallService(): Intent? {
-        val intent: Intent? = VpnService.prepare(context)
+    fun startFirewallService(): Boolean {
 
-        if (intent == null) {
-            context.startService(Intent(context, FirewallService::class.java))
+        if (!checkFirewallPermission()) {
+            return false
         }
 
-        return intent
+        context.startService(Intent(context, FirewallService::class.java))
+
+        return true
+    }
+
+    fun checkFirewallPermission(): Boolean {
+        val permission = permissionManager.findPermission(IPermissionsManager.VPN_CODE)
+            ?: throw IllegalArgumentException("Bad code")
+
+        return permission.checkPermission(permission, context)
     }
 
     /**
@@ -153,7 +156,7 @@ class FirewallHelper @Inject constructor(
      * @return [Boolean]
      * */
     suspend fun firewallEnabled(): Boolean {
-        return context.dataStore.data
+        return context.settingsDataStore.data
             .firstOrNull()?.get(PreferencesKeys.ENABLED_FIREWALL) == true
     }
 
@@ -166,10 +169,25 @@ class FirewallHelper @Inject constructor(
      * @return [Flow]
      * */
     fun observeFirewallState(): Flow<Boolean> {
-        return context.dataStore.data
+        return context.settingsDataStore.data
             .map {
                 return@map it[PreferencesKeys.ENABLED_FIREWALL] ?: false
             }
+    }
+
+    private fun notify(@StringRes titleRes: Int, @StringRes msgRes: Int) {
+        notify(context.getString(titleRes), context.getString(msgRes))
+    }
+
+    private fun notify(title: String, message: String) {
+        val notification = NotificationCompat.Builder(context, NotificationHelper.ALERT_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_main_notification)
+            .setContentTitle(title)
+            .setContentText(message)
+            .build()
+
+        NotificationManagerCompat.from(context)
+            .notify(NotificationHelper.ALERT_NOTIFICATION_ID, notification)
     }
 
     companion object {

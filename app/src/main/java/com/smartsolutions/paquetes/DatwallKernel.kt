@@ -37,7 +37,7 @@ import kotlin.coroutines.CoroutineContext
 class DatwallKernel @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val activationManager: IActivationManager2,
+    private val activationManager: IActivationManager,
     private val permissionManager: IPermissionsManager,
     private val configurationManager: IConfigurationManager,
     private val updateManager: IUpdateManager,
@@ -80,7 +80,7 @@ class DatwallKernel @Inject constructor(
     init {
         launch {
 
-            context.dataStore.data.collect {
+            context.settingsDataStore.data.collect {
                 BUBBLE_ON = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
                 FIREWALL_ON = it[PreferencesKeys.ENABLED_FIREWALL] == true
             }
@@ -184,7 +184,7 @@ class DatwallKernel @Inject constructor(
             }
 
             if (networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G) {
-                context.dataStore.edit {
+                context.settingsDataStore.edit {
                     it[PreferencesKeys.ENABLED_LTE] = true
                 }
             }
@@ -199,8 +199,10 @@ class DatwallKernel @Inject constructor(
 
         datwallBinder?.stopTrafficRegistration()
 
-        if (FIREWALL_ON) {
-          stopFirewall()
+        launch {
+            if (FIREWALL_ON) {
+                stopFirewall()
+            }
         }
 
         if (BUBBLE_ON) {
@@ -215,10 +217,10 @@ class DatwallKernel @Inject constructor(
     private suspend fun isRegisteredAndValid(): Boolean {
         val status = activationManager.canWork().second
 
-        return status != IActivationManager2.ApplicationStatuses.Discontinued &&
-                status != IActivationManager2.ApplicationStatuses.Unknown &&
-                status != IActivationManager2.ApplicationStatuses.Deprecated &&
-                status != IActivationManager2.ApplicationStatuses.TooMuchOld
+        return status != IActivationManager.ApplicationStatuses.Discontinued &&
+                status != IActivationManager.ApplicationStatuses.Unknown &&
+                status != IActivationManager.ApplicationStatuses.Deprecated &&
+                status != IActivationManager.ApplicationStatuses.TooMuchOld
     }
 
     private suspend fun openActivationActivity() {
@@ -286,7 +288,7 @@ class DatwallKernel @Inject constructor(
     private fun registerWorkers() {
         updateApplicationStatusJob = launch {
             if (!updateManager.wasScheduleUpdateApplicationStatusWorker()) {
-                context.dataStore.data.collect {
+                context.settingsDataStore.data.collect {
                     val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 24
 
                     updateManager.scheduleUpdateApplicationStatusWorker(interval)
@@ -294,9 +296,16 @@ class DatwallKernel @Inject constructor(
             }
         }
 
-        launch {
-            if (context.dataStore.data.firstOrNull()?.get(PreferencesKeys.SYNCHRONIZATION_STATUS) != false){
+        dataSyncJob = launch {
+            /*if (context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.ENABLE_DATA_SYNCHRONIZATION) != false){
                 synchronizationManager.scheduleUserDataBytesSynchronization(30)
+            }*/
+
+            context.settingsDataStore.data.collect {
+                if (it[PreferencesKeys.ENABLE_DATA_SYNCHRONIZATION] == true)
+                    synchronizationManager.scheduleUserDataBytesSynchronization(15)
+                else
+                    synchronizationManager.cancelScheduleUserDataBytesSynchronization()
             }
         }
     }
@@ -343,7 +352,7 @@ class DatwallKernel @Inject constructor(
     /**
      * Detiene todos los servicios y trabajos de la aplicación.
      * */
-    fun stopAllDatwall(){
+    suspend fun stopAllDatwall(){
 
         simManager.unregisterSubscriptionChangedListener()
 
@@ -378,13 +387,10 @@ class DatwallKernel @Inject constructor(
     }
 
     private suspend fun startFirewall() {
-        if (activationManager.canWork().first) {
-            if (firewallHelper.startFirewallService() != null)
-                throw MissingPermissionException(IPermissionsManager.VPN_PERMISSION_KEY)
-        }
+        firewallHelper.startFirewall()
     }
 
-    private suspend fun startBubbleFloating(){
+    private suspend fun startBubbleFloating() {
         val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val permission = permissionManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
             if (permission?.checkPermission?.invoke(permission, context) == true){
@@ -408,7 +414,7 @@ class DatwallKernel @Inject constructor(
     fun stopBubbleFloating(turnOf: Boolean = false){
         if (turnOf){
             launch {
-                context.dataStore.edit {
+                context.settingsDataStore.edit {
                     it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = false
                 }
             }
@@ -420,12 +426,12 @@ class DatwallKernel @Inject constructor(
         }
     }
 
-    fun stopFirewall(turnOf: Boolean = false){
+    private suspend fun stopFirewall(turnOf: Boolean = false){
         if (turnOf) {
-            firewallHelper.establishFirewallEnabled(false)
+            firewallHelper.stopFirewall()
+        } else {
+            firewallHelper.stopFirewallService()
         }
-
-        firewallHelper.stopFirewallService()
     }
 
     private suspend fun openActivity(activity: Class<out Activity>) {
@@ -469,6 +475,8 @@ class DatwallKernel @Inject constructor(
 
     companion object {
         private var updateApplicationStatusJob: Job? = null
+        private var dataSyncJob: Job? = null
+
         private var BUBBLE_ON = false
         private var FIREWALL_ON = false
 

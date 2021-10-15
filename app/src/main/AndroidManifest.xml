@@ -49,7 +49,8 @@
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/Theme.Datwall.Transparent" />
         <activity android:name=".ui.exceptions.ExceptionsActivity" />
-        <activity android:name=".ui.activation.ActivationActivity" />
+        <activity android:name=".ui.activation.ActivationActivity"
+            android:label="@string/activation_header"/>
         <activity android:name=".ui.permissions.PermissionsActivity" />
         <activity
             android:name=".ui.SplashActivity"

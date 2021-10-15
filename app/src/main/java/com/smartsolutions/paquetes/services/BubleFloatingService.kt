@@ -16,10 +16,9 @@ import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.asLiveData
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
@@ -141,12 +140,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         registerFlows()
 
         launch {
-            this@BubbleFloatingService.dataStore.data.collect {
+            this@BubbleFloatingService.settingsDataStore.data.collect {
                 VPN_ENABLED = it[PreferencesKeys.ENABLED_FIREWALL] ?: false
             }
         }
         launch {
-            this@BubbleFloatingService.dataStore.data.collect {
+            this@BubbleFloatingService.settingsDataStore.data.collect {
                 SIZE = BubbleSize.valueOf(
                     it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.SMALL.name
                 )

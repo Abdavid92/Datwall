@@ -16,6 +16,7 @@ import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
@@ -68,7 +69,9 @@ class ExceptionsActivity : AbstractActivity() {
     }
 
     private fun close() {
-        kernel.stopAllDatwall()
+        runBlocking {
+            kernel.stopAllDatwall()
+        }
         finishAffinity()
         Process.killProcess(Process.myPid())
         exitProcess(10)

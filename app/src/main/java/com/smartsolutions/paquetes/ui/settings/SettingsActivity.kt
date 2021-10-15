@@ -18,7 +18,7 @@ import androidx.preference.*
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.databinding.FragmentAboutBinding
 import com.smartsolutions.paquetes.databinding.FragmentNotificationStyleBinding
 import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
@@ -137,7 +137,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         private val uiHelper by uiHelper()
 
         private val preferenceDataStore by lazy {
-            AbstractPreferenceFragmentCompat.PreferenceDataStore(requireContext().dataStore)
+            AbstractPreferenceFragmentCompat.PreferenceDataStore(requireContext().settingsDataStore)
         }
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -166,7 +166,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             super.onViewCreated(view, savedInstanceState)
 
             launch {
-                val dataStore = requireContext().dataStore
+                val dataStore = requireContext().settingsDataStore
 
                 var themeMode = dataStore.data.firstOrNull()
                     ?.get(PreferencesKeys.THEME_MODE) ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -274,6 +274,14 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     }
 
     @Keep
+    class SynchronizationFragment : AbstractPreferenceFragmentCompat() {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            super.onCreatePreferences(savedInstanceState, rootKey)
+            setPreferencesFromResource(R.xml.sync_preferences, rootKey)
+        }
+    }
+
+    @Keep
     class NotificationsFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             super.onCreatePreferences(savedInstanceState, rootKey)
@@ -345,7 +353,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             super.onViewCreated(view, savedInstanceState)
 
             runBlocking {
-                val dataStore = requireContext().dataStore
+                val dataStore = requireContext().settingsDataStore
 
                 var className = dataStore.data.firstOrNull()
                     ?.get(PreferencesKeys.NOTIFICATION_CLASS) ?:
@@ -372,7 +380,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                     }
 
                     runBlocking(Dispatchers.IO) {
-                        requireContext().dataStore.edit {
+                        requireContext().settingsDataStore.edit {
                             it[PreferencesKeys.NOTIFICATION_CLASS] = className
                         }
                     }
@@ -511,7 +519,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().dataStore)
+            preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().settingsDataStore)
         }
 
         override fun title(): CharSequence {

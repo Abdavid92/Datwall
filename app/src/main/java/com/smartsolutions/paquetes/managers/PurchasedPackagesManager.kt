@@ -2,11 +2,10 @@ package com.smartsolutions.paquetes.managers
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.SmsInboxReaderHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
@@ -97,9 +96,9 @@ class PurchasedPackagesManager @Inject constructor(
 
 
     override suspend fun seedOldPurchasedPackages() {
-        if (context.dataStore.data.firstOrNull()?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true) {
+        if (context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true) {
 
-            context.dataStore.edit {
+            context.settingsDataStore.edit {
                 it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
             }
 

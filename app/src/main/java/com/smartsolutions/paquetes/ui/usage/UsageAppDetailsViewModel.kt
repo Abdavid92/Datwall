@@ -9,7 +9,7 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.models.Traffic
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -36,7 +36,7 @@ class UsageAppDetailsViewModel @Inject constructor(
 
     private fun obtainTraffic() {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().dataStore.data.firstOrNull()?.get(PreferencesKeys.USAGE_PERIOD)?.let { period ->
+            getApplication<Application>().settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.USAGE_PERIOD)?.let { period ->
                 val interval = networkUsageUtils.getTimePeriod(period)
 
                 val timeUnit = when (period) {

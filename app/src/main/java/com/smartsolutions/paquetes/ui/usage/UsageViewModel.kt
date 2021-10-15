@@ -10,7 +10,6 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.helpers.Period
@@ -19,7 +18,7 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -44,7 +43,7 @@ class UsageViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().dataStore.data.collect {
+            getApplication<Application>().settingsDataStore.data.collect {
                 period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
                 filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
                 liveData.postValue(getTraffic(period, filter))
@@ -57,7 +56,7 @@ class UsageViewModel @Inject constructor(
 
     fun setUsagePeriod(@Period period: Int){
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().dataStore.edit {
+            getApplication<Application>().settingsDataStore.edit {
                 it[PreferencesKeys.USAGE_PERIOD] = period
             }
         }
@@ -65,7 +64,7 @@ class UsageViewModel @Inject constructor(
 
     fun setUsageFilter(filter: UsageFilters) {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().dataStore.edit {
+            getApplication<Application>().settingsDataStore.edit {
                 it[PreferencesKeys.USAGE_FILTER] = filter.name
             }
         }

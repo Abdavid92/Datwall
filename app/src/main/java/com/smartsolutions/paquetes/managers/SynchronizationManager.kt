@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.helpers.getBytesFromText
@@ -16,7 +16,6 @@ import com.smartsolutions.paquetes.workers.SynchronizationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
 import org.apache.commons.lang.time.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -44,7 +43,7 @@ class SynchronizationManager @Inject constructor(
                 return
 
             launch {
-                context.dataStore.edit {
+                context.settingsDataStore.edit {
                     it[PreferencesKeys.SYNCHRONIZATION_MODE] = value.name
                 }
             }
@@ -53,7 +52,7 @@ class SynchronizationManager @Inject constructor(
 
     init {
         launch {
-            context.dataStore.data.collect {
+            context.settingsDataStore.data.collect {
                 _synchronizationMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.SYNCHRONIZATION_MODE] ?: _synchronizationMode.name)
             }

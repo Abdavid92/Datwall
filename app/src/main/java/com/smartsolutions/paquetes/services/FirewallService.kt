@@ -136,7 +136,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         var dynamicMode = false
 
         launch {
-            dataStore.data.collect {
+            settingsDataStore.data.collect {
                 dynamicMode = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] == true
             }
         }

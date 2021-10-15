@@ -1,16 +1,13 @@
 package com.smartsolutions.paquetes.ui.dashboard
 
 import android.app.Application
-import android.graphics.Bitmap
 import android.os.Build
-import android.util.TypedValue
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatRadioButton
 import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.SwitchCompat
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.FragmentManager
@@ -18,22 +15,12 @@ import androidx.lifecycle.*
 import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.FirewallHelper
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
-import com.smartsolutions.paquetes.managers.models.Permission
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
-import com.smartsolutions.paquetes.repositories.models.App
-import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -111,7 +98,7 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun onFirewallChangeListener(
+    private fun onFirewallChangeListener(
         buttonView: CompoundButton,
         fm: FragmentManager
     ) {
@@ -132,7 +119,7 @@ class DashboardViewModel @Inject constructor(
                     }
                 } else {
 
-                    val dynamic = getApplication<DatwallApplication>().dataStore.data
+                    val dynamic = getApplication<DatwallApplication>().settingsDataStore.data
                         .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
 
                     if (dynamic) {
@@ -152,12 +139,14 @@ class DashboardViewModel @Inject constructor(
                 }
             }
         } else {
-            firewallHelper.stopFirewall()
+            viewModelScope.launch(Dispatchers.IO) {
+                firewallHelper.stopFirewall()
+            }
         }
     }
 
     private suspend fun startFirewall(buttonView: CompoundButton, fm: FragmentManager){
-        if (firewallHelper.startFirewall() != null) {
+        if (!firewallHelper.checkFirewallPermission()) {
             val fragment = SinglePermissionFragment.newInstance(
                 IPermissionsManager.VPN_CODE,
                 object : SinglePermissionFragment.SinglePermissionCallback {
@@ -177,6 +166,9 @@ class DashboardViewModel @Inject constructor(
             withContext(Dispatchers.Main) {
                 fragment.show(fm, null)
             }
+        } else {
+            firewallHelper.establishFirewallEnabled(true)
+            firewallHelper.startFirewall()
         }
     }
 
@@ -187,7 +179,7 @@ class DashboardViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
 
-            val dynamic = getApplication<DatwallApplication>().dataStore.data
+            val dynamic = getApplication<DatwallApplication>().settingsDataStore.data
                 .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
 
             if (dynamic)
@@ -215,7 +207,7 @@ class DashboardViewModel @Inject constructor(
     fun setBubbleSwitchListener(bubble: SwitchCompat, childFragmentManager: FragmentManager) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            val dataStore = getApplication<DatwallApplication>().dataStore
+            val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
             dataStore.data.collect {
 
@@ -256,7 +248,7 @@ class DashboardViewModel @Inject constructor(
 
     fun setTransparencyListener(bubbleTransparency: AppCompatSeekBar, bubbleExample: View) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().dataStore
+            val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
             val transparency = dataStore.data
                 .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY)
@@ -301,7 +293,7 @@ class DashboardViewModel @Inject constructor(
 
     fun setSizeListener(bubbleSize: AppCompatSeekBar, bubbleExample: View) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().dataStore
+            val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
             val size = BubbleFloatingService.BubbleSize.valueOf(
                 dataStore.data.firstOrNull()?.get(PreferencesKeys.BUBBLE_SIZE)
@@ -355,7 +347,7 @@ class DashboardViewModel @Inject constructor(
 
     fun setBubbleAllWayListener(allWay: AppCompatRadioButton, onlyConsume: AppCompatRadioButton) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().dataStore
+            val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
             val allWayStore = dataStore.data
                 .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW)
@@ -379,7 +371,7 @@ class DashboardViewModel @Inject constructor(
 
     private fun writeChangesDataStore(preferences: Preferences.Key<Boolean>, value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().dataStore.edit {
+            getApplication<Application>().settingsDataStore.edit {
                 it[preferences] = value
             }
         }

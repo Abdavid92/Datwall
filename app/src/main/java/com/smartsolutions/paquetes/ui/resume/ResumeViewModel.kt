@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
@@ -14,14 +14,11 @@ import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesReposito
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class ResumeViewModel @Inject constructor(
@@ -37,7 +34,7 @@ class ResumeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().dataStore.data.collect {
+            getApplication<Application>().settingsDataStore.data.collect {
                 filter = FilterUserDataBytes.valueOf(
                     it[PreferencesKeys.RESUME_FILTER] ?: FilterUserDataBytes.NORMAL.name
                 )
@@ -51,7 +48,7 @@ class ResumeViewModel @Inject constructor(
 
     fun setFilter(filterUserDataBytes: FilterUserDataBytes) {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().dataStore.edit {
+            getApplication<Application>().settingsDataStore.edit {
                 it[PreferencesKeys.RESUME_FILTER] = filterUserDataBytes.name
             }
         }

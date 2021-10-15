@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.dataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -67,7 +67,7 @@ class ApplicationsViewModel @Inject constructor(
 
         viewModelScope.launch {
             getApplication<Application>()
-                .dataStore.edit {
+                .settingsDataStore.edit {
                     it[PreferencesKeys.APPS_FILTER] = filter.name
                 }
         }
@@ -75,7 +75,7 @@ class ApplicationsViewModel @Inject constructor(
 
     fun getApps(key: String): LiveData<Pair<AppsFilter, List<IApp>>> {
         return appRepository.flowByGroup()
-            .combine(getApplication<Application>().dataStore.data) { apps, preferences ->
+            .combine(getApplication<Application>().settingsDataStore.data) { apps, preferences ->
 
                 delay(500)
 
