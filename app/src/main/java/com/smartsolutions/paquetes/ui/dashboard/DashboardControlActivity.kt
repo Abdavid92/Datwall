@@ -32,6 +32,11 @@ class DashboardControlActivity : TransparentActivity() {
         super.onBackPressed()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        controls.onDestroy()
+    }
+
     companion object {
         const val EXTRA_CONTROLS_CLASS_NAME = "com.smartsolutions.paquetes.ui.dashboard.extra.CONTROLS_CLASS_NAME"
     }

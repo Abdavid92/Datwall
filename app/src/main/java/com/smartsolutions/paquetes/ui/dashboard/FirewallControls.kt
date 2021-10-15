@@ -18,8 +18,10 @@ class FirewallControls(
     private val activity: DashboardControlActivity
 ) : IControls {
 
-    private val binding = FirewallControlsBinding
+    private var _binding: FirewallControlsBinding? = FirewallControlsBinding
         .inflate(activity.layoutInflater)
+
+    private val binding: FirewallControlsBinding = _binding!!
 
     private val viewModel = activity.viewModel
 
@@ -80,6 +82,10 @@ class FirewallControls(
         binding.allowedAppsValue.visibility = View.INVISIBLE
         binding.blockedAppsValue.visibility = View.INVISIBLE
         binding.allowedAppsValue.visibility = View.INVISIBLE
+    }
+
+    override fun onDestroy() {
+        _binding = null
     }
 
     private fun setTransitionNames() {

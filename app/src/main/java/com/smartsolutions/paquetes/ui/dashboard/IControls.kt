@@ -10,6 +10,8 @@ interface IControls {
 
     fun onBackPressed()
 
+    fun onDestroy()
+
     companion object {
         const val CARD_VIEW = "control:card_view"
         const val HEADER = "control:header"

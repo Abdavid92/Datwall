@@ -17,8 +17,9 @@ class BubbleControls(
     private val activity: DashboardControlActivity
 ) : IControls {
 
-    private val binding = BubbleControlsBinding
+    private var _binding: BubbleControlsBinding? = BubbleControlsBinding
         .inflate(activity.layoutInflater)
+    private val binding: BubbleControlsBinding = _binding!!
 
     private val viewModel = activity.viewModel
 
@@ -46,14 +47,14 @@ class BubbleControls(
                     binding.allWay,
                     binding.onlyConsume
                 )
-                viewModel.setTransparencyListener(
+                /*viewModel.setTransparencyListener(
                     binding.bubbleTransparency,
                     binding.bubbleExample
                 )
                 viewModel.setSizeListener(
                     binding.bubbleSize,
                     binding.bubbleExample
-                )
+                )*/
             }
 
             override fun onTransitionCancel(transition: Transition?) {
@@ -77,6 +78,10 @@ class BubbleControls(
 
     override fun onBackPressed() {
 
+    }
+
+    override fun onDestroy() {
+        _binding = null
     }
 
     private fun setTransitionNames() {
