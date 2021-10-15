@@ -20,7 +20,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageGeneralBinding
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -76,7 +76,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
                 else -> DataBytes.DataType.International.name
             }
 
-            viewModel.getUsageGeneral(DataBytes.DataType.valueOf(dataType), simId)
+            viewModel.setDataType(simId, DataBytes.DataType.valueOf(dataType))
         }
 
         binding.spinnerUsageOptions.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
@@ -94,7 +94,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
 
         configureLineChart()
 
-        viewModel.getUsageGeneral(DataBytes.DataType.valueOf(dataType), simId).observe(viewLifecycleOwner){
+        viewModel.getUsageGeneral().observe(viewLifecycleOwner){
             if (it.first.isNotEmpty()) {
                 setLineChart(it.first, it.second)
                 binding.apply {
@@ -137,7 +137,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
     }
 
 
-    private fun setLineChart(usages: List<UsageGeneral>, myTimeUnit: NetworkUsageUtils.MyTimeUnit) {
+    private fun setLineChart(usages: List<UsageGeneral>, myTimeUnit: DateCalendarUtils.MyTimeUnit) {
         val entries = mutableListOf<Entry>()
 
         usages.forEach {
@@ -172,13 +172,13 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
             xAxis.valueFormatter = object : ValueFormatter() {
                 override fun getAxisLabel(value: Float, axis: AxisBase?): String {
                     return when (myTimeUnit) {
-                        NetworkUsageUtils.MyTimeUnit.HOUR -> {
+                        DateCalendarUtils.MyTimeUnit.HOUR, DateCalendarUtils.MyTimeUnit.MINUTE -> {
                             SimpleDateFormat("hh aa", Locale.US).format(Date(value.toLong()))
                         }
-                        NetworkUsageUtils.MyTimeUnit.DAY -> {
+                        DateCalendarUtils.MyTimeUnit.DAY -> {
                             "Día " + SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong()))
                         }
-                        NetworkUsageUtils.MyTimeUnit.MONTH -> {
+                        DateCalendarUtils.MyTimeUnit.MONTH -> {
                             SimpleDateFormat("MMM", Locale.getDefault()).format(Date(value.toLong()))
                         }
                     }

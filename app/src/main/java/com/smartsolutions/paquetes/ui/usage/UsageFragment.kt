@@ -12,9 +12,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageBinding
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class UsageFragment : Fragment() {

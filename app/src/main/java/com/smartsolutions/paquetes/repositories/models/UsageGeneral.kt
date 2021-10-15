@@ -10,6 +10,10 @@ data class UsageGeneral(
     @PrimaryKey
     val date: Long,
     val type: DataBytes.DataType,
-    val bytes: Long,
+    var bytes: Long,
     val simId: String
-)
+) {
+    operator fun plusAssign(usage: UsageGeneral) {
+        bytes += usage.bytes
+    }
+}

@@ -13,7 +13,7 @@ import kotlin.IllegalArgumentException
 /**
  * Métodos de utilidad para NetworkUsageManager.
  * */
-class NetworkUsageUtils @Inject constructor(
+class DateCalendarUtils @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val simManager: ISimManager
 ) {
@@ -148,11 +148,7 @@ class NetworkUsageUtils @Inject constructor(
 
         fun getLastHour (day : Date) : Date {
             var date = day
-            date = try {
-                DateUtils.setHours(date, 23)
-            }catch (e : IllegalArgumentException){
-                DateUtils.setHours(date, 1)
-            }
+            date = DateUtils.setHours(date, 23)
             date = DateUtils.setMinutes(date, 59)
             date = DateUtils.setSeconds(date, 59)
             date = DateUtils.setMilliseconds(date, 999)
@@ -160,6 +156,43 @@ class NetworkUsageUtils @Inject constructor(
             return date
         }
 
+        fun isSameMinute(date: Long, minuteLong: Long): Boolean {
+            var minute = DateUtils.setSeconds(Date(minuteLong), 0)
+            minute = DateUtils.setMilliseconds(minute, 0)
+
+            val start = minute.time
+
+            minute = DateUtils.setSeconds(minute, 59)
+            minute = DateUtils.setMilliseconds(minute, 999)
+
+            val finish = minute.time
+
+            return date in start..finish
+        }
+
+        fun isSameHour(date: Long, hourLong: Long): Boolean {
+            var hour = DateUtils.setMinutes(Date(hourLong), 0)
+            hour = DateUtils.setSeconds(hour, 0)
+            hour = DateUtils.setMilliseconds(hour, 0)
+
+            val start = hour.time
+
+            hour = DateUtils.setMinutes(hour, 59)
+            hour = DateUtils.setSeconds(hour, 59)
+            hour = DateUtils.setMilliseconds(hour, 999)
+
+            val finish = hour.time
+
+            return date in start..finish
+        }
+
+        fun isSameDay(date: Long, dayLong: Long): Boolean {
+            val day = Date(dayLong)
+            val start = getZeroHour(day).time
+            val finish = getLastHour(day).time
+
+            return date in start..finish
+        }
 
         fun isSameMonth(date: Long, month: Long): Boolean {
             val start = getZeroHour(DateUtils.setDays(Date(month), 1)).time
@@ -235,7 +268,8 @@ class NetworkUsageUtils @Inject constructor(
     enum class MyTimeUnit {
         MONTH,
         DAY,
-        HOUR
+        HOUR,
+        MINUTE
     }
 
 }
@@ -243,11 +277,11 @@ class NetworkUsageUtils @Inject constructor(
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @IntDef(
-    NetworkUsageUtils.PERIOD_TODAY,
-    NetworkUsageUtils.PERIOD_YESTERDAY,
-    NetworkUsageUtils.PERIOD_WEEK,
-    NetworkUsageUtils.PERIOD_MONTH,
-    NetworkUsageUtils.PERIOD_YEAR,
-    NetworkUsageUtils.PERIOD_PACKAGE
+    DateCalendarUtils.PERIOD_TODAY,
+    DateCalendarUtils.PERIOD_YESTERDAY,
+    DateCalendarUtils.PERIOD_WEEK,
+    DateCalendarUtils.PERIOD_MONTH,
+    DateCalendarUtils.PERIOD_YEAR,
+    DateCalendarUtils.PERIOD_PACKAGE
 )
 annotation class Period

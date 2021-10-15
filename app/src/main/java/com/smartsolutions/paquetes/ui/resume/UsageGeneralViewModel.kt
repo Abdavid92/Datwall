@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -18,13 +18,13 @@ import javax.inject.Inject
 @HiltViewModel
 class UsageGeneralViewModel @Inject constructor(
     private val usageGeneralRepository: IUsageGeneralRepository,
-    private val networkUsageUtils: NetworkUsageUtils,
+    private val dateCalendarUtils: DateCalendarUtils,
     private val userDataBytesRepository: IUserDataBytesRepository
 ) : ViewModel() {
 
     private var period = PeriodUsageGeneral.TODAY
 
-    private var liveData = MutableLiveData<Pair<List<UsageGeneral>, NetworkUsageUtils.MyTimeUnit>>()
+    private var liveData = MutableLiveData<Pair<List<UsageGeneral>, DateCalendarUtils.MyTimeUnit>>()
 
 
     fun setPeriod(index: Int, simId: String, dataType: DataBytes.DataType) {
@@ -32,11 +32,11 @@ class UsageGeneralViewModel @Inject constructor(
         getUsage(dataType, simId)
     }
 
-    fun getUsageGeneral(
-        dataType: DataBytes.DataType,
-        simId: String
-    ): LiveData<Pair<List<UsageGeneral>, NetworkUsageUtils.MyTimeUnit>> {
+    fun setDataType(simId: String, dataType: DataBytes.DataType) {
         getUsage(dataType, simId)
+    }
+
+    fun getUsageGeneral(): LiveData<Pair<List<UsageGeneral>, DateCalendarUtils.MyTimeUnit>> {
         return liveData
     }
 
@@ -45,9 +45,9 @@ class UsageGeneralViewModel @Inject constructor(
         viewModelScope.launch {
             val period = getPeriod(simId, dataType)
             val timeUnit = when (this@UsageGeneralViewModel.period) {
-                PeriodUsageGeneral.TODAY, PeriodUsageGeneral.YESTERDAY -> NetworkUsageUtils.MyTimeUnit.HOUR
-                PeriodUsageGeneral.WEEK, PeriodUsageGeneral.MONTH -> NetworkUsageUtils.MyTimeUnit.DAY
-                else -> NetworkUsageUtils.MyTimeUnit.DAY
+                PeriodUsageGeneral.TODAY, PeriodUsageGeneral.YESTERDAY -> DateCalendarUtils.MyTimeUnit.MINUTE
+                PeriodUsageGeneral.WEEK, PeriodUsageGeneral.MONTH -> DateCalendarUtils.MyTimeUnit.DAY
+                else -> DateCalendarUtils.MyTimeUnit.DAY
             }
 
             liveData.postValue(
@@ -57,7 +57,7 @@ class UsageGeneralViewModel @Inject constructor(
                             period.first,
                             period.second
                         )
-                    }.filter { it.simId == simId },
+                    }.filter { it.simId == simId && it.type == dataType },
                     timeUnit
                 ) to timeUnit
             )
@@ -66,10 +66,10 @@ class UsageGeneralViewModel @Inject constructor(
 
     private suspend fun getPeriod(simId: String, dataType: DataBytes.DataType): Pair<Long, Long> {
         return when (period) {
-            PeriodUsageGeneral.TODAY -> networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_TODAY)
-            PeriodUsageGeneral.YESTERDAY -> networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_YESTERDAY)
-            PeriodUsageGeneral.WEEK -> networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_WEEK)
-            PeriodUsageGeneral.MONTH -> networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_MONTH)
+            PeriodUsageGeneral.TODAY -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
+            PeriodUsageGeneral.YESTERDAY -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_YESTERDAY)
+            PeriodUsageGeneral.WEEK -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_WEEK)
+            PeriodUsageGeneral.MONTH -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_MONTH)
             PeriodUsageGeneral.PACKAGE -> {
                 val dataBytes = userDataBytesRepository.get(simId, dataType)
                 if (dataBytes.exists()) {
@@ -83,9 +83,32 @@ class UsageGeneralViewModel @Inject constructor(
 
     private fun filterCompact(
         list: List<UsageGeneral>,
-        timeUnit: NetworkUsageUtils.MyTimeUnit
+        timeUnit: DateCalendarUtils.MyTimeUnit
     ): List<UsageGeneral> {
-        TODO()
+        val compacted = mutableListOf<UsageGeneral>()
+
+        var sameUsage: UsageGeneral? = null
+
+        list.forEach { usage ->
+            if (sameUsage == null){
+                sameUsage = usage
+            }else {
+                val isSame = if (timeUnit == DateCalendarUtils.MyTimeUnit.MINUTE){
+                    DateCalendarUtils.isSameMinute(usage.date, sameUsage!!.date)
+                }else {
+                    DateCalendarUtils.isSameDay(usage.date, sameUsage!!.date)
+                }
+
+                if (isSame){
+                    sameUsage!! += usage
+                }else {
+                    compacted.add(sameUsage!!)
+                    sameUsage = usage
+                }
+            }
+        }
+
+        return compacted
     }
 
 
