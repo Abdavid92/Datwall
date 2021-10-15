@@ -11,6 +11,9 @@ import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -21,6 +24,8 @@ class BubbleServiceHelper @Inject constructor(
     private val permissionsManager: IPermissionsManager,
     private val notificationHelper: NotificationHelper
 ) {
+
+    private val dataStore = context.internalDataStore
 
     @Throws(MissingPermissionException::class)
     suspend fun startBubble(turnOn: Boolean) {
@@ -53,6 +58,19 @@ class BubbleServiceHelper @Inject constructor(
         }
     }
 
+    suspend fun bubbleEnabled(): Boolean {
+        return withContext(Dispatchers.IO) {
+            dataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.ENABLED_BUBBLE_FLOATING) == true
+        }
+    }
+
+    fun observeBubbleChanges(): Flow<Boolean> {
+        return dataStore.data.map {
+            return@map it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
+        }
+    }
+
     fun notifyStop(){
         notificationHelper.notify(
             NotificationHelper.ALERT_NOTIFICATION_ID,
@@ -69,7 +87,7 @@ class BubbleServiceHelper @Inject constructor(
         enabled: Boolean
     ) {
         withContext(Dispatchers.IO) {
-            context.settingsDataStore.edit {
+            dataStore.edit {
                 it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = enabled
             }
         }

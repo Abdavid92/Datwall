@@ -5,13 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import com.github.razir.progressbutton.attachTextChangeAnimator
-import com.github.razir.progressbutton.bindProgressButton
-import com.github.razir.progressbutton.hideProgress
-import com.github.razir.progressbutton.showProgress
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
@@ -47,9 +42,6 @@ class PackagesConfigurationFragment @Inject constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.bindProgressButton(binding.btnContinue)
-        binding.btnContinue.attachTextChangeAnimator()
-
         binding.btnStartConfiguration.setOnClickListener {
             if (binding.automatic == true) {
                 viewModel.configureDataPackages(
@@ -79,10 +71,10 @@ class PackagesConfigurationFragment @Inject constructor(
 
             binding.btnContinue.isClickable = false
 
-            binding.btnContinue.showProgress {
+            /*binding.btnContinue.showProgress {
                 progressColor = Color.WHITE
                 buttonText = null
-            }
+            }*/
 
             complete()
         }

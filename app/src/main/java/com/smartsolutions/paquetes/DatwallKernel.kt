@@ -81,7 +81,7 @@ class DatwallKernel @Inject constructor(
     init {
         launch {
 
-            context.settingsDataStore.data.collect {
+            context.internalDataStore.data.collect {
                 BUBBLE_ON = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
                 FIREWALL_ON = it[PreferencesKeys.ENABLED_FIREWALL] == true
             }
@@ -195,7 +195,7 @@ class DatwallKernel @Inject constructor(
             }
 
             if (networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G) {
-                context.settingsDataStore.edit {
+                context.internalDataStore.edit {
                     it[PreferencesKeys.ENABLED_LTE] = true
                 }
             }
@@ -308,10 +308,6 @@ class DatwallKernel @Inject constructor(
         }
 
         dataSyncJob = launch {
-            /*if (context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.ENABLE_DATA_SYNCHRONIZATION) != false){
-                synchronizationManager.scheduleUserDataBytesSynchronization(30)
-            }*/
-
             context.settingsDataStore.data.collect {
                 if (it[PreferencesKeys.ENABLE_DATA_SYNCHRONIZATION] == true)
                     synchronizationManager.scheduleUserDataBytesSynchronization(15)

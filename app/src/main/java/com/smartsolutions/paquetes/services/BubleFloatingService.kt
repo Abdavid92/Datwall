@@ -23,14 +23,13 @@ import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.helpers.UIHelper
+import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.uiDataStore
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -64,6 +63,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     @Inject
     lateinit var watcher: RxWatcher
+
+    @Inject
+    lateinit var firewallHelper: FirewallHelper
+
+    @Inject
+    lateinit var bubbleServiceHelper: BubbleServiceHelper
 
     lateinit var uiHelper: UIHelper
 
@@ -107,7 +112,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
             notificationHelper.buildNotification(
                 NotificationHelper.MAIN_CHANNEL_ID
             ).apply {
-                setSmallIcon(R.drawable.ic_bubble_notification)
+                setSmallIcon(R.drawable.ic_main_notification)
                 setContentTitle("Burbuja Flotante")
             }.build()
         )
@@ -140,12 +145,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         registerFlows()
 
         launch {
-            this@BubbleFloatingService.settingsDataStore.data.collect {
-                VPN_ENABLED = it[PreferencesKeys.ENABLED_FIREWALL] ?: false
+            firewallHelper.observeFirewallState().collect {
+                VPN_ENABLED = it
             }
         }
         launch {
-            this@BubbleFloatingService.settingsDataStore.data.collect {
+            this@BubbleFloatingService.uiDataStore.data.collect {
                 SIZE = BubbleSize.valueOf(
                     it[PreferencesKeys.BUBBLE_SIZE] ?: BubbleSize.SMALL.name
                 )
@@ -263,14 +268,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
             }
         }
     }
-
-    /*private fun setSizeBubble() {
-        when (SIZE) {
-            BubbleSize.SMALL -> setSizes(30, 10, 8)
-            BubbleSize.MEDIUM -> setSizes(40, 11, 9)
-            BubbleSize.LARGE -> setSizes(50, 12, 10)
-        }
-    }*/
 
     private fun setThemeBubble() {
         bubbleBinding.linBackgroundBubble.setBackgroundResource(getBackgroundResource())
@@ -540,22 +537,15 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
-    /*private fun setSizes(iconSize: Int, textSize: Int, subTextSize: Int) {
-        val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconSize.toFloat(), resources.displayMetrics).toInt()
-        bubbleBinding.appIcon.layoutParams.height = radius
-        bubbleBinding.appIcon.layoutParams.width = radius
-
-        bubbleBinding.appValue.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textSize.toFloat())
-        bubbleBinding.unitApp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, subTextSize.toFloat())
-    }*/
-
-
     private fun addView(view: View, params: WindowManager.LayoutParams){
         try {
             windowManager.addView(view, params)
         }catch (e: Exception){
             if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                throw MissingPermissionException(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+                launch {
+                    bubbleServiceHelper.notifyStop()
+                    bubbleServiceHelper.stopBubble(true)
+                }
             }
         }
     }
