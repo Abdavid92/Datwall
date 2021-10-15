@@ -50,7 +50,7 @@ class SynchronizationWorker @AssistedInject constructor(
 
         if (onlyDummy && canExecute) {
             canExecute =
-                (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (5L * 1000L) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
+                (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (2 * 1000) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
         }
 
         if (canExecute) {

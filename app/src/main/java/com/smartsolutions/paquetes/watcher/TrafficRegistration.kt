@@ -17,6 +17,7 @@ import com.smartsolutions.paquetes.repositories.models.TrafficType
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import org.apache.commons.lang.time.DateUtils
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -48,7 +49,7 @@ class TrafficRegistration @Inject constructor(
      * Tiempo de Inicio que se usará a partir de Android 6 con NetworkStatsManager para comenzar
      * a recopilar los datos
      */
-    private val startTime = System.currentTimeMillis() - DateUtils.MILLIS_PER_HOUR
+    private var startTime = getStartTime()
 
     /**
      * Lista de todas las apps instaladas que se actualizan dinamicamente mediante un flow en una
@@ -101,7 +102,10 @@ class TrafficRegistration @Inject constructor(
 
                     val currentTime = System.currentTimeMillis()
 
-                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 10)) {
+                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 12)) {
+
+                        verifyTimeStart()
+
                         val start = lastTime
                         lastTime = currentTime
                         registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
@@ -210,6 +214,17 @@ class TrafficRegistration @Inject constructor(
         }
 
         return toRegister
+    }
+
+    fun verifyTimeStart(){
+        if (System.currentTimeMillis() - startTime > DateUtils.MILLIS_PER_DAY * 2){
+            startTime = getStartTime()
+            lastTraffics.clear()
+        }
+    }
+
+    fun getStartTime(): Long {
+       return System.currentTimeMillis() - (12 * DateUtils.MILLIS_PER_HOUR)
     }
 
     /**
