@@ -21,7 +21,8 @@ class FirewallControls(
     private var _binding: FirewallControlsBinding? = FirewallControlsBinding
         .inflate(activity.layoutInflater)
 
-    private val binding: FirewallControlsBinding = _binding!!
+    private val binding: FirewallControlsBinding
+        get() = _binding!!
 
     private val viewModel = activity.viewModel
 

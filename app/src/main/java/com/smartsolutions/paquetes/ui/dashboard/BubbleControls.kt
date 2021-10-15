@@ -19,7 +19,8 @@ class BubbleControls(
 
     private var _binding: BubbleControlsBinding? = BubbleControlsBinding
         .inflate(activity.layoutInflater)
-    private val binding: BubbleControlsBinding = _binding!!
+    private val binding: BubbleControlsBinding
+        get() = _binding!!
 
     private val viewModel = activity.viewModel
 
@@ -47,14 +48,12 @@ class BubbleControls(
                     binding.allWay,
                     binding.onlyConsume
                 )
-                /*viewModel.setTransparencyListener(
-                    binding.bubbleTransparency,
-                    binding.bubbleExample
+                viewModel.setTransparencyListener(
+                    binding.bubbleTransparency
                 )
                 viewModel.setSizeListener(
-                    binding.bubbleSize,
-                    binding.bubbleExample
-                )*/
+                    binding.bubbleSize
+                )
             }
 
             override fun onTransitionCancel(transition: Transition?) {

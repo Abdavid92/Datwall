@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/activity_horizontal_margin">
@@ -76,41 +77,60 @@
                     android:id="@+id/title_transparency"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/divider3"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/divider4"
+                    android:layout_weight="1"
                     android:layout_marginTop="8dp"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/transparency" />
 
-                <androidx.appcompat.widget.AppCompatSeekBar
+                <com.warkiz.widget.IndicatorSeekBar
                     android:id="@+id/bubble_transparency"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/divider4"
-                    app:layout_constraintTop_toBottomOf="@id/title_transparency" />
+                    app:isb_max="10"
+                    app:isb_seek_smoothly="true"
+                    app:isb_thumb_color="?attr/colorSecondary"
+                    app:isb_track_progress_color="?attr/colorSecondary"
+                    app:isb_indicator_content_layout="@layout/bubble_floating_layout"
+                    app:isb_indicator_color="?attr/colorSecondary"
+                    app:isb_show_indicator="custom"
+                    tools:isb_progress="5"/>
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/title_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/divider4"
-                    app:layout_constraintTop_toBottomOf="@id/bubble_transparency"
-                    android:layout_marginTop="8dp"
+                    android:layout_weight="1"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/size" />
 
-                <androidx.appcompat.widget.AppCompatSeekBar
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/bubble_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:isb_max="2"
+                    app:isb_ticks_count="3"
+                    app:isb_show_tick_marks_type="oval"
+                    app:isb_tick_marks_color="?attr/colorSecondary"
+                    app:isb_seek_smoothly="true"
+                    app:isb_thumb_color="?attr/colorSecondary"
+                    app:isb_track_progress_color="?attr/colorSecondary"
+                    app:isb_indicator_content_layout="@layout/bubble_floating_layout"
+                    app:isb_indicator_color="?attr/colorSecondary"
+                    app:isb_show_indicator="custom"
+                    tools:isb_progress="1" />
+
+
+
+                <!--<androidx.appcompat.widget.AppCompatSeekBar
                     android:id="@+id/bubble_size"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="@id/divider4"
-                    app:layout_constraintTop_toBottomOf="@id/title_size" />
+                    app:layout_constraintTop_toBottomOf="@id/title_size" />-->
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 

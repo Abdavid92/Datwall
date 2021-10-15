@@ -10,8 +10,6 @@ import java.lang.NullPointerException
 @AndroidEntryPoint
 class FragmentContainerActivity : AppCompatActivity() {
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fragment_container)

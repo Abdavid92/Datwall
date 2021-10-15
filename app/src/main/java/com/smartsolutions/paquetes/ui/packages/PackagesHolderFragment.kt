@@ -26,7 +26,11 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
 
     private lateinit var simId: String
 
-    private lateinit var binding: FragmentPackagesHolderBinding
+    private var _binding: FragmentPackagesHolderBinding? = null
+    private val binding: FragmentPackagesHolderBinding
+        get() = _binding!!
+
+
     private val viewModel by viewModels<PackagesViewModel>()
 
     private var adapter: PackagesRecyclerAdapter? = null
@@ -43,7 +47,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-       binding = FragmentPackagesHolderBinding.inflate(inflater, container, false)
+        _binding = FragmentPackagesHolderBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -113,6 +117,11 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
             val frag = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
             frag.show(childFragmentManager, "PermissionFragment")
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

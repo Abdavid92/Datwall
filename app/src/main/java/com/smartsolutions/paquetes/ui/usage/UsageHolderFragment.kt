@@ -22,7 +22,10 @@ private const val FRAGMENT_TYPE = "fragment_type"
 class UsageHolderFragment : Fragment() {
 
     private var type: Int? = null
-    private lateinit var binding: FragmentUsagePlaceHolderBinding
+
+    private var _binding: FragmentUsagePlaceHolderBinding? = null
+    private val binding: FragmentUsagePlaceHolderBinding
+        get() = _binding!!
 
     private val uiHelper by lazy {
         UIHelper(requireContext())
@@ -43,7 +46,7 @@ class UsageHolderFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentUsagePlaceHolderBinding.inflate(inflater, container, false)
+        _binding = FragmentUsagePlaceHolderBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -122,7 +125,10 @@ class UsageHolderFragment : Fragment() {
         })
     }
 
-
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 
     companion object {
         const val OTHERS_LABEL = "Otras"

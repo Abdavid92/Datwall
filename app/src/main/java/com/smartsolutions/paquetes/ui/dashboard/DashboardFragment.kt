@@ -21,15 +21,16 @@ class DashboardFragment : Fragment() {
 
     private val viewModel by viewModels<DashboardViewModel>()
 
-    lateinit var binding: FragmentDashboardBinding
-        private set
+    private var _binding: FragmentDashboardBinding? = null
+    val binding: FragmentDashboardBinding
+        get() = _binding!!
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDashboardBinding.inflate(
+        _binding = FragmentDashboardBinding.inflate(
             inflater,
             container,
             false
@@ -190,5 +191,10 @@ class DashboardFragment : Fragment() {
         binding.queryMb.setOnClickListener {
             viewModel.launchUssdCode("*222*328#", childFragmentManager)
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

@@ -31,7 +31,9 @@ class PlaceHolderFragment : Fragment(),
     /**
      * Enlace a la vista.
      * */
-    private lateinit var binding: FragmentApplicationsPlaceholderBinding
+    private var _binding: FragmentApplicationsPlaceholderBinding? = null
+    private val binding: FragmentApplicationsPlaceholderBinding
+        get() = _binding!!
 
     private val viewModel by viewModels<ApplicationsViewModel>(
         { requireParentFragment() }
@@ -83,7 +85,7 @@ class PlaceHolderFragment : Fragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentApplicationsPlaceholderBinding.inflate(
+        _binding = FragmentApplicationsPlaceholderBinding.inflate(
             inflater,
             container,
             false
@@ -155,6 +157,11 @@ class PlaceHolderFragment : Fragment(),
      * */
     override fun onQueryApp(query: String?) {
         adapter?.search(query)
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

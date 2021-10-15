@@ -24,14 +24,17 @@ class UsageFragment : Fragment() {
     }
 
     private val viewModel by viewModels<UsageViewModel>()
-    private lateinit var binding: FragmentUsageBinding
+
+    private var _binding: FragmentUsageBinding? = null
+    private val binding: FragmentUsageBinding
+        get() = _binding!!
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentUsageBinding.inflate(inflater, container, false)
+        _binding = FragmentUsageBinding.inflate(inflater, container, false)
         (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
         return binding.root
     }
@@ -77,4 +80,8 @@ class UsageFragment : Fragment() {
             }.show()
     }
 
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 }

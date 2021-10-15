@@ -19,7 +19,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class AskActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityAskBinding
+    private var _binding: ActivityAskBinding? = null
+    private val binding: ActivityAskBinding
+        get() = _binding!!
 
     private val viewModel: AskViewModel by viewModels()
 
@@ -54,7 +56,7 @@ class AskActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_ask)
+        _binding = DataBindingUtil.setContentView(this, R.layout.activity_ask)
 
         app = intent.getParcelableExtra(EXTRA_FOREGROUND_APP)
 
@@ -121,6 +123,7 @@ class AskActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        _binding = null
         super.onDestroy()
 
         if (allowClose) {

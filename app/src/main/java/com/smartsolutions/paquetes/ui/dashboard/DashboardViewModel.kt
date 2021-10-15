@@ -1,12 +1,13 @@
 package com.smartsolutions.paquetes.ui.dashboard
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.os.Build
-import android.view.View
+import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatRadioButton
-import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.SwitchCompat
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -14,12 +15,16 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.helpers.BubbleServiceHelper
 import com.smartsolutions.paquetes.helpers.FirewallHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
+import com.warkiz.widget.IndicatorSeekBar
+import com.warkiz.widget.OnSeekChangeListener
+import com.warkiz.widget.SeekParams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -34,12 +39,19 @@ class DashboardViewModel @Inject constructor(
     private val appRepository: IAppRepository,
     private val permissionManager: IPermissionsManager,
     private val firewallHelper: FirewallHelper,
+    private val bubbleServiceHelper: BubbleServiceHelper,
     private val ussdHelper: USSDHelper
 ) : AndroidViewModel(application) {
 
+    /**
+     * DataStore interno.
+     * */
     private val dataStore = getApplication<DatwallApplication>().internalDataStore
 
     private val _appsData = MutableLiveData<IntArray>()
+
+    @SuppressLint("StaticFieldLeak")
+    private var bubbleView: View? = null
 
     /**
      * LiveData que contiene un Array de tres items.
@@ -142,7 +154,7 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun startFirewall(buttonView: CompoundButton, fm: FragmentManager){
+    private fun startFirewall(buttonView: CompoundButton, fm: FragmentManager) {
         if (!firewallHelper.checkFirewallPermission()) {
             SinglePermissionFragment.newInstance(
                 IPermissionsManager.VPN_CODE,
@@ -174,7 +186,7 @@ class DashboardViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
 
-            val dynamic = getApplication<DatwallApplication>().settingsDataStore.data
+            val dynamic = dataStore.data
                 .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
 
             if (dynamic)
@@ -182,16 +194,27 @@ class DashboardViewModel @Inject constructor(
             else
                 staticRadio.isChecked = true
 
-            dynamicRadio.setOnCheckedChangeListener { buttonView, isChecked ->
+            dynamicRadio.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    requestDrawOverPermission(fm,
-                        onGranted = {
-                            writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, true)
-                        },
-                        onDenied = {
-                            writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, false)
-                            staticRadio.isChecked
-                        })
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        requestDrawOverPermission(fm,
+                            onGranted = {
+                                writeChangesDataStore(
+                                    PreferencesKeys.ENABLED_DYNAMIC_FIREWALL,
+                                    true
+                                )
+                            },
+                            onDenied = {
+                                writeChangesDataStore(
+                                    PreferencesKeys.ENABLED_DYNAMIC_FIREWALL,
+                                    false
+                                )
+
+                                staticRadio.isChecked = true
+                            })
+                    } else {
+                        writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, true)
+                    }
                 } else {
                     writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, false)
                 }
@@ -202,14 +225,12 @@ class DashboardViewModel @Inject constructor(
     fun setBubbleSwitchListener(bubble: SwitchCompat, childFragmentManager: FragmentManager) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            val dataStore = getApplication<DatwallApplication>().settingsDataStore
-
-            dataStore.data.collect {
+            bubbleServiceHelper.observeBubbleChanges().collect {
 
                 withContext(Dispatchers.Main) {
                     bubble.setOnCheckedChangeListener(null)
 
-                    bubble.isChecked = it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] == true
+                    bubble.isChecked = it
 
                     bubble.setOnCheckedChangeListener { buttonView, isChecked ->
                         onBubbleChangeListener(
@@ -241,38 +262,34 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun setTransparencyListener(bubbleTransparency: AppCompatSeekBar, bubbleExample: View) {
+    fun setTransparencyListener(bubbleTransparency: IndicatorSeekBar) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().settingsDataStore
+            val dataStore = getApplication<DatwallApplication>().uiDataStore
 
             val transparency = dataStore.data
                 .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY)
                 ?: BubbleFloatingService.TRANSPARENCY
 
-            bubbleTransparency.max = 10
+            bubbleTransparency.setProgress((transparency * 10))
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                bubbleTransparency.setProgress((transparency * 10).toInt(), true)
-            else
-                bubbleTransparency.progress = (transparency * 10).toInt()
+            initBubbleView(bubbleTransparency.context)
 
-            bubbleExample.alpha = transparency
+            bubbleTransparency.indicator.contentView = bubbleView
 
-            bubbleTransparency.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    val newTransparency = progress.toFloat() / 10f
-                    bubbleExample.alpha = newTransparency
+            bubbleTransparency.onSeekChangeListener = object : OnSeekChangeListener {
+                override fun onSeeking(seekParams: SeekParams) {
+
+                    if (seekParams.fromUser) {
+                        val newTransparency = seekParams.progress.toFloat() / 10f
+
+                        bubbleView?.findViewById<LinearLayout>(R.id.lin_background_bubble)
+                            ?.alpha = newTransparency
+                    }
                 }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                override fun onStartTrackingTouch(seekBar: IndicatorSeekBar?) { }
 
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
                     val newTransparency = seekBar.progress.toFloat() / 10f
 
                     viewModelScope.launch {
@@ -281,12 +298,11 @@ class DashboardViewModel @Inject constructor(
                         }
                     }
                 }
-
-            })
+            }
         }
     }
 
-    fun setSizeListener(bubbleSize: AppCompatSeekBar, bubbleExample: View) {
+    fun setSizeListener(bubbleSize: IndicatorSeekBar) {
         viewModelScope.launch {
             val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
@@ -295,38 +311,33 @@ class DashboardViewModel @Inject constructor(
                     ?: BubbleFloatingService.SIZE.name
             )
 
+            initBubbleView(bubbleSize.context)
+
             BubbleFloatingService.setSizeBubble(
                 getApplication(),
-                bubbleExample,
+                bubbleView!!,
                 size
             )
 
-            bubbleSize.max = 2
+            bubbleSize.indicator.contentView = bubbleView
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                bubbleSize.setProgress(size.ordinal, true)
-            else
-                bubbleSize.progress = size.ordinal
+            bubbleSize.setProgress(size.ordinal.toFloat())
 
-            bubbleSize.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    val newSize = BubbleFloatingService.BubbleSize.values()[progress]
+            bubbleSize.onSeekChangeListener = object : OnSeekChangeListener {
+
+                override fun onSeeking(seekParams: SeekParams) {
+                    val newSize = BubbleFloatingService.BubbleSize.values()[seekParams.progress]
 
                     BubbleFloatingService.setSizeBubble(
                         getApplication(),
-                        bubbleExample,
+                        bubbleView!!,
                         newSize
                     )
                 }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                }
+                override fun onStartTrackingTouch(seekBar: IndicatorSeekBar?) { }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
                     val newSize = BubbleFloatingService.BubbleSize.values()[seekBar.progress]
 
                     viewModelScope.launch {
@@ -335,8 +346,7 @@ class DashboardViewModel @Inject constructor(
                         }
                     }
                 }
-
-            })
+            }
         }
     }
 
@@ -363,10 +373,28 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
 
+        bubbleView = null
+    }
+
+    private fun initBubbleView(context: Context) {
+        if (bubbleView == null) {
+            bubbleView = LayoutInflater.from(context)
+                .inflate(
+                    R.layout.bubble_floating_layout,
+                    null,
+                    false)
+        }
+    }
+
+    /**
+     * Guarda los cambios en el dataStore interno.
+     * */
     private fun writeChangesDataStore(preferences: Preferences.Key<Boolean>, value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().settingsDataStore.edit {
+            dataStore.edit {
                 it[preferences] = value
             }
         }
@@ -377,6 +405,9 @@ class DashboardViewModel @Inject constructor(
         .findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
         ?: throw NullPointerException("Incorrect permission code")
 
+    /**
+     * Pide el permiso de sobreposición de pantalla en caso de estar en android 6 en adelante
+     * */
     private fun requestDrawOverPermission(
         fm: FragmentManager,
         onGranted: () -> Unit,

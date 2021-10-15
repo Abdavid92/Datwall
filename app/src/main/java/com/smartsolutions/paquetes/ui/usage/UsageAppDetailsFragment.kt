@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -41,9 +42,13 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
     @Inject
     lateinit var iconManager: IIconManager
+
     private lateinit var uiHelper: UIHelper
 
-    private lateinit var binding: FragmentUsageAppDetailsBinding
+    private var _binding: FragmentUsageAppDetailsBinding? = null
+    private val binding: FragmentUsageAppDetailsBinding
+        get() = _binding!!
+
     private val viewModel by viewModels<UsageAppDetailsViewModel>()
 
     private var adapter: UsageAppDetailsRecyclerAdapter? = null
@@ -52,7 +57,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentUsageAppDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentUsageAppDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -159,10 +164,8 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
             marker = object : MarkerView(requireContext(), R.layout.higlith_chart) {
 
-                private val text: TextView
-                init {
-                    text = findViewById(R.id.text_value)
-                }
+                @SuppressLint("StaticFieldLeak")
+                private var text: TextView = findViewById(R.id.text_value)
 
                 override fun refreshContent(e: Entry?, highlight: Highlight?) {
                     val index = entries.indexOf(e)
@@ -185,7 +188,6 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
                     }
                     return mOffset
                 }
-
             }
 
         }.invalidate()
@@ -200,6 +202,11 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
             adapter!!.traffics = traffics
             adapter?.notifyDataSetChanged()
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

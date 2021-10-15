@@ -33,7 +33,9 @@ private const val SIM_ID = "sim_id"
 class HistoryHolderFragment : Fragment() {
 
     private lateinit var simId: String
-    private lateinit var binding: FragmentHistoryHolderBinding
+    private var _binding: FragmentHistoryHolderBinding? = null
+    private val binding: FragmentHistoryHolderBinding
+        get() = _binding!!
 
     private val viewModel by viewModels<HistoryViewModel>()
 
@@ -54,7 +56,7 @@ class HistoryHolderFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHistoryHolderBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentHistoryHolderBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -183,7 +185,10 @@ class HistoryHolderFragment : Fragment() {
 
     }
 
-
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 
     companion object {
 
