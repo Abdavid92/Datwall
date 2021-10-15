@@ -84,4 +84,9 @@
         <item name="android:focusable">true</item>
         <item name="android:padding">16dp</item>
     </style>
+
+    <style name="BubbleFloatingStyle">
+        <item name="android:background">@drawable/background_green_borderless_card_light</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>

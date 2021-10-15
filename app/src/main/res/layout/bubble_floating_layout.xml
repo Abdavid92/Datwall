@@ -5,8 +5,8 @@
     android:id="@+id/lin_background_bubble"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/background_red_borderless_card_dark"
     android:gravity="center"
+    style="@style/BubbleFloatingStyle"
     android:orientation="horizontal"
     android:baselineAligned="false">
 

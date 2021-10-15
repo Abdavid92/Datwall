@@ -6,8 +6,9 @@ import android.os.Build
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.services.BubbleFloatingService
@@ -15,17 +16,17 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.jvm.Throws
 
 class BubbleServiceHelper @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val activationManager: IActivationManager,
-    private val permissionsManager: IPermissionsManager
+    private val permissionsManager: IPermissionsManager,
+    private val notificationHelper: NotificationHelper
 ) {
 
     @Throws(MissingPermissionException::class)
-    suspend fun startBubble(turnOn: Boolean) {
+    suspend fun startBubble(turnOn: Boolean = false) {
         if (turnOn)
             writeChangesDataStore(true)
 
@@ -34,7 +35,9 @@ class BubbleServiceHelper @Inject constructor(
                 val permission =
                     permissionsManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
                 if (permission?.checkPermission?.invoke(permission, context) != true) {
-
+                    stopBubble(true)
+                    notifyStop()
+                    return
                 }
             }
 
@@ -44,8 +47,7 @@ class BubbleServiceHelper @Inject constructor(
         }
     }
 
-
-    suspend fun stopBubble(turnOf: Boolean) {
+    suspend fun stopBubble(turnOf: Boolean = false) {
         if (turnOf)
             writeChangesDataStore(false)
 
@@ -54,15 +56,25 @@ class BubbleServiceHelper @Inject constructor(
         }
     }
 
+    fun notifyStop(){
+        notificationHelper.notify(
+            NotificationHelper.ALERT_NOTIFICATION_ID,
+            notificationHelper.buildNotification(
+                NotificationHelper.ALERT_CHANNEL_ID
+            ).apply {
+                setContentTitle(context.getString(R.string.bubble_stoped_permission_title))
+                setContentText(context.getString(R.string.bubble_stoped_permission_description))
+            }.build()
+        )
+    }
 
     private suspend fun writeChangesDataStore(
         enabled: Boolean
     ) {
         withContext(Dispatchers.IO) {
-            context.settingsDataStore.edit {
+            context.internalDataStore.edit {
                 it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = enabled
             }
         }
     }
-
 }

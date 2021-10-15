@@ -289,6 +289,8 @@
     <string name="firewall_force_stop">Cortafuegos detenido</string>
     <string name="firewall_force_stop_summary">Se ha forzado el apagado del cortafuegos. Esto podría causar fuga de datos.</string>
     <string name="loading">Cargando</string>
+    <string name="bubble_stoped_permission_title">Se detuvo la Burbuja</string>
+    <string name="bubble_stoped_permission_description">Se denegó el permiso de sobreponerse a otras apps y por lo tanto se detuvo la burbuja</string>
     <string name="enable_data_synchronization">Activar la sincronización</string>
     <string name="enable_data_synchronization_summary">Ahora te explico</string>
     <string name="synchonization">Sincronización</string>

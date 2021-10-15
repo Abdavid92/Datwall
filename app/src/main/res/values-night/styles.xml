@@ -42,4 +42,9 @@
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/background_fragments</item>
     </style>
+
+    <style name="BubbleFloatingStyle">
+        <item name="android:background">@drawable/background_green_borderless_card_dark</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>
