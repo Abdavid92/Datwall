@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.databinding.FragmentResumeHolderBinding
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.ui.usage.UsageAppDetailsRecyclerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -17,7 +16,11 @@ private const val SIM_ID = "sim_id"
 class ResumeHolderFragment : Fragment() {
 
     private lateinit var simID: String
-    private lateinit var binding: FragmentResumeHolderBinding
+
+    private var _binding: FragmentResumeHolderBinding? = null
+    private val binding: FragmentResumeHolderBinding
+        get() = _binding!!
+
     private val viewModel by viewModels<ResumeViewModel>()
     private var adapter: UserDataBytesRecyclerAdapter? = null
 
@@ -33,7 +36,7 @@ class ResumeHolderFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentResumeHolderBinding.inflate(inflater, container, false)
+        _binding = FragmentResumeHolderBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -66,6 +69,11 @@ class ResumeHolderFragment : Fragment() {
         }else {
             adapter?.update(userData)
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

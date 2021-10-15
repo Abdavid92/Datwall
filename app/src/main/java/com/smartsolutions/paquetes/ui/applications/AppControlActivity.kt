@@ -33,7 +33,9 @@ class AppControlActivity : TransparentActivity() {
     /**
      * Enlace a la vista.
      * */
-    private lateinit var binding: ActivityAppControlBinding
+    private var _binding: ActivityAppControlBinding? = null
+    private val binding: ActivityAppControlBinding
+        get() = _binding!!
 
     /**
      * Aplicación.
@@ -53,7 +55,7 @@ class AppControlActivity : TransparentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityAppControlBinding.inflate(layoutInflater)
+        _binding = ActivityAppControlBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         /*
@@ -178,6 +180,11 @@ class AppControlActivity : TransparentActivity() {
             app?.ask = isChecked
             wasChanges = true
         }
+    }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
     }
 
     companion object {

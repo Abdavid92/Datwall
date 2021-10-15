@@ -72,14 +72,16 @@ class PresentationActivity : WelcomeActivity() {
 
     class CustomWelcomeFragment : Fragment(), WelcomePage.OnChangeListener {
 
-        private lateinit var binding: FragmentPresentationBinding
+        private var _binding: FragmentPresentationBinding? = null
+        private val binding: FragmentPresentationBinding
+            get() = _binding!!
 
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View {
-            binding = FragmentPresentationBinding.inflate(
+            _binding = FragmentPresentationBinding.inflate(
                 inflater,
                 container,
                 false
@@ -121,6 +123,11 @@ class PresentationActivity : WelcomeActivity() {
         }
 
         override fun onWelcomeScreenPageScrollStateChanged(pageIndex: Int, state: Int) {
+        }
+
+        override fun onDestroyView() {
+            _binding = null
+            super.onDestroyView()
         }
 
         companion object {

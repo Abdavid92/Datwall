@@ -22,7 +22,10 @@ private const val FAILED_DEFAULT = "failed_default"
 class DefaultSimsDialogFragment : BottomSheetDialogFragment() {
 
     private var failed: FailDefault? = null
-    private lateinit var binding: FragmentDefaultSimsDialogBinding
+
+    private var _binding: FragmentDefaultSimsDialogBinding? = null
+    private val binding: FragmentDefaultSimsDialogBinding
+        get() = _binding!!
 
     private val viewModel by viewModels<DefaultSimsViewModel> ()
     private var adapterVoice: DefaultSimRecyclerAdapter? = null
@@ -43,7 +46,7 @@ class DefaultSimsDialogFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDefaultSimsDialogBinding.inflate(inflater, container, false)
+        _binding = FragmentDefaultSimsDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -116,6 +119,11 @@ class DefaultSimsDialogFragment : BottomSheetDialogFragment() {
             SimDelegate.SimType.DATA
         }
         viewModel.setDefaultSim(sim, simType)
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

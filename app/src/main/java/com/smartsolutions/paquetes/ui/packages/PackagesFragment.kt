@@ -32,14 +32,16 @@ class PackagesFragment : Fragment() {
     private val viewModel by viewModels<PackagesViewModel> ()
     private var adapter: PackagesPagerAdapter? = null
 
-    private lateinit var binding: FragmentPackagesBinding
+    private var _binding: FragmentPackagesBinding? = null
+    private val binding: FragmentPackagesBinding
+        get() = _binding!!
     
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentPackagesBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentPackagesBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -69,5 +71,8 @@ class PackagesFragment : Fragment() {
         }
     }
 
-
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 }

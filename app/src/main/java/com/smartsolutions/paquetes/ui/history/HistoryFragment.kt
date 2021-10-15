@@ -20,8 +20,11 @@ class HistoryFragment : Fragment() {
         fun newInstance() = HistoryFragment()
     }
 
-    private val viewModel by viewModels<HistoryViewModel> ()
-    private lateinit var binding: FragmentHistoryBinding
+    private val viewModel by viewModels<HistoryViewModel>()
+
+    private var _binding: FragmentHistoryBinding? = null
+    private val binding: FragmentHistoryBinding
+        get() = _binding!!
 
     private var adapter: HistoryPagerAdapter? = null
 
@@ -30,7 +33,7 @@ class HistoryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHistoryBinding.inflate(inflater, container, false)
+        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -62,7 +65,8 @@ class HistoryFragment : Fragment() {
         }
     }
 
-
-
-
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 }

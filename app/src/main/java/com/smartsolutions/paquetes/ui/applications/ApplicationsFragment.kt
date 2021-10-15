@@ -16,7 +16,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ApplicationsFragment : Fragment() {
 
-    private lateinit var binding: FragmentApplicationsBinding
+    private var _binding: FragmentApplicationsBinding? = null
+    private val binding: FragmentApplicationsBinding
+        get() = _binding!!
 
     private val viewModel by viewModels<ApplicationsViewModel>()
 
@@ -29,7 +31,7 @@ class ApplicationsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentApplicationsBinding.inflate(
+        _binding = FragmentApplicationsBinding.inflate(
             inflater,
             container,
             false
@@ -98,6 +100,11 @@ class ApplicationsFragment : Fragment() {
 
         //Confirmo los cambios
         viewModel.commitUpdateApps()
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     interface OnQueryAppListener {

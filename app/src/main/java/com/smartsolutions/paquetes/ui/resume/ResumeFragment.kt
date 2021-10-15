@@ -27,7 +27,10 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
     private val viewModel by viewModels<ResumeViewModel>()
 
-    private lateinit var binding: FragmentResumeBinding
+    private var _binding: FragmentResumeBinding? = null
+    private val binding: FragmentResumeBinding
+        get() = _binding!!
+
     private var adapterFragment: ResumePagerAdapter? = null
     private lateinit var installedSims: List<Sim>
 
@@ -50,7 +53,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentResumeBinding.inflate(inflater, container, false)
+        _binding = FragmentResumeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -198,6 +201,10 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         fragment.show(this.childFragmentManager, "AccessibilityFragment")
     }
 
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 
     companion object {
         fun newInstance() = ResumeFragment()

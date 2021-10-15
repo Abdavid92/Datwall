@@ -21,14 +21,16 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
 
     private val viewModel by viewModels<ApplicationStatusViewModel>()
 
-    private lateinit var binding: FragmentApplicationStatusBinding
+    private var _binding: FragmentApplicationStatusBinding? = null
+    private val binding: FragmentApplicationStatusBinding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentApplicationStatusBinding.inflate(
+        _binding = FragmentApplicationStatusBinding.inflate(
             inflater,
             container,
             false
@@ -113,6 +115,11 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
             viewModel.getApplicationStatus(this)
             binding.waiting = true
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun enableBtnAction(text: String = "Continuar", listener: (view: View) -> Unit) {

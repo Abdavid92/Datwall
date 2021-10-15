@@ -33,8 +33,8 @@ class DashboardControlActivity : TransparentActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         controls.onDestroy()
+        super.onDestroy()
     }
 
     companion object {

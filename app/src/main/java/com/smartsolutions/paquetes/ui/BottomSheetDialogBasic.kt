@@ -20,7 +20,10 @@ private const val MESSAGE = "message"
 
 class BottomSheetDialogBasic : BottomSheetDialogFragment() {
 
-    private lateinit var binding: FragmentBottomSheetDialogBasicBinding
+    private var _binding: FragmentBottomSheetDialogBasicBinding? = null
+    private val binding: FragmentBottomSheetDialogBasicBinding
+        get() = _binding!!
+
     private var title: String? = null
     private var message: String? = null
     private lateinit var type: DialogType
@@ -40,7 +43,7 @@ class BottomSheetDialogBasic : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentBottomSheetDialogBasicBinding.inflate(inflater, container, false)
+        _binding = FragmentBottomSheetDialogBasicBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -93,6 +96,10 @@ class BottomSheetDialogBasic : BottomSheetDialogFragment() {
 
     }
 
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 
     companion object {
 

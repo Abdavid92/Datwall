@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.ui.settings
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,14 +21,16 @@ class PackagesConfigurationFragment @Inject constructor(
 
     private val viewModel by viewModels<PackagesConfigurationViewModel>()
 
-    private lateinit var binding: FragmentPackagesConfigurationBinding
+    private var _binding: FragmentPackagesConfigurationBinding? = null
+    private val binding: FragmentPackagesConfigurationBinding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentPackagesConfigurationBinding
+        _binding = FragmentPackagesConfigurationBinding
             .inflate(inflater, container, false).apply {
                 automatic = true
                 network = Networks.NETWORK_NONE
@@ -113,6 +114,11 @@ class PackagesConfigurationFragment @Inject constructor(
                 binding.resultMsg.text = message
             }
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {
