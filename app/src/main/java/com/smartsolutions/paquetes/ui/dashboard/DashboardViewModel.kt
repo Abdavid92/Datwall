@@ -12,10 +12,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
-import com.smartsolutions.paquetes.DatwallApplication
-import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.FirewallHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
@@ -39,6 +36,8 @@ class DashboardViewModel @Inject constructor(
     private val firewallHelper: FirewallHelper,
     private val ussdHelper: USSDHelper
 ) : AndroidViewModel(application) {
+
+    private val dataStore = getApplication<DatwallApplication>().internalDataStore
 
     private val _appsData = MutableLiveData<IntArray>()
 
@@ -90,7 +89,7 @@ class DashboardViewModel @Inject constructor(
 
                     switch.isChecked = it
 
-                    switch.setOnCheckedChangeListener { buttonView, isChecked ->
+                    switch.setOnCheckedChangeListener { buttonView,_ ->
                         onFirewallChangeListener(buttonView, fm)
                     }
                 }
@@ -119,15 +118,13 @@ class DashboardViewModel @Inject constructor(
                     }
                 } else {
 
-                    val dynamic = getApplication<DatwallApplication>().settingsDataStore.data
-                        .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
+                    val dynamic = dataStore.data.firstOrNull()
+                        ?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
 
                     if (dynamic) {
                         requestDrawOverPermission(fm,
                             onGranted = {
-                                launch {
-                                    startFirewall(buttonView, fm)
-                                }
+                                startFirewall(buttonView, fm)
                             },
                             onDenied = {
                                 buttonView.isChecked = false
@@ -139,21 +136,21 @@ class DashboardViewModel @Inject constructor(
                 }
             }
         } else {
-            viewModelScope.launch(Dispatchers.IO) {
-                firewallHelper.stopFirewall()
+            viewModelScope.launch {
+                firewallHelper.stopFirewall(true)
             }
         }
     }
 
-    private suspend fun startFirewall(buttonView: CompoundButton, fm: FragmentManager){
+    private fun startFirewall(buttonView: CompoundButton, fm: FragmentManager){
         if (!firewallHelper.checkFirewallPermission()) {
-            val fragment = SinglePermissionFragment.newInstance(
+            SinglePermissionFragment.newInstance(
                 IPermissionsManager.VPN_CODE,
                 object : SinglePermissionFragment.SinglePermissionCallback {
 
                     override fun onGranted() {
                         viewModelScope.launch {
-                            firewallHelper.startFirewall()
+                            firewallHelper.startFirewall(true)
                         }
                     }
 
@@ -161,14 +158,12 @@ class DashboardViewModel @Inject constructor(
                         buttonView.isChecked = false
                     }
                 }
-            )
+            ).show(fm, null)
 
-            withContext(Dispatchers.Main) {
-                fragment.show(fm, null)
-            }
         } else {
-            firewallHelper.establishFirewallEnabled(true)
-            firewallHelper.startFirewall()
+            viewModelScope.launch {
+                firewallHelper.startFirewall(true)
+            }
         }
     }
 

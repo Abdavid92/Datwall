@@ -7,10 +7,7 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.preferences.core.edit
-import com.smartsolutions.paquetes.DatwallKernel
-import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.App
@@ -18,7 +15,9 @@ import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.services.FirewallService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -31,6 +30,7 @@ class FirewallHelper @Inject constructor(
     private val permissionManager: IPermissionsManager
 ) {
 
+    private val dataStore = context.internalDataStore
 
     /**
      * Verifica si todas las aplicaciones de la lista tienen acceso
@@ -52,17 +52,6 @@ class FirewallHelper @Inject constructor(
     }
 
     /**
-     * Establece en el dataStore que el cortafuegos está abilitado.
-     *
-     * @param enabled
-     * */
-    suspend fun establishFirewallEnabled(enabled: Boolean) {
-        context.settingsDataStore.edit {
-            it[PreferencesKeys.ENABLED_FIREWALL] = enabled
-        }
-    }
-
-    /**
      * Si los datos móviles están encendidos y [IActivationManager]
      * concede el permiso de trabajo, enciende el vpn. Si
      * [IActivationManager] no concedió el permiso de trabajo el
@@ -70,8 +59,12 @@ class FirewallHelper @Inject constructor(
      * el cortafuegos no encenderá, se apagará en el dataStore y se
      * enviará una notificación informando.
      *
+     * @param persistent - Si está en `true` se enciende permanentemente en el dataStore
      * */
-    suspend fun startFirewall() {
+    suspend fun startFirewall(persistent: Boolean) {
+
+        if (persistent)
+            establishFirewallEnabled(true)
 
         if (DatwallKernel.DATA_MOBILE_ON) {
             Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
@@ -96,11 +89,14 @@ class FirewallHelper @Inject constructor(
     }
 
     /**
-     * Establece en el dataStore que el cortafuegos está apagado.
-     * Si los datos móviles están encendidos, apaga el vpn.
+     * Apaga el cortafuegos.
+     *
+     * @param persistent - Si esta en `true` se desactiva el cortafuegos permanentemente.
      * */
-    suspend fun stopFirewall() {
-        establishFirewallEnabled(false)
+    suspend fun stopFirewall(persistent: Boolean) {
+
+        if (persistent)
+            establishFirewallEnabled(false)
 
         if (DatwallKernel.DATA_MOBILE_ON) {
             stopFirewallService()
@@ -114,7 +110,7 @@ class FirewallHelper @Inject constructor(
      *
      * @return `false` si el cortafuegos no tiene permiso para encender
      * */
-    fun startFirewallService(): Boolean {
+    private fun startFirewallService(): Boolean {
 
         if (!checkFirewallPermission()) {
             return false
@@ -137,13 +133,26 @@ class FirewallHelper @Inject constructor(
      * ningún cambio en el dataStore y no revisa que los datos móbiles
      * estén encendidos.
      * */
-    fun stopFirewallService() {
+    private fun stopFirewallService() {
         runCatching {
             val intent = Intent(context, FirewallService::class.java).apply {
                 action = FirewallService.ACTION_STOP_FIREWALL_SERVICE
             }
 
             context.startService(intent)
+        }
+    }
+
+    /**
+     * Establece en el dataStore que el cortafuegos está abilitado.
+     *
+     * @param enabled
+     * */
+    private suspend fun establishFirewallEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit {
+                it[PreferencesKeys.ENABLED_FIREWALL] = enabled
+            }
         }
     }
 
@@ -156,8 +165,10 @@ class FirewallHelper @Inject constructor(
      * @return [Boolean]
      * */
     suspend fun firewallEnabled(): Boolean {
-        return context.settingsDataStore.data
-            .firstOrNull()?.get(PreferencesKeys.ENABLED_FIREWALL) == true
+        return withContext(Dispatchers.IO) {
+            dataStore.data
+                .firstOrNull()?.get(PreferencesKeys.ENABLED_FIREWALL) == true
+        }
     }
 
     /**
@@ -169,7 +180,7 @@ class FirewallHelper @Inject constructor(
      * @return [Flow]
      * */
     fun observeFirewallState(): Flow<Boolean> {
-        return context.settingsDataStore.data
+        return dataStore.data
             .map {
                 return@map it[PreferencesKeys.ENABLED_FIREWALL] ?: false
             }

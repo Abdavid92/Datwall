@@ -6,8 +6,19 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.smartsolutions.paquetes.workers.SynchronizationWorker
 
+/**
+ * Contiene los ajustes de la aplicación.
+ * */
 val Context.settingsDataStore by preferencesDataStore(name = "settings")
+
+/**
+ * Contiene configuraciones de la ui
+ * */
 val Context.uiDataStore by preferencesDataStore(name = "settings_ui")
+
+/**
+ * Se usa para guardar datos necesarios en el backend.
+ * */
 val Context.internalDataStore by preferencesDataStore(name = "internal_settings")
 
 /**

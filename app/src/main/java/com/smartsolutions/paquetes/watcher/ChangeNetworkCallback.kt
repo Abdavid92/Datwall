@@ -38,7 +38,12 @@ class ChangeNetworkCallback @Inject constructor(
             val request = NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
 
-            connectivityManager.registerNetworkCallback(request.build(), this)
+            try {
+                connectivityManager.registerNetworkCallback(request.build(), this)
+            } catch (e: SecurityException) {
+                connectivityManager.registerNetworkCallback(request.build(), this)
+            }
+
             isRegistered = true
         }
     }

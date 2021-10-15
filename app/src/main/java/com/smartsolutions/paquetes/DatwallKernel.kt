@@ -387,7 +387,7 @@ class DatwallKernel @Inject constructor(
     }
 
     private suspend fun startFirewall() {
-        firewallHelper.startFirewall()
+        firewallHelper.startFirewall(true)
     }
 
     private suspend fun startBubbleFloating() {
@@ -428,9 +428,9 @@ class DatwallKernel @Inject constructor(
 
     private suspend fun stopFirewall(turnOf: Boolean = false){
         if (turnOf) {
-            firewallHelper.stopFirewall()
+            firewallHelper.stopFirewall(true)
         } else {
-            firewallHelper.stopFirewallService()
+            firewallHelper.stopFirewall(false)
         }
     }
 

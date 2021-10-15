@@ -8,6 +8,7 @@ import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.SmsInboxReaderHelper
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
@@ -28,6 +29,8 @@ class PurchasedPackagesManager @Inject constructor(
     private val simDelegate: SimDelegate,
     private val simManager: ISimManager
 ) : IPurchasedPackagesManager {
+
+    private val dataStore = context.internalDataStore
 
     override suspend fun newPurchased(
         dataPackageId: DataPackages.PackageId,
@@ -96,9 +99,9 @@ class PurchasedPackagesManager @Inject constructor(
 
 
     override suspend fun seedOldPurchasedPackages() {
-        if (context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true) {
+        if (dataStore.data.firstOrNull()?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true) {
 
-            context.settingsDataStore.edit {
+            dataStore.edit {
                 it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
             }
 

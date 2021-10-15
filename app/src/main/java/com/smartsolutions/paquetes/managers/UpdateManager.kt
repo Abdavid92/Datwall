@@ -15,10 +15,7 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.smartsolutions.paquetes.BuildConfig
-import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
@@ -280,7 +277,7 @@ class UpdateManager @Inject constructor(
     override fun getSavedDownloadId(): Long? {
         var id: Long?
         runBlocking {
-            id = context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
+            id = context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
         }
         if (id == -1L){
             id = null
@@ -291,7 +288,7 @@ class UpdateManager @Inject constructor(
 
     override fun saveIdDownload(id: Long?) {
         runBlocking {
-            context.settingsDataStore.edit {
+            context.internalDataStore.edit {
                 it[PreferencesKeys.DOWNLOAD_UPDATE_ID] = id ?: -1
             }
         }

@@ -42,6 +42,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
 
+    private val dataStore = internalDataStore
+
     /**
      * Conexión del vpn
      * */
@@ -136,7 +138,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         var dynamicMode = false
 
         launch {
-            settingsDataStore.data.collect {
+            dataStore.data.collect {
                 dynamicMode = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] == true
             }
         }

@@ -10,6 +10,7 @@ import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
@@ -40,12 +41,14 @@ class DataPackageManager @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
+    private val dataStore = context.internalDataStore
+
     private var _buyMode: IDataPackageManager.ConnectionMode = IDataPackageManager.ConnectionMode.USSD
     override var buyMode: IDataPackageManager.ConnectionMode
         get() = _buyMode
         set(value) {
             launch {
-                context.settingsDataStore.edit {
+                dataStore.edit {
                     it[PreferencesKeys.BUY_MODE] = value.name
                 }
             }
@@ -54,7 +57,7 @@ class DataPackageManager @Inject constructor(
 
     init {
         launch {
-            context.settingsDataStore.data.collect {
+            dataStore.data.collect {
                 _buyMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.ConnectionMode.USSD.name)
             }
@@ -62,13 +65,13 @@ class DataPackageManager @Inject constructor(
     }
 
     override suspend fun createOrUpdateDataPackages() {
-        val oldVersion = context.settingsDataStore.data
+        val oldVersion = dataStore.data
             .firstOrNull()?.get(PreferencesKeys.CURRENT_PACKAGES_VERSION) ?: 0
 
         if (oldVersion < DataPackages.PACKAGES_VERSION) {
             dataPackageRepository.createOrUpdate(DataPackages.PACKAGES.toList())
 
-            context.settingsDataStore.edit {
+            dataStore.edit {
                 it[PreferencesKeys.CURRENT_PACKAGES_VERSION] = DataPackages.PACKAGES_VERSION
             }
         }

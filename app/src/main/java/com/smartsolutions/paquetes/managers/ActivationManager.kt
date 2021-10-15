@@ -18,6 +18,7 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
@@ -47,6 +48,8 @@ class ActivationManager @Inject constructor(
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
+
+    private val dataStore = context.internalDataStore
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
         getLocalLicense()?.let {
@@ -103,7 +106,7 @@ class ActivationManager @Inject constructor(
             return Result.Failure(IllegalArgumentException())
         }
 
-        context.settingsDataStore.edit {
+        dataStore.edit {
             it[PreferencesKeys.WAITING_PURCHASED] = true
             it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
         }
@@ -129,7 +132,7 @@ class ActivationManager @Inject constructor(
         }
 
         try {
-            val data = context.settingsDataStore.data.first()[PreferencesKeys.LICENCE]
+            val data = dataStore.data.first()[PreferencesKeys.LICENCE]
             val license = gson.fromJson(
                 decrypt(data),
                 License::class.java
@@ -150,7 +153,7 @@ class ActivationManager @Inject constructor(
 
             license.isPurchased = true
 
-            context.settingsDataStore.edit {
+            dataStore.edit {
                 it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
                 it[PreferencesKeys.WAITING_PURCHASED] = false
                 scheduleWorker()
@@ -163,14 +166,14 @@ class ActivationManager @Inject constructor(
     }
 
     override suspend fun isWaitingPurchased(): Boolean {
-        return context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
+        return dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
     }
 
     override suspend fun getLicense(): Result<License> {
         val result = client.getLicense(getDeviceId())
 
         if (result.isSuccess) {
-            context.settingsDataStore.edit {
+            dataStore.edit {
                 it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(result.getOrThrow()))
             }
         }
@@ -179,7 +182,7 @@ class ActivationManager @Inject constructor(
     }
 
     override suspend fun getLocalLicense(): License? {
-        context.settingsDataStore.data.firstOrNull()
+        dataStore.data.firstOrNull()
             ?.get(PreferencesKeys.LICENCE)
             ?.let {
                 try {
@@ -266,7 +269,7 @@ class ActivationManager @Inject constructor(
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> {
 
-                var deviceId = context.settingsDataStore.data
+                var deviceId = dataStore.data
                     .firstOrNull()
                     ?.get(PreferencesKeys.DEVICE_ID)
 

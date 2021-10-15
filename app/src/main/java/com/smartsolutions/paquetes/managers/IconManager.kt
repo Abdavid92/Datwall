@@ -55,6 +55,7 @@ class IconManager @Inject constructor(
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun get(packageName: String, size: Int): Bitmap? {
         return try {
             val info = packageManager.getPackageInfo(packageName, 0)
@@ -138,7 +139,7 @@ class IconManager @Inject constructor(
     ) {
         launch {
             getImageFile(packageName, versionCode, size)?.let {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     callback(it)
                 }
             }
