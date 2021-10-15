@@ -5,6 +5,7 @@ import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
+import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -12,26 +13,37 @@ import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import javax.inject.Inject
 import kotlin.math.abs
 import com.smartsolutions.paquetes.repositories.models.DataBytes.DataType
+import com.smartsolutions.paquetes.repositories.models.UsageGeneral
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.lang.time.DateUtils
 
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
-    private val simManager: ISimManager
+    private val simManager: ISimManager,
+    private val usageGeneralRepository: IUsageGeneralRepository
 ) : IUserDataBytesManager {
 
     override suspend fun addDataBytes(dataPackage: DataPackage, simId: String) {
         if (dataPackage.id == DataPackages.PackageId.DailyBag) {
-            userDataBytesRepository.get(simId, DataType.DailyBag)
-                .apply {
-                    bytes += dataPackage.bytesLte
-                    initialBytes = bytes
-                    startTime = 0
-                    expiredTime = 0
+            withContext(Dispatchers.IO){
+                userDataBytesRepository.get(simId, DataType.DailyBag)
+            } .apply {
+                bytes += dataPackage.bytesLte
+                initialBytes = bytes
+                startTime = 0
+                expiredTime = 0
 
-                    userDataBytesRepository.update(this)
+                withContext(Dispatchers.IO) {
+                    userDataBytesRepository.update(this@apply)
                 }
+            }
+
+
         } else {
-            userDataBytesRepository.update(userDataBytesRepository.bySimId(simId).apply {
+            val userDataBytes = withContext(Dispatchers.IO){
+                userDataBytesRepository.bySimId(simId)
+            }.apply {
 
                 val international = first { it.type == DataType.International }
                 international.bytes += dataPackage.bytes
@@ -45,47 +57,65 @@ class UserDataBytesManager @Inject constructor(
                 internationalLte.startTime = 0
                 internationalLte.expiredTime = 0
 
-                val national = first { it.type == DataType.National}
+                val national = first { it.type == DataType.National }
                 national.bytes = dataPackage.nationalBytes
                 national.initialBytes = dataPackage.nationalBytes
                 national.startTime = 0
                 national.expiredTime = 0
-            })
+            }
+
+            withContext(Dispatchers.IO){
+                userDataBytesRepository.update(userDataBytes)
+            }
         }
     }
 
     override suspend fun addPromoBonus(simId: String, bytes: Long) {
-        userDataBytesRepository.update(userDataBytesRepository.bySimId(simId)
-            .filter { it.type != DataType.DailyBag }.onEach {
+        val userDataBytes = withContext(Dispatchers.IO) {
+            userDataBytesRepository.bySimId(simId)
+        }.filter { it.type != DataType.DailyBag }.onEach {
 
-                if (it.type == DataType.PromoBonus) {
-                    it.bytes += bytes
-                    it.initialBytes = it.bytes
-                    it.startTime = System.currentTimeMillis()
-                }
-                //Le ampliamos la fecha de expiración a todos UserDataBytes.
-                it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
-            })
+            if (it.type == DataType.PromoBonus) {
+                it.bytes += bytes
+                it.initialBytes = it.bytes
+                it.startTime = System.currentTimeMillis()
+            }
+            //Le ampliamos la fecha de expiración a todos UserDataBytes.
+            it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
+        }
+
+        withContext(Dispatchers.IO) {
+            userDataBytesRepository.update(userDataBytes)
+        }
     }
 
-    override suspend fun registerTraffic(rxBytes: Long, txBytes: Long, nationalBytes: Long, isLte: Boolean) {
+    override suspend fun registerTraffic(
+        rxBytes: Long,
+        txBytes: Long,
+        nationalBytes: Long,
+        isLte: Boolean
+    ) {
 
         val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
         var total = rxBytes + txBytes
 
         if (nationalBytes > 0) {
-            userDataBytesRepository.bySimId(sim.id)
-                .first { it.type == DataType.National }
+            withContext(Dispatchers.IO) {
+                return@withContext userDataBytesRepository.bySimId(sim.id)
+            }.first { it.type == DataType.National }
                 .apply {
-                    if (bytes < nationalBytes){
+                    if (bytes < nationalBytes) {
                         total += (nationalBytes - bytes)
                         bytes = 0L
-                    }else {
+                    } else {
                         bytes -= nationalBytes
                     }
 
-                    userDataBytesRepository.update(this)
+                    withContext(Dispatchers.IO) {
+                        userDataBytesRepository.update(this@apply)
+                    }
                 }
+
         }
 
         if (isLte) {
@@ -97,7 +127,9 @@ class UserDataBytesManager @Inject constructor(
 
     override suspend fun synchronizeUserDataBytes(data: List<DataBytes>, simId: String) {
         //Obtengo todos los userDataBytes de la linea
-        val userDataBytes = userDataBytesRepository.bySimId(simId)
+        val userDataBytes = withContext(Dispatchers.IO) {
+            return@withContext userDataBytesRepository.bySimId(simId)
+        }
 
         //Iteración por la lista de DataType que me dieron
         data.forEach { dataBytes ->
@@ -106,7 +138,7 @@ class UserDataBytesManager @Inject constructor(
                 bytes = dataBytes.bytes
                 expiredTime = dataBytes.expiredTime
 
-                if (initialBytes < dataBytes.bytes){
+                if (initialBytes < dataBytes.bytes) {
                     initialBytes = dataBytes.bytes
                 }
 
@@ -117,14 +149,17 @@ class UserDataBytesManager @Inject constructor(
             }
         }
 
-        userDataBytesRepository.update(userDataBytes)
+        withContext(Dispatchers.IO) {
+            userDataBytesRepository.update(userDataBytes)
+        }
     }
 
     private suspend fun registerLteTraffic(bytes: Long, simId: String) {
         var consumed = bytes
 
-        userDataBytesRepository.bySimId(simId)
-            .filter { it.type != DataType.National }
+        withContext(Dispatchers.IO) {
+            return@withContext userDataBytesRepository.bySimId(simId)
+        }.filter { it.type != DataType.National }
             .sortedBy { it.priority }
             .forEach {
                 if (consumed > 0)
@@ -136,10 +171,12 @@ class UserDataBytesManager @Inject constructor(
     private suspend fun registerTraffic(bytes: Long, simId: String) {
         var consumed = bytes
 
-        userDataBytesRepository.bySimId(simId)
-            .filter {
-                it.type == DataType.PromoBonus ||
-                        it.type == DataType.International }
+        withContext(Dispatchers.IO) {
+            return@withContext userDataBytesRepository.bySimId(simId)
+        }.filter {
+            it.type == DataType.PromoBonus ||
+                    it.type == DataType.International
+        }
             .sortedBy { it.priority }
             .forEach {
                 if (consumed > 0)
@@ -162,7 +199,17 @@ class UserDataBytesManager @Inject constructor(
             }
 
             initTimes(userDataBytes)
-            userDataBytesRepository.update(userDataBytes)
+            withContext(Dispatchers.IO) {
+                userDataBytesRepository.update(userDataBytes)
+                usageGeneralRepository.create(
+                    UsageGeneral(
+                        System.currentTimeMillis(),
+                        userDataBytes.type,
+                        consumed,
+                        userDataBytes.simId
+                    )
+                )
+            }
         }
         return consumed1
     }
@@ -183,12 +230,15 @@ class UserDataBytesManager @Inject constructor(
 
     /**
      * Corrige la cantidad de trafico consumido basado en la hora desde la 1 am hasta las 6 am para usar solo la mitad
-     *
      **/
-    private fun fixTrafficByTime (bytes: Long) : Long {
-        return if (NetworkUsageUtils.isInDiscountHour(System.currentTimeMillis(), System.currentTimeMillis())){
+    private fun fixTrafficByTime(bytes: Long): Long {
+        return if (NetworkUsageUtils.isInDiscountHour(
+                System.currentTimeMillis(),
+                System.currentTimeMillis()
+            )
+        ) {
             bytes / 2
-        }else {
+        } else {
             bytes
         }
     }

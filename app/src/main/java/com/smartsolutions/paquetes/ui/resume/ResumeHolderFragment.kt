@@ -7,12 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.databinding.FragmentResumeHolderBinding
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.ui.usage.UsageAppDetailsRecyclerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 
 private const val SIM_ID = "sim_id"
+
 @AndroidEntryPoint
 class ResumeHolderFragment : Fragment() {
 
@@ -25,7 +27,7 @@ class ResumeHolderFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-           simID = it.getString(SIM_ID, null) ?: throw NullPointerException()
+            simID = it.getString(SIM_ID, null) ?: throw NullPointerException()
         }
     }
 
@@ -42,10 +44,10 @@ class ResumeHolderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.getUserDataBytes(simID).observe(viewLifecycleOwner) {
-            if (it.isEmpty()){
+            if (it.isEmpty()) {
                 binding.linNoData.visibility = View.VISIBLE
                 binding.recycler.visibility = View.GONE
-            }else {
+            } else {
                 binding.linNoData.visibility = View.GONE
                 binding.recycler.visibility = View.VISIBLE
                 setAdapter(it)
@@ -54,16 +56,23 @@ class ResumeHolderFragment : Fragment() {
 
     }
 
+    fun showChartUsageGeneral(dataType: DataBytes.DataType) {
+        UsageGeneralFragment.newInstance(
+            simID,
+            dataType.name
+        ).show(childFragmentManager, null)
+    }
+
     override fun onPause() {
         super.onPause()
         adapter = null
     }
 
     private fun setAdapter(userData: List<UserDataBytes>) {
-        if (adapter == null){
-            adapter = UserDataBytesRecyclerAdapter(requireContext(), userData)
+        if (adapter == null) {
+            adapter = UserDataBytesRecyclerAdapter(this, userData)
             binding.recycler.adapter = adapter
-        }else {
+        } else {
             adapter?.update(userData)
         }
     }

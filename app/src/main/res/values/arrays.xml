@@ -28,6 +28,14 @@
         <item>Paquete</item>
     </string-array>
 
+    <string-array name="usage_general_options">
+        <item>Hoy</item>
+        <item>Ayer</item>
+        <item>Semana</item>
+        <item>Mes</item>
+        <item>Paquete</item>
+    </string-array>
+
     <integer-array name="colors_chart">
         <item>@color/red</item>
         <item>@color/blue</item>

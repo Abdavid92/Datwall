@@ -294,4 +294,8 @@
     <string name="enable_data_synchronization">Activar la sincronización</string>
     <string name="enable_data_synchronization_summary">Ahora te explico</string>
     <string name="synchonization">Sincronización</string>
+    <string name="traffic_international_lte">Internacional LTE</string>
+    <string name="traffic_bag_daily">Bolsa Diaria</string>
+    <string name="traffic_promo_bonus">Bono Promoción</string>
+    <string name="title_usage_general">Consumo General</string>
 </resources>

@@ -18,14 +18,17 @@ const val DATABASE_VERSION = 1
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
  * */
-@Database(entities = [
-    App::class,
-    DataPackage::class,
-    PurchasedPackage::class,
-    Sim::class,
-    UserDataBytes::class,
-    Traffic::class], version = DATABASE_VERSION, exportSchema = false)
-abstract class DbContext: RoomDatabase() {
+@Database(
+    entities = [
+        App::class,
+        DataPackage::class,
+        PurchasedPackage::class,
+        Sim::class,
+        UserDataBytes::class,
+        Traffic::class,
+        UsageGeneral::class], version = DATABASE_VERSION, exportSchema = false
+)
+abstract class DbContext : RoomDatabase() {
 
     /**
      * @return Data Access Object para consultar la tabla apps.
@@ -43,6 +46,11 @@ abstract class DbContext: RoomDatabase() {
     abstract fun getPurchasedPackageDao(): IPurchasedPackageDao
 
     /**
+     * @return: Data Access Object para consultar la tabla de Consumo General
+     */
+    abstract fun getUsageGeneralDao(): IUsageGeneralDao
+
+    /**
      * @return Data Access Object para consultar la tabla sims.
      * */
     abstract fun getSimDao(): ISimDao
@@ -50,6 +58,7 @@ abstract class DbContext: RoomDatabase() {
     abstract fun getUserDataBytesDao(): IUserDataBytesDao
 
     abstract fun getTrafficDao(): ITrafficDao
+
 
     companion object {
 
@@ -69,7 +78,8 @@ abstract class DbContext: RoomDatabase() {
                 INSTANCE = Room.databaseBuilder(
                     context,
                     DbContext::class.java,
-                    "data.db")
+                    "data.db"
+                )
                     .build()
 
                 return INSTANCE!!

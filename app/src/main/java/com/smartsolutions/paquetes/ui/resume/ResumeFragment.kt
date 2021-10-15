@@ -87,6 +87,10 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         binding.buttonFilter.setOnClickListener {
             showFilterOptions()
         }
+
+        binding.buttonChart.setOnClickListener {
+            showChartUsageGeneral()
+        }
     }
 
     override fun onPause() {
@@ -100,6 +104,12 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
             .setItems(R.array.filter_resume) { _, pos ->
                 viewModel.setFilter(ResumeViewModel.FilterUserDataBytes.values()[pos])
             }.show()
+    }
+
+    private fun showChartUsageGeneral(){
+        UsageGeneralFragment.newInstance(
+            installedSims[binding.tabs.selectedTabPosition].id
+        ).show(childFragmentManager, null)
     }
 
     private fun configureAnimationFAB() {

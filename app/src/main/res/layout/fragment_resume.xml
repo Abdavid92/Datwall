@@ -33,6 +33,15 @@
                    android:textSize="20sp" />
 
                <androidx.appcompat.widget.AppCompatImageButton
+                   android:id="@+id/button_chart"
+                   android:background="?android:attr/selectableItemBackground"
+                   android:layout_width="45dp"
+                   android:layout_height="45dp"
+                   android:layout_marginRight="4dp"
+                   android:src="@drawable/ic_chart"
+                   style="@style/Widget.AppCompat.ButtonBar.AlertDialog"/>
+
+               <androidx.appcompat.widget.AppCompatImageButton
                    android:id="@+id/button_filter"
                    android:background="?android:attr/selectableItemBackground"
                    android:layout_width="45dp"

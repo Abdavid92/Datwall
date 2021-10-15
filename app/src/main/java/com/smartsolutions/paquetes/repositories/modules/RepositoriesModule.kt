@@ -28,4 +28,7 @@ interface RepositoriesModule {
 
     @Binds
     fun bindITrafficRepository(impl: TrafficRepository): ITrafficRepository
+
+    @Binds
+    fun bindIUsageGeneralRepository(impl: UsageGeneralRepository): IUsageGeneralRepository
 }

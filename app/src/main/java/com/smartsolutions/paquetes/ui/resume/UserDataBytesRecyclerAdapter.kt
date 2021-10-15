@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class UserDataBytesRecyclerAdapter constructor(
-    private val context: Context,
+    private val fragment: ResumeHolderFragment,
     var userData: List<UserDataBytes>
 ): RecyclerView.Adapter<UserDataBytesRecyclerAdapter.ViewHolder>() {
 
@@ -71,13 +71,17 @@ class UserDataBytesRecyclerAdapter constructor(
                 }
             }
 
-            binding.dataType.text = userDataBytes.getName(context)
+            binding.dataType.text = userDataBytes.getName(fragment.requireContext())
             binding.textRestValue.text = rest.value.toString()
             binding.textRestUnit.text = rest.dataUnit.name
             binding.textUsageValue.text = usage.value.toString()
             binding.textUsageUnit.text = usage.dataUnit.name
             binding.expireDate.text = expire
             binding.restDate.text = "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
+
+            binding.root.setOnClickListener {
+                fragment.showChartUsageGeneral(userDataBytes.type)
+            }
         }
     }
 

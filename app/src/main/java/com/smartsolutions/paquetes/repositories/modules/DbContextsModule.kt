@@ -33,4 +33,7 @@ object DbContextsModule {
 
     @Provides
     fun provideIUSerDataBytesDao(dbContext: DbContext) = dbContext.getUserDataBytesDao()
+
+    @Provides
+    fun provideIUsageGeneralDao(dbContext: DbContext) = dbContext.getUsageGeneralDao()
 }
