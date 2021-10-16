@@ -1,13 +1,12 @@
 package com.smartsolutions.paquetes.ui.resume
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUserDataBytesBinding
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils.Companion.nameLegible
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils.Companion.nameLegible
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import java.text.SimpleDateFormat
@@ -54,13 +53,13 @@ class UserDataBytesRecyclerAdapter constructor(
         fun bind(userDataBytes: UserDataBytes){
             val usage = DataUnitBytes(userDataBytes.initialBytes - userDataBytes.bytes).getValue()
             val rest = DataUnitBytes(userDataBytes.bytes).getValue()
-            val percent = NetworkUsageUtils.calculatePercent(userDataBytes.initialBytes.toDouble(), userDataBytes.bytes.toDouble())
+            val percent = DateCalendarUtils.calculatePercent(userDataBytes.initialBytes.toDouble(), userDataBytes.bytes.toDouble())
             val expire = if (userDataBytes.expiredTime == 0L){
                 "Desconocido"
             }else {
                 SimpleDateFormat("dd MMMM", Locale.getDefault()).format(Date(userDataBytes.expiredTime))
             }
-            val restDate = NetworkUsageUtils.calculateDiffDate(System.currentTimeMillis(), userDataBytes.expiredTime)
+            val restDate = DateCalendarUtils.calculateDiffDate(System.currentTimeMillis(), userDataBytes.expiredTime)
 
             binding.progressBar.apply {
                 max = 100

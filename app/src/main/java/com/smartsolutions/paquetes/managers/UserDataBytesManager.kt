@@ -1,7 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
@@ -232,7 +232,7 @@ class UserDataBytesManager @Inject constructor(
      * Corrige la cantidad de trafico consumido basado en la hora desde la 1 am hasta las 6 am para usar solo la mitad
      **/
     private fun fixTrafficByTime(bytes: Long): Long {
-        return if (NetworkUsageUtils.isInDiscountHour(
+        return if (DateCalendarUtils.isInDiscountHour(
                 System.currentTimeMillis(),
                 System.currentTimeMillis()
             )

@@ -204,10 +204,11 @@ class TrafficRegistration @Inject constructor(
             lastTraffics.firstOrNull { it.uid == traffic.uid && it.simId == traffic.simId }
                 ?.let { lastTraffic ->
                     toRegister.add(traffic - lastTraffic)
+                    lastTraffics.remove(lastTraffic)
                 }
         }
 
-        lastTraffics = traffics.toMutableList()
+        lastTraffics.addAll(traffics)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             trafficRepository.create(toRegister)

@@ -7,7 +7,7 @@ import android.os.Parcelable
 import androidx.annotation.RequiresApi
 import androidx.room.*
 import com.smartsolutions.paquetes.annotations.Networks
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.repositories.models.Sim
 
 /**
@@ -138,7 +138,7 @@ open class Traffic(
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun isInDiscountHour(bucket: NetworkStats.Bucket): Boolean =
-        NetworkUsageUtils.isInDiscountHour(bucket.startTimeStamp, bucket.endTimeStamp)
+        DateCalendarUtils.isInDiscountHour(bucket.startTimeStamp, bucket.endTimeStamp)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(uid)

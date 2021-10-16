@@ -25,6 +25,7 @@ import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -59,7 +60,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     lateinit var networkUsageManager: NetworkUsageManager
 
     @Inject
-    lateinit var networkUsageUtils: NetworkUsageUtils
+    lateinit var dateCalendarUtils: DateCalendarUtils
 
     @Inject
     lateinit var watcher: RxWatcher
@@ -304,7 +305,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
     private fun setTraffic(app: App) {
-        val period = networkUsageUtils.getTimePeriod(NetworkUsageUtils.PERIOD_TODAY)
+        val period = dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
         runBlocking(Dispatchers.IO) {
             traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }

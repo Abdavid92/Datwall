@@ -11,7 +11,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.Period
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
@@ -32,7 +32,7 @@ class UsageViewModel @Inject constructor(
     application: Application,
     private val networkUsageManager: NetworkUsageManager,
     private val appRepository: IAppRepository,
-    private val networkUsageUtils: NetworkUsageUtils,
+    private val dateCalendarUtils: DateCalendarUtils,
     val iconManager: IIconManager
 ) : AndroidViewModel(application) {
 
@@ -84,7 +84,7 @@ class UsageViewModel @Inject constructor(
 
 
     private suspend fun getTraffic(@Period period: Int, filter: UsageFilters): Pair<Long, List<UsageApp>> {
-        val interval = networkUsageUtils.getTimePeriod(period)
+        val interval = dateCalendarUtils.getTimePeriod(period)
         val traffics = networkUsageManager.getAppsUsage(interval.first, interval.second)
         var total = 0L
 

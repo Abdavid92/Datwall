@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
@@ -112,7 +112,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
      * */
     suspend fun getAppUsageDayByHour(uid: Int, day: Date): List<Pair<Long, Traffic>> {
         val pairList: ArrayList<Pair<Long, Traffic>> = ArrayList()
-        var date = NetworkUsageUtils.getZeroHour(day)
+        var date = DateCalendarUtils.getZeroHour(day)
 
 
 
@@ -133,7 +133,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
         uid: Int,
         start: Long,
         finish: Long,
-        myTimeUnit: NetworkUsageUtils.MyTimeUnit
+        myTimeUnit: DateCalendarUtils.MyTimeUnit
     ): List<Traffic> {
 
         val traffics = mutableListOf<Traffic>()
@@ -144,19 +144,19 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
             val finish1: Long
 
             when (myTimeUnit) {
-                NetworkUsageUtils.MyTimeUnit.MONTH -> {
+                DateCalendarUtils.MyTimeUnit.MONTH -> {
                     currentTime = DateUtils.addMonths(currentTime, 1).also {
                         finish1 = it.time
                     }
                 }
 
-                NetworkUsageUtils.MyTimeUnit.DAY -> {
+                DateCalendarUtils.MyTimeUnit.DAY -> {
                     currentTime = DateUtils.addDays(currentTime, 1).also {
                         finish1 = it.time
                     }
                 }
 
-                NetworkUsageUtils.MyTimeUnit.HOUR -> {
+                DateCalendarUtils.MyTimeUnit.HOUR, DateCalendarUtils.MyTimeUnit.MINUTE -> {
                     currentTime = DateUtils.addHours(currentTime, 1).also {
                         finish1 = it.time
                     }

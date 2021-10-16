@@ -20,7 +20,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageAppDetailsBinding
-import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
@@ -30,9 +30,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
 
 
 const val ARG_APP = "app"
@@ -114,7 +111,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun setLineChart(traffics: List<Traffic>, myTimeUnit: NetworkUsageUtils.MyTimeUnit) {
+    private fun setLineChart(traffics: List<Traffic>, myTimeUnit: DateCalendarUtils.MyTimeUnit) {
         val entries = mutableListOf<Entry>()
 
         traffics.forEach {
@@ -149,13 +146,13 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
             xAxis.valueFormatter = object : ValueFormatter() {
                 override fun getAxisLabel(value: Float, axis: AxisBase?): String {
                     return when (myTimeUnit) {
-                        NetworkUsageUtils.MyTimeUnit.HOUR -> {
+                        DateCalendarUtils.MyTimeUnit.HOUR, DateCalendarUtils.MyTimeUnit.MINUTE -> {
                             SimpleDateFormat("hh aa", Locale.US).format(Date(value.toLong()))
                         }
-                        NetworkUsageUtils.MyTimeUnit.DAY -> {
+                        DateCalendarUtils.MyTimeUnit.DAY -> {
                           "Día " + SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong()))
                         }
-                        NetworkUsageUtils.MyTimeUnit.MONTH -> {
+                        DateCalendarUtils.MyTimeUnit.MONTH -> {
                             SimpleDateFormat("MMM", Locale.getDefault()).format(Date(value.toLong()))
                         }
                     }
@@ -194,7 +191,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
     }
 
 
-    private fun setAdapter(traffics: Pair<List<Traffic>, NetworkUsageUtils.MyTimeUnit>){
+    private fun setAdapter(traffics: Pair<List<Traffic>, DateCalendarUtils.MyTimeUnit>){
         if (adapter == null){
             adapter = UsageAppDetailsRecyclerAdapter(traffics)
             binding.recyclerUsage.adapter = adapter
