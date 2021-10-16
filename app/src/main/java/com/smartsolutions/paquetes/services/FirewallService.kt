@@ -19,11 +19,8 @@ import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import java.net.DatagramSocket
 import java.net.Socket
 import javax.inject.Inject
@@ -119,16 +116,17 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     private fun observeAppList() {
         launch(Dispatchers.IO) {
             appRepository.flow().collect {
+                withContext(Dispatchers.Default){
+                    //Inicio el vpn
+                    if (!vpnConnection.isConnected)
+                        vpnConnectionThread?.start()
 
-                //Inicio el vpn
-                if (!vpnConnection.isConnected)
-                    vpnConnectionThread?.start()
-
-                vpnConnection.setAllowedPackageNames(it.filter { app ->
-                    app.access || app.tempAccess
-                }.map { transformApp ->
-                    return@map transformApp.packageName
-                }.toTypedArray())
+                    vpnConnection.setAllowedPackageNames(it.filter { app ->
+                        app.access || app.tempAccess
+                    }.map { transformApp ->
+                        return@map transformApp.packageName
+                    }.toTypedArray())
+                }
             }
         }
     }
@@ -137,7 +135,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
         var dynamicMode = false
 
-        launch {
+        launch(Dispatchers.IO) {
             dataStore.data.collect {
                 dynamicMode = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] == true
             }
@@ -160,7 +158,9 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                     if (foregroundApp.foregroundAccess) {
                         //Concedo acceso temporal y actualizo en el repostorio
                         foregroundApp.tempAccess = true
-                        appRepository.update(foregroundApp)
+                        withContext(Dispatchers.IO) {
+                            appRepository.update(foregroundApp)
+                        }
 
                  /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
                   * y se puede preguntar por ella
@@ -193,8 +193,9 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                     if (app.tempAccess) {
 
                         app.tempAccess = false
-
-                        appRepository.update(app)
+                        withContext(Dispatchers.IO) {
+                            appRepository.update(app)
+                        }
 
                         Log.i(TAG, "The application ${app.packageName} left the foreground")
                     }

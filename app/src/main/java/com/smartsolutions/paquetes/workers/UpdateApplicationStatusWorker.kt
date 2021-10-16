@@ -11,7 +11,9 @@ import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 
 
 @HiltWorker
@@ -26,9 +28,11 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         updateManager.findUpdate()?.let { androidApp ->
-            val isAutoUpdate = applicationContext.settingsDataStore.data
+            val isAutoUpdate = withContext(Dispatchers.IO){
+                applicationContext.settingsDataStore.data
                     .firstOrNull()
                     ?.get(PreferencesKeys.AUTO_UPDATE) ?: false
+            }
 
             val url = Uri.parse(
                 updateManager.buildDynamicUrl(

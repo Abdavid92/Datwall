@@ -44,7 +44,7 @@ class DatwallService : Service(), CoroutineScope {
     private var dataStoreJob: Job? = null
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = Dispatchers.Default + job
 
     private val uiHelper by uiHelper()
 
@@ -140,12 +140,7 @@ class DatwallService : Service(), CoroutineScope {
         super.onConfigurationChanged(newConfig)
 
         launch {
-
-            val userData = userDataBytesRepository
-                .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
-                .filter { it.exists() }
-
-            updateNotification(userData)
+            updateNotification(getUserData())
         }
     }
 
@@ -159,24 +154,21 @@ class DatwallService : Service(), CoroutineScope {
         if (dataStoreJob != null)
             return
 
-        dataStoreJob = launch {
+        dataStoreJob = launch(Dispatchers.IO) {
             settingsDataStore.data.collect { preferences ->
+                withContext(Dispatchers.Default) {
+                    val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS]
+                        ?: NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
 
-                val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS] ?:
-                NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
+                    if (mNotificationBuilder.javaClass.name != notificationClass) {
+                        mNotificationBuilder = NotificationBuilder.newInstance(
+                            notificationClass,
+                            this@DatwallService,
+                            NotificationHelper.MAIN_CHANNEL_ID
+                        )
 
-                if (mNotificationBuilder.javaClass.name != notificationClass) {
-                    mNotificationBuilder = NotificationBuilder.newInstance(
-                        notificationClass,
-                        this@DatwallService,
-                        NotificationHelper.MAIN_CHANNEL_ID
-                    )
-
-                    val userData = userDataBytesRepository
-                        .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
-                        .filter { it.exists() }
-
-                    updateNotification(userData)
+                        updateNotification(getUserData())
+                    }
                 }
 
                 percents[0] = preferences[PreferencesKeys.INTERNATIONAL_NOTIFICATION] ?:
@@ -206,9 +198,11 @@ class DatwallService : Service(), CoroutineScope {
         if (bandWidthJob != null)
             return
 
-        bandWidthJob = launch {
+        bandWidthJob = launch(Dispatchers.IO) {
             watcher.bandWithFlow.collect {
-                updateBandWith(it.first, it.second)
+                withContext(Dispatchers.Default) {
+                    updateBandWith(it.first, it.second)
+                }
             }
         }
     }
@@ -221,7 +215,7 @@ class DatwallService : Service(), CoroutineScope {
         if (userDataByteJob != null)
             return
 
-        userDataByteJob = launch {
+        userDataByteJob = launch(Dispatchers.IO) {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
                     val defaultDataSim = sims.first { it.defaultData }
@@ -235,8 +229,10 @@ class DatwallService : Service(), CoroutineScope {
                     }
                 }
                 .collect { userData ->
-                    updateNotification(userData)
-                    sendDataNotifications(userData)
+                    withContext(Dispatchers.Default) {
+                        updateNotification(userData)
+                        sendDataNotifications(userData)
+                    }
                 }
         }
     }
@@ -303,6 +299,17 @@ class DatwallService : Service(), CoroutineScope {
                 }
             }
         }
+    }
+
+    private suspend fun getUserData(): List<UserDataBytes>{
+        return withContext(Dispatchers.IO){
+            userDataBytesRepository
+                .bySimId(
+                    withContext(Dispatchers.IO){
+                        simManager.getDefaultSim(SimDelegate.SimType.DATA)
+                    }.id)
+
+        }.filter { it.exists() }
     }
 
     /**

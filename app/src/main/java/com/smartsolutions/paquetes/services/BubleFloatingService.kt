@@ -68,9 +68,14 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     lateinit var uiHelper: UIHelper
 
-    private lateinit var bubbleBinding: BubbleFloatingLayoutBinding
-    private lateinit var closeBinding: BubbleCloseFloatingLayoutBinding
-    private lateinit var currentMenu: BubbleMenuFloatingLayoutBinding
+    private var _bubbleBinding: BubbleFloatingLayoutBinding? = null
+    private val bubbleBinding get() = _bubbleBinding!!
+
+    private var _closeBinding: BubbleCloseFloatingLayoutBinding? = null
+    private val closeBinding get() = _closeBinding!!
+
+
+    private var currentMenu: BubbleMenuFloatingLayoutBinding? = null
 
     private lateinit var windowManager: WindowManager
     private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
@@ -104,7 +109,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        startForeground(NotificationHelper.MAIN_NOTIFICATION_ID,
+        startForeground(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
             notificationHelper.buildNotification(
                 NotificationHelper.MAIN_CHANNEL_ID
             ).apply {
@@ -127,8 +133,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
         uiHelper = UIHelper(this)
 
-        bubbleBinding = BubbleFloatingLayoutBinding.inflate(layoutInflater)
-        closeBinding = BubbleCloseFloatingLayoutBinding.inflate(layoutInflater)
+        _bubbleBinding = BubbleFloatingLayoutBinding.inflate(layoutInflater)
+        _closeBinding = BubbleCloseFloatingLayoutBinding.inflate(layoutInflater)
 
         setOnTouch()
         setViews()
@@ -157,9 +163,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
     private fun setViews() {
-      closeBinding.root.setOnClickListener {
-          hideClose()
-      }
+        closeBinding.root.setOnClickListener {
+            hideClose()
+        }
         closeBinding.imageClose.setImageResource(R.drawable.ic_close_red)
     }
 
@@ -180,18 +186,20 @@ class BubbleFloatingService : Service(), CoroutineScope {
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (isDrawOverClose()){
-                       hideBubble()
-                    }else {
+                    if (isDrawOverClose()) {
+                        hideBubble()
+                    } else {
                         lastX = params.x
                         lastY = params.y
                     }
                     hideClose()
                     if (moving < 10) {
-                        if (!isShowMenu){
+                        if (!isShowMenu) {
                             showMenu()
-                        }else {
-                            hideMenu(currentMenu)
+                        } else {
+                            currentMenu?.let {
+                                hideMenu(it)
+                            }
                         }
 
                     }
@@ -233,7 +241,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
 
-    private fun updateBubble(){
+    private fun updateBubble() {
         if (isShowBubble) {
             setThemeBubble()
             if (!isShowMenu) {
@@ -243,7 +251,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
                 setTraffic(it)
             }
             if (isShowMenu) {
-                setValuesMenu(currentMenu)
+                currentMenu?.let {
+                    setValuesMenu(it)
+                }
             }
         }
     }
@@ -253,12 +263,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         val duration = 800L
 
         if (transparent) {
-            if (bubbleBinding.root.alpha == 1f){
+            if (bubbleBinding.root.alpha == 1f) {
                 bubbleBinding.root.animate().alpha(TRANSPARENCY).duration = duration
                 bubbleBinding.root.animate().start()
             }
         } else {
-            if (bubbleBinding.root.alpha < 1f){
+            if (bubbleBinding.root.alpha < 1f) {
                 bubbleBinding.root.animate().alpha(1f).duration = duration
                 bubbleBinding.root.animate().start()
             }
@@ -274,26 +284,26 @@ class BubbleFloatingService : Service(), CoroutineScope {
         bubbleBinding.unitApp.setTextColor(color)
     }
 
-    private fun getBackgroundResource(): Int{
+    private fun getBackgroundResource(): Int {
         val isDark = uiHelper.isUIDarkTheme()
-        return if (VPN_ENABLED){
+        return if (VPN_ENABLED) {
             if (app?.access == true) {
-                if (isDark){
+                if (isDark) {
                     R.drawable.background_green_borderless_card_dark
-                }else {
+                } else {
                     R.drawable.background_green_borderless_card_light
                 }
             } else {
-                if (isDark){
+                if (isDark) {
                     R.drawable.background_red_borderless_card_dark
-                }else {
+                } else {
                     R.drawable.background_red_borderless_card_light
                 }
             }
-        }else {
-            if (isDark){
+        } else {
+            if (isDark) {
                 R.drawable.background_card_dark
-            }else {
+            } else {
                 R.drawable.background_card_light
             }
         }
@@ -310,37 +320,39 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
 
-    private fun showClose(){
+    private fun showClose() {
         try {
             closeBinding.imageClose.alpha = 0f
             addView(closeBinding.root, paramsClose)
-            closeBinding.imageClose.animate().alpha(1f).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    closeBinding.imageClose.animate().setListener(null)
-                    if (xMinClose == 0 && yMinClose == 0) {
-                        fillLocationClose()
+            closeBinding.imageClose.animate().alpha(1f)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        closeBinding.imageClose.animate().setListener(null)
+                        if (xMinClose == 0 && yMinClose == 0) {
+                            fillLocationClose()
+                        }
                     }
-                }
-            })
-        }catch (e: Exception){
+                })
+        } catch (e: Exception) {
             hideClose()
         }
     }
 
-    private fun hideClose(){
+    private fun hideClose() {
         try {
             closeBinding.imageClose.alpha = 1f
-            closeBinding.imageClose.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    closeBinding.imageClose.animate().setListener(null)
-                    try {
-                        windowManager.removeView(closeBinding.root)
-                    }catch (e: Exception){
+            closeBinding.imageClose.animate().alpha(0f)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        closeBinding.imageClose.animate().setListener(null)
+                        try {
+                            windowManager.removeView(closeBinding.root)
+                        } catch (e: Exception) {
 
+                        }
                     }
-                }
-            })
-        }catch (e: Exception){
+                })
+        } catch (e: Exception) {
 
         }
     }
@@ -353,8 +365,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
 
-
-    private fun fillLocationClose(){
+    private fun fillLocationClose() {
         val posClose = IntArray(2)
         closeBinding.imageClose.getLocationOnScreen(posClose)
         val width = closeBinding.imageClose.width
@@ -367,21 +378,22 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
 
-    private fun showMenu(){
+    private fun showMenu() {
         isShowMenu = true
-        currentMenu = getViewSideMenu()
-        currentMenu.root.scaleX = 0f
-        currentMenu.root.scaleY = 0f
-        currentMenu.root.visibility = View.VISIBLE
+        currentMenu = getViewSideMenu().also {
+            it.root.scaleX = 0f
+            it.root.scaleY = 0f
+            it.root.visibility = View.VISIBLE
+            setValuesMenu(it)
+            it.root.animate().scaleX(1f).scaleY(1f)
+        }
 
-        setValuesMenu(currentMenu)
-        currentMenu.root.animate().scaleX(1f).scaleY(1f)
         animationMenu(true)
     }
 
-    private fun hideMenu(menu: BubbleMenuFloatingLayoutBinding){
+    private fun hideMenu(menu: BubbleMenuFloatingLayoutBinding) {
         isShowMenu = false
-        menu.root.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter(){
+        menu.root.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator?) {
                 menu.root.animate().setListener(null)
                 menu.root.visibility = View.GONE
@@ -391,14 +403,18 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
 
-    private fun animationMenu(show: Boolean){
+    private fun animationMenu(show: Boolean) {
         if (show) {
             bubbleBinding.appValue.visibility = View.GONE
             bubbleBinding.unitApp.visibility = View.GONE
-            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, resources.displayMetrics).toInt()
+            val radius = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                60f,
+                resources.displayMetrics
+            ).toInt()
             bubbleBinding.appIcon.layoutParams.height = radius
             bubbleBinding.appIcon.layoutParams.width = radius
-        }else {
+        } else {
             bubbleBinding.appValue.visibility = View.VISIBLE
             bubbleBinding.unitApp.visibility = View.VISIBLE
             setSizeBubble(this, bubbleBinding.root, SIZE)
@@ -409,7 +425,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
         menu.imageAppIcon.setImageBitmap(bitmapIcon)
 
-        menu.imageDownload.setImageDrawable( uiHelper.getImageResourceByTheme("ic_download"))
+        menu.imageDownload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_download"))
 
         menu.imageUpload.setImageDrawable(uiHelper.getImageResourceByTheme("ic_upload"))
 
@@ -442,13 +458,13 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
     private fun getViewSideMenu(): BubbleMenuFloatingLayoutBinding {
-        val width = getScreenWidth()/2
+        val width = getScreenWidth() / 2
         val pos = IntArray(2)
         bubbleBinding.root.getLocationOnScreen(pos)
         val x = pos[0]
-        return if (x >= width){
+        return if (x >= width) {
             bubbleBinding.menuLeft
-        }else {
+        } else {
             bubbleBinding.menuRight
         }
     }
@@ -533,12 +549,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
-    private fun addView(view: View, params: WindowManager.LayoutParams){
+    private fun addView(view: View, params: WindowManager.LayoutParams) {
         try {
             windowManager.addView(view, params)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                launch {
+                launch(Dispatchers.Default) {
                     bubbleServiceHelper.notifyStop()
                     bubbleServiceHelper.stopBubble(true)
                 }
@@ -549,7 +565,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun updateView(view: View, params: WindowManager.LayoutParams) {
         try {
             windowManager.updateViewLayout(bubbleBinding.root, params)
-        }catch (e: Exception){
+        } catch (e: Exception) {
 
         }
     }
@@ -557,6 +573,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         job.cancel()
+        _closeBinding = null
+        _bubbleBinding = null
+        currentMenu = null
         super.onDestroy()
     }
 
@@ -580,7 +599,13 @@ class BubbleFloatingService : Service(), CoroutineScope {
             }
         }
 
-        private fun setSizes(context: Context, bubble: View, iconSize: Int, textSize: Int, subTextSize: Int) {
+        private fun setSizes(
+            context: Context,
+            bubble: View,
+            iconSize: Int,
+            textSize: Int,
+            subTextSize: Int
+        ) {
             val radius = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 iconSize.toFloat(),

@@ -52,8 +52,11 @@ class ApplicationsViewModel @Inject constructor(
      * */
     fun commitUpdateApps(): Boolean {
         if (appsToUpdate.isNotEmpty()) {
-            viewModelScope.launch(Dispatchers.IO) {
-                appRepository.update(appsToUpdate)
+            viewModelScope.launch {
+                withContext(Dispatchers.IO){
+                    appRepository.update(appsToUpdate)
+                }
+
                 appsToUpdate.clear()
             }
             return true
@@ -65,7 +68,7 @@ class ApplicationsViewModel @Inject constructor(
         if (currentFilter != filter)
             filterChangeListener?.invoke(filter)
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getApplication<Application>()
                 .settingsDataStore.edit {
                     it[PreferencesKeys.APPS_FILTER] = filter.name
@@ -85,20 +88,22 @@ class ApplicationsViewModel @Inject constructor(
 
                 currentFilter = filter
 
-                return@combine when (key) {
-                    SectionsPagerAdapter.USER_APPS -> {
-                        Pair(filter, orderAppsByFilter(
-                            apps.filter { !it.system },
-                            filter
-                        ))
+                return@combine withContext(Dispatchers.Default){
+                    when (key) {
+                        SectionsPagerAdapter.USER_APPS -> {
+                            Pair(filter, orderAppsByFilter(
+                                apps.filter { !it.system },
+                                filter
+                            ))
+                        }
+                        SectionsPagerAdapter.SYSTEM_APPS -> {
+                            Pair(filter, orderAppsByFilter(
+                                apps.filter { it.system },
+                                filter
+                            ))
+                        }
+                        else -> throw IllegalArgumentException("Incorrect key")
                     }
-                    SectionsPagerAdapter.SYSTEM_APPS -> {
-                        Pair(filter, orderAppsByFilter(
-                            apps.filter { it.system },
-                            filter
-                        ))
-                    }
-                    else -> throw IllegalArgumentException("Incorrect key")
                 }
             }.asLiveData(Dispatchers.IO)
     }

@@ -106,9 +106,11 @@ class ActivationManager @Inject constructor(
             return Result.Failure(IllegalArgumentException())
         }
 
-        dataStore.edit {
-            it[PreferencesKeys.WAITING_PURCHASED] = true
-            it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
+        withContext(Dispatchers.IO) {
+            dataStore.edit {
+                it[PreferencesKeys.WAITING_PURCHASED] = true
+                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
+            }
         }
 
         try {
@@ -132,7 +134,9 @@ class ActivationManager @Inject constructor(
         }
 
         try {
-            val data = dataStore.data.first()[PreferencesKeys.LICENCE]
+            val data = withContext(Dispatchers.IO){
+                dataStore.data.first()[PreferencesKeys.LICENCE]
+            }
             val license = gson.fromJson(
                 decrypt(data),
                 License::class.java
@@ -153,10 +157,14 @@ class ActivationManager @Inject constructor(
 
             license.isPurchased = true
 
-            dataStore.edit {
-                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
-                it[PreferencesKeys.WAITING_PURCHASED] = false
-                scheduleWorker()
+            withContext(Dispatchers.IO) {
+                dataStore.edit {
+                    it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
+                    it[PreferencesKeys.WAITING_PURCHASED] = false
+                    withContext(Dispatchers.Default) {
+                        scheduleWorker()
+                    }
+                }
             }
 
             return Result.Success(Unit)
@@ -166,15 +174,19 @@ class ActivationManager @Inject constructor(
     }
 
     override suspend fun isWaitingPurchased(): Boolean {
-        return dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
+        return withContext(Dispatchers.IO){
+            dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
+        }
     }
 
     override suspend fun getLicense(): Result<License> {
         val result = client.getLicense(getDeviceId())
 
         if (result.isSuccess) {
-            dataStore.edit {
-                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(result.getOrThrow()))
+            withContext(Dispatchers.IO) {
+                dataStore.edit {
+                    it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(result.getOrThrow()))
+                }
             }
         }
 
@@ -182,9 +194,10 @@ class ActivationManager @Inject constructor(
     }
 
     override suspend fun getLocalLicense(): License? {
-        dataStore.data.firstOrNull()
-            ?.get(PreferencesKeys.LICENCE)
-            ?.let {
+       withContext(Dispatchers.IO){
+           dataStore.data.firstOrNull()
+               ?.get(PreferencesKeys.LICENCE)
+       }?.let {
                 try {
                     return gson.fromJson(decrypt(it), License::class.java)
                 } catch (e: Exception) {
@@ -202,7 +215,9 @@ class ActivationManager @Inject constructor(
 
     private suspend fun fillPhone(simIndex: Int, license: License) {
         try {
-            license.phone = simManager.getSimBySlotIndex(simIndex)?.phone
+            license.phone = withContext(Dispatchers.IO){
+                simManager.getSimBySlotIndex(simIndex)?.phone
+            }
         } catch (e: Exception) {
 
         }
@@ -269,9 +284,11 @@ class ActivationManager @Inject constructor(
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> {
 
-                var deviceId = dataStore.data
-                    .firstOrNull()
-                    ?.get(PreferencesKeys.DEVICE_ID)
+                var deviceId = withContext(Dispatchers.IO){
+                    dataStore.data
+                        .firstOrNull()
+                        ?.get(PreferencesKeys.DEVICE_ID)
+                }
 
                 deviceId?.let {
                     return it
@@ -289,8 +306,10 @@ class ActivationManager @Inject constructor(
                     .Secure
                     .getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
-                context.settingsDataStore.edit {
-                    it[PreferencesKeys.DEVICE_ID] = deviceId!!
+                withContext(Dispatchers.IO) {
+                    context.settingsDataStore.edit {
+                        it[PreferencesKeys.DEVICE_ID] = deviceId!!
+                    }
                 }
 
                 return deviceId!!

@@ -284,5 +284,5 @@ class IconManager @Inject constructor(
     }
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 }

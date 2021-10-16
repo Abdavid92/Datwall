@@ -15,9 +15,11 @@ import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 import org.apache.commons.lang.time.DateUtils
 import javax.inject.Inject
 
@@ -46,14 +48,15 @@ class PurchasedPackagesManager @Inject constructor(
             pending,
             dataPackageId
         )
-        purchasedPackageRepository.create(purchasedPackage)
+        withContext(Dispatchers.IO) {
+            purchasedPackageRepository.create(purchasedPackage)
+        }
     }
 
     override suspend fun confirmPurchased(dataPackageId: DataPackages.PackageId, simId: String) {
-        val pending = purchasedPackageRepository
-            .getPending(dataPackageId)
-            .first()
-            .toMutableList()
+        val pending = withContext(Dispatchers.IO) {
+            purchasedPackageRepository.getPending(dataPackageId)
+        }.first().toMutableList()
 
         if (pending.isNotEmpty()) {
 
@@ -61,7 +64,9 @@ class PurchasedPackagesManager @Inject constructor(
 
             pending.forEach {
                 if (System.currentTimeMillis() - it.date > DateUtils.MILLIS_PER_DAY) {
-                    purchasedPackageRepository.delete(it)
+                    withContext(Dispatchers.IO){
+                        purchasedPackageRepository.delete(it)
+                    }
                     pendingToDelete.add(it)
                 }
             }
@@ -73,7 +78,9 @@ class PurchasedPackagesManager @Inject constructor(
 
                 if (pendingToConfirmed != null) {
                     pendingToConfirmed.pending = false
-                    purchasedPackageRepository.update(pendingToConfirmed)
+                    withContext(Dispatchers.IO){
+                        purchasedPackageRepository.update(pendingToConfirmed)
+                    }
                 } else {
                     newPurchased(
                         dataPackageId,
@@ -90,20 +97,28 @@ class PurchasedPackagesManager @Inject constructor(
         purchasedPackageRepository.getAll()
 
     override suspend fun clearHistory() {
-        purchasedPackageRepository
-            .getAll()
-            .firstOrNull()?.let {
-                purchasedPackageRepository.delete(it)
-            }
+      withContext(Dispatchers.IO) {
+          purchasedPackageRepository
+              .getAll()
+      }.firstOrNull()?.let {
+          withContext(Dispatchers.IO) {
+              purchasedPackageRepository.delete(it)
+          }
+      }
     }
 
 
     override suspend fun seedOldPurchasedPackages() {
-        if (dataStore.data.firstOrNull()?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true) {
+        if (withContext(Dispatchers.IO){
+                dataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true
+            }) {
 
-            dataStore.edit {
-                it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
-            }
+                withContext(Dispatchers.IO) {
+                    dataStore.edit {
+                        it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
+                    }
+                }
 
             val smses = smsReader.getAllSmsReceived().filter { it.number.contains("cubacel", true) }
             val packages = mutableListOf<PurchasedPackage>()
@@ -125,7 +140,7 @@ class PurchasedPackagesManager @Inject constructor(
                                         )
                                     )
                                 }
-                            }else {
+                            } else {
                                 packages.add(
                                     PurchasedPackage(
                                         System.currentTimeMillis(),
@@ -144,7 +159,9 @@ class PurchasedPackagesManager @Inject constructor(
             } catch (e: Exception) {
             }
 
-            purchasedPackageRepository.create(packages)
+            withContext(Dispatchers.IO) {
+                purchasedPackageRepository.create(packages)
+            }
         }
     }
 

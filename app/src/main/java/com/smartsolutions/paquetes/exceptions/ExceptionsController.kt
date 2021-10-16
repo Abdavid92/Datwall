@@ -8,12 +8,15 @@ import android.content.Intent
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
+import com.smartsolutions.paquetes.services.BubbleFloatingService
+import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.exceptions.ExceptionsActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -52,14 +55,15 @@ class ExceptionsController @Inject constructor(
     }
 
 
-
     override fun uncaughtException(t: Thread, e: Throwable) {
 
-        launch {
+        launch(Dispatchers.IO) {
             context.internalDataStore.edit {
                 it[PreferencesKeys.IS_THROWED] = true
             }
         }
+
+        Toast.makeText(context, "Exception Detected", Toast.LENGTH_SHORT).show()
 
         e.printStackTrace()
 
@@ -70,14 +74,13 @@ class ExceptionsController @Inject constructor(
                 SplashActivity::class.java
             )
         } else {
-            saveException(e)
+            kotlin.runCatching {
+                saveException(e)
+            }
+
             if (isInForeground()) {
-                ContextCompat.startActivity(
-                    context,
-                    Intent(context, ExceptionsActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    null
-                )
+                context.startActivity(Intent(context, ExceptionsActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             } else {
                 notify(
                     context.getString(R.string.generic_error_title_notification),
@@ -92,10 +95,16 @@ class ExceptionsController @Inject constructor(
 
 
     private fun closeThread(t: Thread) {
+        kotlin.runCatching {
+            context.stopService(Intent(context, BubbleFloatingService::class.java))
+        }
+        kotlin.runCatching {
+            context.stopService(Intent(context, DatwallService::class.java))
+        }
         notificationHelper.cancelNotification(NotificationHelper.MAIN_NOTIFICATION_ID)
         t.interrupt()
         Process.killProcess(Process.myPid())
-        exitProcess(10)
+        exitProcess(0)
     }
 
 
@@ -106,14 +115,23 @@ class ExceptionsController @Inject constructor(
         exception.printStackTrace(PrintWriter(stacktrace))
 
         errorReport += "Version App: ${BuildConfig.VERSION_CODE}\n"
-        errorReport += "Fecha: ${SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.US).format(Date())}\n\n"
-        errorReport += "Causa del Error\n${ stacktrace}\n\n"
+        errorReport += "Fecha: ${
+            SimpleDateFormat(
+                "dd/MM/yyyy hh:mm aa",
+                Locale.US
+            ).format(Date())
+        }\n\n"
+        errorReport += "Causa del Error\n${stacktrace}\n\n"
         errorReport += "Información Adicional\n"
         errorReport += "Fabricante: ${Build.MANUFACTURER}\n"
         errorReport += "Modelo: ${Build.MODEL}\n"
         errorReport += "Versión SDK: ${Build.VERSION.SDK_INT}\n"
 
-        localFileHelper.saveToFileTemporal(errorReport, EXCEPTION_FILE_NAME, LocalFileHelper.TYPE_DIR_EXCEPTIONS)?.let {
+        localFileHelper.saveToFileTemporal(
+            errorReport,
+            EXCEPTION_FILE_NAME,
+            LocalFileHelper.TYPE_DIR_EXCEPTIONS
+        )?.let {
             return true
         }
         return false
@@ -126,6 +144,7 @@ class ExceptionsController @Inject constructor(
             notificationHelper.buildNotification(
                 NotificationHelper.ALERT_CHANNEL_ID
             ).apply {
+                setAutoCancel(true)
                 setContentTitle(title)
                 setContentText(description)
                 clazz?.let {
@@ -134,7 +153,7 @@ class ExceptionsController @Inject constructor(
                             context,
                             0,
                             Intent(context, clazz)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             0
                         )
                     )
@@ -145,17 +164,20 @@ class ExceptionsController @Inject constructor(
 
 
     private fun isInForeground(): Boolean {
-        return ContextCompat.getSystemService(context, ActivityManager::class.java)?.runningAppProcesses?.any {
+        return ContextCompat.getSystemService(
+            context,
+            ActivityManager::class.java
+        )?.runningAppProcesses?.any {
             it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
                     it.processName == context.packageName
         } ?: false
     }
 
-    companion object{
+    companion object {
         const val EXCEPTION_FILE_NAME = "exception.json"
     }
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 
 }

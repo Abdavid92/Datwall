@@ -33,7 +33,7 @@ class SynchronizationManager @Inject constructor(
 ) : ISynchronizationManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 
     private var _synchronizationMode = IDataPackageManager.ConnectionMode.USSD
     override var synchronizationMode: IDataPackageManager.ConnectionMode
@@ -42,7 +42,7 @@ class SynchronizationManager @Inject constructor(
             if (value == IDataPackageManager.ConnectionMode.Unknown)
                 return
 
-            launch {
+            launch(Dispatchers.IO) {
                 context.settingsDataStore.edit {
                     it[PreferencesKeys.SYNCHRONIZATION_MODE] = value.name
                 }
@@ -51,7 +51,7 @@ class SynchronizationManager @Inject constructor(
         }
 
     init {
-        launch {
+        launch(Dispatchers.IO) {
             context.settingsDataStore.data.collect {
                 _synchronizationMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.SYNCHRONIZATION_MODE] ?: _synchronizationMode.name)
@@ -83,9 +83,11 @@ class SynchronizationManager @Inject constructor(
             )
         }
 
-        simRepository.update(sim.apply {
-            lastSynchronization = System.currentTimeMillis()
-        })
+        withContext(Dispatchers.IO) {
+            simRepository.update(sim.apply {
+                lastSynchronization = System.currentTimeMillis()
+            })
+        }
     }
 
     override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int) {

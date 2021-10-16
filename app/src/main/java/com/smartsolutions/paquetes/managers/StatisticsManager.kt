@@ -11,7 +11,9 @@ import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -48,17 +50,21 @@ class StatisticsManager @Inject constructor(
 
         val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
 
-        val enabledLte = context.settingsDataStore.data.firstOrNull()
-            ?.get(PreferencesKeys.ENABLED_LTE) ?: false
+        val enabledLte = withContext(Dispatchers.IO){
+            context.settingsDataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.ENABLED_LTE) ?: false
+        }
 
         val list = if (enabledLte) {
-            userDataBytesRepository.bySimId(sim.id)
-                .filter { it.type != DataBytes.DataType.National &&
+            withContext(Dispatchers.IO){
+                userDataBytesRepository.bySimId(sim.id)
+            }.filter { it.type != DataBytes.DataType.National &&
                         !it.isExpired()
                 }
         } else {
-            userDataBytesRepository.bySimId(sim.id)
-                .filter {
+           withContext(Dispatchers.IO){
+               userDataBytesRepository.bySimId(sim.id)
+           }.filter {
                     it.type == DataBytes.DataType.International &&
                     it.type == DataBytes.DataType.PromoBonus
                     !it.isExpired()

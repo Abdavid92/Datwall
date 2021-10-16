@@ -51,7 +51,7 @@ class PurchasedViewModel @Inject constructor(
     val ussdTransferenceResult: LiveData<Result<Unit>> = MutableLiveData()
 
     fun initDeviceAppAndActivation() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val licenseResult = activationManager.getLicense()
 
             if (licenseResult.isFailure)
@@ -125,7 +125,7 @@ class PurchasedViewModel @Inject constructor(
         checkLicense()
 
         license?.let {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 (ussdTransferenceResult as MutableLiveData).postValue(
                     activationManager.transferCreditByUSSD(key, it)
                 )
