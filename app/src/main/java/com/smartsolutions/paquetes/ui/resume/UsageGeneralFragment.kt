@@ -66,6 +66,19 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         uiHelper = UIHelper(requireContext())
 
+        val id = when(dataType){
+            DataBytes.DataType.International.name -> R.id.chip_international
+            DataBytes.DataType.InternationalLte.name -> R.id.chip_international_lte
+            DataBytes.DataType.National.name -> R.id.chip_national
+            DataBytes.DataType.DailyBag.name -> R.id.chip_bag_daily
+            DataBytes.DataType.PromoBonus.name -> R.id.chip_promo_bonus
+            else -> null
+        }
+
+        id?.let {
+            binding.chipGroup.check(it)
+        }
+
         binding.chipGroup.setOnCheckedChangeListener { _, checkedId ->
             dataType = when (checkedId){
                 R.id.chip_international -> DataBytes.DataType.International.name
@@ -99,13 +112,13 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
                 setLineChart(it.first, it.second)
                 binding.apply {
                     progressBar.visibility = View.GONE
-                    textNoData.visibility = View.GONE
+                    linNoData.visibility = View.GONE
                     lineChart.visibility = View.VISIBLE
                 }
             }else {
                 binding.apply {
                     progressBar.visibility = View.GONE
-                    textNoData.visibility = View.VISIBLE
+                    linNoData.visibility = View.VISIBLE
                     lineChart.visibility = View.INVISIBLE
                 }
             }

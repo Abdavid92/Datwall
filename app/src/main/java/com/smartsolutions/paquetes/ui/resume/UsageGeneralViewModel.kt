@@ -71,7 +71,10 @@ class UsageGeneralViewModel @Inject constructor(
             PeriodUsageGeneral.WEEK -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_WEEK)
             PeriodUsageGeneral.MONTH -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_MONTH)
             PeriodUsageGeneral.PACKAGE -> {
-                val dataBytes = userDataBytesRepository.get(simId, dataType)
+
+                val dataBytes = withContext(Dispatchers.IO){
+                    userDataBytesRepository.get(simId, dataType)
+                }
                 if (dataBytes.exists()) {
                     dataBytes.startTime to System.currentTimeMillis()
                 } else {
@@ -90,22 +93,33 @@ class UsageGeneralViewModel @Inject constructor(
         var sameUsage: UsageGeneral? = null
 
         list.forEach { usage ->
-            if (sameUsage == null){
+            if (sameUsage == null) {
                 sameUsage = usage
-            }else {
-                val isSame = if (timeUnit == DateCalendarUtils.MyTimeUnit.MINUTE){
-                    DateCalendarUtils.isSameMinute(usage.date, sameUsage!!.date)
-                }else {
+            } else {
+                val isSame = if (timeUnit == DateCalendarUtils.MyTimeUnit.MINUTE) {
+                    DateCalendarUtils.isSameHour(usage.date, sameUsage!!.date)
+                } else {
                     DateCalendarUtils.isSameDay(usage.date, sameUsage!!.date)
                 }
 
-                if (isSame){
+                if (isSame) {
                     sameUsage!! += usage
-                }else {
+                } else {
                     compacted.add(sameUsage!!)
                     sameUsage = usage
                 }
             }
+        }
+
+        if (list.isNotEmpty()) {
+            compacted.add(
+                UsageGeneral(
+                    System.currentTimeMillis(),
+                    list[0].type,
+                    0L,
+                    list[0].simId
+                )
+            )
         }
 
         return compacted

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:text="@string/title_usage_general"
-            android:textSize="18sp"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@+id/card_spinner"/>
@@ -66,18 +66,35 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toTopOf="@id/chip_group"/>
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/text_no_data"
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/lin_no_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="16sp"
-        android:text="@string/no_data"
-        android:visibility="gone"
+        android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toTopOf="@id/chip_group"/>
+        app:layout_constraintBottom_toTopOf="@id/chip_group"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:gravity="center">
+
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_chart"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="16sp"
+            android:text="@string/no_data" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
 
     <ProgressBar
         android:id="@+id/progress_bar"
