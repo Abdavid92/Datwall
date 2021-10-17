@@ -29,7 +29,7 @@ object PreferencesKeys {
     /**
      * Licencia de la aplicación.
      * */
-    val LICENCE = stringPreferencesKey("license")
+    val LICENSE = stringPreferencesKey("license")
 
     /**
      * Implementación de la notificación principal.

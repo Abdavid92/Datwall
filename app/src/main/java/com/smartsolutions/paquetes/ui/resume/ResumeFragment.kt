@@ -16,6 +16,7 @@ import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
 import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.Sim
+import com.smartsolutions.paquetes.ui.AbstractFragment
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
@@ -23,7 +24,7 @@ import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
+class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult {
 
     private val viewModel by viewModels<ResumeViewModel>()
 
@@ -53,12 +54,19 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentResumeBinding.inflate(inflater, container, false)
-        return binding.root
+        if (canWork()) {
+            _binding = FragmentResumeBinding.inflate(inflater, container, false)
+            return binding.root
+        }
+
+        return inflatePurchasedFunctionLayout(inflater, container)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!canWork())
+            return
 
         viewModel.getInstalledSims().observe(viewLifecycleOwner) {
             installedSims = it
@@ -213,6 +221,7 @@ class ResumeFragment : Fragment(), ResumeViewModel.SynchronizationResult {
 
     override fun onDestroyView() {
         _binding = null
+        adapterFragment = null
         super.onDestroyView()
     }
 

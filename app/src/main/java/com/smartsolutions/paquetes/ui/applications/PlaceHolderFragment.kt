@@ -15,6 +15,7 @@ import com.smartsolutions.paquetes.databinding.FragmentApplicationsPlaceholderBi
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
+import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val ARG_KEY = "arg_key"
@@ -23,7 +24,7 @@ private const val ARG_KEY = "arg_key"
  * Fragmento del control de las aplicaciones.
  * */
 @AndroidEntryPoint
-class PlaceHolderFragment : Fragment(),
+class PlaceHolderFragment : AbstractFragment(),
     AppsListAdapter.OnAppChangeListener,
     ApplicationsFragment.OnQueryAppListener
 {
@@ -90,11 +91,6 @@ class PlaceHolderFragment : Fragment(),
             container,
             false
         )
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         //Helper de la ui con métodos de utilidades
         val uiHelper = UIHelper(requireContext())
@@ -109,6 +105,12 @@ class PlaceHolderFragment : Fragment(),
             }
             isRefreshing = true
         }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.refresh.setOnRefreshListener {
             if(!viewModel.commitUpdateApps()) {

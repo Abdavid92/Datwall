@@ -118,7 +118,7 @@ fun getBytesFromText(key: String, text: String): Long {
 
     when (text[index].uppercaseChar()) {
         'K', 'M', 'G' -> {
-            if (text.length < index + 1 || !text[index + 1].toUpperCase().equals('B', true))
+            if (text.length < index + 1 || !text[index + 1].uppercaseChar().equals('B', true))
                 return -1
         }
         'B' -> {

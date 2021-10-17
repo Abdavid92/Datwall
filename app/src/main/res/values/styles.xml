@@ -89,4 +89,10 @@
         <item name="android:background">@drawable/background_green_borderless_card_light</item>
         <item name="android:textColor">@color/black</item>
     </style>
+
+    <style name="MessageStyle">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAlignment">center</item>
+    </style>
 </resources>

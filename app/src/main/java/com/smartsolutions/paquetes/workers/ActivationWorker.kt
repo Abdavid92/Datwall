@@ -27,7 +27,7 @@ class ActivationWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             val data = applicationContext.settingsDataStore.data.firstOrNull()
-                ?.get(PreferencesKeys.LICENCE) ?: return Result.failure()
+                ?.get(PreferencesKeys.LICENSE) ?: return Result.failure()
 
             val license = gson.fromJson(
                 ActivationManager.decrypt(data),

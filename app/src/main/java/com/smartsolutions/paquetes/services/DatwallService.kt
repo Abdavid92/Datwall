@@ -12,6 +12,7 @@ import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
@@ -74,6 +75,9 @@ class DatwallService : Service(), CoroutineScope {
     private var showSecondaryNotifications = true
 
     private val notificationMetadata = mutableMapOf<DataBytes.DataType, Boolean>()
+
+    @Inject
+    lateinit var activationManager: IActivationManager
 
     @Inject
     lateinit var userDataBytesRepository: IUserDataBytesRepository
@@ -207,8 +211,11 @@ class DatwallService : Service(), CoroutineScope {
             return
 
         bandWidthJob = launch {
+
             watcher.bandWithFlow.collect {
-                updateBandWith(it.first, it.second)
+
+                if (activationManager.canWork().first)
+                    updateBandWith(it.first, it.second)
             }
         }
     }
@@ -368,7 +375,21 @@ class DatwallService : Service(), CoroutineScope {
             }
         }
 
-        return uiHelper.getResource(name) ?: R.mipmap.ic_launcher_foreground
+        return uiHelper.getResource(name) ?: R.drawable.ic_main_notification
+    }
+
+    fun launchExpiredNotification() {
+        val notification = NotificationCompat.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_main_notification)
+            .setContentTitle(getString(R.string.expired_try_period))
+            .setContentText(getString(R.string.expired_try_period_summary))
+            .setContentIntent(NotificationBuilder.getSplashActivityPendingIntent(this))
+
+        NotificationManagerCompat.from(this)
+            .notify(
+                NotificationHelper.MAIN_NOTIFICATION_ID,
+                notification.build()
+            )
     }
 
     override fun onDestroy() {
@@ -390,10 +411,24 @@ class DatwallService : Service(), CoroutineScope {
 
     class DatwallBinder(
         private val service: DatwallService
-    ) : Binder() {
+    ) : Binder(), CoroutineScope {
+
+        override val coroutineContext: CoroutineContext
+            get() = Dispatchers.IO
 
         fun startTrafficRegistration() {
-            service.trafficRegistration.start()
+            launch {
+
+                val canWork = service.activationManager.canWork()
+
+                if (!canWork.first &&
+                    canWork.second == IActivationManager.ApplicationStatuses.TrialPeriod
+                ) {
+                    service.launchExpiredNotification()
+                } else {
+                    service.trafficRegistration.start()
+                }
+            }
         }
 
         fun stopTrafficRegistration() {

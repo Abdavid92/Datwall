@@ -63,7 +63,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.FragmentContainerActivity" />
         <activity android:name=".ui.setup.SetupActivity" />
         <activity
             android:name=".ui.MainActivity"

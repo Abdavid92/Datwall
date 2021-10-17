@@ -19,7 +19,6 @@ class DateConverter : JsonSerializer<Date>, JsonDeserializer<Date> {
         return JsonPrimitive(dateFormat.format(src))
     }
 
-    @ExperimentalStdlibApi
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type?,

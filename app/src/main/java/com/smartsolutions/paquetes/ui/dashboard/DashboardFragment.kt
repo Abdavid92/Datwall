@@ -13,11 +13,13 @@ import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentDashboardBinding
+import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DashboardFragment : Fragment() {
+class DashboardFragment : AbstractFragment() {
 
     private val viewModel by viewModels<DashboardViewModel>()
 
@@ -25,24 +27,35 @@ class DashboardFragment : Fragment() {
     val binding: FragmentDashboardBinding
         get() = _binding!!
 
+    override fun getTitle(): CharSequence {
+        return requireContext().getString(R.string.title_dashboard)
+    }
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentDashboardBinding.inflate(
-            inflater,
-            container,
-            false
-        )
+        if (canWork()) {
+            _binding = FragmentDashboardBinding.inflate(
+                inflater,
+                container,
+                false
+            )
 
-        setFabSettings()
+            setFabSettings()
 
-        return binding.root
+            return binding.root
+        }
+
+        return inflatePurchasedFunctionLayout(inflater, container)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!canWork())
+            return
 
         setFirewallSettings()
         setBubbleSettings()

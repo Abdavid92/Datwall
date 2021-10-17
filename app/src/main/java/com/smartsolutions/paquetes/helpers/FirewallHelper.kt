@@ -98,9 +98,7 @@ class FirewallHelper @Inject constructor(
         if (persistent)
             establishFirewallEnabled(false)
 
-        if (DatwallKernel.DATA_MOBILE_ON) {
-            stopFirewallService()
-        }
+        stopFirewallService()
     }
 
     /**

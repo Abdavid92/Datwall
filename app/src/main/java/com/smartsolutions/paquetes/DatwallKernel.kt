@@ -8,15 +8,13 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.os.IBinder
 import android.os.Process
-import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
-import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
@@ -76,7 +74,9 @@ class DatwallKernel @Inject constructor(
 
     }
 
-    val nextActivity = MutableLiveData<Class<out Activity>>()
+    private val _nextActivity = MutableLiveData<Class<out Activity>>()
+    val nextActivity: LiveData<Class<out Activity>>
+        get() = _nextActivity
 
     init {
         launch {
@@ -138,10 +138,10 @@ class DatwallKernel @Inject constructor(
                 )
             }
             else -> {
-                //Sincroniza la base de datos y enciende el rastreador
+                //Sincroniza la base de datos
                 synchronizeDatabase()
                 //Inicia los servicios
-                startServices()
+                startMainService()
                 //Registra los broadcasts y los callbacks
                 registerBroadcastsAndCallbacks()
                 //Registra los workers
@@ -196,7 +196,8 @@ class DatwallKernel @Inject constructor(
 
             if (networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G) {
                 context.internalDataStore.edit {
-                    it[PreferencesKeys.ENABLED_LTE] = true
+                    if (it[PreferencesKeys.ENABLED_LTE] == false)
+                        it[PreferencesKeys.ENABLED_LTE] = true
                 }
             }
         }
@@ -339,14 +340,22 @@ class DatwallKernel @Inject constructor(
     }
 
     /**
-     * Inicia los servicios.
+     * Inicia el servicio principal.
      * */
-    private fun startServices() {
+    private fun startMainService() {
         val datwallServiceIntent = Intent(context, DatwallService::class.java)
 
         ContextCompat.startForegroundService(context, datwallServiceIntent)
 
         context.bindService(datwallServiceIntent, mainServiceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun stopMainService() {
+        if (datwallBinder != null)
+            context.unbindService(mainServiceConnection)
+
+        context.startService(Intent(context, DatwallService::class.java)
+            .setAction(DatwallService.ACTION_STOP))
     }
 
     /**
@@ -380,10 +389,7 @@ class DatwallKernel @Inject constructor(
 
         synchronizationManager.cancelScheduleUserDataBytesSynchronization()
 
-        context.unbindService(mainServiceConnection)
-
-        context.startService(Intent(context, DatwallService::class.java)
-            .setAction(DatwallService.ACTION_STOP))
+        stopMainService()
 
         stopBubbleFloating()
         stopFirewall()
@@ -415,7 +421,7 @@ class DatwallKernel @Inject constructor(
 
     private suspend fun openActivity(activity: Class<out Activity>) {
         withContext(Dispatchers.Main) {
-            nextActivity.value = activity
+            _nextActivity.value = activity
         }
     }
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android">
-    <slide
+    <!--<slide
         android:duration="@android:integer/config_longAnimTime"
         android:slideEdge="bottom"
-        android:interpolator="@android:interpolator/decelerate_quint" />
+        android:interpolator="@android:interpolator/decelerate_quint" />-->
     <fade
         android:startDelay="150"
         android:fadingMode="fade_in"

@@ -37,6 +37,10 @@ private const val TAG = "FirewallService"
 @AndroidEntryPoint
 class FirewallService : VpnService(), IProtectSocket, IObserverPacket, CoroutineScope {
 
+    private var currentAppJob: Job? = null
+    private var dynamicJob: Job? = null
+    private var observeJob: Job? = null
+
     private val job = Job()
 
     override val coroutineContext: CoroutineContext
@@ -85,8 +89,6 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         }
 
         vpnConnectionThread = Thread(vpnConnection)
-
-        registerFlows()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -103,6 +105,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             }
         }
 
+        registerFlows()
+
         return START_STICKY
     }
 
@@ -117,86 +121,93 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     }
 
     private fun observeAppList() {
-        launch(Dispatchers.IO) {
-            appRepository.flow().collect {
+        if (observeJob == null) {
+            observeJob = launch(Dispatchers.IO) {
+                appRepository.flow().collect {
 
-                //Inicio el vpn
-                if (!vpnConnection.isConnected)
-                    vpnConnectionThread?.start()
+                    //Inicio el vpn
+                    if (!vpnConnection.isConnected)
+                        vpnConnectionThread?.start()
 
-                vpnConnection.setAllowedPackageNames(it.filter { app ->
-                    app.access || app.tempAccess
-                }.map { transformApp ->
-                    return@map transformApp.packageName
-                }.toTypedArray())
+                    vpnConnection.setAllowedPackageNames(it.filter { app ->
+                        app.access || app.tempAccess
+                    }.map { transformApp ->
+                        return@map transformApp.packageName
+                    }.toTypedArray())
+                }
             }
         }
     }
 
     private fun observeForegroundApp() {
 
-        var dynamicMode = false
+        var dynamicMode = true
 
-        launch {
-            dataStore.data.collect {
-                dynamicMode = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] == true
+        if (dynamicJob == null) {
+            dynamicJob = launch {
+                dataStore.data.collect {
+                    dynamicMode = it[PreferencesKeys.ENABLED_DYNAMIC_FIREWALL] ?: dynamicMode
+                }
             }
         }
 
-        launch {
-            watcher.currentAppFlow.collect {
-                //Aplicación en primer plano
-                val foregroundApp = it.first
-                //Aplicación que dejó el primer plano
-                val delayApp = it.second
+        if (currentAppJob == null) {
+            currentAppJob = launch {
+                watcher.currentAppFlow.collect {
+                    //Aplicación en primer plano
+                    val foregroundApp = it.first
+                    //Aplicación que dejó el primer plano
+                    val delayApp = it.second
 
-                if (dynamicMode &&
-                    foregroundApp.packageName != lastApp &&
-                    foregroundApp.packageName != packageName) {
+                    if (dynamicMode &&
+                        foregroundApp.packageName != lastApp &&
+                        foregroundApp.packageName != packageName
+                    ) {
 
-                    lastApp = foregroundApp.packageName
+                        lastApp = foregroundApp.packageName
 
-                    //Si la aplicación tiene acceso en primer plano
-                    if (foregroundApp.foregroundAccess) {
-                        //Concedo acceso temporal y actualizo en el repostorio
-                        foregroundApp.tempAccess = true
-                        appRepository.update(foregroundApp)
+                        //Si la aplicación tiene acceso en primer plano
+                        if (foregroundApp.foregroundAccess) {
+                            //Concedo acceso temporal y actualizo en el repostorio
+                            foregroundApp.tempAccess = true
+                            appRepository.update(foregroundApp)
 
-                 /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
+                            /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
                   * y se puede preguntar por ella
                   * */
-                    } else if (
-                        !foregroundApp.access &&
-                        foregroundApp.executable &&
-                        foregroundApp.internet &&
-                        foregroundApp.ask
-                    ) {
-                        //Lanzo el AskActivity con la aplicación
-                        val askIntent = Intent(this@FirewallService, AskActivity::class.java)
-                            .putExtra(AskActivity.EXTRA_FOREGROUND_APP, foregroundApp)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        } else if (
+                            !foregroundApp.access &&
+                            foregroundApp.executable &&
+                            foregroundApp.internet &&
+                            foregroundApp.ask
+                        ) {
+                            //Lanzo el AskActivity con la aplicación
+                            val askIntent = Intent(this@FirewallService, AskActivity::class.java)
+                                .putExtra(AskActivity.EXTRA_FOREGROUND_APP, foregroundApp)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-                        startActivity(askIntent)
-                    } else {
-                        Log.i(
-                            TAG,
-                            "observeForegroundApp: Empty action for ${foregroundApp.packageName}"
-                        )
+                            startActivity(askIntent)
+                        } else {
+                            Log.i(
+                                TAG,
+                                "observeForegroundApp: Empty action for ${foregroundApp.packageName}"
+                            )
+                        }
                     }
-                }
 
-                delayApp?.let { app ->
+                    delayApp?.let { app ->
 
-                    /*Si la aplicación que dejó el primer plano tenía
+                        /*Si la aplicación que dejó el primer plano tenía
                     * acceso temporal se lo quito y actualiza el repositorio.
                     * Esto hara que el vpn aplique los nuevos cambios automáticamente.*/
-                    if (app.tempAccess) {
+                        if (app.tempAccess) {
 
-                        app.tempAccess = false
+                            app.tempAccess = false
 
-                        appRepository.update(app)
+                            appRepository.update(app)
 
-                        Log.i(TAG, "The application ${app.packageName} left the foreground")
+                            Log.i(TAG, "The application ${app.packageName} left the foreground")
+                        }
                     }
                 }
             }
@@ -269,6 +280,13 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             vpnConnectionThread?.interrupt()
 
         vpnConnectionThread = null
+
+        observeJob?.cancel()
+        observeJob = null
+        dynamicJob?.cancel()
+        dynamicJob = null
+        currentAppJob?.cancel()
+        currentAppJob = null
 
         job.cancel()
     }
