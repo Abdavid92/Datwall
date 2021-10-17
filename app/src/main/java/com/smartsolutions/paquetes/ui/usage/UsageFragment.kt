@@ -12,10 +12,12 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageBinding
+import com.smartsolutions.paquetes.helpers.NetworkUsageUtils
+import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class UsageFragment : Fragment() {
+class UsageFragment : AbstractFragment() {
 
     companion object {
         fun newInstance() = UsageFragment()
@@ -32,14 +34,22 @@ class UsageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentUsageBinding.inflate(inflater, container, false)
-        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
-        return binding.root
+
+        if (canWork()) {
+            _binding = FragmentUsageBinding.inflate(inflater, container, false)
+            (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
+            return binding.root
+        }
+
+        return inflatePurchasedFunctionLayout(inflater, container)
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!canWork())
+            return
 
         binding.spinnerUsageOptions.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 

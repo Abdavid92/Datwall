@@ -85,6 +85,7 @@ abstract class AbstractAppRepository(
         return null
     }
 
+    @Suppress("DEPRECATION")
     override fun fillNewApp(app: App, info: PackageInfo) {
         app.packageName = info.packageName
         app.ask = true
@@ -110,6 +111,7 @@ abstract class AbstractAppRepository(
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun fillApp(app: App, info: PackageInfo) {
         app.version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
         app.name = info.applicationInfo.loadLabel(packageManager).toString()

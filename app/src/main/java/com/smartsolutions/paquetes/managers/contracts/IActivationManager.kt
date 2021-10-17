@@ -8,8 +8,11 @@ interface IActivationManager {
 
     /**
      * Indica si la aplicación puede trabajar dependiendo del
-     * estado. Este método se conecta al servidor cuando no encuentra la licencia
-     * local.
+     * estado. Este método es seguro para llamarlo constantemente porque usa
+     * una cache que se llena la primera vez que se usa y se mantiene actualizada por
+     * el método [getLicense]
+     *
+     * @return [Pair]
      * */
     suspend fun canWork(): Pair<Boolean, ApplicationStatuses>
 

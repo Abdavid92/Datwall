@@ -1,10 +1,10 @@
 package com.smartsolutions.paquetes.receivers
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
+//import android.net.ConnectivityManager
+//import android.net.NetworkInfo
+import android.net.*
 import android.os.Handler
 import android.os.Looper
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
@@ -16,6 +16,7 @@ import javax.inject.Inject
  * de la red. Solo observará el cambio de las redes móbiles. Este receptor solo se
  * usa en las apis 21 y 22. En las demas apis se usará un callback.
  * */
+@Suppress("DEPRECATION")
 class ChangeNetworkReceiver @Inject constructor(
     private val changeNetworkHelper: IChangeNetworkHelper
 ) : AbstractBroadcastReceiver() {

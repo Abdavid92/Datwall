@@ -11,10 +11,11 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.databinding.FragmentHistoryBinding
 import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.repositories.models.Sim
+import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class HistoryFragment : Fragment() {
+class HistoryFragment : AbstractFragment() {
 
     companion object {
         fun newInstance() = HistoryFragment()
@@ -33,13 +34,20 @@ class HistoryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
-        return binding.root
+        if (canWork()) {
+            _binding = FragmentHistoryBinding.inflate(inflater, container, false)
+            return binding.root
+        }
+
+        return inflatePurchasedFunctionLayout(inflater, container)
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!canWork())
+            return
 
         viewModel.seedOldPurchasedPackages()
 

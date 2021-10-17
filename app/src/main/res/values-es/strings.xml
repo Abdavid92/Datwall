@@ -298,4 +298,8 @@
     <string name="traffic_bag_daily">Bolsa Diaria</string>
     <string name="traffic_promo_bonus">Bono Promoción</string>
     <string name="title_usage_general">Consumo General</string>
+    <string name="purchase_function">Esta función es de pago y ya ha expirado el periodo de prueba. Debe comprar la licencia para poder seguir usandola.</string>
+    <string name="expired_try_period">Periodo de prueba expirado</string>
+    <string name="expired_try_period_summary">Debe comprar la licencia para seguir usando la app.</string>
+    <string name="recharge_credit">Recargar saldo</string>
 </resources>

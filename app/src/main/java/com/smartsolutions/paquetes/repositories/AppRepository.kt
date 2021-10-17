@@ -10,10 +10,14 @@ import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Implementación de la interfaz IAppRepository
@@ -26,13 +30,23 @@ class AppRepository @Inject constructor(
     private val dao: IAppDao
 ) : AbstractAppRepository(context, gson) {
 
-    override suspend fun appsCount(): Int = dao.appsCount()
+    private val dispatcher = Dispatchers.IO
 
-    override suspend fun appsAllowedCount(): Int = dao.appsAllowedCount()
+    override suspend fun appsCount() = withContext(dispatcher) {
+        dao.appsCount()
+    }
 
-    override suspend fun appsBlockedCount(): Int = dao.appsBlockedCount()
+    override suspend fun appsAllowedCount() = withContext(dispatcher) {
+        dao.appsAllowedCount()
+    }
 
-    override suspend fun all(): List<App> = dao.apps()
+    override suspend fun appsBlockedCount() = withContext(dispatcher) {
+        dao.appsBlockedCount()
+    }
+
+    override suspend fun all() = withContext(dispatcher) {
+        dao.apps()
+    }
 
     override fun flow(): Flow<List<App>> = dao.flow()
 
@@ -41,11 +55,15 @@ class AppRepository @Inject constructor(
             return@map convertToListIApp(it)
         }
 
-    override suspend fun get(packageName: String): App? = dao.get(packageName)
+    override suspend fun get(packageName: String) = withContext(dispatcher) {
+        dao.get(packageName)
+    }
 
     override suspend fun get(uid: Int): IApp? {
         //Obtengo los datos
-        val apps = dao.get(uid)
+        val apps = withContext(dispatcher) {
+            dao.get(uid)
+        }
 
         if (apps.isEmpty())
             return null
@@ -68,7 +86,11 @@ class AppRepository @Inject constructor(
     }
 
     override suspend fun get(uid: IntArray): List<App> {
-        val apps = dao.get(uid).toMutableList()
+
+        val apps = withContext(dispatcher) {
+            dao.get(uid).toMutableList()
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (uid.contains(NetworkStats.Bucket.UID_REMOVED)) {
                 apps.add(
@@ -117,22 +139,37 @@ class AppRepository @Inject constructor(
         return apps
     }
 
-    override suspend fun getAllByGroup(): List<IApp> = convertToListIApp(dao.apps())
+    override suspend fun getAllByGroup() = withContext(dispatcher) {
+        convertToListIApp(dao.apps())
+    }
 
-    override suspend fun create(app: App) = dao.create(app)
+    override suspend fun create(app: App) = withContext(dispatcher) {
+        dao.create(app)
+    }
 
-    override suspend fun create(apps: List<IApp>) = dao.create(convertToListApp(apps))
+    override suspend fun create(apps: List<IApp>) = withContext(dispatcher) {
+        dao.create(convertToListApp(apps))
+    }
 
-    override suspend fun createOrReplace(apps: List<IApp>) =
+    override suspend fun createOrReplace(apps: List<IApp>) = withContext(dispatcher) {
         dao.createOrReplace(convertToListApp(apps))
+    }
 
-    override suspend fun update(app: App) = dao.update(app)
+    override suspend fun update(app: App) = withContext(dispatcher) {
+        dao.update(app)
+    }
 
-    override suspend fun update(apps: List<IApp>) = dao.update(convertToListApp(apps))
+    override suspend fun update(apps: List<IApp>) = withContext(dispatcher) {
+        dao.update(convertToListApp(apps))
+    }
 
-    override suspend fun delete(app: App) = dao.delete(app)
+    override suspend fun delete(app: App) = withContext(dispatcher) {
+        dao.delete(app)
+    }
 
-    override suspend fun delete(apps: List<IApp>) = dao.delete(convertToListApp(apps))
+    override suspend fun delete(apps: List<IApp>) = withContext(dispatcher) {
+        dao.delete(convertToListApp(apps))
+    }
 
     /**
      * Convierte una lista de IApp en una lista de App

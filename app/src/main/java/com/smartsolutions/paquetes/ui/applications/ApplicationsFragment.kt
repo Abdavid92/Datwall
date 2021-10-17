@@ -11,10 +11,11 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsBinding
+import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ApplicationsFragment : Fragment() {
+class ApplicationsFragment : AbstractFragment() {
 
     private var _binding: FragmentApplicationsBinding? = null
     private val binding: FragmentApplicationsBinding
@@ -31,19 +32,26 @@ class ApplicationsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentApplicationsBinding.inflate(
-            inflater,
-            container,
-            false
-        )
+        if (canWork()) {
+            _binding = FragmentApplicationsBinding.inflate(
+                inflater,
+                container,
+                false
+            )
 
-        (requireActivity() as AppCompatActivity)
-            .setSupportActionBar(binding.toolbar)
-        return binding.root
+            (requireActivity() as AppCompatActivity)
+                .setSupportActionBar(binding.toolbar)
+            return binding.root
+        }
+
+        return inflatePurchasedFunctionLayout(inflater, container)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!canWork())
+            return
 
         val sectionsAdapter = SectionsPagerAdapter(this)
         binding.viewPager.adapter = sectionsAdapter

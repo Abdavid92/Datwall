@@ -28,6 +28,7 @@ import com.smartsolutions.paquetes.workers.ActivationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -50,6 +51,21 @@ class ActivationManager @Inject constructor(
         get() = Dispatchers.Default
 
     private val dataStore = context.internalDataStore
+
+    private var license: License? = null
+
+    init {
+        launch {
+            dataStore.data.collect {
+                it[PreferencesKeys.LICENSE]?.let { s ->
+                    license = gson.fromJson(
+                        decrypt(s),
+                        License::class.java
+                    )
+                }
+            }
+        }
+    }
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
         getLocalLicense()?.let {
@@ -108,7 +124,7 @@ class ActivationManager @Inject constructor(
 
         dataStore.edit {
             it[PreferencesKeys.WAITING_PURCHASED] = true
-            it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
+            it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(license))
         }
 
         try {
@@ -132,7 +148,7 @@ class ActivationManager @Inject constructor(
         }
 
         try {
-            val data = dataStore.data.first()[PreferencesKeys.LICENCE]
+            val data = dataStore.data.first()[PreferencesKeys.LICENSE]
             val license = gson.fromJson(
                 decrypt(data),
                 License::class.java
@@ -154,7 +170,7 @@ class ActivationManager @Inject constructor(
             license.isPurchased = true
 
             dataStore.edit {
-                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(license))
+                it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(license))
                 it[PreferencesKeys.WAITING_PURCHASED] = false
                 scheduleWorker()
             }
@@ -174,19 +190,29 @@ class ActivationManager @Inject constructor(
 
         if (result.isSuccess) {
             dataStore.edit {
-                it[PreferencesKeys.LICENCE] = encrypt(gson.toJson(result.getOrThrow()))
+                it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(result.getOrThrow()))
             }
+
+            license = result.getOrThrow()
         }
 
         return result
     }
 
     override suspend fun getLocalLicense(): License? {
+        if (license != null)
+            return license
+
         dataStore.data.firstOrNull()
-            ?.get(PreferencesKeys.LICENCE)
+            ?.get(PreferencesKeys.LICENSE)
             ?.let {
                 try {
-                    return gson.fromJson(decrypt(it), License::class.java)
+                    val license = gson.fromJson(decrypt(it), License::class.java)
+
+                    if (this.license == null)
+                        this.license = license
+
+                    license
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

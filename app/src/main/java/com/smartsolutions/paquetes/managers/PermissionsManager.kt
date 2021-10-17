@@ -40,18 +40,20 @@ open class PermissionsManager @Inject constructor(
                  val appOpsManager = ContextCompat
                      .getSystemService(context, AppOpsManager::class.java) ?: return@Permission false
 
-                 val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                 val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                      appOpsManager.unsafeCheckOpNoThrow(
                          AppOpsManager.OPSTR_GET_USAGE_STATS,
                          applicationInfo.uid,
                          applicationInfo.packageName
                      )
-                 else
+                 } else {
+                     @Suppress("DEPRECATION")
                      appOpsManager.checkOpNoThrow(
                          AppOpsManager.OPSTR_GET_USAGE_STATS,
                          applicationInfo.uid,
                          applicationInfo.packageName
                      )
+                 }
 
                  mode == AppOpsManager.MODE_ALLOWED
              },
