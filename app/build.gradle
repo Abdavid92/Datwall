@@ -149,6 +149,10 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
 
+    //Zxing
+    implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
+    implementation 'com.google.zxing:core:3.3.0'
+
     //LeakCanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 

@@ -7,6 +7,7 @@ import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
@@ -24,7 +25,8 @@ class PackagesViewModel @Inject constructor(
     application: Application,
     private val simManager: ISimManager,
     private val dataPackageManager: IDataPackageManager,
-    private val simRepository: ISimRepository
+    private val simRepository: ISimRepository,
+    private val ussdHelper: USSDHelper
 ) : AndroidViewModel(application) {
 
     private var liveSimPackageInfo = MutableLiveData<Pair<Sim, List<IDataPackage>>>()
@@ -115,6 +117,12 @@ class PackagesViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun sendUssdCode(ussd: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            ussdHelper.sendUSSDRequestLegacy(ussd, false)
         }
     }
 

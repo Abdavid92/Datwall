@@ -302,4 +302,6 @@
     <string name="expired_try_period">Periodo de prueba expirado</string>
     <string name="expired_try_period_summary">Debe comprar la licencia para seguir usando la app.</string>
     <string name="recharge_credit">Recargar saldo</string>
+    <string name="qr_prompt">Coloque la tarjeta de recarga</string>
+    <string name="fail_scan_qr">Falló el escaneo del qr</string>
 </resources>
