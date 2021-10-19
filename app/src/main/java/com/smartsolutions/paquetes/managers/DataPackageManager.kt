@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
@@ -39,7 +40,7 @@ class DataPackageManager @Inject constructor(
 ): IDataPackageManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 
     private val dataStore = context.internalDataStore
 
@@ -47,7 +48,7 @@ class DataPackageManager @Inject constructor(
     override var buyMode: IDataPackageManager.ConnectionMode
         get() = _buyMode
         set(value) {
-            launch {
+            launch(Dispatchers.IO) {
                 dataStore.edit {
                     it[PreferencesKeys.BUY_MODE] = value.name
                 }
@@ -56,7 +57,7 @@ class DataPackageManager @Inject constructor(
         }
 
     init {
-        launch {
+        launch(Dispatchers.IO) {
             dataStore.data.collect {
                 _buyMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.BUY_MODE] ?: IDataPackageManager.ConnectionMode.USSD.name)
@@ -65,14 +66,16 @@ class DataPackageManager @Inject constructor(
     }
 
     override suspend fun createOrUpdateDataPackages() {
-        val oldVersion = dataStore.data
-            .firstOrNull()?.get(PreferencesKeys.CURRENT_PACKAGES_VERSION) ?: 0
+        withContext(Dispatchers.IO) {
+            val oldVersion = dataStore.data
+                .firstOrNull()?.get(PreferencesKeys.CURRENT_PACKAGES_VERSION) ?: 0
 
-        if (oldVersion < DataPackages.PACKAGES_VERSION) {
-            dataPackageRepository.createOrUpdate(DataPackages.PACKAGES.toList())
+            if (oldVersion < DataPackages.PACKAGES_VERSION) {
+                dataPackageRepository.createOrUpdate(DataPackages.PACKAGES.toList())
 
-            dataStore.edit {
-                it[PreferencesKeys.CURRENT_PACKAGES_VERSION] = DataPackages.PACKAGES_VERSION
+                dataStore.edit {
+                    it[PreferencesKeys.CURRENT_PACKAGES_VERSION] = DataPackages.PACKAGES_VERSION
+                }
             }
         }
     }
@@ -114,7 +117,9 @@ class DataPackageManager @Inject constructor(
         //Fecha en la que se configuró esta linea.
         defaultSim.setupDate = System.currentTimeMillis()
 
-        simRepository.update(defaultSim)
+        withContext(Dispatchers.IO) {
+            simRepository.update(defaultSim)
+        }
     }
 
     override suspend fun setDataPackagesManualConfiguration(network: String) {
@@ -125,7 +130,9 @@ class DataPackageManager @Inject constructor(
             this.setupDate = System.currentTimeMillis()
         }
 
-        simRepository.update(defaultSim)
+        withContext(Dispatchers.IO) {
+            simRepository.update(defaultSim)
+        }
     }
 
     override suspend fun isConfiguredDataPackages(): Boolean {
@@ -179,7 +186,9 @@ class DataPackageManager @Inject constructor(
 
         DataPackages.PACKAGES.firstOrNull { smsBody.contains(it.smsKey) }?.let {
 
-            dataPackageRepository.get(it.id)?.let { dataPackage ->
+            withContext(Dispatchers.IO){
+                dataPackageRepository.get(it.id)
+            }?.let { dataPackage ->
                 userDataBytesManager.addDataBytes(dataPackage, defaultSim.id)
                 purchasedPackagesManager.confirmPurchased(dataPackage.id, defaultSim.id)
             }

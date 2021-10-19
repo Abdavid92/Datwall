@@ -44,9 +44,11 @@ class UsageViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             getApplication<Application>().settingsDataStore.data.collect {
-                period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
-                filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
-                liveData.postValue(getTraffic(period, filter))
+                withContext(Dispatchers.Default){
+                    period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
+                    filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
+                    liveData.postValue(getTraffic(period, filter))
+                }
             }
         }
     }
@@ -71,7 +73,7 @@ class UsageViewModel @Inject constructor(
     }
 
     fun refreshData(){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             liveData.postValue(getTraffic(period, filter))
         }
     }
@@ -93,8 +95,9 @@ class UsageViewModel @Inject constructor(
             uids.add(it.uid)
         }
 
-        val apps =
-            appRepository.get(uids.toIntArray()).filter { it.trafficType == type }.toMutableList()
+        val apps = withContext(Dispatchers.IO){
+            appRepository.get(uids.toIntArray())
+        }.filter { it.trafficType == type }.toMutableList()
 
         traffics.forEach { traffic ->
             val toRemove = apps.filter { it.uid == traffic.uid }
@@ -150,7 +153,7 @@ class UsageViewModel @Inject constructor(
 
 
     fun processAndFillPieCharData(total: Long, apps: List<UsageApp>, pieChart: PieChart) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val entries = mutableListOf<PieEntry>()
 
             val filtered = filterByTrafficApps(total, apps)

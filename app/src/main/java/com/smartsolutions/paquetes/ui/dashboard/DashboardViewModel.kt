@@ -62,8 +62,10 @@ class DashboardViewModel @Inject constructor(
      * */
     val appsData: LiveData<IntArray>
         get() {
-            viewModelScope.launch(Dispatchers.IO) {
-                val apps = appRepository.all()
+            viewModelScope.launch {
+                val apps = withContext(Dispatchers.IO){
+                    appRepository.all()
+                }
 
                 val allowedAppsCount = apps.count { it.access }
                 val blockedAppsCount = apps.count { !it.access }
@@ -83,9 +85,11 @@ class DashboardViewModel @Inject constructor(
 
                     if (e.errorCode == USSDHelper.DENIED_CALL_PERMISSION) {
 
-                        SinglePermissionFragment.newInstance(
-                            IPermissionsManager.CALL_CODE
-                        ).show(fm, null)
+                        withContext(Dispatchers.Main) {
+                            SinglePermissionFragment.newInstance(
+                                IPermissionsManager.CALL_CODE
+                            ).show(fm, null)
+                        }
                     }
                 }
             }
@@ -93,7 +97,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun setFirewallSwitchListener(switch: SwitchCompat, fm: FragmentManager) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
 
             firewallHelper.observeFirewallState().collect {
                 withContext(Dispatchers.Main) {
@@ -115,8 +119,10 @@ class DashboardViewModel @Inject constructor(
     ) {
         if (buttonView.isChecked) {
 
-            viewModelScope.launch(Dispatchers.IO) {
-                if (firewallHelper.allAccess(appRepository.all())) {
+            viewModelScope.launch {
+                if (firewallHelper.allAccess(withContext(Dispatchers.IO){
+                        appRepository.all()
+                    })) {
 
                     withContext(Dispatchers.Main) {
                         buttonView.isChecked = false
@@ -130,8 +136,10 @@ class DashboardViewModel @Inject constructor(
                     }
                 } else {
 
-                    val dynamic = dataStore.data.firstOrNull()
-                        ?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
+                    val dynamic = withContext(Dispatchers.IO){
+                        dataStore.data.firstOrNull()
+                            ?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL)
+                    } ?: true
 
                     if (dynamic) {
                         requestDrawOverPermission(fm,
@@ -186,8 +194,10 @@ class DashboardViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
 
-            val dynamic = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL) ?: true
+            val dynamic = withContext(Dispatchers.IO){
+                dataStore.data
+                    .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL)
+            } ?: true
 
             if (dynamic)
                 dynamicRadio.isChecked = true
@@ -223,7 +233,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun setBubbleSwitchListener(bubble: SwitchCompat, childFragmentManager: FragmentManager) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
 
             bubbleServiceHelper.observeBubbleChanges().collect {
 
@@ -266,9 +276,10 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             val dataStore = getApplication<DatwallApplication>().uiDataStore
 
-            val transparency = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY)
-                ?: BubbleFloatingService.TRANSPARENCY
+            val transparency = withContext(Dispatchers.IO){
+                dataStore.data
+                    .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY)
+            } ?: BubbleFloatingService.TRANSPARENCY
 
             bubbleTransparency.setProgress((transparency * 10))
 
@@ -292,7 +303,7 @@ class DashboardViewModel @Inject constructor(
                 override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
                     val newTransparency = seekBar.progress.toFloat() / 10f
 
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         dataStore.edit {
                             it[PreferencesKeys.BUBBLE_TRANSPARENCY] = newTransparency
                         }
@@ -307,8 +318,9 @@ class DashboardViewModel @Inject constructor(
             val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
             val size = BubbleFloatingService.BubbleSize.valueOf(
-                dataStore.data.firstOrNull()?.get(PreferencesKeys.BUBBLE_SIZE)
-                    ?: BubbleFloatingService.SIZE.name
+                withContext(Dispatchers.IO){
+                    dataStore.data.firstOrNull()?.get(PreferencesKeys.BUBBLE_SIZE)
+                } ?: BubbleFloatingService.SIZE.name
             )
 
             initBubbleView(bubbleSize.context)
@@ -340,7 +352,7 @@ class DashboardViewModel @Inject constructor(
                 override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
                     val newSize = BubbleFloatingService.BubbleSize.values()[seekBar.progress]
 
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         dataStore.edit {
                             it[PreferencesKeys.BUBBLE_SIZE] = newSize.name
                         }
@@ -354,9 +366,10 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
-            val allWayStore = dataStore.data
-                .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW)
-                ?: BubbleFloatingService.ALWAYS_SHOW
+            val allWayStore = withContext(Dispatchers.IO){
+                dataStore.data
+                    .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW)
+            } ?: BubbleFloatingService.ALWAYS_SHOW
 
             if (allWayStore)
                 allWay.isChecked = true
@@ -364,7 +377,7 @@ class DashboardViewModel @Inject constructor(
                 onlyConsume.isChecked = true
 
             allWay.setOnCheckedChangeListener { _, isChecked ->
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     dataStore.edit {
                         it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] = isChecked
                     }

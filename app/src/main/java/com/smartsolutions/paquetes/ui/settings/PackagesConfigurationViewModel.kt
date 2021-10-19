@@ -45,7 +45,7 @@ class PackagesConfigurationViewModel @Inject constructor(
         fragment: AbstractSettingsFragment,
         fragmentManager: FragmentManager
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 dataPackageManager.configureDataPackages()
 
@@ -128,7 +128,7 @@ class PackagesConfigurationViewModel @Inject constructor(
     }
 
     fun setManualConfiguration(@Networks network: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             dataPackageManager.setDataPackagesManualConfiguration(network)
 
             _configurationResult.postValue(Result.Success(simManager.getDefaultSim(SimDelegate.SimType.VOICE)))

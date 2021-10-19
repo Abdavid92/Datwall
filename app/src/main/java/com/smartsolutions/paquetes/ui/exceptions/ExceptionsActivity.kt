@@ -7,11 +7,16 @@ import android.os.Process
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Toast
+import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.databinding.ActivityExceptionsBinding
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
+import com.smartsolutions.paquetes.services.BubbleFloatingService
+import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
@@ -26,42 +31,37 @@ class ExceptionsActivity : AbstractActivity() {
     @Inject
     lateinit var localFileHelper: LocalFileHelper
 
-    @Inject
-    lateinit var kernel: DatwallKernel
-
+    private lateinit var binding: ActivityExceptionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_exceptions)
 
-        val exceptionFile = localFileHelper.findFileTemporal(ExceptionsController.EXCEPTION_FILE_NAME, LocalFileHelper.TYPE_DIR_EXCEPTIONS)
+        binding = ActivityExceptionsBinding.inflate(layoutInflater)
 
-        val editUserInformation = findViewById<EditText>(R.id.edit_user_describer)
-        val sendReport = findViewById<Button>(R.id.button_send_report)
-        val closeApp = findViewById<Button>(R.id.button_close_app)
-        val restart = findViewById<Button>(R.id.button_restart)
-        val image = findViewById<ImageView>(R.id.image_file_report)
+        setContentView(binding.root)
 
+        val exceptionFile = localFileHelper.findFileTemporal(
+            ExceptionsController.EXCEPTION_FILE_NAME,
+            LocalFileHelper.TYPE_DIR_EXCEPTIONS
+        )
 
-
-        sendReport.setOnClickListener {
+        binding.buttonSendReport.setOnClickListener {
             localFileHelper.sendFileByEmail(
                 "smartsolutions.apps.cuba@gmail.com",
                 "Informe de Error Datwall",
-                editUserInformation.text.toString(),
-                exceptionFile?.second
+                binding.editMoreInfo.text.toString(),
+                if (binding.checkboxInclude.isChecked) {
+                    exceptionFile?.second
+                } else {
+                    null
+                }
             )
         }
 
-        closeApp.setOnClickListener {
+        binding.buttonCloseApp.setOnClickListener {
             close()
         }
 
-        restart.setOnClickListener {
-            startActivity(Intent(this, SplashActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            finish()
-        }
     }
 
     override fun onBackPressed() {
@@ -69,11 +69,14 @@ class ExceptionsActivity : AbstractActivity() {
     }
 
     private fun close() {
-        runBlocking {
-            kernel.stopAllDatwall()
+        kotlin.runCatching {
+            stopService(Intent(this, BubbleFloatingService::class.java))
+        }
+        kotlin.runCatching {
+            stopService(Intent(this, DatwallService::class.java))
         }
         finishAffinity()
         Process.killProcess(Process.myPid())
-        exitProcess(10)
+        exitProcess(0)
     }
 }

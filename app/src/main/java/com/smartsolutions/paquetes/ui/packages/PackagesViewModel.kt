@@ -97,7 +97,7 @@ class PackagesViewModel @Inject constructor(
 
 
     fun purchasePackage(sim: Sim, dataPackage: DataPackage, callback: PurchaseResult){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 dataPackageManager.buyDataPackage(dataPackage, sim)
                 withContext(Dispatchers.Main){

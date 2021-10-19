@@ -304,4 +304,9 @@
     <string name="recharge_credit">Recargar saldo</string>
     <string name="qr_prompt">Coloque la tarjeta de recarga</string>
     <string name="fail_scan_qr">Falló el escaneo del qr</string>
+    <string name="title_exceptions">Ha Ocurrido un Error</string>
+    <string name="get_more_info">Dénos más información</string>
+    <string name="hint_more_info">Describa el problema</string>
+    <string name="include_report">Incluye los registros del sistema del error. No se recopilará nunca información personal</string>
+    <string name="send_error">Enviar Informe de Error</string>
 </resources>

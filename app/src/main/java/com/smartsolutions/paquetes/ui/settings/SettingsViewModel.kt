@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,12 +20,15 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun clearHistory() {
-        viewModelScope.launch(Dispatchers.IO) {
-            purchasedPackageRepository.getAll()
-                .firstOrNull()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                purchasedPackageRepository.getAll()
+            }.firstOrNull()
                 ?.filter { !it.pending }
                 ?.let { packages ->
-                    purchasedPackageRepository.delete(packages)
+                    withContext(Dispatchers.IO){
+                        purchasedPackageRepository.delete(packages)
+                    }
                 }
         }
     }

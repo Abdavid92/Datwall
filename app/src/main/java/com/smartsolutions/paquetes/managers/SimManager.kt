@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -31,7 +32,7 @@ class SimManager @Inject constructor(
 ) : ISimManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 
     private val simChangeListener by lazy {
 
@@ -48,21 +49,24 @@ class SimManager @Inject constructor(
     }
 
     override fun isSeveralSimsInstalled(): Boolean {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
             return false
         }
         return simDelegate.getActiveSimsInfo().size > 1
     }
 
     override suspend fun getInstalledSims(relations: Boolean): List<Sim> {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
             return listOf(seedEmbeddedSim())
         }
         val sims = mutableListOf<Sim>()
 
         simDelegate.getActiveSimsInfo().forEach {
             sims.add(
-                synchronizeOrCreateSim(it, simRepository.get(simDelegate.getSimId(it), relations))
+                synchronizeOrCreateSim(it,
+                    withContext(Dispatchers.IO) {
+                        simRepository.get(simDelegate.getSimId(it), relations)
+                    })
             )
         }
 
@@ -98,7 +102,9 @@ class SimManager @Inject constructor(
             sim.defaultVoice = true
         }
 
-        simRepository.update(sim)
+        withContext(Dispatchers.IO) {
+            simRepository.update(sim)
+        }
     }
 
     override suspend fun getSimBySlotIndex(slotIndex: Int, relations: Boolean): Sim? {
@@ -112,7 +118,11 @@ class SimManager @Inject constructor(
             }
             val installed = mutableListOf<Sim>()
             simDelegate.getActiveSimsInfo().forEach { subscription ->
-                installed.add(synchronizeOrCreateSim(subscription, all.firstOrNull { it.id == simDelegate.getSimId(subscription) }))
+                installed.add(
+                    synchronizeOrCreateSim(
+                        subscription,
+                        all.firstOrNull { it.id == simDelegate.getSimId(subscription) })
+                )
             }
             installed
         }
@@ -137,7 +147,10 @@ class SimManager @Inject constructor(
 
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    private suspend fun synchronizeOrCreateSim(subscriptionInfo: SubscriptionInfo, storedSim: Sim?): Sim {
+    private suspend fun synchronizeOrCreateSim(
+        subscriptionInfo: SubscriptionInfo,
+        storedSim: Sim?
+    ): Sim {
         return if (storedSim != null) {
             storedSim.icon = subscriptionInfo.createIconBitmap(context)
             storedSim.slotIndex = subscriptionInfo.simSlotIndex
@@ -145,7 +158,9 @@ class SimManager @Inject constructor(
             storedSim
         } else {
             buildSim(subscriptionInfo).also {
-                simRepository.create(it)
+                withContext(Dispatchers.IO) {
+                    simRepository.create(it)
+                }
             }
         }
     }
@@ -164,7 +179,9 @@ class SimManager @Inject constructor(
                 }
 
                 if (update) {
-                    simRepository.update(sim)
+                    withContext(Dispatchers.IO) {
+                        simRepository.update(sim)
+                    }
                 }
             }
         }
@@ -172,36 +189,46 @@ class SimManager @Inject constructor(
     }
 
 
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     private suspend fun buildSim(subscriptionInfo: SubscriptionInfo): Sim {
-        return synchronizeSim(Sim(
-            simDelegate.getSimId(subscriptionInfo),
-            0L,
-            Networks.NETWORK_NONE
-        ).apply {
-            if (subscriptionInfo.number.isNotBlank()) {
-                phone = subscriptionInfo.number
-            }
-            icon = subscriptionInfo.createIconBitmap(context)
-            slotIndex = subscriptionInfo.simSlotIndex
-        }, false)
+        return synchronizeSim(
+            Sim(
+                simDelegate.getSimId(subscriptionInfo),
+                0L,
+                Networks.NETWORK_NONE
+            ).apply {
+                if (subscriptionInfo.number.isNotBlank()) {
+                    phone = subscriptionInfo.number
+                }
+                icon = subscriptionInfo.createIconBitmap(context)
+                slotIndex = subscriptionInfo.simSlotIndex
+            }, false
+        )
     }
 
     private suspend fun resetDefaultValues(type: SimDelegate.SimType) {
-        val all = simRepository.all().onEach {
+        val all = withContext(Dispatchers.IO) {
+            simRepository.all()
+        }.onEach {
             if (type == SimDelegate.SimType.DATA)
                 it.defaultData = false
             else
                 it.defaultVoice = false
         }
-        simRepository.update(all)
+
+        withContext(Dispatchers.IO) {
+            simRepository.update(all)
+        }
     }
 
-    private suspend fun seedEmbeddedSim(): Sim{
+    private suspend fun seedEmbeddedSim(): Sim {
         return Sim(EMBEDDED_SIM_ID, 0L, Networks.NETWORK_NONE).also {
-            if (simRepository.get(EMBEDDED_SIM_ID) == null){
-                simRepository.create(it)
+            if (withContext(Dispatchers.IO) {
+                    simRepository.get(EMBEDDED_SIM_ID) == null
+                }) {
+                withContext(Dispatchers.IO) {
+                    simRepository.create(it)
+                }
             }
         }
     }

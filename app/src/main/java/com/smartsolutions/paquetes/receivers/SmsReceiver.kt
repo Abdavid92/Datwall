@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -68,10 +69,12 @@ class SmsReceiver : BroadcastReceiver() {
                 if (phoneNumber.equals("cubacel", true))
                     dataPackageManager.registerDataPackage(body, simIndex)
 
-                val waitingPurchased = context.settingsDataStore
-                    .data
-                    .firstOrNull()
-                    ?.get(PreferencesKeys.WAITING_PURCHASED) == true
+                val waitingPurchased = withContext(Dispatchers.IO){
+                    context.settingsDataStore
+                        .data
+                        .firstOrNull()
+                        ?.get(PreferencesKeys.WAITING_PURCHASED) == true
+                }
 
                 if (waitingPurchased) {
                     activationManager.get()

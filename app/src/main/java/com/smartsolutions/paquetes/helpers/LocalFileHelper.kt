@@ -56,6 +56,7 @@ class LocalFileHelper @Inject constructor(
 
             file.outputStream().also {
                 it.write(json.toByteArray())
+                it.close()
             }
 
             return FileProvider.getUriForFile(
