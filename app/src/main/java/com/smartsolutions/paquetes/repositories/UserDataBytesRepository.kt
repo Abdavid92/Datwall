@@ -9,14 +9,20 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import com.smartsolutions.paquetes.repositories.models.DataBytes.DataType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class UserDataBytesRepository @Inject constructor(
     private val userDataBytesDao: IUserDataBytesDao,
     private val simDao: ISimDao
-): IUserDataBytesRepository {
+) : IUserDataBytesRepository {
+
+    private val dispatcher = Dispatchers.IO
 
     override suspend fun all(): List<UserDataBytes> =
-        userDataBytesDao.all().map {
+        withContext(dispatcher) {
+            userDataBytesDao.all()
+        }.map {
             transform(it)
         }
 
@@ -30,8 +36,9 @@ class UserDataBytesRepository @Inject constructor(
 
     override suspend fun bySimId(simId: String): List<UserDataBytes> {
         try {
-            val userDataBytesList: MutableList<UserDataBytes> = userDataBytesDao
-                .bySimId(simId).toMutableList()
+            val userDataBytesList: MutableList<UserDataBytes> = withContext(dispatcher) {
+                userDataBytesDao.bySimId(simId).toMutableList()
+            }
 
             if (userDataBytesList.size < DataType.values().size) {
                 seedUserDataBytes(simId, userDataBytesList)
@@ -60,7 +67,9 @@ class UserDataBytesRepository @Inject constructor(
             }
 
     override suspend fun get(simId: String, type: DataType): UserDataBytes {
-        var userDataBytes = userDataBytesDao.get(simId, type.name)
+        var userDataBytes = withContext(dispatcher) {
+            userDataBytesDao.get(simId, type.name)
+        }
 
         if (userDataBytes == null) {
             userDataBytes = UserDataBytes(
@@ -72,31 +81,44 @@ class UserDataBytesRepository @Inject constructor(
                 0
             )
 
-            userDataBytesDao.create(userDataBytes)
+            withContext(dispatcher) {
+                userDataBytesDao.create(userDataBytes)
+            }
         }
 
         return transform(userDataBytes)
     }
 
     override suspend fun update(userDataBytes: UserDataBytes) =
-        userDataBytesDao.update(userDataBytes)
+        withContext(dispatcher) {
+            userDataBytesDao.update(userDataBytes)
+        }
 
     override suspend fun update(userDataBytesList: List<UserDataBytes>) =
-        userDataBytesDao.update(userDataBytesList)
+        withContext(dispatcher) {
+            userDataBytesDao.update(userDataBytesList)
+        }
 
     override suspend fun delete(userDataBytes: UserDataBytes) =
-        userDataBytesDao.delete(userDataBytes)
+        withContext(dispatcher) {
+            userDataBytesDao.delete(userDataBytes)
+        }
 
     private suspend fun transform(userDataBytes: UserDataBytes): UserDataBytes {
-        simDao.get(userDataBytes.simId)?.let {
+        withContext(dispatcher) {
+            simDao.get(userDataBytes.simId)
+        }?.let {
             userDataBytes.sim = it
         }
         return userDataBytes
     }
 
-    private suspend fun seedUserDataBytes(simId: String, userDataBytesList: MutableList<UserDataBytes>): List<UserDataBytes> {
+    private suspend fun seedUserDataBytes(
+        simId: String,
+        userDataBytesList: MutableList<UserDataBytes>
+    ): List<UserDataBytes> {
         DataType.values().forEach { dataType ->
-            if (userDataBytesList.firstOrNull { it.type == dataType} == null) {
+            if (userDataBytesList.firstOrNull { it.type == dataType } == null) {
 
                 val userDataBytes = UserDataBytes(
                     simId,
@@ -107,7 +129,9 @@ class UserDataBytesRepository @Inject constructor(
                     0
                 )
 
-                userDataBytesDao.create(userDataBytes)
+                withContext(dispatcher){
+                    userDataBytesDao.create(userDataBytes)
+                }
                 userDataBytesList.add(userDataBytes)
             }
         }

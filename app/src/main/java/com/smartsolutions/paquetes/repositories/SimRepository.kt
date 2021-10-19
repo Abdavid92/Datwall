@@ -8,8 +8,10 @@ import com.smartsolutions.paquetes.data.ISimDao
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SimRepository @Inject constructor(
@@ -17,21 +19,31 @@ class SimRepository @Inject constructor(
     private val dataPackageDao: IDataPackageDao
 ) : ISimRepository {
 
+    private val dispatcher = Dispatchers.IO
+
     override suspend fun create(sim: Sim) {
-        simDao.create(sim)
+        withContext(dispatcher) {
+            simDao.create(sim)
+        }
     }
 
     override suspend fun create(sims: List<Sim>) {
-        simDao.create(sims)
+        withContext(dispatcher) {
+            simDao.create(sims)
+        }
     }
 
     override suspend fun all(withRelations: Boolean): List<Sim> =
         if (withRelations)
-            simDao.all().map {
+            withContext(dispatcher) {
+                simDao.all()
+            }.map {
                 transform(it)
             }
         else
-            simDao.all()
+            withContext(dispatcher) {
+                simDao.all()
+            }
 
     override fun flow(withRelations: Boolean): Flow<List<Sim>> =
         if (withRelations)
@@ -46,36 +58,56 @@ class SimRepository @Inject constructor(
 
     override suspend fun get(id: String, withRelations: Boolean): Sim? =
         if (withRelations)
-            simDao.get(id)?.apply {
+            withContext(dispatcher) {
+                simDao.get(id)
+            }?.apply {
                 transform(this)
             }
         else
-            simDao.get(id)
+            withContext(dispatcher) {
+                simDao.get(id)
+            }
 
     override suspend fun update(sim: Sim): Int {
-        return simDao.update(sim)
+        return withContext(dispatcher) {
+            simDao.update(sim)
+        }
     }
 
     override suspend fun update(sims: List<Sim>): Int {
-      return simDao.update(sims)
+        return withContext(dispatcher) {
+            simDao.update(sims)
+        }
     }
 
-    override suspend fun delete(sim: Sim) = simDao.delete(sim)
+    override suspend fun delete(sim: Sim) = withContext(dispatcher) {
+        simDao.delete(sim)
+    }
 
     private suspend inline fun transform(sim: Sim): Sim {
         val packages = mutableListOf<DataPackage>()
 
         when (sim.network) {
             NETWORK_4G -> {
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_4G).filter { !it.deprecated })
+                packages.addAll(withContext(dispatcher) {
+                    dataPackageDao.getByNetwork(NETWORK_4G)
+                }.filter { !it.deprecated })
             }
             NETWORK_3G_4G -> {
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G_4G).filter { !it.deprecated })
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_4G))
+                packages.addAll(withContext(dispatcher) {
+                    dataPackageDao.getByNetwork(NETWORK_3G_4G)
+                }.filter { !it.deprecated })
+                packages.addAll(withContext(dispatcher) {
+                    dataPackageDao.getByNetwork(NETWORK_4G)
+                })
             }
             NETWORK_3G -> {
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G_4G).filter { !it.deprecated })
-                packages.addAll(dataPackageDao.getByNetwork(NETWORK_3G).filter { !it.deprecated })
+                packages.addAll(withContext(dispatcher) {
+                    dataPackageDao.getByNetwork(NETWORK_3G_4G)
+                }.filter { !it.deprecated })
+                packages.addAll(withContext(dispatcher) {
+                    dataPackageDao.getByNetwork(NETWORK_3G)
+                }.filter { !it.deprecated })
             }
         }
 
