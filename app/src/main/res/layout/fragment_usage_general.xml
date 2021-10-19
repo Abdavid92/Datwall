@@ -121,8 +121,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/traffic_international"
-            app:checkedIcon="@drawable/ic_check_circle_outline_24"
-            app:checkedIconTint="?attr/colorPrimary"/>
+            app:checkedIcon="@drawable/ic__check_24" />
 
         <com.google.android.material.chip.Chip
             android:checkable="true"
@@ -130,8 +129,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/traffic_international_lte"
-            app:checkedIcon="@drawable/ic_check_circle_outline_24"
-            app:checkedIconTint="?attr/colorPrimary"/>
+            app:checkedIcon="@drawable/ic__check_24"/>
 
         <com.google.android.material.chip.Chip
             android:checkable="true"
@@ -139,8 +137,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/traffic_national"
-            app:checkedIcon="@drawable/ic_check_circle_outline_24"
-            app:checkedIconTint="?attr/colorPrimary"/>
+            app:checkedIcon="@drawable/ic__check_24"/>
 
         <com.google.android.material.chip.Chip
             android:checkable="true"
@@ -148,8 +145,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/traffic_bag_daily"
-            app:checkedIcon="@drawable/ic_check_circle_outline_24"
-            app:checkedIconTint="?attr/colorPrimary"/>
+            app:checkedIcon="@drawable/ic__check_24"/>
 
         <com.google.android.material.chip.Chip
             android:checkable="true"
@@ -157,8 +153,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/traffic_promo_bonus"
-            app:checkedIcon="@drawable/ic_check_circle_outline_24"
-            app:checkedIconTint="?attr/colorPrimary"/>
+            app:checkedIcon="@drawable/ic__check_24"/>
 
     </com.google.android.material.chip.ChipGroup>
 
