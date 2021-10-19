@@ -219,10 +219,10 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         fragment.show(this.childFragmentManager, "AccessibilityFragment")
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
+        super.onDestroy()
         _binding = null
         adapterFragment = null
-        super.onDestroyView()
     }
 
     companion object {

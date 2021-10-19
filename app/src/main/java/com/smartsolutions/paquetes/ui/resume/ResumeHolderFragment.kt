@@ -80,9 +80,9 @@ class ResumeHolderFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
         _binding = null
-        super.onDestroyView()
+        super.onDestroy()
     }
 
     companion object {
