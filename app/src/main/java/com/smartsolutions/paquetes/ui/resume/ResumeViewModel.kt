@@ -71,7 +71,7 @@ class ResumeViewModel @Inject constructor(
 
 
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch {
             try {
                 synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
                 withContext(Dispatchers.Main) {
@@ -108,7 +108,7 @@ class ResumeViewModel @Inject constructor(
     }
 
     fun setDefaultSim(type: SimDelegate.SimType, sim: Sim) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             simManager.setDefaultSim(type, sim)
         }
     }

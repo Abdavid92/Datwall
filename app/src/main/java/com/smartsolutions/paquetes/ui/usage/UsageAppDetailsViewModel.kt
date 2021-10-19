@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,8 +36,10 @@ class UsageAppDetailsViewModel @Inject constructor(
     }
 
     private fun obtainTraffic() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.USAGE_PERIOD)?.let { period ->
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                getApplication<Application>().settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.USAGE_PERIOD)
+            }?.let { period ->
                 val interval = dateCalendarUtils.getTimePeriod(period)
 
                 val timeUnit = when (period) {

@@ -57,14 +57,14 @@ class SimsConfigurationViewModel @Inject constructor(
     }
 
     fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             simManager.setDefaultSim(SimDelegate.SimType.DATA, defaultDataSim)
             simManager.setDefaultSim(SimDelegate.SimType.VOICE, defaultVoiceSim)
         }
     }
 
     private fun fillSims() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             simManager.flowInstalledSims().collect {
                 _sims.postValue(it)
             }
