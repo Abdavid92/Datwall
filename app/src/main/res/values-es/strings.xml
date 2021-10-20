@@ -42,7 +42,7 @@
     <string name="usage_access_permission">Acceso a Datos de Uso</string>
     <string name="usage_access_permission_description">Este permiso permite obtener del sistema la cantidad de megas consumidos por cada app en diferentes períodos de tiempo</string>
     <string name="draw_overlays_permission">Permiso para sobreponerse a otras apps</string>
-    <string name="draw_overlays_permission_description">Se necesita para que se pueda mostrar la Burbuja Flotante sobre otras apps</string>
+    <string name="draw_overlays_permission_description">Se necesita para que se pueda mostrar la Burbuja Flotante o el Cortafuegos sobre otras apps</string>
     <string name="vpn_permission">Permiso para crear vpn</string>
     <string name="vpn_permission_description">Es necesario para crear una VPN que se utilizará como un cortafuegos para ahorrar sus megas</string>
     <string name="btn_continue">Continuar</string>
@@ -309,4 +309,6 @@
     <string name="hint_more_info">Describa el problema</string>
     <string name="include_report">Incluye los registros del sistema del error. No se recopilará nunca información personal</string>
     <string name="send_error">Enviar Informe de Error</string>
+    <string name="notification_synchronization_title">Sincronizando</string>
+    <string name="notification_synchronization_description">Se están sincronizando los valores de la app con Cubacel</string>
 </resources>

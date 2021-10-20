@@ -47,4 +47,11 @@
         <item name="android:background">@drawable/background_green_borderless_card_dark</item>
         <item name="android:textColor">@color/white</item>
     </style>
+
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner.DropDown">
+        <item name="android:spinnerMode">dropdown</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:popupBackground">?attr/colorPrimary</item>
+    </style>
+
 </resources>

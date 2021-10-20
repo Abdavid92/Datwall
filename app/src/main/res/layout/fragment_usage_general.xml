@@ -31,10 +31,9 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_spinner"
+            android:theme="@style/Theme.Datwall.AppBarOverlay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:theme="@style/Theme.Datwall.AppBarOverlay"
-            app:cardBackgroundColor="?attr/colorPrimary"
             app:cardCornerRadius="10dp"
             app:cardElevation="2dp"
             app:cardPreventCornerOverlap="true"

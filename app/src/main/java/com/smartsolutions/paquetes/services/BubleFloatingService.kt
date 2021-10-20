@@ -40,7 +40,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private val job = Job()
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = Dispatchers.Default + job
 
     @Inject
     lateinit var notificationHelper: NotificationHelper
@@ -141,7 +141,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
         addView(bubbleBinding.root, params)
 
-        runBlocking(Dispatchers.IO) {
+        runBlocking {
             app = appRepository.get(applicationContext.packageName)
         }
         registerFlows()
@@ -221,13 +221,17 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
 
     private fun showBubble() {
-        isShowBubble = true
         params.x = lastX
         params.y = lastY
         updateView(bubbleBinding.root, params)
         bubbleBinding.root.visibility = View.VISIBLE
-        bubbleBinding.root.alpha = 1f
-        setTransparency(true)
+        if (!isShowBubble){
+            setTransparency(true, true)
+        }else {
+            bubbleBinding.root.alpha = 1f
+            setTransparency(true)
+        }
+        isShowBubble = true
     }
 
     private fun hideBubble() {
@@ -259,16 +263,16 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
 
-    private fun setTransparency(transparent: Boolean) {
+    private fun setTransparency(transparent: Boolean, force: Boolean = false) {
         val duration = 800L
 
         if (transparent) {
-            if (bubbleBinding.root.alpha == 1f) {
+            if (bubbleBinding.root.alpha == 1f || force) {
                 bubbleBinding.root.animate().alpha(TRANSPARENCY).duration = duration
                 bubbleBinding.root.animate().start()
             }
         } else {
-            if (bubbleBinding.root.alpha < 1f) {
+            if (bubbleBinding.root.alpha < 1f || force) {
                 bubbleBinding.root.animate().alpha(1f).duration = duration
                 bubbleBinding.root.animate().start()
             }
@@ -311,7 +315,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     private fun setTraffic(app: App) {
         val period = dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
-        runBlocking(Dispatchers.IO) {
+        runBlocking(Dispatchers.Default) {
             traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }
 
@@ -479,17 +483,16 @@ class BubbleFloatingService : Service(), CoroutineScope {
                     app = appCurrent
                     setTraffic(appCurrent)
 
-                    setThemeBubble()
-
-                    bitmapIcon = iconManager.get(
-                        appCurrent.packageName,
-                        appCurrent.version
-                    )
-                    bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
-
                     if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
                         hideBubble()
                     } else if (!isShowBubble) {
+                        setThemeBubble()
+
+                        bitmapIcon = iconManager.get(
+                            appCurrent.packageName,
+                            appCurrent.version
+                        )
+                        bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
                         showBubble()
                     }
                 }

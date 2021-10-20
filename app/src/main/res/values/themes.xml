@@ -19,6 +19,7 @@
         <item name="alertDialogTheme">@style/Theme.Datwall.AlertDialogStyle</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialogStyle</item>
         <item name="extendedFloatingActionButtonStyle">@style/ExtendedFabButton</item>
+        <item name="spinnerStyle">@style/SpinnerStyle</item>
     </style>
 
     <style name="WelcomeTheme" parent="WelcomeScreenTheme">

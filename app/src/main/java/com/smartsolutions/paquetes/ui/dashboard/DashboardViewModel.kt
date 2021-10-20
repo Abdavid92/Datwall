@@ -262,13 +262,17 @@ class DashboardViewModel @Inject constructor(
         if (isChecked) {
            requestDrawOverPermission(fm,
            onGranted = {
-               writeChangesDataStore(PreferencesKeys.ENABLED_BUBBLE_FLOATING, true)
+               viewModelScope.launch {
+                   bubbleServiceHelper.startBubble(true)
+               }
            },
            onDenied = {
                buttonView.isChecked = false
            })
         } else {
-            writeChangesDataStore(PreferencesKeys.ENABLED_BUBBLE_FLOATING, false)
+            viewModelScope.launch {
+                bubbleServiceHelper.stopBubble(true)
+            }
         }
     }
 
