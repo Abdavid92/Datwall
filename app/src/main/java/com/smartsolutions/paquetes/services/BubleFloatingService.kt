@@ -501,6 +501,14 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
 
         launch {
+            appRepository.flow().collect { list ->
+                app?.let { app ->
+                    this@BubbleFloatingService.app = list.firstOrNull{ it == app }
+                }
+            }
+        }
+
+        launch {
             watcher.bandWithFlow.collect {
                 withContext(Dispatchers.Main) {
                     if (delayTransparency < 3) {
