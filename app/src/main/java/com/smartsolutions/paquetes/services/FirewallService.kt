@@ -125,15 +125,15 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             observeJob = launch(Dispatchers.IO) {
                 appRepository.flow().collect {
 
-                    //Inicio el vpn
-                    if (!vpnConnection.isConnected)
-                        vpnConnectionThread?.start()
-
                     vpnConnection.setAllowedPackageNames(it.filter { app ->
                         app.access || app.tempAccess
                     }.map { transformApp ->
                         return@map transformApp.packageName
                     }.toTypedArray())
+
+                    //Inicio el vpn
+                    if (!vpnConnection.isConnected)
+                        vpnConnectionThread?.start()
                 }
             }
         }
