@@ -15,10 +15,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.preference.*
-import com.smartsolutions.paquetes.BuildConfig
-import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.databinding.FragmentAboutBinding
 import com.smartsolutions.paquetes.databinding.FragmentNotificationStyleBinding
 import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
@@ -276,7 +274,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     @Keep
     class SynchronizationFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            super.onCreatePreferences(savedInstanceState, rootKey)
+            preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().workersDataStore)
             setPreferencesFromResource(R.xml.sync_preferences, rootKey)
         }
     }

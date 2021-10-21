@@ -305,9 +305,9 @@ class DatwallKernel @Inject constructor(
      * Registra los workers.
      * */
     private fun registerWorkers() {
-        updateApplicationStatusJob = launch(Dispatchers.IO) {
+        updateApplicationStatusJob = launch {
             if (!updateManager.wasScheduleUpdateApplicationStatusWorker()) {
-                context.settingsDataStore.data.collect {
+                context.workersDataStore.data.collect {
                     val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 24
 
                     updateManager.scheduleUpdateApplicationStatusWorker(interval)
@@ -315,8 +315,8 @@ class DatwallKernel @Inject constructor(
             }
         }
 
-        dataSyncJob = launch(Dispatchers.IO) {
-            context.settingsDataStore.data.collect {
+        dataSyncJob = launch {
+            context.workersDataStore.data.collect {
                 if (it[PreferencesKeys.ENABLE_DATA_SYNCHRONIZATION] == true)
                     synchronizationManager.scheduleUserDataBytesSynchronization(15)
                 else

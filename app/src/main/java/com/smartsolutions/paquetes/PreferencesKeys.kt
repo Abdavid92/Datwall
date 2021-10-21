@@ -22,6 +22,11 @@ val Context.uiDataStore by preferencesDataStore(name = "settings_ui")
 val Context.internalDataStore by preferencesDataStore(name = "internal_settings")
 
 /**
+ * Se usa para guardar el estado de los workers
+ * */
+val Context.workersDataStore by preferencesDataStore(name = "workers_settings")
+
+/**
  * Contiene las claves de las preferencias.
  * */
 object PreferencesKeys {

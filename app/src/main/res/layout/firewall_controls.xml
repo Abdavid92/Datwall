@@ -80,6 +80,8 @@
                     android:id="@+id/allowed_apps_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/allowed_apps"
                     tools:text="2" />
@@ -96,6 +98,8 @@
                     android:id="@+id/blocked_apps_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/allowed_apps_value"
                     tools:text="384" />
@@ -112,6 +116,8 @@
                     android:id="@+id/all_apps_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/blocked_apps_value"
                     tools:text="386" />

@@ -197,7 +197,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
                     delayApp?.let { app ->
 
-                        /*Si la aplicación que dejó el primer plano tenía
+                        /* Si la aplicación que dejó el primer plano tenía
                          * acceso temporal se lo quito y actualiza el repositorio.
                          * Esto hara que el vpn aplique los nuevos cambios automáticamente.*/
                         if (app.tempAccess) {
