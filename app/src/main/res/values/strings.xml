@@ -284,7 +284,7 @@
     <string name="btn_block_text">Bloquear</string>
     <string name="btn_allow_text">Permitir</string>
     <string name="remember_election_text">Recordar elección</string>
-    <string name="info_text">¿Desea permtitir que esta aplicación use los datos móviles por ahora?</string>
+    <string name="allow_app_text">¿Desea permtitir que esta aplicación use los datos móviles por ahora?</string>
     <string name="firewall_force_stop">Cortafuegos detenido</string>
     <string name="firewall_force_stop_summary">Se ha forzado el apagado del cortafuegos. Esto podría causar fuga de datos.</string>
     <string name="change_default_sim_settings">Cambiar Sim Predeterminada en Ajustes</string>

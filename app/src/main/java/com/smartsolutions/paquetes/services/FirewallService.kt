@@ -7,6 +7,7 @@ import android.net.VpnService
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.abdavid92.vpncore.*
 import com.abdavid92.vpncore.socket.IProtectSocket
@@ -15,6 +16,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
+import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import com.smartsolutions.paquetes.watcher.RxWatcher
@@ -72,8 +74,32 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     @Inject
     lateinit var watcher: RxWatcher
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        intent?.let {
+            /*Si la acción es ACTION_STOP, detengo el servicio.
+            * Esto se hace así porque no se puede detener un servicio en primer
+            * plano desde el contexto.*/
+            if (it.action == ACTION_STOP_FIREWALL_SERVICE) {
+
+                stopService()
+
+                return START_NOT_STICKY
+            } else if (it.action == ACTION_ALLOW_APP) {
+
+                it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
+                    app.tempAccess = true
+                    launch(Dispatchers.IO) {
+                        appRepository.update(app)
+                    }
+                }
+
+                if (vpnConnection.isConnected)
+                    return START_STICKY
+
+                return START_NOT_STICKY
+            }
+        }
 
         launchNotification()
 
@@ -89,21 +115,6 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         }
 
         vpnConnectionThread = Thread(vpnConnection)
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        intent?.let {
-            /*Si la acción es ACTION_STOP, detengo el servicio.
-            * Esto se hace así porque no se puede detener un servicio en primer
-            * plano desde el contexto.*/
-            if (it.action == ACTION_STOP_FIREWALL_SERVICE) {
-
-                stopService()
-
-                return START_NOT_STICKY
-            }
-        }
 
         registerFlows()
 
@@ -182,11 +193,12 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                             foregroundApp.ask
                         ) {
                             //Lanzo el AskActivity con la aplicación
-                            val askIntent = Intent(this@FirewallService, AskActivity::class.java)
+                            /*val askIntent = Intent(this@FirewallService, AskActivity::class.java)
                                 .putExtra(AskActivity.EXTRA_FOREGROUND_APP, foregroundApp)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-                            startActivity(askIntent)
+                            startActivity(askIntent)*/
+                            launchAskNotification(foregroundApp)
                         } else {
                             Log.i(
                                 TAG,
@@ -212,6 +224,42 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                 }
             }
         }
+    }
+
+    private fun launchAskNotification(app: App) {
+
+        val intent = Intent(this, FirewallService::class.java)
+            .setAction(ACTION_ALLOW_APP)
+            .putExtra(EXTRA_APP, app)
+
+        val pendingIntent = PendingIntent.getService(
+            this,
+            0,
+            intent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
+
+        val notification = NotificationCompat.Builder(this, NotificationHelper.ALERT_CHANNEL_ID)
+            .addAction(NotificationCompat.Action.Builder(
+                R.drawable.ic_done,
+                getString(R.string.btn_allow_text),
+                pendingIntent
+            ).build())
+            .setContentTitle(app.name)
+            .setContentText(getString(R.string.allow_app_text))
+            .setSmallIcon(R.drawable.ic_main_notification)
+            .setStyle(NotificationCompat.BigTextStyle())
+            .setAutoCancel(true)
+
+        NotificationManagerCompat.from(this)
+            .notify(
+                NotificationHelper.ALERT_NOTIFICATION_ID,
+                notification.build()
+            )
     }
 
     /**
@@ -316,5 +364,15 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
          * Acción que se usa para detener el servicio.
          * */
         const val ACTION_STOP_FIREWALL_SERVICE = "com.smartsolutions.paquetes.action.STOP_FIREWALL_SERVICE"
+
+        /**
+         * Acción que se usa para permitir el acceso a una aplicación.
+         * */
+        const val ACTION_ALLOW_APP = "com.smartsolutions.paquetes.action.ALLOW_APP"
+
+        /**
+         * Aplicación.
+         * */
+        const val EXTRA_APP = "com.smartsolutions.paquetes.extra.APP"
     }
 }
