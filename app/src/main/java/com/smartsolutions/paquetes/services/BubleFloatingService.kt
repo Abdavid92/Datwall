@@ -291,7 +291,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun getBackgroundResource(): Int {
         val isDark = uiHelper.isUIDarkTheme()
         return if (VPN_ENABLED) {
-            if (app?.access == true) {
+            if (app?.access == true || app?.tempAccess == true) {
                 if (isDark) {
                     R.drawable.background_green_borderless_card_dark
                 } else {
@@ -486,15 +486,16 @@ class BubbleFloatingService : Service(), CoroutineScope {
                     if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
                         hideBubble()
                     } else if (!isShowBubble) {
-                        setThemeBubble()
-
-                        bitmapIcon = iconManager.get(
-                            appCurrent.packageName,
-                            appCurrent.version
-                        )
-                        bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
                         showBubble()
                     }
+
+                    setThemeBubble()
+
+                    bitmapIcon = iconManager.get(
+                        appCurrent.packageName,
+                        appCurrent.version
+                    )
+                    bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
                 }
             }
         }
