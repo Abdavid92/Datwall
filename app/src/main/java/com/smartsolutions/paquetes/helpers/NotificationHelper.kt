@@ -115,7 +115,8 @@ class NotificationHelper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun areCreatedNotificationChannels(): Boolean {
         return notificationManager.getNotificationChannel(MAIN_CHANNEL_ID) != null &&
-                notificationManager.getNotificationChannel(ALERT_CHANNEL_ID) != null
+                notificationManager.getNotificationChannel(ALERT_CHANNEL_ID) != null &&
+                notificationManager.getNotificationChannel(WORKERS_CHANNEL_ID) != null
     }
 
     /**
@@ -126,7 +127,7 @@ class NotificationHelper @Inject constructor(
         const val MAIN_NOTIFICATION_ID = 0
         const val ALERT_NOTIFICATION_ID = 1
         const val WORKERS_NOTIFICATION_ID = 2
-        const val FIREWALL_NOTIFICATION_ID = 3
+        //const val FIREWALL_NOTIFICATION_ID = 3
 
         //Canal principal
         const val MAIN_CHANNEL_ID = "main_channel"
