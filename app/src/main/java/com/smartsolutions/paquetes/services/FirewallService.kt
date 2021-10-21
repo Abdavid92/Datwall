@@ -94,6 +94,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                     }
                 }
 
+                cancelAskNotification()
+
                 if (vpnConnection.isConnected)
                     return START_STICKY
 
@@ -228,6 +230,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
     private fun launchAskNotification(app: App) {
 
+        cancelAskNotification()
+
         val intent = Intent(this, FirewallService::class.java)
             .setAction(ACTION_ALLOW_APP)
             .putExtra(EXTRA_APP, app)
@@ -257,9 +261,14 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
         NotificationManagerCompat.from(this)
             .notify(
-                NotificationHelper.ALERT_NOTIFICATION_ID,
+                NotificationHelper.FIREWALL_NOTIFICATION_ID,
                 notification.build()
             )
+    }
+
+    private fun cancelAskNotification() {
+        NotificationManagerCompat.from(this)
+            .cancel(NotificationHelper.FIREWALL_NOTIFICATION_ID)
     }
 
     /**
