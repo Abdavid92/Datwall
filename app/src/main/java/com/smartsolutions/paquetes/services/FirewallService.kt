@@ -18,7 +18,6 @@ import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.SplashActivity
-import com.smartsolutions.paquetes.ui.firewall.AskActivity
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -195,11 +194,6 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                             foregroundApp.ask
                         ) {
                             //Lanzo el AskActivity con la aplicación
-                            /*val askIntent = Intent(this@FirewallService, AskActivity::class.java)
-                                .putExtra(AskActivity.EXTRA_FOREGROUND_APP, foregroundApp)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                            startActivity(askIntent)*/
                             launchAskNotification(foregroundApp)
                         } else {
                             Log.i(
