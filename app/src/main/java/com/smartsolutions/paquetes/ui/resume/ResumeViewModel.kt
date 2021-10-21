@@ -13,6 +13,7 @@ import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -34,12 +35,14 @@ class ResumeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().settingsDataStore.data.collect {
+            getApplication<Application>().uiDataStore.data.collect {
                 filter = FilterUserDataBytes.valueOf(
                     it[PreferencesKeys.RESUME_FILTER] ?: FilterUserDataBytes.NORMAL.name
                 )
-                if (userDataBytes.isNotEmpty()) {
-                    liveUserDataBytes.postValue(filter(userDataBytes))
+                withContext(Dispatchers.Default) {
+                    if (userDataBytes.isNotEmpty()) {
+                        liveUserDataBytes.postValue(filter(userDataBytes))
+                    }
                 }
             }
         }
@@ -48,7 +51,7 @@ class ResumeViewModel @Inject constructor(
 
     fun setFilter(filterUserDataBytes: FilterUserDataBytes) {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().settingsDataStore.edit {
+            getApplication<Application>().uiDataStore.edit {
                 it[PreferencesKeys.RESUME_FILTER] = filterUserDataBytes.name
             }
         }
@@ -63,7 +66,9 @@ class ResumeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             userDataBytesRepository.flowBySimId(simId).collect { userData ->
                 userDataBytes = userData
-                liveUserDataBytes.postValue(filter(userData))
+                withContext(Dispatchers.Default) {
+                    liveUserDataBytes.postValue(filter(userData))
+                }
             }
         }
         return liveUserDataBytes
