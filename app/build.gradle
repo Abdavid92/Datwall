@@ -118,7 +118,6 @@ dependencies {
     implementation 'com.stephentuso:welcome:1.4.1'
     implementation 'org.apache:commons-lang:2.4'
     implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
-    //implementation 'com.github.razir.progressbutton:progressbutton:2.1.0'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
 
     //Hilt
@@ -150,9 +149,6 @@ dependencies {
     //Zxing
     implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
     implementation 'com.google.zxing:core:3.3.0'
-
-    //LeakCanary
-    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
