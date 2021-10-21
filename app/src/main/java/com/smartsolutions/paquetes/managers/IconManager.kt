@@ -185,7 +185,9 @@ class IconManager @Inject constructor(
             }
 
             //Guardo el ícono en el file
-            icon?.compress(Bitmap.CompressFormat.PNG, 100, FileOutputStream(file))
+            FileOutputStream(file).use {
+                icon?.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
         }
     }
 
