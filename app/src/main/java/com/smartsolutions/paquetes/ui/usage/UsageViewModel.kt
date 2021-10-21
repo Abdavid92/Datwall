@@ -19,6 +19,7 @@ import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -43,7 +44,7 @@ class UsageViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().settingsDataStore.data.collect {
+            getApplication<Application>().uiDataStore.data.collect {
                 withContext(Dispatchers.Default){
                     period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
                     filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
@@ -58,7 +59,7 @@ class UsageViewModel @Inject constructor(
 
     fun setUsagePeriod(@Period period: Int){
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().settingsDataStore.edit {
+            getApplication<Application>().uiDataStore.edit {
                 it[PreferencesKeys.USAGE_PERIOD] = period
             }
         }
@@ -66,7 +67,7 @@ class UsageViewModel @Inject constructor(
 
     fun setUsageFilter(filter: UsageFilters) {
         viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().settingsDataStore.edit {
+            getApplication<Application>().uiDataStore.edit {
                 it[PreferencesKeys.USAGE_FILTER] = filter.name
             }
         }

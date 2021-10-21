@@ -6,6 +6,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
@@ -17,6 +19,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
 
+private const val NOTIFICATION_ID = 88
+
 @HiltWorker
 class SynchronizationWorker @AssistedInject constructor(
     @Assisted
@@ -25,7 +29,8 @@ class SynchronizationWorker @AssistedInject constructor(
     params: WorkerParameters,
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager,
-    private val simManager: ISimManager
+    private val simManager: ISimManager,
+    private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(context, params) {
 
 
@@ -35,7 +40,8 @@ class SynchronizationWorker @AssistedInject constructor(
         val onlyInternational = context.settingsDataStore.data.firstOrNull()
             ?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_INTERNATIONAL) ?: true
         val onlyDummy =
-            context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_DUMMY)
+            context.settingsDataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_DUMMY)
                 ?: true
 
         if (onlyInternational) {
@@ -54,15 +60,35 @@ class SynchronizationWorker @AssistedInject constructor(
         }
 
         if (canExecute) {
+            notifyUpdate()
             try {
                 Log.i("SYNCHRONIZATION", "Start Sincro $canExecute")
                 synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
             } catch (e: Exception) {
             }
+            cancelNotification()
         }
 
         Log.i("SYNCHRONIZATION", "Sincronizado $canExecute")
 
         return Result.success()
+    }
+
+    private fun notifyUpdate() {
+        notificationHelper.notify(
+            NOTIFICATION_ID,
+            notificationHelper.buildNotification(
+                NotificationHelper.ALERT_CHANNEL_ID,
+                R.drawable.ic_synchronization_notification
+            )
+                .setOngoing(true)
+                .setContentTitle(context.getString(R.string.notification_synchronization_title))
+                .setContentText(context.getString(R.string.notification_synchronization_description))
+                .build()
+        )
+    }
+
+    private fun cancelNotification(){
+        notificationHelper.cancelNotification(NOTIFICATION_ID)
     }
 }

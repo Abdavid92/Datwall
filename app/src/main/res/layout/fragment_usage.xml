@@ -33,14 +33,13 @@
                     android:textSize="20sp" />
 
                 <androidx.cardview.widget.CardView
-                    app:cardBackgroundColor="?attr/colorPrimary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     app:cardCornerRadius="10dp"
                     app:cardPreventCornerOverlap="true"
                     app:cardUseCompatPadding="true"
-                    app:cardElevation="2dp">
+                    app:cardElevation="5dp">
 
                     <androidx.appcompat.widget.AppCompatSpinner
                         android:id="@+id/spinner_usage_options"

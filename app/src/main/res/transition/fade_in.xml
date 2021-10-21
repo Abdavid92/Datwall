@@ -5,7 +5,6 @@
         android:slideEdge="bottom"
         android:interpolator="@android:interpolator/decelerate_quint" />-->
     <fade
-        android:startDelay="150"
         android:fadingMode="fade_in"
         android:duration="@android:integer/config_longAnimTime" />
 </transitionSet>

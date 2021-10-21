@@ -95,4 +95,12 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textAlignment">center</item>
     </style>
+
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner.DropDown">
+        <item name="android:spinnerMode">dropdown</item>
+        <item name="android:background">?attr/colorPrimaryVariant</item>
+        <item name="android:popupBackground">?attr/colorPrimaryVariant</item>
+    </style>
+
+
 </resources>

@@ -27,7 +27,6 @@ class BubbleServiceHelper @Inject constructor(
 
     private val dataStore = context.internalDataStore
 
-    @Throws(MissingPermissionException::class)
     suspend fun startBubble(turnOn: Boolean) {
         if (turnOn)
             writeChangesDataStore(true)
