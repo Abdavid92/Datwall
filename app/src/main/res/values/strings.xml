@@ -317,4 +317,8 @@
     <string name="lose_changes">Posible pérdida de los cambios</string>
     <string name="lose_changes_msg">Es posible que se pierdan los cambios realizados en la aplicación. ¿Continuar?</string>
     <string name="can_not_open_app">Esta aplicación no se puede abrir</string>
+    <string name="background_notification_channel_name">Trabajos en segundo plano</string>
+    <string name="main_description_notification_channel">Se muestra la notificación principal</string>
+    <string name="alert_description_notification_channel">Se muestran las alertas que haya activado para mantenerlo al tanto de su paquete</string>
+    <string name="workers_description_notification_channel">Se muestra cuando se estén realizando trabajos en segundo plano</string>
 </resources>

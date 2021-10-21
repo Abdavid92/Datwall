@@ -37,24 +37,14 @@ class SynchronizationWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         var canExecute = true
 
-        val onlyInternational = context.settingsDataStore.data.firstOrNull()
-            ?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_INTERNATIONAL) ?: true
-        val onlyDummy =
-            context.settingsDataStore.data.firstOrNull()
-                ?.get(PreferencesKeys.SYNCHRONIZATION_ONLY_DUMMY)
-                ?: true
+        try {
+            canExecute = userDataBytesRepository.get(
+                simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
+                DataBytes.DataType.International
+            ).exists()
+        } catch (e: Exception) { }
 
-        if (onlyInternational) {
-            try {
-                canExecute = userDataBytesRepository.get(
-                    simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
-                    DataBytes.DataType.International
-                ).exists()
-            } catch (e: Exception) {
-            }
-        }
-
-        if (onlyDummy && canExecute) {
+        if (canExecute) {
             canExecute =
                 (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (2 * 1000) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
         }
@@ -78,7 +68,7 @@ class SynchronizationWorker @AssistedInject constructor(
         notificationHelper.notify(
             NOTIFICATION_ID,
             notificationHelper.buildNotification(
-                NotificationHelper.ALERT_CHANNEL_ID,
+                NotificationHelper.WORKERS_CHANNEL_ID,
                 R.drawable.ic_synchronization_notification
             )
                 .setOngoing(true)
@@ -88,7 +78,7 @@ class SynchronizationWorker @AssistedInject constructor(
         )
     }
 
-    private fun cancelNotification(){
+    private fun cancelNotification() {
         notificationHelper.cancelNotification(NOTIFICATION_ID)
     }
 }

@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.managers.ActivationManager
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
@@ -26,13 +27,17 @@ class ActivationWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            val data = applicationContext.settingsDataStore.data.firstOrNull()
+            val data = applicationContext.internalDataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.LICENSE) ?: return Result.failure()
 
             val license = gson.fromJson(
                 ActivationManager.decrypt(data),
                 License::class.java
             )
+
+            if (license.isPurchased){
+                license.isRestored = true
+            }
 
             license.isPurchased = true
 
