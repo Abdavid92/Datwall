@@ -184,16 +184,16 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                             foregroundApp.tempAccess = true
                             appRepository.update(foregroundApp)
 
-                            /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
-                  * y se puede preguntar por ella
-                  * */
+                        /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
+                         * y se puede preguntar por ella
+                         * */
                         } else if (
                             !foregroundApp.access &&
                             foregroundApp.executable &&
                             foregroundApp.internet &&
                             foregroundApp.ask
                         ) {
-                            //Lanzo el AskActivity con la aplicación
+                            //Lanzo la notificación con la aplicación
                             launchAskNotification(foregroundApp)
                         } else {
                             Log.i(
