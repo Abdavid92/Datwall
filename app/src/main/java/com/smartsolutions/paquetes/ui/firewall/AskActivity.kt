@@ -17,7 +17,7 @@ import com.smartsolutions.paquetes.ui.AbstractActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AskActivity : AppCompatActivity() {
+class AskActivity : AbstractActivity() {
 
     private var _binding: ActivityAskBinding? = null
     private val binding: ActivityAskBinding
