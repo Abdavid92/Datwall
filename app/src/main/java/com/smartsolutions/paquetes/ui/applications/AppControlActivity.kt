@@ -1,10 +1,17 @@
 package com.smartsolutions.paquetes.ui.applications
 
+import android.app.PendingIntent
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.transition.Transition
 import android.view.View
 import android.widget.CompoundButton
+import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityAppControlBinding
@@ -12,6 +19,7 @@ import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
+import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.TransparentActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -66,7 +74,8 @@ class AppControlActivity : TransparentActivity() {
         ViewCompat.setTransitionName(binding.name, VIEW_NAME_HEADER_NAME)
         ViewCompat.setTransitionName(binding.packageName, VIEW_NAME_HEADER_PACKAGE_NAME)
 
-        app = intent.getParcelableExtra(EXTRA_APP)
+        app = intent.getParcelableExtra(EXTRA_APP) ?: savedInstanceState
+            ?.getParcelable(EXTRA_APP)
 
         savedInstanceState?.let {
             wasChanges = it.getBoolean(EXTRA_WAS_CHANGES, false)
@@ -80,18 +89,18 @@ class AppControlActivity : TransparentActivity() {
         binding.appInfo.setOnClickListener {
             //Empty para evitar el onCLick del background
         }
-        binding.appControl.setOnClickListener {
+        binding.included.appControl.setOnClickListener {
             //Empty para evitar el onCLick del background
         }
 
         /*Selecciono el RadioButton correspondiente al trafficType de la app.*/
         when (app?.trafficType) {
-            TrafficType.International -> binding.trafficInternational.isChecked = true
-            TrafficType.National -> binding.trafficNational.isChecked = true
-            TrafficType.Free -> binding.trafficFree.isChecked = true
+            TrafficType.International -> binding.included.trafficInternational.isChecked = true
+            TrafficType.National -> binding.included.trafficNational.isChecked = true
+            TrafficType.Free -> binding.included.trafficFree.isChecked = true
         }
 
-        binding.trafficTypeGroup.setOnCheckedChangeListener { _, checkedId ->
+        binding.included.trafficTypeGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.traffic_international -> app?.trafficType = TrafficType.International
                 R.id.traffic_national -> app?.trafficType = TrafficType.National
@@ -103,11 +112,22 @@ class AppControlActivity : TransparentActivity() {
 
         app?.let {
             //Asigno el evento del checkBox del vpn
-            uiHelper.setVpnAccessCheckBoxListener(it, binding.vpnAccess) {
+            uiHelper.setVpnAccessCheckBoxListener(it, binding.included.vpnAccess) {
                 wasChanges = true
             }
         }
-        setAskCheckboxListener(binding.ask)
+        setAskCheckboxListener(binding.included.ask)
+        setForegroundAccessCheckboxListener(binding.included.foregroundAccess)
+        binding.included.btnSave.setOnClickListener(::onSave)
+
+        if (app?.executable == true) {
+            binding.included.btnOpen.setOnClickListener(::onOpen)
+        } else {
+            binding.included.btnOpen.apply {
+                isEnabled = false
+                visibility = View.INVISIBLE
+            }
+        }
 
         addTransitionListener()
     }
@@ -145,7 +165,7 @@ class AppControlActivity : TransparentActivity() {
         }
     }
 
-    fun onSave(view: View) {
+    private fun onSave(view: View) {
         if (wasChanges) {
             /*Si hubo cambios establezco el resultado en ok e
             * inserto la app con los cambios.*/
@@ -160,8 +180,34 @@ class AppControlActivity : TransparentActivity() {
         onBackPressed()
     }
 
+    private fun onOpen(view: View) {
+        if (wasChanges) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.lose_changes)
+                .setMessage(R.string.lose_changes_msg)
+                .setPositiveButton(R.string.btn_yes) { _,_ ->
+                    openApp()
+                }
+                .setNegativeButton(R.string.btn_not, null)
+                .show()
+        } else {
+            openApp()
+        }
+    }
+
+    private fun openApp() {
+        app?.let {
+            val intent = packageManager.getLaunchIntentForPackage(it.packageName)
+
+            if (intent != null)
+                startActivity(intent)
+            else
+                Toast.makeText(this, R.string.can_not_open_app, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun showControlPanel() {
-        binding.appControl.animate()
+        binding.included.appControl.animate()
             .alpha(1F)
     }
 
@@ -180,6 +226,20 @@ class AppControlActivity : TransparentActivity() {
             app?.ask = isChecked
             wasChanges = true
         }
+    }
+
+    private fun setForegroundAccessCheckboxListener(checkBox: CompoundButton) {
+        checkBox.setOnCheckedChangeListener(null)
+        checkBox.isChecked = app?.foregroundAccess ?: false
+        checkBox.setOnCheckedChangeListener { _, isChecked -> 
+            app?.foregroundAccess = isChecked
+            wasChanges = true
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        outState.putParcelable(EXTRA_APP, app)
     }
 
     override fun onDestroy() {

@@ -421,10 +421,10 @@ class DatwallService : Service(), CoroutineScope {
 
                 val canWork = service.activationManager.canWork()
 
-                if (!canWork.first &&
-                    canWork.second == IActivationManager.ApplicationStatuses.TrialPeriod
-                ) {
-                    service.launchExpiredNotification()
+                if (!canWork.first) {
+                    if (canWork.second == IActivationManager.ApplicationStatuses.TrialPeriod) {
+                        service.launchExpiredNotification()
+                    }
                 } else {
                     service.trafficRegistration.start()
                 }

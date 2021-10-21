@@ -1,5 +1,7 @@
 package com.smartsolutions.paquetes.ui.applications
 
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +37,8 @@ class AppsListAdapter constructor(
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
+
+    private var searchJob: Job? = null
 
     /**
      * Lista filtrada.
@@ -116,7 +120,11 @@ class AppsListAdapter constructor(
      * @param query - Texto que debe contener el nombre de la aplicación a buscar.
      * */
     fun search(query: String?) {
-        launch {
+        searchJob?.cancel()
+        searchJob = null
+
+        searchJob = launch {
+
             val newList = if (query != null && query.isNotBlank()) {
                 list.where { it.name.contains(query, true) }.toMutableList()
             } else {
@@ -125,11 +133,13 @@ class AppsListAdapter constructor(
 
             val result = DiffUtil.calculateDiff(DiffCallback(finalList, newList, false))
 
-            finalList = newList
-            expandedList.clear()
+            if (this.isActive) {
+                finalList = newList
+                expandedList.clear()
 
-            withContext(Dispatchers.Main) {
-                result.dispatchUpdatesTo(this@AppsListAdapter)
+                withContext(Dispatchers.Main) {
+                    result.dispatchUpdatesTo(this@AppsListAdapter)
+                }
             }
         }
     }

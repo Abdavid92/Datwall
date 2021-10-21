@@ -29,6 +29,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.ThemeWrapper
+import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
 import kotlinx.coroutines.runBlocking
 import kotlin.Exception

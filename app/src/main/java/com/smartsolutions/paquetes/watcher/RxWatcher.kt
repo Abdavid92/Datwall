@@ -9,7 +9,6 @@ import dagger.Lazy
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import java.lang.Runnable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -71,7 +70,7 @@ class RxWatcher @Inject constructor(
                         }
                     }
 
-                    getCurrentApp()
+                    provideCurrentApp()
 
                     getBandWith()
 
@@ -110,7 +109,7 @@ class RxWatcher @Inject constructor(
         txBytes = tx
     }
 
-    private fun getCurrentApp() {
+    private fun provideCurrentApp() {
         watcherUtils.getLastApp()?.let { packageName ->
             if (currentPackageName != packageName) {
 

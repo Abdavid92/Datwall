@@ -18,6 +18,7 @@ import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
+import com.smartsolutions.paquetes.ui.WhiteActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
@@ -49,7 +50,8 @@ class DatwallKernel @Inject constructor(
     private val simManager: ISimManager,
     private val firewallHelper: FirewallHelper,
     private val bubbleServiceHelper: BubbleServiceHelper,
-    private val synchronizationManager: ISynchronizationManager
+    private val synchronizationManager: ISynchronizationManager,
+    private val watcher: RxWatcher
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -199,6 +201,11 @@ class DatwallKernel @Inject constructor(
                     if (it[PreferencesKeys.ENABLED_LTE] == false)
                         it[PreferencesKeys.ENABLED_LTE] = true
                 }
+            }
+
+            withContext(Dispatchers.Main) {
+                context.startActivity(Intent(context, WhiteActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
         }
     }

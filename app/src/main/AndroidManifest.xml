@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.smartsolutions.paquetes">
 
+    <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
+
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission
@@ -26,24 +28,28 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
-
     <application
         android:name=".DatwallApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:hardwareAccelerated="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
         <!-- Activities -->
         <activity
+            android:name=".ui.WhiteActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Datwall.Transparent.AskDialog.WhiteTransparent"
+            android:excludeFromRecents="true"
+            android:noHistory="true" />
+        <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".ui.MainActivity"/>
+            android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.dashboard.DashboardControlActivity"
             android:theme="@style/Theme.Datwall.Transparent" />
@@ -52,8 +58,9 @@
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/Theme.Datwall.Transparent" />
         <activity android:name=".ui.exceptions.ExceptionsActivity" />
-        <activity android:name=".ui.activation.ActivationActivity"
-            android:label="@string/activation_header"/>
+        <activity
+            android:name=".ui.activation.ActivationActivity"
+            android:label="@string/activation_header" />
         <activity android:name=".ui.permissions.PermissionsActivity" />
         <activity
             android:name=".ui.SplashActivity"
@@ -69,27 +76,27 @@
         <activity android:name=".ui.setup.SetupActivity" />
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/app_name" />
-        <activity android:name=".ui.firewall.AskActivity"
-            android:theme="@style/Theme.Datwall.Transparent.AskDialog"
-            android:excludeFromRecents="true"
-            android:noHistory="true"
+            android:label="@string/app_name"
             android:launchMode="singleInstance"/>
+        <activity
+            android:name=".ui.firewall.AskActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:theme="@style/Theme.Datwall.Transparent.AskDialog" />
         <activity
             android:name=".ui.PresentationActivity"
             android:theme="@style/WelcomeTheme" />
-
-        <activity android:name="com.journeyapps.barcodescanner.CaptureActivity"
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
-            tools:replace="screenOrientation"
-            tools:ignore="LockedOrientationActivity" />
-
-        <!-- Services -->
+            tools:ignore="LockedOrientationActivity"
+            tools:replace="screenOrientation" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
+            android:description="@string/main_service_description"
             android:enabled="true"
-            android:exported="false"
-            android:description="@string/main_service_description"/>
+            android:exported="false" />
         <service
             android:name=".services.BubbleFloatingService"
             android:enabled="true"
