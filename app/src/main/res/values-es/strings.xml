@@ -324,4 +324,7 @@
     <string name="firewall_notification_channel_name">Cortafuegos</string>
     <string name="firewall_description_notification_channel">Se muestra cuando el cortafuegos pregunta por el acceso a Internet de alguna app</string>
     <string name="title_events">Registros del Sistema</string>
+    <string name="filter_list_by">Mostrar solamente</string>
+    <string name="show_events_title">Registro de Eventos</string>
+    <string name="show_events_description">Mostrar un registro de los eventos que se han registrado en la app</string>
 </resources>

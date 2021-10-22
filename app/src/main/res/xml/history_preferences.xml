@@ -12,4 +12,9 @@
         app:summary="@string/clear_icon_cache_summary"
         app:key="clear_icon_cache" />
 
+    <Preference
+        app:title="@string/show_events_title"
+        app:summary="@string/show_events_description"
+        app:key="show_events" />
+
 </PreferenceScreen>

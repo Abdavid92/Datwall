@@ -1,8 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardUseCompatPadding="true"
+    app:cardPreventCornerOverlap="true">
+
+   <androidx.constraintlayout.widget.ConstraintLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+
+       <androidx.appcompat.widget.LinearLayoutCompat
+           android:id="@+id/lin_type_event"
+           android:background="@color/red"
+           android:layout_width="wrap_content"
+           android:layout_height="120dp"
+           app:layout_constraintStart_toStartOf="parent"
+           app:layout_constraintTop_toTopOf="parent"
+           app:layout_constraintBottom_toBottomOf="parent"
+           android:orientation="vertical"
+           android:gravity="center">
+
+           <androidx.appcompat.widget.AppCompatTextView
+               android:id="@+id/type_event"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:textColor="@color/white"
+               android:rotation="-90"
+               android:text="ERROR"
+               android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+               android:textSize="16sp"
+               android:textStyle="bold" />
 
 
+       </androidx.appcompat.widget.LinearLayoutCompat>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+       <androidx.appcompat.widget.AppCompatTextView
+           android:id="@+id/title_event"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginStart="10dp"
+           android:layout_marginTop="10dp"
+           android:text="NullPointerException.class"
+           android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+           android:textSize="18sp"
+           android:layout_marginEnd="15dp"
+           app:layout_constraintEnd_toEndOf="parent"
+           app:layout_constraintHorizontal_bias="0"
+           app:layout_constraintStart_toEndOf="@id/lin_type_event"
+           app:layout_constraintTop_toTopOf="parent" />
+
+
+       <androidx.appcompat.widget.AppCompatTextView
+           android:id="@+id/description_event"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginStart="15dp"
+           android:layout_marginTop="10dp"
+           android:layout_marginEnd="15dp"
+           app:layout_constraintHorizontal_bias="0"
+           android:text="NullPointerException.class"
+           android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+           app:layout_constraintEnd_toEndOf="parent"
+           app:layout_constraintStart_toEndOf="@id/lin_type_event"
+           app:layout_constraintTop_toBottomOf="@id/title_event" />
+
+
+       <androidx.appcompat.widget.AppCompatTextView
+           android:id="@+id/date_event"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginStart="15dp"
+           android:layout_marginTop="10dp"
+           android:layout_marginEnd="15dp"
+           app:layout_constraintHorizontal_bias="0"
+           android:text="Fecha: 10 jun. 2021 10:30 p.m."
+           android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+           app:layout_constraintBottom_toBottomOf="parent"
+           app:layout_constraintEnd_toEndOf="parent"
+           app:layout_constraintStart_toEndOf="@id/lin_type_event"
+           app:layout_constraintTop_toBottomOf="@id/description_event" />
+
+   </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.cardview.widget.CardView>

@@ -47,11 +47,12 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
         style="@style/BackgroundStyle"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        />
+        tools:listitem="@layout/item_events"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
