@@ -8,6 +8,9 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.managers.ActivationManager
+import com.smartsolutions.paquetes.repositories.EventRepository
+import com.smartsolutions.paquetes.repositories.IEventRepository
+import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result.Failure
@@ -22,11 +25,12 @@ class ActivationWorker @AssistedInject constructor(
     @Assisted
     params: WorkerParameters,
     private val gson: Gson,
-    private val client: IActivationClient
+    private val client: IActivationClient,
+    private val eventRepository: IEventRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        return try {
+        val result = try {
             val data = applicationContext.internalDataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.LICENSE) ?: return Result.failure()
 
@@ -57,5 +61,12 @@ class ActivationWorker @AssistedInject constructor(
         } catch (e: Exception) {
             Result.failure()
         }
+        eventRepository.create(Event(
+            System.currentTimeMillis(),
+            Event.EventType.INFO,
+            "Activation Worker",
+            result.toString()
+        ))
+        return result
     }
 }

@@ -15,6 +15,8 @@ import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
+import com.smartsolutions.paquetes.repositories.IEventRepository
+import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.SplashActivity
@@ -36,7 +38,8 @@ class ExceptionsController @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val localFileHelper: LocalFileHelper,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val eventRepository: IEventRepository
 ) : Thread.UncaughtExceptionHandler, CoroutineScope {
 
     var isRegistered = false
@@ -62,10 +65,6 @@ class ExceptionsController @Inject constructor(
                 it[PreferencesKeys.IS_THROWED] = true
             }
         }
-
-        Toast.makeText(context, "Exception Detected", Toast.LENGTH_SHORT).show()
-
-        e.printStackTrace()
 
         if (e is MissingPermissionException) {
             notify(
@@ -126,6 +125,15 @@ class ExceptionsController @Inject constructor(
         errorReport += "Fabricante: ${Build.MANUFACTURER}\n"
         errorReport += "Modelo: ${Build.MODEL}\n"
         errorReport += "Versión SDK: ${Build.VERSION.SDK_INT}\n"
+
+        launch {
+            eventRepository.create(Event(
+                System.currentTimeMillis(),
+                Event.EventType.ERROR,
+                exception.javaClass.name,
+                stacktrace.toString()
+            ))
+        }
 
         localFileHelper.saveToFileTemporal(
             errorReport,

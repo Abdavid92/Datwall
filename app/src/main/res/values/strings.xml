@@ -323,4 +323,5 @@
     <string name="workers_description_notification_channel">Se muestra cuando se estén realizando trabajos en segundo plano</string>
     <string name="firewall_notification_channel_name">Cortafuegos</string>
     <string name="firewall_description_notification_channel">Se muestra cuando el cortafuegos pregunta por el acceso a Internet de alguna app</string>
+    <string name="title_events">Registros del Sistema</string>
 </resources>

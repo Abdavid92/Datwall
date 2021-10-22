@@ -36,4 +36,7 @@ object DbContextsModule {
 
     @Provides
     fun provideIUsageGeneralDao(dbContext: DbContext) = dbContext.getUsageGeneralDao()
+
+    @Provides
+    fun provideIEventDao(dbContext: DbContext) = dbContext.getEventDao()
 }
