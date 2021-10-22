@@ -52,7 +52,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     /**
      * Conexión del vpn
      * */
-    private lateinit var vpnConnection: IVpnConnection
+    private var vpnConnection: IVpnConnection? = null
 
     /**
      * Hilo de la conexión vpn
@@ -95,7 +95,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                     cancelAskNotification(app.uid)
                 }
 
-                if (vpnConnection.isConnected)
+                if (vpnConnection?.isConnected == true)
                     return START_STICKY
 
                 return START_NOT_STICKY
@@ -109,7 +109,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             .setSessionName(getString(R.string.app_name))
             .setPendingIntent(getLaunchPendingIntent())
 
-        vpnConnection.subscribe(this)
+        vpnConnection?.subscribe(this)
 
         if (vpnConnection is TrackerVpnConnection) {
             (vpnConnection as TrackerVpnConnection).allowUnknownUid(true)
@@ -137,14 +137,14 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             observeJob = launch(Dispatchers.IO) {
                 appRepository.flow().collect {
 
-                    vpnConnection.setAllowedPackageNames(it.filter { app ->
+                    vpnConnection?.setAllowedPackageNames(it.filter { app ->
                         app.access || app.tempAccess
                     }.map { transformApp ->
                         return@map transformApp.packageName
                     }.toTypedArray())
 
                     //Inicio el vpn
-                    if (!vpnConnection.isConnected)
+                    if (vpnConnection?.isConnected == false)
                         vpnConnectionThread?.start()
                 }
             }
@@ -271,8 +271,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     private fun stopService() {
 
         //Detengo el vpn
-        vpnConnection.shutdown()
-        vpnConnection.unsubscribe(this)
+        vpnConnection?.shutdown()
+        vpnConnection?.unsubscribe(this)
         vpnConnectionThread?.interrupt()
         job.cancel()
 

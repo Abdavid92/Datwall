@@ -45,7 +45,7 @@ class DatwallService : Service(), CoroutineScope {
     private var dataStoreJob: Job? = null
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = Dispatchers.Default + job
 
     private val uiHelper by uiHelper()
 
