@@ -76,7 +76,8 @@
         <activity android:name=".ui.setup.SetupActivity" />
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"/>
         <activity
             android:name=".ui.PresentationActivity"
             android:theme="@style/WelcomeTheme" />
@@ -84,7 +85,9 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
-            tools:replace="screenOrientation" /> <!-- Services -->
+            tools:replace="screenOrientation" />
+
+        <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:description="@string/main_service_description"

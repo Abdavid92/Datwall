@@ -10,8 +10,7 @@ import android.os.IBinder
 import android.os.Process
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
@@ -151,6 +150,29 @@ class DatwallKernel @Inject constructor(
                 //Inicia la actividad principal
                 startMainActivity()
             }
+        }
+    }
+
+    fun addOpenActivityListener(
+        lifecycleOwner: LifecycleOwner,
+        listener: (activity: Class<out Activity>) -> Unit) {
+
+        if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            openActivitySubscribers.add(listener)
+
+            if (openActivity != null)
+                listener(openActivity!!)
+
+            lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_DESTROY) {
+                        openActivitySubscribers.remove(listener)
+
+                        lifecycleOwner.lifecycle.removeObserver(this)
+                    }
+                }
+            })
         }
     }
 
@@ -429,6 +451,14 @@ class DatwallKernel @Inject constructor(
     private suspend fun openActivity(activity: Class<out Activity>) {
         withContext(Dispatchers.Main) {
             _nextActivity.value = activity
+
+            openActivity = activity
+
+            runCatching {
+                openActivitySubscribers.forEach {
+                    it(activity)
+                }
+            }
         }
     }
 
@@ -476,5 +506,8 @@ class DatwallKernel @Inject constructor(
          * Indica si los datos móbiles están encendidos.
          * */
         var DATA_MOBILE_ON = false
+
+        private var openActivity: Class<out Activity>? = null
+        private val openActivitySubscribers = mutableListOf<(activity: Class<out Activity>) -> Unit>()
     }
 }

@@ -1,5 +1,7 @@
 package com.smartsolutions.paquetes.ui
 
+import android.app.Activity
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.smartsolutions.paquetes.DatwallKernel
@@ -11,5 +13,10 @@ class SplashViewModel @Inject constructor(
     private val kernel: DatwallKernel
 ) : ViewModel() {
 
-    fun launchActivity() = kernel.nextActivity
+    fun addOpenActivityListener(
+        lifecycleOwner: LifecycleOwner,
+        listener: (activity: Class<out Activity>) -> Unit
+    ) {
+        kernel.addOpenActivityListener(lifecycleOwner, listener)
+    }
 }

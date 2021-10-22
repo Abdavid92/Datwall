@@ -249,7 +249,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             ).build())
             .setContentTitle(app.name)
             .setContentText(getString(R.string.allow_app_text))
-            .setSmallIcon(R.drawable.ic_main_notification)
+            .setSmallIcon(R.drawable.ic_firewall)
             .setStyle(NotificationCompat.BigTextStyle())
             .setAutoCancel(true)
 

@@ -35,12 +35,12 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash) {
             if (!WelcomeHelper(this, PresentationActivity::class.java)
                     .show(savedInstanceState)) {
 
-                viewModel.launchActivity().observe(this) {
+                viewModel.addOpenActivityListener(this) {
                     startActivity(Intent(this, it))
                     finish()
                 }
             }
-        }, 300)
+        }, 500)
 
     }
 
@@ -50,7 +50,7 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash) {
 
         if (requestCode == WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST) {
 
-            viewModel.launchActivity().observe(this) {
+            viewModel.addOpenActivityListener(this) {
                 startActivity(Intent(this, it))
                 finish()
             }
