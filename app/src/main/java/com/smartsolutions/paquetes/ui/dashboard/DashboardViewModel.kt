@@ -120,9 +120,7 @@ class DashboardViewModel @Inject constructor(
         if (buttonView.isChecked) {
 
             viewModelScope.launch {
-                if (firewallHelper.allAccess(withContext(Dispatchers.IO){
-                        appRepository.all()
-                    })) {
+                if (firewallHelper.allAccess(appRepository.all())) {
 
                     withContext(Dispatchers.Main) {
                         buttonView.isChecked = false
@@ -136,23 +134,7 @@ class DashboardViewModel @Inject constructor(
                     }
                 } else {
 
-                    val dynamic = withContext(Dispatchers.IO){
-                        dataStore.data.firstOrNull()
-                            ?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL)
-                    } ?: true
-
-                    if (dynamic) {
-                        requestDrawOverPermission(fm,
-                            onGranted = {
-                                startFirewall(buttonView, fm)
-                            },
-                            onDenied = {
-                                buttonView.isChecked = false
-                            }
-                        )
-                    }else {
-                        startFirewall(buttonView, fm)
-                    }
+                    startFirewall(buttonView, fm)
                 }
             }
         } else {
@@ -189,8 +171,7 @@ class DashboardViewModel @Inject constructor(
 
     fun setFirewallDynamicModeListener(
         dynamicRadio: RadioButton,
-        staticRadio: RadioButton,
-        fm: FragmentManager
+        staticRadio: RadioButton
     ) {
         viewModelScope.launch {
 
@@ -205,29 +186,7 @@ class DashboardViewModel @Inject constructor(
                 staticRadio.isChecked = true
 
             dynamicRadio.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        requestDrawOverPermission(fm,
-                            onGranted = {
-                                writeChangesDataStore(
-                                    PreferencesKeys.ENABLED_DYNAMIC_FIREWALL,
-                                    true
-                                )
-                            },
-                            onDenied = {
-                                writeChangesDataStore(
-                                    PreferencesKeys.ENABLED_DYNAMIC_FIREWALL,
-                                    false
-                                )
-
-                                staticRadio.isChecked = true
-                            })
-                    } else {
-                        writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, true)
-                    }
-                } else {
-                    writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, false)
-                }
+                writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, isChecked)
             }
         }
     }
@@ -280,10 +239,8 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             val dataStore = getApplication<DatwallApplication>().uiDataStore
 
-            val transparency = withContext(Dispatchers.IO){
-                dataStore.data
-                    .firstOrNull()?.get(PreferencesKeys.BUBBLE_TRANSPARENCY)
-            } ?: BubbleFloatingService.TRANSPARENCY
+            val transparency = dataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.BUBBLE_TRANSPARENCY) ?: BubbleFloatingService.TRANSPARENCY
 
             bubbleTransparency.setProgress((transparency * 10))
 
@@ -307,7 +264,7 @@ class DashboardViewModel @Inject constructor(
                 override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
                     val newTransparency = seekBar.progress.toFloat() / 10f
 
-                    viewModelScope.launch(Dispatchers.IO) {
+                    viewModelScope.launch {
                         dataStore.edit {
                             it[PreferencesKeys.BUBBLE_TRANSPARENCY] = newTransparency
                         }
@@ -322,9 +279,8 @@ class DashboardViewModel @Inject constructor(
             val dataStore = getApplication<DatwallApplication>().settingsDataStore
 
             val size = BubbleFloatingService.BubbleSize.valueOf(
-                withContext(Dispatchers.IO){
-                    dataStore.data.firstOrNull()?.get(PreferencesKeys.BUBBLE_SIZE)
-                } ?: BubbleFloatingService.SIZE.name
+                dataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.BUBBLE_SIZE) ?: BubbleFloatingService.SIZE.name
             )
 
             initBubbleView(bubbleSize.context)
@@ -402,7 +358,10 @@ class DashboardViewModel @Inject constructor(
                 .inflate(
                     R.layout.bubble_floating_layout,
                     null,
-                    false)
+                    false).apply {
+                        findViewById<LinearLayout>(R.id.lin_background_bubble)
+                            .visibility = View.VISIBLE
+                }
         }
     }
 
@@ -410,7 +369,7 @@ class DashboardViewModel @Inject constructor(
      * Guarda los cambios en el dataStore interno.
      * */
     private fun writeChangesDataStore(preferences: Preferences.Key<Boolean>, value: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             dataStore.edit {
                 it[preferences] = value
             }

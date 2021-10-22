@@ -6,7 +6,6 @@ import android.transition.Transition
 import android.view.View
 import androidx.annotation.Keep
 import androidx.core.view.ViewCompat
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FirewallControlsBinding
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.SWITCH
 import com.smartsolutions.paquetes.ui.dashboard.IControls.Companion.CARD_VIEW
@@ -46,8 +45,7 @@ class FirewallControls(
 
                     viewModel.setFirewallDynamicModeListener(
                         binding.dynamicMode,
-                        binding.staticMode,
-                        activity.supportFragmentManager
+                        binding.staticMode
                     )
 
                     viewModel.appsData.observe(activity) {
