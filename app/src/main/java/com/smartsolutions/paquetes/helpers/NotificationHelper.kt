@@ -100,7 +100,7 @@ class NotificationHelper @Inject constructor(
         notificationManager.createNotificationChannel(alertChannel)
 
 
-        //Canal de alertas y mensajes
+        //Canal de los workers
         val backgroundWorkChannel = NotificationChannel(
             WORKERS_CHANNEL_ID,
             context.getString(R.string.background_notification_channel_name),
@@ -110,13 +110,28 @@ class NotificationHelper @Inject constructor(
         }
 
         notificationManager.createNotificationChannel(backgroundWorkChannel)
+
+        //Canal del firewall
+        val firewallChannel = NotificationChannel(
+            WORKERS_CHANNEL_ID,
+            context.getString(R.string.firewall_notification_channel_name),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            setSound(null, null)
+            enableVibration(false)
+            enableLights(false)
+            description = context.getString(R.string.firewall_description_notification_channel)
+        }
+
+        notificationManager.createNotificationChannel(firewallChannel)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun areCreatedNotificationChannels(): Boolean {
         return notificationManager.getNotificationChannel(MAIN_CHANNEL_ID) != null &&
                 notificationManager.getNotificationChannel(ALERT_CHANNEL_ID) != null &&
-                notificationManager.getNotificationChannel(WORKERS_CHANNEL_ID) != null
+                notificationManager.getNotificationChannel(WORKERS_CHANNEL_ID) != null &&
+                notificationManager.getNotificationChannel(FIREWALL_CHANNEL_ID) != null
     }
 
     /**
@@ -127,7 +142,7 @@ class NotificationHelper @Inject constructor(
         const val MAIN_NOTIFICATION_ID = 0
         const val ALERT_NOTIFICATION_ID = 1
         const val WORKERS_NOTIFICATION_ID = 2
-        //const val FIREWALL_NOTIFICATION_ID = 3
+        const val FIREWALL_NOTIFICATION_ID = 3
 
         //Canal principal
         const val MAIN_CHANNEL_ID = "main_channel"
@@ -135,6 +150,8 @@ class NotificationHelper @Inject constructor(
         const val ALERT_CHANNEL_ID = "alert_channel"
         //Canal de Workers
         const val WORKERS_CHANNEL_ID = "workers_channel"
+        //Canal del Firewall
+        const val FIREWALL_CHANNEL_ID = "firewall_channel"
     }
 
 }

@@ -26,7 +26,8 @@ const val DATABASE_VERSION = 1
         Sim::class,
         UserDataBytes::class,
         Traffic::class,
-        UsageGeneral::class], version = DATABASE_VERSION, exportSchema = false
+        UsageGeneral::class,
+        Event::class], version = DATABASE_VERSION, exportSchema = false
 )
 abstract class DbContext : RoomDatabase() {
 
@@ -58,6 +59,8 @@ abstract class DbContext : RoomDatabase() {
     abstract fun getUserDataBytesDao(): IUserDataBytesDao
 
     abstract fun getTrafficDao(): ITrafficDao
+
+    abstract fun getEventDao(): IEventDao
 
 
     companion object {

@@ -33,8 +33,8 @@ android {
         applicationId "com.smartsolutions.paquetes"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 22
-        versionName "4.0"
+        versionCode 27
+        versionName "4.0 BETA"
         archivesBaseName = "Mis Datos-$versionName"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -50,8 +50,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "SECRET_KEY", secretKey
             buildConfigField "int", "TOKEN_DURATION", tokenDuration

@@ -321,4 +321,11 @@
     <string name="main_description_notification_channel">Se muestra la notificación principal</string>
     <string name="alert_description_notification_channel">Se muestran las alertas que haya activado para mantenerlo al tanto de su paquete</string>
     <string name="workers_description_notification_channel">Se muestra cuando se estén realizando trabajos en segundo plano</string>
+    <string name="firewall_notification_channel_name">Cortafuegos</string>
+    <string name="firewall_description_notification_channel">Se muestra cuando el cortafuegos pregunta por el acceso a Internet de alguna app</string>
+    <string name="title_events">Registros del Sistema</string>
+    <string name="filter_list_by">Mostrar solamente</string>
+    <string name="show_events_title">Registro de Eventos</string>
+    <string name="show_events_description">Mostrar un registro de los eventos que se han registrado en la app</string>
+    <string name="send_inform">Enviar Informe</string>
 </resources>

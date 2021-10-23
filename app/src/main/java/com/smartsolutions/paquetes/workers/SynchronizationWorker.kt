@@ -12,8 +12,10 @@ import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
+import com.smartsolutions.paquetes.repositories.IEventRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
+import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -30,7 +32,8 @@ class SynchronizationWorker @AssistedInject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager,
     private val simManager: ISimManager,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val eventRepository: IEventRepository
 ) : CoroutineWorker(context, params) {
 
 
@@ -52,14 +55,18 @@ class SynchronizationWorker @AssistedInject constructor(
         if (canExecute) {
             notifyUpdate()
             try {
-                Log.i("SYNCHRONIZATION", "Start Sincro $canExecute")
                 synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
             } catch (e: Exception) {
             }
             cancelNotification()
         }
 
-        Log.i("SYNCHRONIZATION", "Sincronizado $canExecute")
+        eventRepository.create(Event(
+            System.currentTimeMillis(),
+            Event.EventType.INFO,
+            "Synchronization Worker",
+            "Launched = $canExecute"
+        ))
 
         return Result.success()
     }

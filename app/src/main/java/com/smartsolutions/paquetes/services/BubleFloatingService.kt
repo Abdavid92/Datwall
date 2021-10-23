@@ -69,10 +69,20 @@ class BubbleFloatingService : Service(), CoroutineScope {
     lateinit var uiHelper: UIHelper
 
     private var _bubbleBinding: BubbleFloatingLayoutBinding? = null
-    private val bubbleBinding get() = _bubbleBinding!!
+    private val bubbleBinding get() = if(_bubbleBinding == null){
+        _bubbleBinding = BubbleFloatingLayoutBinding.inflate(LayoutInflater.from(this))
+        _bubbleBinding!!
+    }else {
+        _bubbleBinding!!
+    }
 
     private var _closeBinding: BubbleCloseFloatingLayoutBinding? = null
-    private val closeBinding get() = _closeBinding!!
+    private val closeBinding get() = if (_closeBinding == null) {
+        _closeBinding = BubbleCloseFloatingLayoutBinding.inflate(LayoutInflater.from(this))
+        _closeBinding!!
+    }else {
+        _closeBinding!!
+    }
 
 
     private var currentMenu: BubbleMenuFloatingLayoutBinding? = null
@@ -119,22 +129,10 @@ class BubbleFloatingService : Service(), CoroutineScope {
             }.build()
         )
 
-        return START_STICKY
-    }
-
-
-    override fun onCreate() {
-        super.onCreate()
-
-        val layoutInflater = LayoutInflater.from(this)
-
         windowManager = ContextCompat.getSystemService(this, WindowManager::class.java)
             ?: throw NullPointerException()
 
         uiHelper = UIHelper(this)
-
-        _bubbleBinding = BubbleFloatingLayoutBinding.inflate(layoutInflater)
-        _closeBinding = BubbleCloseFloatingLayoutBinding.inflate(layoutInflater)
 
         setOnTouch()
         setViews()
@@ -144,13 +142,13 @@ class BubbleFloatingService : Service(), CoroutineScope {
         runBlocking {
             app = appRepository.get(applicationContext.packageName)
         }
-        registerFlows()
 
         launch {
             firewallHelper.observeFirewallState().collect {
                 VPN_ENABLED = it
             }
         }
+
         launch {
             this@BubbleFloatingService.uiDataStore.data.collect {
                 SIZE = BubbleSize.valueOf(
@@ -160,6 +158,10 @@ class BubbleFloatingService : Service(), CoroutineScope {
                 ALWAYS_SHOW = it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] ?: false
             }
         }
+
+        registerFlows()
+
+        return START_STICKY
     }
 
     private fun setViews() {
@@ -585,9 +587,20 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         job.cancel()
+        try {
+            windowManager.removeView(bubbleBinding.root)
+        } catch (e: Exception) {
+
+        }
+        try {
+            windowManager.removeView(closeBinding.root)
+        } catch (e: Exception) {
+
+        }
         _closeBinding = null
         _bubbleBinding = null
         currentMenu = null
+
         super.onDestroy()
     }
 

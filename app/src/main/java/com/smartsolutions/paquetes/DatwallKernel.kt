@@ -339,7 +339,8 @@ class DatwallKernel @Inject constructor(
 
         dataSyncJob = launch {
             context.workersDataStore.data.collect {
-                if (it[PreferencesKeys.ENABLE_DATA_SYNCHRONIZATION] == true)
+                val enabled = it[PreferencesKeys.ENABLE_DATA_SYNCHRONIZATION] ?: true
+                if (enabled)
                     synchronizationManager.scheduleUserDataBytesSynchronization(15)
                 else
                     synchronizationManager.cancelScheduleUserDataBytesSynchronization()
