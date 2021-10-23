@@ -433,8 +433,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             findPreference<Preference>("show_events")
                 ?.setOnPreferenceClickListener {
                     val fragment = EventsFragment.newInstance()
-                    activity?.supportFragmentManager?.beginTransaction()
-                        ?.add(R.id.settings, fragment)?.commit()
+                    fragment.show(childFragmentManager, null)
 
                     return@setOnPreferenceClickListener true
                 }

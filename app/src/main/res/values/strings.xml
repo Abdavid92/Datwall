@@ -327,4 +327,5 @@
     <string name="filter_list_by">Mostrar solamente</string>
     <string name="show_events_title">Registro de Eventos</string>
     <string name="show_events_description">Mostrar un registro de los eventos que se han registrado en la app</string>
+    <string name="send_inform">Enviar Informe</string>
 </resources>

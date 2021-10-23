@@ -587,9 +587,20 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         job.cancel()
+        try {
+            windowManager.removeView(bubbleBinding.root)
+        } catch (e: Exception) {
+
+        }
+        try {
+            windowManager.removeView(closeBinding.root)
+        } catch (e: Exception) {
+
+        }
         _closeBinding = null
         _bubbleBinding = null
         currentMenu = null
+
         super.onDestroy()
     }
 

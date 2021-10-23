@@ -15,73 +15,78 @@ import kotlin.coroutines.CoroutineContext
 class EventsRecyclerAdapter constructor(
     private var events: List<Event>,
     private val fragment: EventsFragment
-) : RecyclerView.Adapter<EventsRecyclerAdapter.ItemViewHolder>(), CoroutineScope{
+) : RecyclerView.Adapter<EventsRecyclerAdapter.ItemViewHolder>(), CoroutineScope {
 
     private var filter: Event.EventType? = null
     private var filtered = events
     private var eventsShow = events
     private var job: Job? = null
+    private var isSearching = false
 
 
-    fun updateEvents(list: List<Event>){
+    fun updateEvents(list: List<Event>) {
+
+        if (isSearching) {
+            return
+        }
+
         events = list
 
-        if (job != null){
-            job?.cancel()
-            job = null
+        filtered = if (filter == null) {
+            events
+        } else {
+            list.filter { it.type == filter }
         }
 
-        job = launch {
-            filtered = if (filter == null){
-                events
-            }else {
-                list.filter { it.type == filter }
-            }
-
-            val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize(): Int {
-                    return eventsShow.size
-                }
-
-                override fun getNewListSize(): Int {
-                    return filtered.size
-                }
-
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return filtered[newItemPosition] == eventsShow[oldItemPosition]
-                }
-
-                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return filtered[newItemPosition].date == eventsShow[oldItemPosition].date
-                }
-
-            })
-
-            eventsShow = filtered
-
-            withContext(Dispatchers.Main) {
-                result.dispatchUpdatesTo(this@EventsRecyclerAdapter)
-            }
+        eventsShow = filtered
+        if (eventsShow.isEmpty()){
+            fragment.setNoData(true)
+        }else {
+            fragment.setNoData(false)
         }
+        notifyDataSetChanged()
     }
 
 
-    fun setFilter(type: Event.EventType?){
+    fun setFilter(type: Event.EventType?) {
         filter = type
         updateEvents(events)
     }
 
 
+    fun search(string: String?) {
 
-    inner class ItemViewHolder(private val binding: ItemEventsBinding): RecyclerView.ViewHolder(binding.root){
+        if (job != null) {
+            job?.cancel()
+            job = null
+        }
 
-        fun bind(event: Event){
+        job = launch {
+            if (string == null) {
+                isSearching = false
+                updateEvents(events)
+            } else {
+                isSearching = true
+                eventsShow = filtered.filter { it.title.contains(string) }
+                withContext(Dispatchers.Main) {
+                    notifyDataSetChanged()
+                }
+            }
+
+        }
+    }
+
+
+    inner class ItemViewHolder(private val binding: ItemEventsBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(event: Event) {
             binding.apply {
 
                 typeEvent.text = event.type.name
 
                 linTypeEvent.setBackgroundColor(
-                    when(event.type){
+                    when (event.type) {
                         Event.EventType.INFO -> Color.BLUE
                         Event.EventType.ERROR -> Color.RED
                         Event.EventType.WARNING -> {
@@ -94,9 +99,14 @@ class EventsRecyclerAdapter constructor(
                 titleEvent.text = event.title
                 descriptionEvent.text = event.message
 
-                dateEvent.text = SimpleDateFormat("dd-MMM-yyyy hh:mm aa", Locale.getDefault()).format(
-                    Date(event.date)
-                )
+                dateEvent.text =
+                    SimpleDateFormat("dd-MMM-yyyy hh:mm:ss aa", Locale.getDefault()).format(
+                        Date(event.date)
+                    )
+
+                root.setOnClickListener {
+                    fragment.showEventDetail(event)
+                }
             }
         }
 
