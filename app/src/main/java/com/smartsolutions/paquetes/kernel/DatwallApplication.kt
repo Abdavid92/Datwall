@@ -1,10 +1,15 @@
-package com.smartsolutions.paquetes
+package com.smartsolutions.paquetes.kernel
 
+import android.app.Activity
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
+import androidx.lifecycle.LifecycleOwner
 import androidx.work.Configuration
+import com.smartsolutions.paquetes.BuildConfig
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
+import com.smartsolutions.paquetes.settingsDataStore
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +39,8 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
     @Inject
     lateinit var kernel: DatwallKernel
+
+    private var kernelRunning = false
 
     /**
      * Indica si el servicio está encendido.
@@ -66,10 +73,6 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             AppCompatDelegate.setDefaultNightMode(themeMode)
         }
 
-        launch {
-            kernel.main()
-        }
-
         if (BuildConfig.DEBUG) {
             try {
                 Class.forName("dalvik.system.CloseGuard")
@@ -79,6 +82,27 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
                 throw RuntimeException(e)
             }
         }
+
+        main()
+    }
+
+    fun main() {
+        if (!kernelRunning) {
+            launch {
+                kernelRunning = true
+
+                kernel.main()
+
+                kernelRunning = false
+            }
+        }
+    }
+
+    fun addOpenActivityListener(
+        lifecycleOwner: LifecycleOwner,
+        listener: (activity: Class<out Activity>) -> Unit
+    ) {
+        kernel.addOpenActivityListener(lifecycleOwner, listener)
     }
 
     override fun getWorkManagerConfiguration() =

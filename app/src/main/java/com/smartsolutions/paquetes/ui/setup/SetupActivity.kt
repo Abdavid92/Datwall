@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.activation.PurchasedFragment
+import com.smartsolutions.paquetes.ui.addOpenActivityListener
+import com.smartsolutions.paquetes.ui.next
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,7 +23,7 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup), OnCompletedList
             nextOrComplete()
         }
 
-        viewModel.nextActivity().observe(this) {
+        viewModel.addOpenActivityListener(this) {
             startActivity(Intent(this, it))
             finish()
         }

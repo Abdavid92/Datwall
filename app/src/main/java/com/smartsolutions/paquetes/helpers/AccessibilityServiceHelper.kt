@@ -3,7 +3,7 @@ package com.smartsolutions.paquetes.helpers
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
-import com.smartsolutions.paquetes.DatwallApplication
+import com.smartsolutions.paquetes.kernel.DatwallApplication
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

@@ -69,21 +69,22 @@ abstract class DbContext : RoomDatabase() {
          * @return Una instancia de DbContext.
          * */
         fun getInstance(context: Context): DbContext {
-            INSTANCE?.let {
-                return it
+            var instance = INSTANCE
+
+            if (instance == null) {
+                synchronized(this) {
+                    //Aquí se configuran la migraciones y los seeders
+                    instance = Room.databaseBuilder(
+                        context,
+                        DbContext::class.java,
+                        "data.db"
+                    ).build()
+
+                    INSTANCE = instance
+                }
             }
 
-            synchronized(this) {
-                //Aquí se configuran la migraciones y los seeders
-                INSTANCE = Room.databaseBuilder(
-                    context,
-                    DbContext::class.java,
-                    "data.db"
-                )
-                    .build()
-
-                return INSTANCE!!
-            }
+            return instance!!
         }
     }
 }

@@ -18,6 +18,7 @@ import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.BubbleServiceHelper
 import com.smartsolutions.paquetes.helpers.FirewallHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.kernel.DatwallApplication
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.services.BubbleFloatingService

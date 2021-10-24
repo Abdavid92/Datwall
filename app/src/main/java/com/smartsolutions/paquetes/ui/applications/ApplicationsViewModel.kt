@@ -205,7 +205,7 @@ class ApplicationsViewModel @Inject constructor(
 /**
  * Modelo que se usa para dibujar un encabezado en la lista. Solo
  * contiene el nombre del encabezado en la propiedad name. Las demas
- * propiedades están vacias o nulas. El método [accessHashCode] no está
+ * propiedades están vacias o nulas. El método [accessHashToken] no está
  * soportado.
  * */
 @Parcelize
@@ -219,8 +219,8 @@ private class HeaderApp private constructor(
     override var blockedAnnotations: String?
 ) : IApp {
 
-    override fun accessHashCode(): Long {
-        return 0
+    override fun accessHashToken(): String {
+        return "0"
     }
 
     companion object {

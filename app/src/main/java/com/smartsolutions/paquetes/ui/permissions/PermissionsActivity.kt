@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.Permission
 import com.smartsolutions.paquetes.ui.AbstractActivity
+import com.smartsolutions.paquetes.ui.addOpenActivityListener
+import com.smartsolutions.paquetes.ui.next
 import dagger.hilt.android.AndroidEntryPoint
 import moe.feng.common.stepperview.VerticalStepperView
 
@@ -29,16 +31,20 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
         steppers = findViewById(R.id.steppers)
 
+        steppers.isAnimationEnabled = true
+
         steppers.stepperAdapter = StepperAdapter(viewModel.permissions, this)
 
-        viewModel.nextActivity().observe(this) {
+        viewModel.addOpenActivityListener(this) {
             startActivity(Intent(this, it))
             finish()
         }
     }
 
     fun nextStep() {
+
         steppers.setErrorText(steppers.currentStep, null)
+
         if (steppers.canNext())
             steppers.nextStep()
         else {

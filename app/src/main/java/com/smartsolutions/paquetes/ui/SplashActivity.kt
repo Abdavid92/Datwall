@@ -40,7 +40,7 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash) {
                     finish()
                 }
             }
-        }, 500)
+        }, 1000)
 
     }
 

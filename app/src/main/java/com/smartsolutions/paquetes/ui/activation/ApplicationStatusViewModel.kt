@@ -7,7 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
-import com.smartsolutions.paquetes.DatwallApplication
+import com.smartsolutions.paquetes.kernel.DatwallApplication
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -44,6 +44,7 @@ class ApplicationStatusViewModel @Inject constructor(
     /**
      * Intenta encender la wifi
      * */
+    @Suppress("DEPRECATION")
     private fun requestEnableWifi(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val intent = Intent(Settings.Panel.ACTION_WIFI)

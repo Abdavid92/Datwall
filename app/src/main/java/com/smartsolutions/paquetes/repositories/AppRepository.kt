@@ -30,21 +30,19 @@ class AppRepository @Inject constructor(
     private val dao: IAppDao
 ) : AbstractAppRepository(context, gson) {
 
-    private val dispatcher = Dispatchers.IO
-
-    override suspend fun appsCount() = withContext(dispatcher) {
+    override suspend fun appsCount() = withContext(Dispatchers.IO) {
         dao.appsCount()
     }
 
-    override suspend fun appsAllowedCount() = withContext(dispatcher) {
+    override suspend fun appsAllowedCount() = withContext(Dispatchers.IO) {
         dao.appsAllowedCount()
     }
 
-    override suspend fun appsBlockedCount() = withContext(dispatcher) {
+    override suspend fun appsBlockedCount() = withContext(Dispatchers.IO) {
         dao.appsBlockedCount()
     }
 
-    override suspend fun all() = withContext(dispatcher) {
+    override suspend fun all() = withContext(Dispatchers.IO) {
         dao.apps()
     }
 
@@ -55,13 +53,13 @@ class AppRepository @Inject constructor(
             return@map convertToListIApp(it)
         }
 
-    override suspend fun get(packageName: String) = withContext(dispatcher) {
+    override suspend fun get(packageName: String) = withContext(Dispatchers.IO) {
         dao.get(packageName)
     }
 
     override suspend fun get(uid: Int): IApp? {
         //Obtengo los datos
-        val apps = withContext(dispatcher) {
+        val apps = withContext(Dispatchers.IO) {
             dao.get(uid)
         }
 
@@ -87,7 +85,7 @@ class AppRepository @Inject constructor(
 
     override suspend fun get(uid: IntArray): List<App> {
 
-        val apps = withContext(dispatcher) {
+        val apps = withContext(Dispatchers.IO) {
             dao.get(uid).toMutableList()
         }
 
@@ -139,35 +137,35 @@ class AppRepository @Inject constructor(
         return apps
     }
 
-    override suspend fun getAllByGroup() = withContext(dispatcher) {
+    override suspend fun getAllByGroup() = withContext(Dispatchers.IO) {
         convertToListIApp(dao.apps())
     }
 
-    override suspend fun create(app: App) = withContext(dispatcher) {
+    override suspend fun create(app: App) = withContext(Dispatchers.IO) {
         dao.create(app)
     }
 
-    override suspend fun create(apps: List<IApp>) = withContext(dispatcher) {
+    override suspend fun create(apps: List<IApp>) = withContext(Dispatchers.IO) {
         dao.create(convertToListApp(apps))
     }
 
-    override suspend fun createOrReplace(apps: List<IApp>) = withContext(dispatcher) {
+    override suspend fun createOrReplace(apps: List<IApp>) = withContext(Dispatchers.IO) {
         dao.createOrReplace(convertToListApp(apps))
     }
 
-    override suspend fun update(app: App) = withContext(dispatcher) {
+    override suspend fun update(app: App) = withContext(Dispatchers.IO) {
         dao.update(app)
     }
 
-    override suspend fun update(apps: List<IApp>) = withContext(dispatcher) {
+    override suspend fun update(apps: List<IApp>) = withContext(Dispatchers.IO) {
         dao.update(convertToListApp(apps))
     }
 
-    override suspend fun delete(app: App) = withContext(dispatcher) {
+    override suspend fun delete(app: App) = withContext(Dispatchers.IO) {
         dao.delete(app)
     }
 
-    override suspend fun delete(apps: List<IApp>) = withContext(dispatcher) {
+    override suspend fun delete(apps: List<IApp>) = withContext(Dispatchers.IO) {
         dao.delete(convertToListApp(apps))
     }
 
@@ -189,6 +187,7 @@ class AppRepository @Inject constructor(
                 }
             }
         }
+
         return list
     }
 
