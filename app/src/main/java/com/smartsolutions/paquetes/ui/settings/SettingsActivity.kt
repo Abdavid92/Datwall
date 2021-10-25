@@ -320,7 +320,17 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 false
             )
 
-            NotificationBuilder.getNotificationStyles().forEach {
+            val dataStore = requireContext().settingsDataStore
+
+            val className = runBlocking {
+                dataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.NOTIFICATION_CLASS)
+                    ?: NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
+            }
+
+            val styles = NotificationBuilder.getNotificationStyles()
+
+            styles.forEach {
 
                 val builder = NotificationBuilder.newInstance(
                     it.name,
@@ -329,7 +339,9 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 )
 
                 val radioButton = AppCompatRadioButton(requireContext()).apply {
+                    id = it.hashCode()
                     text = builder.getSummary()[0]
+                    isChecked = it.name == className
                 }
 
                 val layout = ItemNotificationSampleBinding.inflate(
@@ -340,7 +352,6 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
                 layout.sampleContainer.addView(builder.getSample(container))
                 layout.summary.text = builder.getSummary()[1]
-                //binding.circularNotificationSample.addView(layout.root)
 
                 binding.radioGroup.apply {
                     addView(radioButton)
@@ -348,99 +359,19 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 }
             }
 
-            /*val circularNotification = CircularNotificationBuilder(
-                requireContext(),
-                NotificationHelper.ALERT_CHANNEL_ID
-            )
-
-            val circularLayout = ItemNotificationSampleBinding.inflate(
-                inflater,
-                container,
-                false
-            )
-            circularLayout.sampleContainer.addView(circularNotification.getSample(container))
-            circularLayout.summary.text = circularNotification.getSummary()
-            binding.circularNotificationSample.addView(circularLayout.root)
-
-            val linearNotification = LinearNotificationBuilder(
-                requireContext(),
-                NotificationHelper.ALERT_CHANNEL_ID
-            )
-
-            val linearLayout = ItemNotificationSampleBinding.inflate(
-                inflater,
-                container,
-                false
-            )
-
-            linearLayout.sampleContainer.addView(linearNotification.getSample(container))
-            linearLayout.summary.text = linearNotification.getSummary()
-            binding.linealNotificationSample.addView(linearLayout.root)*/
+            binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
+                styles.forEach {
+                    if (checkedId == it.hashCode()) {
+                        runBlocking(Dispatchers.IO) {
+                            dataStore.edit { preferences ->
+                                preferences[PreferencesKeys.NOTIFICATION_CLASS] = it.name
+                            }
+                        }
+                    }
+                }
+            }
 
             return binding.root
-        }
-
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-
-            runBlocking {
-                val dataStore = requireContext().settingsDataStore
-
-                var className = dataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.NOTIFICATION_CLASS) ?:
-                    NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
-
-                val styles = NotificationBuilder.getNotificationStyles()
-
-                for (i in styles.indices) {
-
-                    if (styles[i].name == className) {
-                        val children = binding.radioGroup.children.filter { it is RadioButton }
-
-                        var index = 0
-
-                        val iterator = children.iterator()
-
-                        while (iterator.hasNext()) {
-
-                            if (index == i) {
-                                val radioButton = iterator.next() as RadioButton
-                                radioButton.isChecked = true
-
-                                break
-                            } else
-                                index++
-                        }
-                    }
-                }
-
-                /*when (className) {
-                    CircularNotificationBuilder::class.java.canonicalName -> {
-                        binding.radioGroup.check(R.id.circular_notification)
-                    }
-                    LinearNotificationBuilder::class.java.canonicalName -> {
-                        binding.radioGroup.check(R.id.linear_notification)
-                    }
-                }
-
-                binding.radioGroup.setOnCheckedChangeListener { _, i ->
-
-                    when (i) {
-                        R.id.circular_notification -> {
-                            className = CircularNotificationBuilder::class.java.name
-                        }
-                        R.id.linear_notification -> {
-                            className = LinearNotificationBuilder::class.java.name
-                        }
-                    }
-
-                    runBlocking(Dispatchers.IO) {
-                        requireContext().settingsDataStore.edit {
-                            it[PreferencesKeys.NOTIFICATION_CLASS] = className
-                        }
-                    }
-                }*/
-            }
         }
 
         override fun title(): CharSequence {
