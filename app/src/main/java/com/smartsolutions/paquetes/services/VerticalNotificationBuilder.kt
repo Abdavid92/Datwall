@@ -136,6 +136,8 @@ class VerticalNotificationBuilder constructor(
         val childRemotes = RemoteViews(mContext.packageName, R.layout.item_datwall_service_vertical).apply {
             setTextViewText(R.id.data_title, title)
             setInt(R.id.data_title, "setTextColor", color)
+            setInt(R.id.data_bytes, "setTextColor", color)
+            setInt(R.id.data_expire, "setTextColor", color)
 
             setProgressBar(
                 R.id.data_progress,

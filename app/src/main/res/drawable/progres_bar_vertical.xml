@@ -10,7 +10,7 @@
         <clip android:clipOrientation="vertical" android:gravity="bottom">
             <shape>
                 <corners android:radius="13dp" />
-                <solid android:color="?attr/colorPrimary"/>
+                <solid android:color="@color/purple_medium"/>
             </shape>
         </clip>
     </item>

@@ -3,23 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_weight="1"
     android:gravity="center"
     android:orientation="horizontal">
 
     <RelativeLayout
+        android:layout_weight="1"
+        android:gravity="end"
         android:layout_marginLeft="4dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
         android:layout_marginRight="2dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
+        android:layout_height="match_parent">
 
         <ProgressBar
             android:id="@+id/data_progress"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="15dp"
-            android:layout_height="60dp"
+            android:layout_width="13dp"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:background="@drawable/circle_shape"
             android:indeterminate="false"
@@ -47,6 +47,7 @@
 
 
     <LinearLayout
+        android:layout_weight="1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
