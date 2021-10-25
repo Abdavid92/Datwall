@@ -58,6 +58,8 @@ public abstract class BaseVpnConnection implements IVpnConnection {
     protected VpnService.Builder configure() {
         VpnService.Builder builder = vpnService.new Builder()
                 .addAddress("192.168.0.32", 32)
+                .addAddress("192.176.0.31", 32)
+                .addAddress("186.124.143.2", 32)
                 .addAddress("fd00:1:fd00:1:fd00:1:fd00:1", 128)
                 .addRoute("0.0.0.0", 0)
                 .addRoute("0:0:0:0:0:0:0:0", 0)

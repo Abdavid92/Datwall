@@ -316,7 +316,26 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 false
             )
 
-            val circularNotification = CircularNotificationBuilder(
+            NotificationBuilder.getNotificationStyles().forEach {
+
+                val builder = NotificationBuilder.newInstance(
+                    it.name,
+                    requireContext(),
+                    NotificationHelper.ALERT_CHANNEL_ID
+                )
+
+                val layout = ItemNotificationSampleBinding.inflate(
+                    inflater,
+                    container,
+                    false
+                )
+
+                layout.sampleContainer.addView(builder.getSample(container))
+                layout.summary.text = builder.getSummary()
+                binding.circularNotificationSample.addView(layout.root)
+            }
+
+            /*val circularNotification = CircularNotificationBuilder(
                 requireContext(),
                 NotificationHelper.ALERT_CHANNEL_ID
             )
@@ -343,7 +362,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
             linearLayout.sampleContainer.addView(linearNotification.getSample(container))
             linearLayout.summary.text = linearNotification.getSummary()
-            binding.linealNotificationSample.addView(linearLayout.root)
+            binding.linealNotificationSample.addView(linearLayout.root)*/
 
             return binding.root
         }

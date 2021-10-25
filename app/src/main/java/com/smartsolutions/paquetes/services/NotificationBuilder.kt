@@ -85,6 +85,9 @@ abstract class NotificationBuilder(
 
     companion object {
 
+        /**
+         * Implementación predeterminada del estilo de notificación.
+         * */
         val DEFAULT_NOTIFICATION_IMPL: String = CircularNotificationBuilder::class.java.name
 
         fun newInstance(
@@ -115,6 +118,9 @@ abstract class NotificationBuilder(
             }
         }
 
+        /**
+         * Retorna un [PendingIntent] para ejecutar el [SplashActivity].
+         * */
         fun getSplashActivityPendingIntent(context: Context): PendingIntent {
             return PendingIntent
                 .getActivity(
@@ -130,5 +136,13 @@ abstract class NotificationBuilder(
                     }
                 )
         }
+
+        /**
+         * Retorna un array con los estilos de notificaciones disponibles.
+         * */
+        fun getNotificationStyles() = arrayOf(
+            CircularNotificationBuilder::class.java,
+            LinearNotificationBuilder::class.java
+        )
     }
 }
