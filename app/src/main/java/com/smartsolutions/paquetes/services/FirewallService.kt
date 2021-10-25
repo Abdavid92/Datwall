@@ -126,6 +126,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                 it.action == ACTION_ALWAYS_GRANT_APP -> {
                     it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
                         cancelAskNotification(app.uid)
+                        app.tempAccess = true
                         app.foregroundAccess = true
                         launch(Dispatchers.IO) {
                             appRepository.update(app)
