@@ -1,7 +1,5 @@
 package com.smartsolutions.paquetes.ui.applications
 
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -368,8 +366,8 @@ class AppsListAdapter constructor(
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].accessHashCode() ==
-                    newList[newItemPosition].accessHashCode()
+            return oldList[oldItemPosition].accessHashToken() ==
+                    newList[newItemPosition].accessHashToken()
         }
 
     }

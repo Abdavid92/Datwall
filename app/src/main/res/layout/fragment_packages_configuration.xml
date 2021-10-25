@@ -91,6 +91,17 @@
                         app:layout_constraintTop_toBottomOf="@id/configuration_mode"
                         tools:layout_editor_absoluteX="16dp" />
 
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/result_msg"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/sim_network"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textSize="16sp"
+                        android:layout_marginTop="@dimen/activity_horizontal_margin"
+                        tools:text="Resultado de la operación" />
+
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btn_start_configuration"
                         android:layout_width="wrap_content"
@@ -98,20 +109,9 @@
                         style="@style/BaseButton.SecondaryButton"
                         android:text="@{automatic ? @string/start_packages_configuration : @string/btn_save}"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/sim_network"
+                        app:layout_constraintTop_toBottomOf="@id/result_msg"
                         android:layout_marginTop="@dimen/activity_horizontal_margin"
                         tools:text="@string/start_packages_configuration" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/result_msg"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/btn_start_configuration"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textSize="16sp"
-                        android:textAlignment="center"
-                        android:layout_marginTop="@dimen/activity_horizontal_margin"
-                        tools:text="Resultado de la operación" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

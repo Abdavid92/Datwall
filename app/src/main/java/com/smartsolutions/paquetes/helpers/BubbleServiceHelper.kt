@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.*
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.services.BubbleFloatingService

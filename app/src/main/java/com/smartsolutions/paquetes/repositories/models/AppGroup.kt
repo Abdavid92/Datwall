@@ -115,12 +115,12 @@ class AppGroup(
      * de las aplicaciones del grupo. Este número se usa en el firewall para identificar diferencias
      * de acceso entre dos listas de aplicaciones y grupos.
      * */
-    override fun accessHashCode(): Long {
-        var code = ""
+    override fun accessHashToken(): String {
+        var token = ""
         apps.forEach {
-            code += it.accessHashCode().toString()
+            token += it.accessHashToken()
         }
-        return code.toLong()
+        return token
     }
 
     override fun equals(other: Any?): Boolean {

@@ -124,14 +124,11 @@ class App(
         return true
     }
 
-    /**
-     * @return Un número construido basandose en el acceso permanente (access) y el acceso temporal (tempAccess)
-     * */
-    override fun accessHashCode(): Long {
+    override fun accessHashToken(): String {
         val access = if (this.access) 1 else 0
         val tempAccess = if (this.tempAccess) 1 else 0
 
-        return "$access$tempAccess".toLong()
+        return "$access$tempAccess"
     }
 
     override fun toString(): String {

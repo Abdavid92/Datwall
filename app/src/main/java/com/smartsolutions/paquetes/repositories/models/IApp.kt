@@ -35,9 +35,9 @@ interface IApp: Parcelable {
     var blockedAnnotations: String?
 
     /**
-     * @return Un número construido basandose en el
+     * @return Un token construido basandose en el
      * acceso permanente (access) y el acceso temporal (tempAccess)
      * en el caso de la implementación [App]
      * */
-    fun accessHashCode(): Long
+    fun accessHashToken(): String
 }

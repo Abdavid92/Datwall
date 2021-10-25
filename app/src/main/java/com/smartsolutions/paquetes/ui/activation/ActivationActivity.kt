@@ -1,18 +1,14 @@
 package com.smartsolutions.paquetes.ui.activation
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.ui.AbstractActivity
+import com.smartsolutions.paquetes.ui.addOpenActivityListener
+import com.smartsolutions.paquetes.ui.next
 import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
-import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ActivationActivity : AbstractActivity(R.layout.activity_activation), OnCompletedListener {
@@ -27,7 +23,11 @@ class ActivationActivity : AbstractActivity(R.layout.activity_activation), OnCom
             .add(R.id.container, ApplicationStatusFragment())
             .commit()
 
-        viewModel.nextActivity().observe(this) {
+        /*viewModel.nextActivity().observe(this) {
+            startActivity(Intent(this, it))
+            finish()
+        }*/
+        viewModel.addOpenActivityListener(this) {
             startActivity(Intent(this, it))
             finish()
         }

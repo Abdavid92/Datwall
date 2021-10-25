@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -128,8 +129,6 @@ class PackageMonitor @Inject constructor(
         //Obtengo las aplicaciones guardadas en base de datos
         val apps = appRepository.all()
 
-        //val appsToAdd = mutableListOf<App>()
-        //val appsToUpdate = mutableListOf<App>()
         val appsToCreateOrReplace = mutableListOf<App>()
         val appsToDelete = mutableListOf<App>()
 
@@ -150,7 +149,11 @@ class PackageMonitor @Inject constructor(
                 appRepository.fillApp(app, info)
                 appsToCreateOrReplace.add(app)
             }
+
+            Log.i(TAG, "forceSynchronization: finish the process ${info.packageName}")
         }
+
+        Log.i(TAG, "forceSynchronization: find uninstalled apps")
 
         //Esta iteración es para buscar las aplicaciones que han sido desinstaladas.
         apps.forEach { app ->
@@ -160,11 +163,15 @@ class PackageMonitor @Inject constructor(
             }
         }
 
-        //appRepository.create(appsToAdd)
-        //appRepository.update(appsToUpdate)
+        Log.i(TAG, "forceSynchronization: finish the finding of uninstalled apps")
+
+        Log.i(TAG, "forceSynchronization: creating or replacing apps")
         appRepository.createOrReplace(appsToCreateOrReplace)
+
+        Log.i(TAG, "forceSynchronization: deleting uninstall apps")
         appRepository.delete(appsToDelete)
 
+        Log.i(TAG, "forceSynchronization: update access of groups")
         //Actualizo los accesos a los grupos
         appRepository.getAllByGroup()
             .filterIsInstance<AppGroup>()
@@ -175,7 +182,10 @@ class PackageMonitor @Inject constructor(
             appRepository.update(group)
         }
 
+        Log.i(TAG, "forceSynchronization: restoring old configuration")
         restoreOldConfiguration()
+
+        Log.i(TAG, "forceSynchronization: finish of synchronization")
     }
 
     /**
@@ -214,6 +224,8 @@ class PackageMonitor @Inject constructor(
 
     companion object {
         private var sequenceNumber: Int = 0
+
+        private const val TAG = "PackageMonitor"
     }
 }
 

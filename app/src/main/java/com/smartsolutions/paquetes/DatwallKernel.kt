@@ -7,7 +7,6 @@ import android.content.*
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.IBinder
-import android.os.Process
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
@@ -49,8 +48,7 @@ class DatwallKernel @Inject constructor(
     private val simManager: ISimManager,
     private val firewallHelper: FirewallHelper,
     private val bubbleServiceHelper: BubbleServiceHelper,
-    private val synchronizationManager: ISynchronizationManager,
-    private val watcher: RxWatcher
+    private val synchronizationManager: ISynchronizationManager
 ) : IChangeNetworkHelper, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -75,9 +73,10 @@ class DatwallKernel @Inject constructor(
 
     }
 
-    private val _nextActivity = MutableLiveData<Class<out Activity>>()
-    val nextActivity: LiveData<Class<out Activity>>
-        get() = _nextActivity
+
+    private var openActivity: Class<out Activity>? = null
+    private val openActivitySubscribers =
+        mutableMapOf<LifecycleOwner, (activity: Class<out Activity>) -> Unit>()
 
     init {
         launch {
@@ -116,7 +115,7 @@ class DatwallKernel @Inject constructor(
         when {
             //Verifica los permisos
             missingSomePermission() -> {
-                openPermissionsActivity()
+                openActivity(PermissionsActivity::class.java)
                 considerNotify(
                     context.getString(R.string.missing_permmissions_title_notification),
                     context.getString(R.string.missing_permmissions_description_notification)
@@ -124,7 +123,7 @@ class DatwallKernel @Inject constructor(
             }
             //Verfica el registro y la activación
             !isRegisteredAndValid() -> {
-                openActivationActivity()
+                openActivity(ActivationActivity::class.java)
                 considerNotify(
                     context.getString(R.string.generic_needed_action_title_notification),
                     context.getString(R.string.generic_needed_action_description_notification)
@@ -132,13 +131,14 @@ class DatwallKernel @Inject constructor(
             }
             //Verfica las configuraciones iniciales
             missingSomeConfiguration() -> {
-                openSetupActivity()
+                openActivity(SetupActivity::class.java)
                 considerNotify(
                     context.getString(R.string.missing_configuration_title_notification),
                     context.getString(R.string.missing_configuration_description_notification)
                 )
             }
             else -> {
+                openActivity(SplashActivity::class.java)
                 //Sincroniza la base de datos
                 synchronizeDatabase()
                 //Inicia los servicios
@@ -148,7 +148,7 @@ class DatwallKernel @Inject constructor(
                 //Registra los workers
                 registerWorkers()
                 //Inicia la actividad principal
-                startMainActivity()
+                openActivity(MainActivity::class.java)
             }
         }
     }
@@ -158,16 +158,16 @@ class DatwallKernel @Inject constructor(
         listener: (activity: Class<out Activity>) -> Unit) {
 
         if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-            openActivitySubscribers.add(listener)
+            openActivitySubscribers[lifecycleOwner] = listener
 
-            if (openActivity != null)
+            if (openActivity != null && lifecycleOwner::class.java.name != openActivity!!.name)
                 listener(openActivity!!)
 
             lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
 
                 override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                     if (event == Lifecycle.Event.ON_DESTROY) {
-                        openActivitySubscribers.remove(listener)
+                        openActivitySubscribers.remove(lifecycleOwner)
 
                         lifecycleOwner.lifecycle.removeObserver(this)
                     }
@@ -263,10 +263,6 @@ class DatwallKernel @Inject constructor(
                 status != IActivationManager.ApplicationStatuses.TooMuchOld
     }
 
-    private suspend fun openActivationActivity() {
-        openActivity(ActivationActivity::class.java)
-    }
-
     /**
      * Indica si falta alguna configuración importante.
      * */
@@ -275,22 +271,11 @@ class DatwallKernel @Inject constructor(
             .isNotEmpty()
     }
 
-    private suspend fun openSetupActivity() {
-        openActivity(SetupActivity::class.java)
-    }
-
     /**
      * Indica si falta algún permiso.
      * */
     private fun missingSomePermission(): Boolean {
         return permissionManager.getDeniedPermissions().isNotEmpty()
-    }
-
-    /**
-     * Pide los permisos faltantes.
-     * */
-    private suspend fun openPermissionsActivity() {
-        openActivity(PermissionsActivity::class.java)
     }
 
     /**
@@ -379,25 +364,18 @@ class DatwallKernel @Inject constructor(
         context.bindService(datwallServiceIntent, mainServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    private fun stopMainService() {
+    /*private fun stopMainService() {
         if (datwallBinder != null)
             context.unbindService(mainServiceConnection)
 
         context.startService(Intent(context, DatwallService::class.java)
             .setAction(DatwallService.ACTION_STOP))
-    }
-
-    /**
-     * Inicia la actividad principal.
-     * */
-    private suspend fun startMainActivity() {
-        openActivity(MainActivity::class.java)
-    }
+    }*/
 
     /**
      * Detiene todos los servicios y trabajos de la aplicación.
      * */
-    suspend fun stopAllDatwall(){
+    /*suspend fun stopAllDatwall(){
 
         simManager.unregisterSubscriptionChangedListener()
 
@@ -426,7 +404,7 @@ class DatwallKernel @Inject constructor(
         activityManager.runningAppProcesses.firstOrNull {it.processName == context.packageName}?.let {
             Process.killProcess(it.pid)
         }
-    }
+    }*/
 
     private suspend fun startFirewall() {
         firewallHelper.startFirewall(true)
@@ -449,20 +427,20 @@ class DatwallKernel @Inject constructor(
     }
 
     private suspend fun openActivity(activity: Class<out Activity>) {
-        withContext(Dispatchers.Main) {
-            _nextActivity.value = activity
+        openActivity = activity
 
-            openActivity = activity
+        withContext(Dispatchers.Main) {
 
             runCatching {
                 openActivitySubscribers.forEach {
-                    it(activity)
+                    if (it.key.javaClass.name != activity.name)
+                        it.value(activity)
                 }
             }
         }
     }
 
-    fun isInForeground(): Boolean {
+    private fun isInForeground(): Boolean {
         return activityManager.runningAppProcesses?.any {
             it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
                     it.processName == context.packageName
@@ -506,8 +484,5 @@ class DatwallKernel @Inject constructor(
          * Indica si los datos móbiles están encendidos.
          * */
         var DATA_MOBILE_ON = false
-
-        private var openActivity: Class<out Activity>? = null
-        private val openActivitySubscribers = mutableListOf<(activity: Class<out Activity>) -> Unit>()
     }
 }

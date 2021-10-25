@@ -44,6 +44,7 @@ class ApplicationStatusViewModel @Inject constructor(
     /**
      * Intenta encender la wifi
      * */
+    @Suppress("DEPRECATION")
     private fun requestEnableWifi(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val intent = Intent(Settings.Panel.ACTION_WIFI)
