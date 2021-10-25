@@ -113,7 +113,7 @@ class NotificationHelper @Inject constructor(
 
         //Canal del firewall
         val firewallChannel = NotificationChannel(
-            WORKERS_CHANNEL_ID,
+            FIREWALL_CHANNEL_ID,
             context.getString(R.string.firewall_notification_channel_name),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
