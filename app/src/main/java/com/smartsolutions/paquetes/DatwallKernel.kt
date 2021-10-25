@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.kernel
+package com.smartsolutions.paquetes
 
 import android.app.Activity
 import android.app.ActivityManager
@@ -7,14 +7,10 @@ import android.content.*
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.IBinder
-import android.os.Process
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
-import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.*
-import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
@@ -25,7 +21,6 @@ import com.smartsolutions.paquetes.ui.activation.ActivationActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.*
-import com.smartsolutions.paquetes.workersDataStore
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*

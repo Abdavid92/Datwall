@@ -1,4 +1,4 @@
-package com.smartsolutions.paquetes.kernel
+package com.smartsolutions.paquetes
 
 import android.app.Activity
 import android.app.Application
@@ -6,10 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.LifecycleOwner
 import androidx.work.Configuration
-import com.smartsolutions.paquetes.BuildConfig
-import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
-import com.smartsolutions.paquetes.settingsDataStore
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
