@@ -130,7 +130,7 @@ class VerticalNotificationBuilder constructor(
             remoteViews.addView(R.id.content_view, separator)
         }
 
-        val childRemotes = RemoteViews(mContext.packageName, R.layout.item_datwall_service).apply {
+        val childRemotes = RemoteViews(mContext.packageName, R.layout.item_datwall_service_vertical).apply {
             setTextViewText(R.id.data_title, title)
             setInt(R.id.data_title, "setTextColor", color)
 
