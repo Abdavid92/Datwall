@@ -85,7 +85,7 @@ abstract class NotificationBuilder(
 
     companion object {
 
-        val DEFAULT_NOTIFICATION_IMPL: String = LinearNotificationBuilder::class.java.name
+        val DEFAULT_NOTIFICATION_IMPL: String = CircularNotificationBuilder::class.java.name
 
         fun newInstance(
             className: String,

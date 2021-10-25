@@ -105,7 +105,7 @@ class DatwallService : Service(), CoroutineScope {
 
         Log.i(TAG, "Starting service")
 
-        mNotificationBuilder = LinearNotificationBuilder(
+        mNotificationBuilder = CircularNotificationBuilder(
             this,
             NotificationHelper.MAIN_CHANNEL_ID
         )

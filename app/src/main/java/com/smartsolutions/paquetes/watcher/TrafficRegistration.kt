@@ -1,11 +1,15 @@
 package com.smartsolutions.paquetes.watcher
 
+import android.content.Context
 import android.net.TrafficStats
 import android.os.Build
 import android.util.Log
+import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
@@ -16,6 +20,7 @@ import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.repositories.models.TrafficType
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import org.apache.commons.lang.time.DateUtils
@@ -26,6 +31,8 @@ import kotlin.coroutines.CoroutineContext
 
 @Singleton
 class TrafficRegistration @Inject constructor(
+    @ApplicationContext
+    private val context: Context,
     private val networkUsageManager: NetworkUsageManager,
     private val appRepository: IAppRepository,
     private val userDataBytesManager: IUserDataBytesManager,
@@ -255,7 +262,15 @@ class TrafficRegistration @Inject constructor(
     }
 
     private fun isLTE(): Boolean {
-        return networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
+        val isLTE = networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
+        if (isLTE){
+            launch(Dispatchers.IO) {
+                context.internalDataStore.edit {
+                    it[PreferencesKeys.ENABLED_LTE] = true
+                }
+            }
+        }
+        return isLTE
     }
 
     companion object {

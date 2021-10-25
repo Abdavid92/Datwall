@@ -15,6 +15,8 @@ import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.PacketManager
+import com.smartsolutions.paquetes.managers.PermissionsManager
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.SplashActivity
@@ -73,32 +75,55 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     @Inject
     lateinit var watcher: RxWatcher
 
+    @Inject
+    lateinit var permissionsManager: IPermissionsManager
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        if (!checkFirewallPermission()){
+            stopService()
+            return START_NOT_STICKY
+        }
 
         intent?.let {
             /*Si la acción es ACTION_STOP, detengo el servicio.
             * Esto se hace así porque no se puede detener un servicio en primer
             * plano desde el contexto.*/
-            if (it.action == ACTION_STOP_FIREWALL_SERVICE) {
+            when {
+                it.action == ACTION_STOP_FIREWALL_SERVICE -> {
+                    stopService()
+                    return START_NOT_STICKY
+                }
+                it.action == ACTION_ALLOW_APP -> {
+                    it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
+                        cancelAskNotification(app.uid)
 
-                stopService()
-
-                return START_NOT_STICKY
-            } else if (it.action == ACTION_ALLOW_APP) {
-
-                it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
-                    app.tempAccess = true
-                    launch(Dispatchers.IO) {
-                        appRepository.update(app)
+                        app.tempAccess = true
+                        launch(Dispatchers.IO) {
+                            appRepository.update(app)
+                        }
                     }
 
-                    cancelAskNotification(app.uid)
+                    if (vpnConnection?.isConnected == true)
+                        return START_STICKY
+
+                    return START_NOT_STICKY
                 }
+                it.action === ACTION_NOT_ASK_APP -> {
+                    it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
+                        cancelAskNotification(app.uid)
+                        app.ask = false
+                        launch(Dispatchers.IO) {
+                            appRepository.update(app)
+                        }
+                    }
 
-                if (vpnConnection?.isConnected == true)
-                    return START_STICKY
+                    if (vpnConnection?.isConnected == true)
+                        return START_STICKY
 
-                return START_NOT_STICKY
+                    return START_NOT_STICKY
+                }
+                else -> {}
             }
         }
 
@@ -184,9 +209,9 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                             foregroundApp.tempAccess = true
                             appRepository.update(foregroundApp)
 
-                        /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
-                         * y se puede preguntar por ella
-                         * */
+                            /* Pero si no tiene acceso, es ejecutable, tiene permiso de acceso a internet
+                             * y se puede preguntar por ella
+                             * */
                         } else if (
                             !foregroundApp.access &&
                             foregroundApp.executable &&
@@ -226,14 +251,29 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
     private fun launchAskNotification(app: App) {
 
-        val intent = Intent(this, FirewallService::class.java)
+        val grantIntent = Intent(this, FirewallService::class.java)
             .setAction(ACTION_ALLOW_APP)
             .putExtra(EXTRA_APP, app)
 
-        val pendingIntent = PendingIntent.getService(
+        val grantPendingIntent = PendingIntent.getService(
             this,
             0,
-            intent,
+            grantIntent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
+
+        val notAskIntent = Intent(this, FirewallService::class.java)
+            .setAction(ACTION_NOT_ASK_APP)
+            .putExtra(EXTRA_APP, app)
+
+        val notAskPendingIntent = PendingIntent.getService(
+            this,
+            0,
+            notAskIntent,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             } else {
@@ -242,11 +282,20 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         )
 
         val notification = NotificationCompat.Builder(this, NotificationHelper.FIREWALL_CHANNEL_ID)
-            .addAction(NotificationCompat.Action.Builder(
-                R.drawable.ic_done,
-                getString(R.string.btn_allow_text),
-                pendingIntent
-            ).build())
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    R.drawable.ic_cancel_24,
+                    getString(R.string.btn_dont_ask),
+                    notAskPendingIntent
+                ).build()
+            )
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    R.drawable.ic_done,
+                    getString(R.string.btn_allow_text),
+                    grantPendingIntent
+                ).build()
+            )
             .setContentTitle(app.name)
             .setContentText(getString(R.string.allow_app_text))
             .setSmallIcon(R.drawable.ic_firewall)
@@ -297,11 +346,33 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     }
 
     override fun onRevoke() {
+
         val notificationManager = ContextCompat
             .getSystemService(this, NotificationManager::class.java)
 
+        val restartVPNIntent = Intent(this, FirewallService::class.java)
+
+        val restartVPNPendingIntent = PendingIntent.getService(
+            this,
+            0,
+            restartVPNIntent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
+
         val notification = NotificationCompat.Builder(this, NotificationHelper.ALERT_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_main_notification)
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    R.drawable.ic_restart_24,
+                    getString(R.string.btn_restart),
+                    restartVPNPendingIntent
+                ).build()
+            )
+            .setAutoCancel(true)
             .setContentTitle(getString(R.string.firewall_force_stop))
             .setContentText(getString(R.string.firewall_force_stop_summary))
             .setStyle(NotificationCompat.BigTextStyle())
@@ -357,6 +428,13 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         )
     }
 
+    fun checkFirewallPermission(): Boolean {
+        val permission = permissionsManager.findPermission(IPermissionsManager.VPN_CODE)
+            ?: throw IllegalArgumentException("Bad code")
+
+        return permission.checkPermission(permission, this)
+    }
+
     companion object {
         /**
          * Request code que se usa para el PendingIntent del vpn.
@@ -366,12 +444,19 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         /**
          * Acción que se usa para detener el servicio.
          * */
-        const val ACTION_STOP_FIREWALL_SERVICE = "com.smartsolutions.paquetes.action.STOP_FIREWALL_SERVICE"
+        const val ACTION_STOP_FIREWALL_SERVICE =
+            "com.smartsolutions.paquetes.action.STOP_FIREWALL_SERVICE"
 
         /**
          * Acción que se usa para permitir el acceso a una aplicación.
          * */
         const val ACTION_ALLOW_APP = "com.smartsolutions.paquetes.action.ALLOW_APP"
+
+
+        /**
+         * Acción que se usa para permitir el acceso a una aplicación.
+         * */
+        const val ACTION_NOT_ASK_APP = "com.smartsolutions.paquetes.action.NOT_ASK_APP"
 
         /**
          * Aplicación.

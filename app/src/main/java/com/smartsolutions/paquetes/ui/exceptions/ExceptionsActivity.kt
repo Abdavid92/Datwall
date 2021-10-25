@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui.exceptions
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Process
@@ -47,7 +48,7 @@ class ExceptionsActivity : AbstractActivity() {
 
         binding.buttonSendReport.setOnClickListener {
             localFileHelper.sendFileByEmail(
-                "smartsolutions.apps.cuba@gmail.com",
+                BuildConfig.DEVELOPERS_EMAIL,
                 "Informe de Error Datwall",
                 binding.editMoreInfo.text.toString(),
                 if (binding.checkboxInclude.isChecked) {

@@ -8,6 +8,7 @@ import android.widget.AdapterView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentEventsBinding
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
@@ -94,7 +95,7 @@ class EventsFragment : BottomSheetDialogFragment() {
             .setPositiveButton(getString(R.string.btn_close), null)
             .setNegativeButton(getString(R.string.send_inform)) { _, _ ->
                 localFileHelper.sendFileByEmail(
-                    "smartsolutions.apps.cuba@gmail.com",
+                    BuildConfig.DEVELOPERS_EMAIL,
                     "Informe de Evento Datwall",
                     event.type.name,
                     "${event.title} \n ${event.message}"

@@ -1,8 +1,11 @@
 package com.smartsolutions.paquetes.helpers
 
 import androidx.annotation.IntDef
+import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
@@ -14,7 +17,7 @@ import kotlin.IllegalArgumentException
  * Métodos de utilidad para NetworkUsageManager.
  * */
 class DateCalendarUtils @Inject constructor(
-    private val userDataBytesRepository: IUserDataBytesRepository,
+   private val purchasedPackagesManager: IPurchasedPackagesManager,
     private val simManager: ISimManager
 ) {
 
@@ -81,9 +84,11 @@ class DateCalendarUtils @Inject constructor(
                 )
             }
             PERIOD_PACKAGE -> {
-                runBlocking {
-                    userDataBytesRepository.bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id).firstOrNull { it.exists() && !it.isExpired()}?.let {
-                        return@let Pair(it.startTime, currentTime)
+                runBlocking(Dispatchers.Default) {
+                    purchasedPackagesManager.getHistory().firstOrNull()?.filter {
+                        it.simId == simManager.getDefaultSim(SimDelegate.SimType.DATA).id
+                    }?.maxByOrNull { it.date }?.let {
+                        return@runBlocking it.date to System.currentTimeMillis()
                     }
                     return@runBlocking Pair(0L, 0L)
                 }

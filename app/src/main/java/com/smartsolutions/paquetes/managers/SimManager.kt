@@ -197,7 +197,7 @@ class SimManager @Inject constructor(
                 0L,
                 Networks.NETWORK_NONE
             ).apply {
-                if (subscriptionInfo.number.isNotBlank()) {
+                if (subscriptionInfo.number != null && subscriptionInfo.number.isNotBlank()) {
                     phone = subscriptionInfo.number
                 }
                 icon = subscriptionInfo.createIconBitmap(context)

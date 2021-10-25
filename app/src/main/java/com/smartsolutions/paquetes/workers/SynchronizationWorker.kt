@@ -10,6 +10,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.repositories.IEventRepository
@@ -40,16 +41,18 @@ class SynchronizationWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         var canExecute = true
 
-        try {
-            canExecute = userDataBytesRepository.get(
-                simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
-                DataBytes.DataType.International
-            ).exists()
-        } catch (e: Exception) { }
+        if(context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.ENABLED_LTE) == true) {
+            try {
+                canExecute = userDataBytesRepository.get(
+                    simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
+                    DataBytes.DataType.International
+                ).exists()
+            } catch (e: Exception) { }
 
-        if (canExecute) {
-            canExecute =
-                (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (2 * 1000) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
+            if (canExecute) {
+                canExecute =
+                    (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (2 * 1000) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
+            }
         }
 
         if (canExecute) {

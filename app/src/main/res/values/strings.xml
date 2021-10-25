@@ -291,8 +291,7 @@
     <string name="loading">Cargando</string>
     <string name="bubble_stoped_permission_title">Se detuvo la Burbuja</string>
     <string name="bubble_stoped_permission_description">Se denegó el permiso de sobreponerse a otras apps y por lo tanto se detuvo la burbuja</string>
-    <string name="enable_data_synchronization">Activar la sincronización</string>
-    <string name="enable_data_synchronization_summary">Ahora te explico</string>
+    <string name="enable_data_synchronization">Activar la Sincronización Automática</string>
     <string name="synchonization">Sincronización</string>
     <string name="traffic_international_lte">Internacional LTE</string>
     <string name="traffic_bag_daily">Bolsa Diaria</string>
@@ -328,4 +327,7 @@
     <string name="show_events_title">Registro de Eventos</string>
     <string name="show_events_description">Mostrar un registro de los eventos que se han registrado en la app</string>
     <string name="send_inform">Enviar Informe</string>
+    <string name="btn_dont_ask">No Preguntar Más</string>
+    <string name="btn_restart">Reiniciar</string>
+    <string name="enable_data_synchronization_summary">Cada cierto tiempo se sincronizará la información de la app con Cubacel. Como la sincronización cambia la red a 3G, solamente se realizará si tiene megas para la 3G y si no está usando la red en ese momento</string>
 </resources>

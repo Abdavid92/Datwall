@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingRight="4dp"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+        <ProgressBar
+            android:id="@+id/data_progress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="20dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/circle_shape"
+            android:indeterminate="false"
+            android:progressDrawable="@drawable/progres_bar_vertical"
+            tools:max="100"
+            tools:progress="30" />
+
+        <TextView
+            android:id="@+id/data_percent"
+            android:shadowColor="@color/black"
+            android:shadowRadius="3"
+            android:rotation="-90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="11sp"
+            tools:text="100%" />
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/data_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textStyle="bold"
+            tools:text="Internacional" />
+
+
+        <TextView
+            android:id="@+id/data_bytes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="500 MB"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+        <TextView
+            android:id="@+id/data_expire"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10/12"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

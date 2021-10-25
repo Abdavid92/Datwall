@@ -220,8 +220,7 @@ class DatwallKernel @Inject constructor(
 
             if (networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G) {
                 context.internalDataStore.edit {
-                    if (it[PreferencesKeys.ENABLED_LTE] == false)
-                        it[PreferencesKeys.ENABLED_LTE] = true
+                    it[PreferencesKeys.ENABLED_LTE] = true
                 }
             }
 
