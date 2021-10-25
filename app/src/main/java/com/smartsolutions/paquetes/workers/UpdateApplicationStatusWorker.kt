@@ -9,6 +9,9 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
+import com.smartsolutions.paquetes.repositories.EventRepository
+import com.smartsolutions.paquetes.repositories.IEventRepository
+import com.smartsolutions.paquetes.repositories.models.Event
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +26,8 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
     @Assisted
     params: WorkerParameters,
     private val updateManager: IUpdateManager,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val eventRepository: IEventRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -57,6 +61,13 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
                 )
             }
         }
+
+        eventRepository.create(Event(
+            System.currentTimeMillis(),
+            Event.EventType.INFO,
+            "Update Worker",
+            "Launched"
+        ))
 
         return Result.success()
     }

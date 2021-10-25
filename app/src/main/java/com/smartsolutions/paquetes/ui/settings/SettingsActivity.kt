@@ -29,6 +29,7 @@ import com.smartsolutions.paquetes.services.NotificationBuilder
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
+import com.smartsolutions.paquetes.ui.events.EventsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -425,6 +426,14 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                         R.string.clear_icon_cache_confirmation,
                         Toast.LENGTH_SHORT
                     ).show()
+
+                    return@setOnPreferenceClickListener true
+                }
+
+            findPreference<Preference>("show_events")
+                ?.setOnPreferenceClickListener {
+                    val fragment = EventsFragment.newInstance()
+                    fragment.show(childFragmentManager, null)
 
                     return@setOnPreferenceClickListener true
                 }

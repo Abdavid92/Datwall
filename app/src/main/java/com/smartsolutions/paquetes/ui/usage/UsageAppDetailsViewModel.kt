@@ -10,6 +10,7 @@ import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -38,7 +39,7 @@ class UsageAppDetailsViewModel @Inject constructor(
     private fun obtainTraffic() {
         viewModelScope.launch {
             withContext(Dispatchers.IO){
-                getApplication<Application>().settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.USAGE_PERIOD)
+                getApplication<Application>().uiDataStore.data.firstOrNull()?.get(PreferencesKeys.USAGE_PERIOD)
             }?.let { period ->
                 val interval = dateCalendarUtils.getTimePeriod(period)
 

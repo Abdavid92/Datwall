@@ -10,9 +10,11 @@ import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
+import com.smartsolutions.paquetes.repositories.IEventRepository
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -30,7 +32,8 @@ class TrafficRegistration @Inject constructor(
     private val networkUtils: NetworkUtils,
     private val simManager: ISimManager,
     private val trafficRepository: ITrafficRepository,
-    private val watcher: RxWatcher
+    private val watcher: RxWatcher,
+    private val eventRepository: IEventRepository
 ) : CoroutineScope {
 
     private var isRegistered = false
@@ -111,7 +114,12 @@ class TrafficRegistration @Inject constructor(
                         registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
                         registerTraffic(start)
 
-                        Log.i(TAG, "Traffic registered: rx - $rxBytesLatest tx - $txBytesLatest")
+                        eventRepository.create(Event(
+                            System.currentTimeMillis(),
+                            Event.EventType.INFO,
+                            "Traffic Registration",
+                            "Traffic registered: rx = $rxBytesLatest tx = $txBytesLatest"
+                        ))
 
                         rxBytesLatest = 0
                         txBytesLatest = 0

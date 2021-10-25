@@ -31,4 +31,7 @@ interface RepositoriesModule {
 
     @Binds
     fun bindIUsageGeneralRepository(impl: UsageGeneralRepository): IUsageGeneralRepository
+
+    @Binds
+    fun bindIEventRepository(impl: EventRepository): IEventRepository
 }

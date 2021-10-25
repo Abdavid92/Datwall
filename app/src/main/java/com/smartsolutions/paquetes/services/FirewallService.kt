@@ -241,7 +241,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             }
         )
 
-        val notification = NotificationCompat.Builder(this, NotificationHelper.ALERT_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, NotificationHelper.FIREWALL_CHANNEL_ID)
             .addAction(NotificationCompat.Action.Builder(
                 R.drawable.ic_done,
                 getString(R.string.btn_allow_text),

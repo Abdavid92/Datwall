@@ -19,6 +19,13 @@
         <item>Vence más tarde</item>
     </string-array>
 
+    <string-array name="filter_events">
+        <item>Todos</item>
+        <item>Errores</item>
+        <item>Informaciones</item>
+        <item>Advertencias</item>
+    </string-array>
+
     <string-array name="usage_options">
         <item>Hoy</item>
         <item>Ayer</item>
