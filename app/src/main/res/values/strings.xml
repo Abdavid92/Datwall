@@ -327,7 +327,8 @@
     <string name="show_events_title">Registro de Eventos</string>
     <string name="show_events_description">Mostrar un registro de los eventos que se han registrado en la app</string>
     <string name="send_inform">Enviar Informe</string>
-    <string name="btn_dont_ask">No Preguntar Más</string>
+    <string name="btn_dont_ask">No Preguntar</string>
     <string name="btn_restart">Reiniciar</string>
     <string name="enable_data_synchronization_summary">Cada cierto tiempo se sincronizará la información de la app con Cubacel. Como la sincronización cambia la red a 3G, solamente se realizará si tiene megas para la 3G y si no está usando la red en ese momento</string>
+    <string name="vertical_notification_summary">"Este estilo muestra los tipos de datos en barras verticales, de una forma compacta y simple. "</string>
 </resources>

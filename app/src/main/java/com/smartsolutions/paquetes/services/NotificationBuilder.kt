@@ -142,7 +142,8 @@ abstract class NotificationBuilder(
          * */
         fun getNotificationStyles() = arrayOf(
             CircularNotificationBuilder::class.java,
-            LinearNotificationBuilder::class.java
+            LinearNotificationBuilder::class.java,
+            VerticalNotificationBuilder::class.java
         )
     }
 }
