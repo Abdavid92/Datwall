@@ -331,4 +331,5 @@
     <string name="btn_restart">Reiniciar</string>
     <string name="enable_data_synchronization_summary">Cada cierto tiempo se sincronizará la información de la app con Cubacel. Como la sincronización cambia la red a 3G, solamente se realizará si tiene megas para la 3G y si no está usando la red en ese momento</string>
     <string name="vertical_notification_summary">"Este estilo muestra los tipos de datos en barras verticales, de una forma compacta y simple. "</string>
+    <string name="vertical_notification">Estilo vertical</string>
 </resources>

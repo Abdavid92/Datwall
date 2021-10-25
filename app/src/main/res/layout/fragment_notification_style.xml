@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:padding="@dimen/activity_horizontal_margin">
 
-    <androidx.appcompat.widget.AppCompatRadioButton
+    <!--<androidx.appcompat.widget.AppCompatRadioButton
         android:id="@+id/circular_notification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,6 +26,6 @@
     <FrameLayout
         android:id="@+id/lineal_notification_sample"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" />-->
 
 </RadioGroup>

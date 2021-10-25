@@ -109,8 +109,11 @@ class CircularNotificationBuilder(
     }
 
     @SuppressLint("RestrictedApi")
-    override fun getSummary(): String {
-        return mContext.getString(R.string.circular_notification_summary)
+    override fun getSummary(): Array<String> {
+        return arrayOf(
+            mContext.getString(R.string.circular_notification),
+            mContext.getString(R.string.circular_notification_summary)
+        )
     }
 
     /**
