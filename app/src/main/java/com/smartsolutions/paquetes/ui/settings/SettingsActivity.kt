@@ -5,10 +5,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.AppCompatRadioButton
+import androidx.core.view.allViews
+import androidx.core.view.children
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -324,6 +328,10 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                     NotificationHelper.ALERT_CHANNEL_ID
                 )
 
+                val radioButton = AppCompatRadioButton(requireContext()).apply {
+                    text = builder.getSummary()[0]
+                }
+
                 val layout = ItemNotificationSampleBinding.inflate(
                     inflater,
                     container,
@@ -331,8 +339,13 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 )
 
                 layout.sampleContainer.addView(builder.getSample(container))
-                layout.summary.text = builder.getSummary()
-                binding.circularNotificationSample.addView(layout.root)
+                layout.summary.text = builder.getSummary()[1]
+                //binding.circularNotificationSample.addView(layout.root)
+
+                binding.radioGroup.apply {
+                    addView(radioButton)
+                    addView(layout.root)
+                }
             }
 
             /*val circularNotification = CircularNotificationBuilder(
@@ -377,7 +390,31 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                     ?.get(PreferencesKeys.NOTIFICATION_CLASS) ?:
                     NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
 
-                when (className) {
+                val styles = NotificationBuilder.getNotificationStyles()
+
+                for (i in styles.indices) {
+
+                    if (styles[i].name == className) {
+                        val children = binding.radioGroup.children.filter { it is RadioButton }
+
+                        var index = 0
+
+                        val iterator = children.iterator()
+
+                        while (iterator.hasNext()) {
+
+                            if (index == i) {
+                                val radioButton = iterator.next() as RadioButton
+                                radioButton.isChecked = true
+
+                                break
+                            } else
+                                index++
+                        }
+                    }
+                }
+
+                /*when (className) {
                     CircularNotificationBuilder::class.java.canonicalName -> {
                         binding.radioGroup.check(R.id.circular_notification)
                     }
@@ -402,7 +439,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                             it[PreferencesKeys.NOTIFICATION_CLASS] = className
                         }
                     }
-                }
+                }*/
             }
         }
 

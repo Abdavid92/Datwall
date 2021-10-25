@@ -93,8 +93,11 @@ class VerticalNotificationBuilder constructor(
 
 
     @SuppressLint("RestrictedApi")
-    override fun getSummary(): String {
-        return mContext.getString(R.string.vertical_notification_summary)
+    override fun getSummary(): Array<String> {
+        return arrayOf(
+            mContext.getString(R.string.vertical_notification),
+            mContext.getString(R.string.vertical_notification_summary)
+        )
     }
 
 

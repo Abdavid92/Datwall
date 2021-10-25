@@ -42,11 +42,11 @@ abstract class NotificationBuilder(
     abstract fun getSample(parent: ViewGroup?): View
 
     /**
-     * Obtiene una descripción de las características de la notificación
+     * Obtiene el nombre y una descripción de las características de la notificación
      *
-     * @return [String]
+     * @return [Array]
      * */
-    abstract fun getSummary(): String
+    abstract fun getSummary(): Array<String>
 
     @SuppressLint("RestrictedApi")
     protected fun getFirstExpiredDate(dataBytes: List<UserDataBytes>): String? {
