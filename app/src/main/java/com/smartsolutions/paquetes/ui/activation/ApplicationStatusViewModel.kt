@@ -7,7 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
-import com.smartsolutions.paquetes.kernel.DatwallApplication
+import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

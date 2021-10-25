@@ -1,9 +1,7 @@
 package com.smartsolutions.paquetes.ui.setup
 
-import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.*
-import com.smartsolutions.paquetes.kernel.DatwallApplication
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.models.Configuration
 import dagger.hilt.android.lifecycle.HiltViewModel

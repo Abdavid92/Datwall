@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.modules
 
-import com.smartsolutions.paquetes.kernel.DatwallKernel
+import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.helpers.IChangeNetworkHelper
 import dagger.Binds
 import dagger.Module
