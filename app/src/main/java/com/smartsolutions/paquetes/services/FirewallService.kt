@@ -109,10 +109,24 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
                     return START_NOT_STICKY
                 }
-                it.action === ACTION_NOT_ASK_APP -> {
+                it.action == ACTION_NOT_ASK_APP -> {
                     it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
                         cancelAskNotification(app.uid)
                         app.ask = false
+                        launch(Dispatchers.IO) {
+                            appRepository.update(app)
+                        }
+                    }
+
+                    if (vpnConnection?.isConnected == true)
+                        return START_STICKY
+
+                    return START_NOT_STICKY
+                }
+                it.action == ACTION_ALWAYS_GRANT_APP -> {
+                    it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
+                        cancelAskNotification(app.uid)
+                        app.foregroundAccess = true
                         launch(Dispatchers.IO) {
                             appRepository.update(app)
                         }
@@ -281,12 +295,35 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             }
         )
 
+
+        val alwaysGrantIntent = Intent(this, FirewallService::class.java)
+            .setAction(ACTION_ALWAYS_GRANT_APP)
+            .putExtra(EXTRA_APP, app)
+
+        val alwaysGrantPendingIntent = PendingIntent.getService(
+            this,
+            0,
+            alwaysGrantIntent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
+
         val notification = NotificationCompat.Builder(this, NotificationHelper.FIREWALL_CHANNEL_ID)
             .addAction(
                 NotificationCompat.Action.Builder(
                     R.drawable.ic_cancel_24,
                     getString(R.string.btn_dont_ask),
                     notAskPendingIntent
+                ).build()
+            )
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    R.drawable.ic_done,
+                    getString(R.string.btn_always_allow_text),
+                    alwaysGrantPendingIntent
                 ).build()
             )
             .addAction(
@@ -457,6 +494,12 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
          * Acción que se usa para permitir el acceso a una aplicación.
          * */
         const val ACTION_NOT_ASK_APP = "com.smartsolutions.paquetes.action.NOT_ASK_APP"
+
+
+        /**
+         * Acción que se usa para permitir el acceso a una aplicación.
+         * */
+        const val ACTION_ALWAYS_GRANT_APP = "com.smartsolutions.paquetes.action.ALWAYS_GRANT_APP"
 
         /**
          * Aplicación.
