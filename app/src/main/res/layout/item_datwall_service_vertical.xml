@@ -2,18 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
-    tools:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_weight="1"
-    android:orientation="horizontal"
-    android:baselineAligned="false">
+    android:baselineAligned="false"
+    android:paddingRight="4dp"
+    tools:layout_width="wrap_content">
 
     <RelativeLayout
-        android:layout_weight="1"
-        android:gravity="end"
-        android:layout_marginEnd="2dp"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="end">
 
         <ProgressBar
             android:id="@+id/data_progress"
@@ -34,9 +33,7 @@
             android:layout_centerInParent="true"
             android:rotation="-90"
             android:shadowColor="@color/black"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="3"
+            android:shadowRadius="5"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@color/white"
             android:textSize="10dp"
@@ -47,10 +44,10 @@
 
 
     <LinearLayout
-        android:gravity="start"
-        android:layout_weight="1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
         android:orientation="vertical">
 
         <TextView
@@ -59,28 +56,30 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="12sp"
             android:textStyle="bold"
-            tools:text="Internacional" />
+            tools:text="3G/LTE" />
 
 
         <TextView
             android:id="@+id/data_bytes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
             android:text="500 MB"
+            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:layout_marginRight="4dp"/>
+            android:textSize="11sp" />
 
         <TextView
             android:id="@+id/data_expire"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
             android:text="10/12"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="10sp" />
 
 
     </LinearLayout>

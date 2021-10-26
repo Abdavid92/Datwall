@@ -135,7 +135,9 @@ class VerticalNotificationBuilder constructor(
 
         val childRemotes = RemoteViews(mContext.packageName, R.layout.item_datwall_service_vertical).apply {
             setTextViewText(R.id.data_title, title)
+
             setInt(R.id.data_title, "setTextColor", color)
+            setInt(R.id.data_percent, "setTextColor", Color.WHITE)
             setInt(R.id.data_bytes, "setTextColor", color)
             setInt(R.id.data_expire, "setTextColor", color)
 
@@ -157,7 +159,6 @@ class VerticalNotificationBuilder constructor(
                 R.id.data_percent,
                 if (userDataBytes.isExpired()) "exp" else "$percent%"
             )
-            setInt(R.id.data_percent, "setTextColor", color)
 
             setTextViewText(
                 R.id.data_expire,
