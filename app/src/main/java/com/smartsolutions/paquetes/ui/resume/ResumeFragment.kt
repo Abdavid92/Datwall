@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,6 +23,8 @@ import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
 import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.*
 
 @AndroidEntryPoint
 class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult {
@@ -73,11 +76,17 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
 
             setAdapter(it)
 
-            setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it, childFragmentManager)
+            setTabLayoutMediatorSims(
+                requireContext(),
+                binding.tabs,
+                binding.pager,
+                it,
+                childFragmentManager
+            )
 
-            if (it.size <= 1){
+            if (it.size <= 1) {
                 binding.tabs.visibility = View.GONE
-            }else {
+            } else {
                 binding.tabs.visibility = View.VISIBLE
             }
         }
@@ -90,9 +99,24 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
                 viewModel.synchronizeUserDataBytes(this)
             } else {
                 val fragment =
-                   DefaultSimsDialogFragment.newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
+                    DefaultSimsDialogFragment.newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
                 fragment.show(childFragmentManager, "Not Default Fragment")
             }
+        }
+
+        binding.floatingActionButton.setOnLongClickListener {
+            kotlin.runCatching {
+                Toast.makeText(
+                    requireContext(),
+                    "Actualizado:\n${
+                        SimpleDateFormat("dd/MM/yyyy hh:mm:ss aa", Locale.getDefault()).format(
+                            Date(installedSims[binding.pager.currentItem].lastSynchronization)
+                        )
+                    }",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            return@setOnLongClickListener true
         }
 
         binding.buttonFilter.setOnClickListener {
@@ -109,7 +133,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         adapterFragment = null
     }
 
-    private fun showFilterOptions(){
+    private fun showFilterOptions() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_filter_title)
             .setItems(R.array.filter_resume) { _, pos ->
@@ -117,7 +141,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             }.show()
     }
 
-    private fun showChartUsageGeneral(){
+    private fun showChartUsageGeneral() {
         UsageGeneralFragment.newInstance(
             installedSims[binding.tabs.selectedTabPosition].id
         ).show(childFragmentManager, null)
