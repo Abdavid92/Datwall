@@ -33,11 +33,12 @@ android {
         applicationId "com.smartsolutions.paquetes"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 28
+        versionCode 29
         versionName "4.0 BETA"
         archivesBaseName = "Mis Datos-$versionName"
 
-        //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner "androidx.test.runner.Andr
+        // oidJUnitRunner"
         testInstrumentationRunner "com.smartsolutions.paquetes.HiltTestRunner"
 
         resConfigs "es", "en"

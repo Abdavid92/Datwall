@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
@@ -60,19 +61,27 @@ class SynchronizationManager @Inject constructor(
     }
 
     override suspend fun synchronizeUserDataBytes(sim: Sim) {
-        if (_synchronizationMode == IDataPackageManager.ConnectionMode.MiCubacel) {
-            /*if (sim.miCubacelAccount == null)
-                throw NoSuchElementException()
-
-            val data = miCubacelManager.synchronizeUserDataBytes(sim.miCubacelAccount)
-                .getOrThrow()
-
-            userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), sim.id)*/
-        } else if (_synchronizationMode == IDataPackageManager.ConnectionMode.USSD) {
+        if (_synchronizationMode == IDataPackageManager.ConnectionMode.USSD) {
             val data = mutableListOf<DataBytes>()
 
             val bytesPackages = ussdHelper.sendUSSDRequest("*222*328#")
             val bonusPackages = ussdHelper.sendUSSDRequest("*222*266#")
+
+            bytesPackages.forEach {
+                if (it.contains("mmi", true))
+                    throw USSDRequestException(
+                        USSDHelper.USSD_CODE_FAILED,
+                        ussdHelper.errorMessages[USSDHelper.USSD_CODE_FAILED]
+                    )
+            }
+
+            bonusPackages.forEach {
+                if (it.contains("mmi", true))
+                    throw USSDRequestException(
+                        USSDHelper.USSD_CODE_FAILED,
+                        ussdHelper.errorMessages[USSDHelper.USSD_CODE_FAILED]
+                    )
+            }
 
             data.addAll(obtainDataBytesPackages(bytesPackages))
             data.addAll(obtainDataByteBonus(bonusPackages))
@@ -81,12 +90,12 @@ class SynchronizationManager @Inject constructor(
                 fillMissingDataBytes(data),
                 simManager.getDefaultSim(SimDelegate.SimType.VOICE).id
             )
-        }
 
-        withContext(Dispatchers.IO) {
-            simRepository.update(sim.apply {
-                lastSynchronization = System.currentTimeMillis()
-            })
+            withContext(Dispatchers.IO) {
+                simRepository.update(sim.apply {
+                    lastSynchronization = System.currentTimeMillis()
+                })
+            }
         }
     }
 
