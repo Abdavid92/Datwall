@@ -42,8 +42,12 @@
         android:id="@+id/wel_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignEnd="@id/wel_center_view"
-        tools:src="@drawable/presentation_page_0"/>
+        android:layout_alignTop="@id/wel_center_view"
+        android:layout_alignBottom="@id/wel_center_view"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="9dp"
+        android:layout_marginEnd="-9dp"
+        tools:src="@drawable/presentation_page_0" />
 
 </RelativeLayout>
