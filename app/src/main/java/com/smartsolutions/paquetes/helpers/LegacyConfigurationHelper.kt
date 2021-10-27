@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.settingsDataStore
@@ -8,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -22,14 +24,22 @@ class LegacyConfigurationHelper @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    private val preferences = context
-        .getSharedPreferences("data_mis_datos", Context.MODE_PRIVATE)
+    private lateinit var preferences: SharedPreferences
+
+    init {
+        launch {
+            preferences = context
+                .getSharedPreferences("data_mis_datos", Context.MODE_PRIVATE)
+        }
+    }
 
     /**
      * Indica si ya la versión anterior de la aplicación ha sido comprada.
      * */
-    fun isPurchased(): Boolean {
-        return preferences.getBoolean("l_p_f", false)
+    suspend fun isPurchased(): Boolean {
+        return withContext(Dispatchers.IO) {
+            preferences.getBoolean("l_p_f", false)
+        }
     }
 
     /**
@@ -39,34 +49,39 @@ class LegacyConfigurationHelper @Inject constructor(
      * @return [List] con los nombres de paquetes de las aplicaciones
      * permitidas por el cortafuegos.
      * */
-    fun getLegacyRules(): List<String> {
-        val db = context.openOrCreateDatabase("rules.db", Context.MODE_PRIVATE, null)
+    suspend fun getLegacyRules(): List<String> {
+        val db = withContext(Dispatchers.IO) {
+            context.openOrCreateDatabase("rules.db", Context.MODE_PRIVATE, null)
+        }
 
         val result = mutableListOf<String>()
 
         try {
-            val cursor = db.query(
-                "apps",
-                arrayOf("package_name"),
-                "data_access = ?",
-                arrayOf("1"),
-                null,
-                null,
-                null
-            )
+            withContext(Dispatchers.IO) {
+                val cursor = db.query(
+                    "apps",
+                    arrayOf("package_name"),
+                    "data_access = ?",
+                    arrayOf("1"),
+                    null,
+                    null,
+                    null
+                )
 
-            if (cursor.moveToFirst()) {
-                var packageName = cursor.getString(cursor.getColumnIndex("package_name"))
-
-                result.add(packageName)
-
-                while (cursor.moveToNext()) {
-                    packageName = cursor.getString(cursor.getColumnIndex("package_name"))
+                if (cursor.moveToFirst()) {
+                    var packageName = cursor.getString(cursor.getColumnIndex("package_name"))
 
                     result.add(packageName)
+
+                    while (cursor.moveToNext()) {
+                        packageName = cursor.getString(cursor.getColumnIndex("package_name"))
+
+                        result.add(packageName)
+                    }
                 }
+                cursor.close()
             }
-            cursor.close()
+
         } catch (e: Exception) {
 
         }
@@ -79,29 +94,33 @@ class LegacyConfigurationHelper @Inject constructor(
      * ya fué restaurada.
      * */
     fun setConfigurationRestored() {
-        preferences.edit()
-            .putBoolean(DB_CONFIGURATION_RESTORED, true)
-            .apply()
+        launch {
+            preferences.edit()
+                .putBoolean(DB_CONFIGURATION_RESTORED, true)
+                .apply()
+        }
     }
 
     /**
      * Indica si la configuración de la base de datos
      * ya fué restaurada.
      * */
-    fun isConfigurationRestored(): Boolean {
-        return preferences.getBoolean(DB_CONFIGURATION_RESTORED, false)
+    suspend fun isConfigurationRestored(): Boolean {
+        return withContext(Dispatchers.IO) {
+            preferences.getBoolean(DB_CONFIGURATION_RESTORED, false)
+        }
     }
 
     /**
      * Establece en el dataStore la configuración del cortafuegos de la versión anterior.
      * */
     fun setFirewallLegacyConfiguration() {
-        val preferences = context.getSharedPreferences(
-            "com.smartsolutions.paquetes_preferences",
-            Context.MODE_PRIVATE
-        )
-
         launch {
+            val preferences = context.getSharedPreferences(
+                "com.smartsolutions.paquetes_preferences",
+                Context.MODE_PRIVATE
+            )
+
             context.settingsDataStore.edit {
                 it[PreferencesKeys.ENABLED_FIREWALL] = preferences
                     .getBoolean("firewall_running", false)
@@ -114,12 +133,12 @@ class LegacyConfigurationHelper @Inject constructor(
      * flotante de la versión anterior.
      * */
     fun setBubbleFloatingLegacyConfiguration() {
-        val preferences = context.getSharedPreferences(
-            "com.smartsolutions.paquetes_preferences",
-            Context.MODE_PRIVATE
-        )
-
         launch {
+            val preferences = context.getSharedPreferences(
+                "com.smartsolutions.paquetes_preferences",
+                Context.MODE_PRIVATE
+            )
+
             context.settingsDataStore.edit {
                 it[PreferencesKeys.ENABLED_BUBBLE_FLOATING] = preferences
                     .getBoolean("widget_floating", false)

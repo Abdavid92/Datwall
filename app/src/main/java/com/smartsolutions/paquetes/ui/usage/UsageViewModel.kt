@@ -14,11 +14,10 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.Period
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.IIconManager
+import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +33,7 @@ class UsageViewModel @Inject constructor(
     private val networkUsageManager: NetworkUsageManager,
     private val appRepository: IAppRepository,
     private val dateCalendarUtils: DateCalendarUtils,
-    val iconManager: IIconManager
+    val iconManager: IIconManager2
 ) : AndroidViewModel(application) {
 
     private var period = 0

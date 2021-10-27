@@ -195,9 +195,11 @@ class DatwallKernel @Inject constructor(
      * Este método se eliminará en versiones posteriores.
      * */
     private fun setLegacyConfiguration() {
-        if (!legacyConfiguration.isConfigurationRestored()) {
-            legacyConfiguration.setFirewallLegacyConfiguration()
-            legacyConfiguration.setBubbleFloatingLegacyConfiguration()
+        launch {
+            if (!legacyConfiguration.isConfigurationRestored()) {
+                legacyConfiguration.setFirewallLegacyConfiguration()
+                legacyConfiguration.setBubbleFloatingLegacyConfiguration()
+            }
         }
     }
 

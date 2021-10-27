@@ -16,7 +16,7 @@ import androidx.core.view.ViewCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityAppControlBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.managers.contracts.IIconManager
+import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.ui.MainActivity
@@ -56,7 +56,7 @@ class AppControlActivity : TransparentActivity() {
     private var wasChanges = false
 
     @Inject
-    lateinit var iconManager: IIconManager
+    lateinit var iconManager: IIconManager2
 
     private var uiHelper = UIHelper(this)
 
@@ -215,7 +215,9 @@ class AppControlActivity : TransparentActivity() {
         app?.let { app ->
             binding.name.text = app.name
             binding.packageName.text = app.packageName
-            binding.icon.setImageBitmap(iconManager.get(app.packageName, app.version))
+            iconManager.getIcon(app.packageName, app.version){
+                binding.icon.setImageBitmap(it)
+            }
         }
     }
 

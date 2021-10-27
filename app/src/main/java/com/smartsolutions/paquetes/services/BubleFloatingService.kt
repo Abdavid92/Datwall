@@ -22,7 +22,7 @@ import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.IIconManager
+import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -49,7 +49,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     lateinit var appRepository: IAppRepository
 
     @Inject
-    lateinit var iconManager: IIconManager
+    lateinit var iconManager: IIconManager2
 
     @Inject
     lateinit var networkUsageManager: NetworkUsageManager
@@ -493,11 +493,13 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
                     setThemeBubble()
 
-                    bitmapIcon = iconManager.get(
+                    iconManager.getIcon(
                         appCurrent.packageName,
                         appCurrent.version
-                    )
-                    bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
+                    ){
+                        bitmapIcon = it
+                        bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
+                    }
                 }
             }
         }

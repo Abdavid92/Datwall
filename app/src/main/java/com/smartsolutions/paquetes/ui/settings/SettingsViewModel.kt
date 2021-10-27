@@ -2,7 +2,7 @@ package com.smartsolutions.paquetes.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smartsolutions.paquetes.managers.contracts.IIconManager
+import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val purchasedPackageRepository: IPurchasedPackageRepository,
-    private val iconManager: IIconManager
+    private val iconManager: IIconManager2
 ) : ViewModel() {
 
     fun clearHistory() {
@@ -34,6 +34,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun clearIconCache() {
-        iconManager.deleteAll()
+        viewModelScope.launch {
+            iconManager.deleteAll()
+        }
     }
 }

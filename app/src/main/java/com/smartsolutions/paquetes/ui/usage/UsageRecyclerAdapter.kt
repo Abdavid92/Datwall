@@ -9,16 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUsageBinding
-import com.smartsolutions.paquetes.managers.contracts.IIconManager
+import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
-import com.smartsolutions.paquetes.repositories.models.App
-import java.time.Period
-import kotlin.math.roundToInt
 
 class UsageRecyclerAdapter constructor(
     private val fragment: Fragment,
     private var apps: List<UsageApp>,
-    private val iconManager: IIconManager
+    private val iconManager: IIconManager2
 ): RecyclerView.Adapter<UsageRecyclerAdapter.UsageViewHolder>() {
 
     private var appsShow = apps.toMutableList()
@@ -65,11 +62,8 @@ class UsageRecyclerAdapter constructor(
 
         fun bind(usageApp: UsageApp) {
             val app = usageApp.app
-            if (app.uid == NetworkStats.Bucket.UID_TETHERING){
-                val string: String = "uwhowqr"
-                string.split("i")
-            }
-            iconManager.getAsync(app.packageName, app.version) {
+
+            iconManager.getIcon(app.packageName, app.version) {
                 binding.appIcon.setImageBitmap(it)
             }
 

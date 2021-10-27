@@ -30,7 +30,7 @@ class PresentationActivity : WelcomeActivity() {
             )
             .page(
                 CustomPage(
-                    R.drawable.presentation_page_1,
+                    R.drawable.background_card_dark,
                     R.string.page_1_title,
                     R.string.page_1_description
                 )

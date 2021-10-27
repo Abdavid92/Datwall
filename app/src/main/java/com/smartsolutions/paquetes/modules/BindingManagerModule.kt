@@ -18,6 +18,9 @@ interface BindingManagerModule {
     fun bindIIconManager(impl: IconManager): IIconManager
 
     @Binds
+    fun bindIIconManager2(impl: IconManager2): IIconManager2
+
+    @Binds
     fun bindIPurchasedPackagesManager(impl: PurchasedPackagesManager): IPurchasedPackagesManager
 
     @Binds

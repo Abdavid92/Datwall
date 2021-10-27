@@ -16,6 +16,9 @@ import kotlinx.coroutines.runBlocking
 import java.lang.RuntimeException
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
+import android.os.StrictMode
+import android.os.StrictMode.VmPolicy
+
 
 /**
  * Clase principal de la aplicación. Contiene el inyector y se
@@ -50,6 +53,23 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
     var uiScannerServiceReady = false
 
     override fun onCreate() {
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork() // or .detectAll() for all detectable problems
+                    .penaltyLog()
+                    .build()
+            )
+            StrictMode.setVmPolicy(
+                VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .build()
+            )
+        }
         super.onCreate()
 
         if (!exceptionsController.isRegistered) {
@@ -58,7 +78,7 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
         val themeMode: Int
 
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             val preferences = settingsDataStore.data
                 .firstOrNull()
 

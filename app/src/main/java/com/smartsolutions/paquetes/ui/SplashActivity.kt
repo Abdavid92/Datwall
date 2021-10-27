@@ -11,12 +11,14 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.smartsolutions.paquetes.R
 import com.stephentuso.welcome.WelcomeHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Actividad de inicio y punto de entrada frontend de la aplicación.
  * */
 @AndroidEntryPoint
-class SplashActivity : AbstractActivity(R.layout.activity_splash) {
+class SplashActivity : AbstractActivity(R.layout.activity_splash), CoroutineScope {
 
     private val viewModel by viewModels<SplashViewModel>()
 
@@ -29,18 +31,22 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash) {
             WindowInsetsCompat.Type.systemBars()
         )
 
-        val handler = Handler(Looper.getMainLooper())
+        launch {
+            delay(1000)
 
-        handler.postDelayed({
-            if (!WelcomeHelper(this, PresentationActivity::class.java)
-                    .show(savedInstanceState)) {
+            if (withContext(Dispatchers.IO) {
+                    !WelcomeHelper(this@SplashActivity, PresentationActivity::class.java)
+                        .show(savedInstanceState)
+                }) {
 
-                viewModel.addOpenActivityListener(this) {
-                    startActivity(Intent(this, it))
-                    finish()
+                withContext(Dispatchers.Main) {
+                    viewModel.addOpenActivityListener(this@SplashActivity) {
+                        startActivity(Intent(this@SplashActivity, it))
+                        finish()
+                    }
                 }
             }
-        }, 1000)
+        }
 
     }
 
@@ -56,4 +62,7 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash) {
             }
         }
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 }
