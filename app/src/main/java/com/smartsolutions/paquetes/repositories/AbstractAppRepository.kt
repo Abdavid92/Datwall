@@ -97,7 +97,10 @@ abstract class AbstractAppRepository(
         app.version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
         app.access = false
         app.trafficType = when {
-            isFree(info.packageName) -> TrafficType.Free
+            isFree(info.packageName) -> {
+                app.access = true
+                TrafficType.Free
+            }
             isNational(info.packageName) -> TrafficType.National
             else -> TrafficType.International
         }
