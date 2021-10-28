@@ -109,6 +109,11 @@ class AppsListAdapter constructor(
         holder.bind(finalList[position])
     }
 
+    override fun onViewRecycled(holder: AbstractViewHolder) {
+        super.onViewRecycled(holder)
+        holder.close()
+    }
+
     override fun getItemCount() = finalList.size
 
     /**
@@ -224,11 +229,15 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [HeaderApp].
      * */
     private inner class HeaderViewHolder(
-        private val binding: ItemHeaderBinding
-    ) : AbstractViewHolder(binding.root) {
+        private var binding: ItemHeaderBinding?
+    ) : AbstractViewHolder(binding!!.root) {
 
         override fun bind(app: IApp) {
-            binding.headerText.text = app.name
+            binding?.headerText?.text = app.name
+        }
+
+        override fun close() {
+            binding = null
         }
     }
 
@@ -236,46 +245,57 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [App].
      * */
     private inner class AppViewHolder(
-        private val binding: ItemAppBinding
-    ) : AbstractViewHolder(binding.root) {
+        private var binding: ItemAppBinding?
+    ) : AbstractViewHolder(binding!!.root) {
+
+        private var iconJob: Job? = null
 
         override fun bind(app: IApp) {
             //Casteo al tipo App. Si no es este tipo se lanza una excepción
             app as App
 
-            binding.app = app
+            binding?.let { binding ->
 
-            binding.backgroundLayout.setOnClickListener {
+                binding.app = app
 
-                val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    fragment.requireActivity(),
-                    Pair(binding.backgroundLayout, VIEW_NAME_HEADER_LAYOUT),
-                    Pair(binding.icon, VIEW_NAME_HEADER_IMAGE),
-                    Pair(binding.name, VIEW_NAME_HEADER_NAME),
-                    Pair(binding.packageName, VIEW_NAME_HEADER_PACKAGE_NAME)
-                )
+                binding.backgroundLayout.setOnClickListener {
 
-                launcher.launch(app, activityOptions)
-            }
+                    val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        fragment.requireActivity(),
+                        Pair(binding.backgroundLayout, VIEW_NAME_HEADER_LAYOUT),
+                        Pair(binding.icon, VIEW_NAME_HEADER_IMAGE),
+                        Pair(binding.name, VIEW_NAME_HEADER_NAME),
+                        Pair(binding.packageName, VIEW_NAME_HEADER_PACKAGE_NAME)
+                    )
 
-            //Carga el ícono asíncronamente
-            iconManager.getIcon(app.packageName, app.version, iconSize) {
-                binding.icon.setImageBitmap(it)
-            }
+                    launcher.launch(app, activityOptions)
+                }
 
-            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
-                if (fragment is OnAppChangeListener) {
-                    fragment.onAppChange(app)
+                //Carga el ícono asíncronamente
+                iconJob = iconManager.getIcon(app.packageName, app.version, iconSize) {
+                    binding.icon.setImageBitmap(it)
+                }
+
+                uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+                    if (fragment is OnAppChangeListener) {
+                        fragment.onAppChange(app)
+                    }
+                }
+
+                if (appsFilter == AppsFilter.InternetAccess) {
+                    binding.launch.visibility = View.GONE
+                    binding.vpnAccess.visibility = View.VISIBLE
+                } else {
+                    binding.launch.visibility = View.VISIBLE
+                    binding.vpnAccess.visibility = View.INVISIBLE
                 }
             }
+        }
 
-            if (appsFilter == AppsFilter.InternetAccess) {
-                binding.launch.visibility = View.GONE
-                binding.vpnAccess.visibility = View.VISIBLE
-            } else {
-                binding.launch.visibility = View.VISIBLE
-                binding.vpnAccess.visibility = View.INVISIBLE
-            }
+        override fun close() {
+            iconJob?.cancel()
+            iconJob = null
+            binding = null
         }
     }
 
@@ -283,8 +303,10 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [AppGroup].
      * */
     private inner class AppGroupViewHolder(
-        private val binding: ItemAppGroupBinding
-    ) : AbstractViewHolder(binding.root) {
+        private var binding: ItemAppGroupBinding?
+    ) : AbstractViewHolder(binding!!.root) {
+
+        private var iconJob: Job? = null
 
         /**
          * Adaptador de la lista de aplicaciones anidada.
@@ -295,57 +317,68 @@ class AppsListAdapter constructor(
             //Casteo al tipo AppGroup. Si no es este tipo se lanza una excepción
             app as AppGroup
 
-            binding.name.text = app.name
-            binding.appsCount
-                .text = itemView.context.getString(R.string.apps_count, app.size)
+            binding?.let { binding ->
 
-            if (appsFilter == AppsFilter.InternetAccess) {
-                binding.vpnAccess.visibility = View.VISIBLE
-            } else {
-                binding.vpnAccess.visibility = View.INVISIBLE
-            }
+                binding.name.text = app.name
+                binding.appsCount
+                    .text = itemView.context.getString(R.string.apps_count, app.size)
 
-            binding.childLayout.visibility = if (app.expanded) View.VISIBLE else View.GONE
+                if (appsFilter == AppsFilter.InternetAccess) {
+                    binding.vpnAccess.visibility = View.VISIBLE
+                } else {
+                    binding.vpnAccess.visibility = View.INVISIBLE
+                }
 
-            binding.backgroundLayout.setOnClickListener {
-                app.expanded = !app.expanded
-                notifyItemChanged(absoluteAdapterPosition)
-            }
+                binding.childLayout.visibility = if (app.expanded) View.VISIBLE else View.GONE
 
-            childAdapter = AppsListAdapter(
-                fragment,
-                launcher,
-                iconManager,
-                appsFilter,
-                app
-            ).apply {
-                iconSize = 40
-            }
+                binding.backgroundLayout.setOnClickListener {
+                    app.expanded = !app.expanded
+                    notifyItemChanged(absoluteAdapterPosition)
+                }
 
-            binding.child.adapter = childAdapter
+                childAdapter = AppsListAdapter(
+                    fragment,
+                    launcher,
+                    iconManager,
+                    appsFilter,
+                    app
+                ).apply {
+                    iconSize = 40
+                }
 
-            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
-                if (fragment is OnAppChangeListener) {
-                    fragment.onAppChange(app)
-                    updateApp(app)
+                binding.child.adapter = childAdapter
+
+                uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+                    if (fragment is OnAppChangeListener) {
+                        fragment.onAppChange(app)
+                        updateApp(app)
+                    }
+                }
+
+                if (app.expanded) {
+                    binding.arrow.rotation = 180F
+                } else {
+                    binding.arrow.rotation = 0F
+                }
+
+                iconJob = iconManager.getIcon(app.packageName, iconSize) {
+                    binding.icon.setImageBitmap(it)
                 }
             }
+        }
 
-            if (app.expanded) {
-                binding.arrow.rotation = 180F
-            } else {
-                binding.arrow.rotation = 0F
-            }
-
-            iconManager.getIcon(app.packageName, iconSize) {
-                binding.icon.setImageBitmap(it)
-            }
+        override fun close() {
+            iconJob?.cancel()
+            iconJob = null
+            binding = null
         }
     }
 
     abstract inner class AbstractViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         abstract fun bind(app: IApp)
+
+        abstract fun close()
     }
 
     private class DiffCallback(
