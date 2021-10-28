@@ -87,36 +87,55 @@ class HistoryRecyclerAdapter constructor(
         holder.onBind(history[position])
     }
 
+    override fun onViewRecycled(holder: AbstractItemHolder) {
+        holder.close()
+        super.onViewRecycled(holder)
+    }
+
     override fun getItemCount(): Int {
         return historyShow.size
     }
 
     abstract class AbstractItemHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract fun onBind(purchasedPackage: IPurchasedPackage)
+
+        abstract fun close()
     }
 
 
-    inner class HeaderViewHolder(private val binding: ItemHeaderHistoryBinding) :
-        AbstractItemHolder(binding.root) {
+    inner class HeaderViewHolder(var binding: ItemHeaderHistoryBinding?) :
+        AbstractItemHolder(binding!!.root) {
 
         override fun onBind(purchasedPackage: IPurchasedPackage) {
-            val data = purchasedPackage as HistoryViewModel.HeaderPurchasedPackage
-            binding.titleMonth.text = data.month
-            binding.textTotalPrice.text = "${data.priceTotal} $"
+            binding?.apply {
+                val data = purchasedPackage as HistoryViewModel.HeaderPurchasedPackage
+                titleMonth.text = data.month
+                textTotalPrice.text = "${data.priceTotal} $"
+            }
+        }
+
+        override fun close() {
+            binding = null
         }
 
     }
 
-    inner class ItemViewHolder(private val binding: ItemHistoryBinding) :
-        AbstractItemHolder(binding.root) {
+    inner class ItemViewHolder(var binding: ItemHistoryBinding?) :
+        AbstractItemHolder(binding!!.root) {
 
         override fun onBind(purchasedPackage: IPurchasedPackage) {
-            val data = purchasedPackage as PurchasedPackage
-            binding.textDate.text = SimpleDateFormat("dd MMM hh:mm aa", Locale.getDefault()).format(
-                Date(data.date)
-            )
-            binding.textPackage.text = data.dataPackage.name
-            binding.textPrice.text = "${data.dataPackage.price.toInt()} $"
+            binding?.apply {
+                val data = purchasedPackage as PurchasedPackage
+                textDate.text = SimpleDateFormat("dd MMM hh:mm aa", Locale.getDefault()).format(
+                    Date(data.date)
+                )
+                textPackage.text = data.dataPackage.name
+                textPrice.text = "${data.dataPackage.price.toInt()} $"
+            }
+        }
+
+        override fun close() {
+          binding = null
         }
 
     }
