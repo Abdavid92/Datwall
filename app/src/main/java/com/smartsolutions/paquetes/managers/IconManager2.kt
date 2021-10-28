@@ -13,10 +13,7 @@ import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -78,8 +75,8 @@ class IconManager2 @Inject constructor(
         versionCode: Long,
         size: Int,
         onResult: (icon: Bitmap?) -> Unit
-    ) {
-        launch {
+    ): Job {
+        return launch {
             val icon = getIcon(packageName, versionCode, size)
             withContext(Dispatchers.Main) {
                 onResult(icon)
@@ -88,8 +85,8 @@ class IconManager2 @Inject constructor(
     }
 
 
-    override fun getIcon(packageName: String, size: Int, onResult: (icon: Bitmap?) -> Unit) {
-        launch {
+    override fun getIcon(packageName: String, size: Int, onResult: (icon: Bitmap?) -> Unit): Job {
+        return launch {
             val icon = try {
                 val info = packageManager.getPackageInfo(packageName, 0)
                 getIcon(info, size)
