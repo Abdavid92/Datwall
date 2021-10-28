@@ -41,6 +41,11 @@ class PackagesRecyclerAdapter(
         holder.onBind(dataPackages[position])
     }
 
+    override fun onViewRecycled(holder: ItemHolder) {
+        holder.close()
+        super.onViewRecycled(holder)
+    }
+
     override fun getItemCount(): Int {
        return dataPackages.size
     }
@@ -48,20 +53,25 @@ class PackagesRecyclerAdapter(
 
     abstract class ItemHolder(view: View): RecyclerView.ViewHolder(view){
         abstract fun onBind(iPackage: IDataPackage)
+        abstract fun close()
     }
 
-    inner class HeaderHolder(private val binding: ItemHeaderPackagesBinding): ItemHolder(binding.root){
+    inner class HeaderHolder(private var binding: ItemHeaderPackagesBinding?): ItemHolder(binding!!.root){
 
         override fun onBind(iPackage: IDataPackage) {
-            binding.headerText.text = iPackage.name
+            binding?.headerText?.text = iPackage.name
+        }
+
+        override fun close() {
+            binding = null
         }
 
     }
 
-    inner class PlanHolder(private val binding: ItemPlan2Binding): ItemHolder(binding.root){
+    inner class PlanHolder(private var binding: ItemPlan2Binding?): ItemHolder(binding!!.root){
 
         override fun onBind(iPackage: IDataPackage) {
-            binding.apply {
+            binding?.apply {
                 val international = DataUnitBytes(iPackage.bytes).getValue()
                 val lteInternational = DataUnitBytes(iPackage.bytesLte).getValue()
                 val national = DataUnitBytes(iPackage.nationalBytes).getValue()
@@ -80,12 +90,16 @@ class PackagesRecyclerAdapter(
             }
         }
 
+        override fun close() {
+            binding = null
+        }
+
     }
 
-    inner class PackagesHolder(private val binding: ItemPackage2Binding): ItemHolder(binding.root){
+    inner class PackagesHolder(private var binding: ItemPackage2Binding?): ItemHolder(binding!!.root){
 
         override fun onBind(iPackage: IDataPackage) {
-            binding.apply {
+            binding?.apply {
                 val lteInternational = DataUnitBytes(iPackage.bytesLte).getValue()
                 val national = DataUnitBytes(iPackage.nationalBytes).getValue()
 
@@ -104,6 +118,10 @@ class PackagesRecyclerAdapter(
                     fragment.purchasePackage(iPackage)
                 }
             }
+        }
+
+        override fun close() {
+            binding = null
         }
 
     }

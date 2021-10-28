@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUsageBinding
 import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import kotlinx.coroutines.Job
 
 class UsageRecyclerAdapter constructor(
     private val fragment: Fragment,
@@ -58,23 +59,27 @@ class UsageRecyclerAdapter constructor(
         result.dispatchUpdatesTo(this)
     }
 
-    inner class UsageViewHolder(private val binding: ItemUsageBinding): RecyclerView.ViewHolder(binding.root) {
+    inner class UsageViewHolder(var binding: ItemUsageBinding?): RecyclerView.ViewHolder(binding!!.root) {
+
+        var job: Job? = null
 
         fun bind(usageApp: UsageApp) {
             val app = usageApp.app
 
-            iconManager.getIcon(app.packageName, app.version) {
-                binding.appIcon.setImageBitmap(it)
-            }
+            binding?.apply {
+                job = iconManager.getIcon(app.packageName, app.version) {
+                    appIcon.setImageBitmap(it)
+                }
 
-            binding.textAppName.text = app.name
-            val value = app.traffic?.totalBytes?.getValue() ?: DataUnitBytes.DataValue(0.0, DataUnitBytes.DataUnit.B)
-            binding.textUsageValue.text = "${value.value} ${value.dataUnit}"
-            binding.circleColour.circleColor = usageApp.colour
+                textAppName.text = app.name
+                val value = app.traffic?.totalBytes?.getValue() ?: DataUnitBytes.DataValue(0.0, DataUnitBytes.DataUnit.B)
+                textUsageValue.text = "${value.value} ${value.dataUnit}"
+                circleColour.circleColor = usageApp.colour
 
-            binding.root.setOnClickListener {
-                val dialog = UsageAppDetailsFragment.newInstance(usageApp.app)
-                dialog.show(fragment.childFragmentManager, "UsageAppDetails")
+                root.setOnClickListener {
+                    val dialog = UsageAppDetailsFragment.newInstance(usageApp.app)
+                    dialog.show(fragment.childFragmentManager, "UsageAppDetails")
+                }
             }
         }
 
@@ -86,6 +91,13 @@ class UsageRecyclerAdapter constructor(
 
     override fun onBindViewHolder(holder: UsageViewHolder, position: Int) {
         holder.bind(appsShow[position])
+    }
+
+    override fun onViewRecycled(holder: UsageViewHolder) {
+        holder.job?.cancel()
+        holder.binding = null
+        holder.job = null
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int {

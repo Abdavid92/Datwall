@@ -48,38 +48,40 @@ class UserDataBytesRecyclerAdapter constructor(
     }
 
 
-    inner class ViewHolder(private val binding: ItemUserDataBytesBinding): RecyclerView.ViewHolder(binding.root){
+    inner class ViewHolder(var binding: ItemUserDataBytesBinding?): RecyclerView.ViewHolder(binding!!.root){
 
         fun bind(userDataBytes: UserDataBytes){
-            val usage = DataUnitBytes(userDataBytes.initialBytes - userDataBytes.bytes).getValue()
-            val rest = DataUnitBytes(userDataBytes.bytes).getValue()
-            val percent = DateCalendarUtils.calculatePercent(userDataBytes.initialBytes.toDouble(), userDataBytes.bytes.toDouble())
-            val expire = if (userDataBytes.expiredTime == 0L){
-                "Desconocido"
-            }else {
-                SimpleDateFormat("dd MMMM", Locale.getDefault()).format(Date(userDataBytes.expiredTime))
-            }
-            val restDate = DateCalendarUtils.calculateDiffDate(System.currentTimeMillis(), userDataBytes.expiredTime)
-
-            binding.progressBar.apply {
-                max = 100
-                progress = if (percent <= 0){
-                    1f
+            binding?.apply {
+                val usage = DataUnitBytes(userDataBytes.initialBytes - userDataBytes.bytes).getValue()
+                val rest = DataUnitBytes(userDataBytes.bytes).getValue()
+                val percent = DateCalendarUtils.calculatePercent(userDataBytes.initialBytes.toDouble(), userDataBytes.bytes.toDouble())
+                val expire = if (userDataBytes.expiredTime == 0L){
+                    "Desconocido"
                 }else {
-                    percent.toFloat()
+                    SimpleDateFormat("dd MMMM", Locale.getDefault()).format(Date(userDataBytes.expiredTime))
                 }
-            }
+                val restDate = DateCalendarUtils.calculateDiffDate(System.currentTimeMillis(), userDataBytes.expiredTime)
 
-            binding.dataType.text = userDataBytes.getName(fragment.requireContext())
-            binding.textRestValue.text = rest.value.toString()
-            binding.textRestUnit.text = rest.dataUnit.name
-            binding.textUsageValue.text = usage.value.toString()
-            binding.textUsageUnit.text = usage.dataUnit.name
-            binding.expireDate.text = expire
-            binding.restDate.text = "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
+                progressBar.apply {
+                    max = 100
+                    progress = if (percent <= 0){
+                        1f
+                    }else {
+                        percent.toFloat()
+                    }
+                }
 
-            binding.root.setOnClickListener {
-                fragment.showChartUsageGeneral(userDataBytes.type)
+                dataType.text = userDataBytes.getName(fragment.requireContext())
+                textRestValue.text = rest.value.toString()
+                textRestUnit.text = rest.dataUnit.name
+                textUsageValue.text = usage.value.toString()
+                textUsageUnit.text = usage.dataUnit.name
+                expireDate.text = expire
+                this.restDate.text = "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
+
+                root.setOnClickListener {
+                    fragment.showChartUsageGeneral(userDataBytes.type)
+                }
             }
         }
     }
@@ -94,6 +96,11 @@ class UserDataBytesRecyclerAdapter constructor(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
        holder.bind(userDataShow[position])
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.binding = null
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int {
