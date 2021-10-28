@@ -122,11 +122,6 @@ class EventsRecyclerAdapter constructor(
         holder.bind(eventsShow[position])
     }
 
-    override fun onViewRecycled(holder: ItemViewHolder) {
-        holder.binding = null
-        super.onViewRecycled(holder)
-    }
-
     override fun getItemCount(): Int {
         return eventsShow.size
     }

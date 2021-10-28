@@ -95,7 +95,6 @@ class UsageRecyclerAdapter constructor(
 
     override fun onViewRecycled(holder: UsageViewHolder) {
         holder.job?.cancel()
-        holder.binding = null
         holder.job = null
         super.onViewRecycled(holder)
     }

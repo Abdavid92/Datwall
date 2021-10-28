@@ -87,19 +87,12 @@ class HistoryRecyclerAdapter constructor(
         holder.onBind(history[position])
     }
 
-    override fun onViewRecycled(holder: AbstractItemHolder) {
-        holder.close()
-        super.onViewRecycled(holder)
-    }
-
     override fun getItemCount(): Int {
         return historyShow.size
     }
 
     abstract class AbstractItemHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract fun onBind(purchasedPackage: IPurchasedPackage)
-
-        abstract fun close()
     }
 
 
@@ -112,10 +105,6 @@ class HistoryRecyclerAdapter constructor(
                 titleMonth.text = data.month
                 textTotalPrice.text = "${data.priceTotal} $"
             }
-        }
-
-        override fun close() {
-            binding = null
         }
 
     }
@@ -132,10 +121,6 @@ class HistoryRecyclerAdapter constructor(
                 textPackage.text = data.dataPackage.name
                 textPrice.text = "${data.dataPackage.price.toInt()} $"
             }
-        }
-
-        override fun close() {
-          binding = null
         }
 
     }
