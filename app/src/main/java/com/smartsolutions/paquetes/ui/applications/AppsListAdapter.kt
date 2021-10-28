@@ -229,15 +229,15 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [HeaderApp].
      * */
     private inner class HeaderViewHolder(
-        private var binding: ItemHeaderBinding?
-    ) : AbstractViewHolder(binding!!.root) {
+        private val binding: ItemHeaderBinding
+    ) : AbstractViewHolder(binding.root) {
 
         override fun bind(app: IApp) {
-            binding?.headerText?.text = app.name
+            binding.headerText.text = app.name
         }
 
         override fun close() {
-            binding = null
+
         }
     }
 
@@ -245,8 +245,8 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [App].
      * */
     private inner class AppViewHolder(
-        private var binding: ItemAppBinding?
-    ) : AbstractViewHolder(binding!!.root) {
+        private val binding: ItemAppBinding
+    ) : AbstractViewHolder(binding.root) {
 
         private var iconJob: Job? = null
 
@@ -254,48 +254,44 @@ class AppsListAdapter constructor(
             //Casteo al tipo App. Si no es este tipo se lanza una excepción
             app as App
 
-            binding?.let { binding ->
+            binding.app = app
 
-                binding.app = app
+            binding.backgroundLayout.setOnClickListener {
 
-                binding.backgroundLayout.setOnClickListener {
+                val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    fragment.requireActivity(),
+                    Pair(binding.backgroundLayout, VIEW_NAME_HEADER_LAYOUT),
+                    Pair(binding.icon, VIEW_NAME_HEADER_IMAGE),
+                    Pair(binding.name, VIEW_NAME_HEADER_NAME),
+                    Pair(binding.packageName, VIEW_NAME_HEADER_PACKAGE_NAME)
+                )
 
-                    val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        fragment.requireActivity(),
-                        Pair(binding.backgroundLayout, VIEW_NAME_HEADER_LAYOUT),
-                        Pair(binding.icon, VIEW_NAME_HEADER_IMAGE),
-                        Pair(binding.name, VIEW_NAME_HEADER_NAME),
-                        Pair(binding.packageName, VIEW_NAME_HEADER_PACKAGE_NAME)
-                    )
+                launcher.launch(app, activityOptions)
+            }
 
-                    launcher.launch(app, activityOptions)
+            //Carga el ícono asíncronamente
+            iconJob = iconManager.getIcon(app.packageName, app.version, iconSize) {
+                binding.icon.setImageBitmap(it)
+            }
+
+            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+                if (fragment is OnAppChangeListener) {
+                    fragment.onAppChange(app)
                 }
+            }
 
-                //Carga el ícono asíncronamente
-                iconJob = iconManager.getIcon(app.packageName, app.version, iconSize) {
-                    binding.icon.setImageBitmap(it)
-                }
-
-                uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
-                    if (fragment is OnAppChangeListener) {
-                        fragment.onAppChange(app)
-                    }
-                }
-
-                if (appsFilter == AppsFilter.InternetAccess) {
-                    binding.launch.visibility = View.GONE
-                    binding.vpnAccess.visibility = View.VISIBLE
-                } else {
-                    binding.launch.visibility = View.VISIBLE
-                    binding.vpnAccess.visibility = View.INVISIBLE
-                }
+            if (appsFilter == AppsFilter.InternetAccess) {
+                binding.launch.visibility = View.GONE
+                binding.vpnAccess.visibility = View.VISIBLE
+            } else {
+                binding.launch.visibility = View.VISIBLE
+                binding.vpnAccess.visibility = View.INVISIBLE
             }
         }
 
         override fun close() {
             iconJob?.cancel()
             iconJob = null
-            binding = null
         }
     }
 
@@ -303,8 +299,8 @@ class AppsListAdapter constructor(
      * Procesa una instancia de [AppGroup].
      * */
     private inner class AppGroupViewHolder(
-        private var binding: ItemAppGroupBinding?
-    ) : AbstractViewHolder(binding!!.root) {
+        private val binding: ItemAppGroupBinding
+    ) : AbstractViewHolder(binding.root) {
 
         private var iconJob: Job? = null
 
@@ -317,60 +313,56 @@ class AppsListAdapter constructor(
             //Casteo al tipo AppGroup. Si no es este tipo se lanza una excepción
             app as AppGroup
 
-            binding?.let { binding ->
+            binding.name.text = app.name
+            binding.appsCount
+                .text = itemView.context.getString(R.string.apps_count, app.size)
 
-                binding.name.text = app.name
-                binding.appsCount
-                    .text = itemView.context.getString(R.string.apps_count, app.size)
+            if (appsFilter == AppsFilter.InternetAccess) {
+                binding.vpnAccess.visibility = View.VISIBLE
+            } else {
+                binding.vpnAccess.visibility = View.INVISIBLE
+            }
 
-                if (appsFilter == AppsFilter.InternetAccess) {
-                    binding.vpnAccess.visibility = View.VISIBLE
-                } else {
-                    binding.vpnAccess.visibility = View.INVISIBLE
+            binding.childLayout.visibility = if (app.expanded) View.VISIBLE else View.GONE
+
+            binding.backgroundLayout.setOnClickListener {
+                app.expanded = !app.expanded
+                notifyItemChanged(absoluteAdapterPosition)
+            }
+
+            childAdapter = AppsListAdapter(
+                fragment,
+                launcher,
+                iconManager,
+                appsFilter,
+                app
+            ).apply {
+                iconSize = 40
+            }
+
+            binding.child.adapter = childAdapter
+
+            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+                if (fragment is OnAppChangeListener) {
+                    fragment.onAppChange(app)
+                    updateApp(app)
                 }
+            }
 
-                binding.childLayout.visibility = if (app.expanded) View.VISIBLE else View.GONE
+            if (app.expanded) {
+                binding.arrow.rotation = 180F
+            } else {
+                binding.arrow.rotation = 0F
+            }
 
-                binding.backgroundLayout.setOnClickListener {
-                    app.expanded = !app.expanded
-                    notifyItemChanged(absoluteAdapterPosition)
-                }
-
-                childAdapter = AppsListAdapter(
-                    fragment,
-                    launcher,
-                    iconManager,
-                    appsFilter,
-                    app
-                ).apply {
-                    iconSize = 40
-                }
-
-                binding.child.adapter = childAdapter
-
-                uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
-                    if (fragment is OnAppChangeListener) {
-                        fragment.onAppChange(app)
-                        updateApp(app)
-                    }
-                }
-
-                if (app.expanded) {
-                    binding.arrow.rotation = 180F
-                } else {
-                    binding.arrow.rotation = 0F
-                }
-
-                iconJob = iconManager.getIcon(app.packageName, iconSize) {
-                    binding.icon.setImageBitmap(it)
-                }
+            iconJob = iconManager.getIcon(app.packageName, iconSize) {
+                binding.icon.setImageBitmap(it)
             }
         }
 
         override fun close() {
             iconJob?.cancel()
             iconJob = null
-            binding = null
         }
     }
 
