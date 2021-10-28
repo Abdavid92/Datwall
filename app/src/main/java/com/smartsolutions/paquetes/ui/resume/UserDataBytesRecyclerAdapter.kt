@@ -98,11 +98,6 @@ class UserDataBytesRecyclerAdapter constructor(
        holder.bind(userDataShow[position])
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        holder.binding = null
-        super.onViewRecycled(holder)
-    }
-
     override fun getItemCount(): Int {
         return userDataShow.size
     }

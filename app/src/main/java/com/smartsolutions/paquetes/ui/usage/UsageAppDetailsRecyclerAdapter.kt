@@ -73,11 +73,6 @@ class UsageAppDetailsRecyclerAdapter(
         holder.onBind(traffics.first[position], traffics.second)
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        holder.binding = null
-        super.onViewRecycled(holder)
-    }
-
     override fun getItemCount(): Int {
         return traffics.first.size
     }
