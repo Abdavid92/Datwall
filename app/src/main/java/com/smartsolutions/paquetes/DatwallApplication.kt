@@ -100,9 +100,7 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             }
         }
 
-        launch {
-
-        }
+        synchronizeDatabase()
 
         main()
     }
@@ -115,6 +113,14 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
                 kernel.main()
 
                 kernelRunning = false
+            }
+        }
+    }
+
+    private fun synchronizeDatabase(){
+        launch {
+            if (kernel.canContinue(false)){
+                kernel.synchronizeDatabase()
             }
         }
     }

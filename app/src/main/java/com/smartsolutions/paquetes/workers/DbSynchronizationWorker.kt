@@ -8,6 +8,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
+import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -23,7 +24,8 @@ class DbSynchronizationWorker @AssistedInject constructor(
     @Assisted
     params: WorkerParameters,
     private val appRepository: IAppRepository,
-    private val legacyConfiguration: LegacyConfigurationHelper
+    private val legacyConfiguration: LegacyConfigurationHelper,
+    private val iconManager: IIconManager2
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -41,6 +43,7 @@ class DbSynchronizationWorker @AssistedInject constructor(
 
         val packageManager = applicationContext.packageManager
 
+        Log.i(TAG, "forceSynchronization: obtain installed apps")
         //Obtengo las aplicaciones instaladas
         val installedPackages = packageManager.getInstalledPackages(0)
 
@@ -49,6 +52,8 @@ class DbSynchronizationWorker @AssistedInject constructor(
 
         val appsToCreateOrReplace = mutableListOf<App>()
         val appsToDelete = mutableListOf<App>()
+
+        Log.i(TAG, "forceSynchronization: synchronize apps")
 
         installedPackages.forEach { info ->
             //Por cada aplicación instalada, busco en la aplicaciones guardadas.
@@ -67,8 +72,6 @@ class DbSynchronizationWorker @AssistedInject constructor(
                 appRepository.fillApp(app, info)
                 appsToCreateOrReplace.add(app)
             }
-
-            Log.i(TAG, "forceSynchronization: finish the process ${info.packageName}")
         }
 
         Log.i(TAG, "forceSynchronization: find uninstalled apps")
@@ -102,6 +105,9 @@ class DbSynchronizationWorker @AssistedInject constructor(
 
         Log.i(TAG, "forceSynchronization: restoring old configuration")
         restoreOldConfiguration()
+
+        Log.i(TAG, "forceSynchronization: synchronize icons")
+        iconManager.synchronizeIcons(installedPackages)
 
         Log.i(TAG, "forceSynchronization: finish of synchronization")
     }

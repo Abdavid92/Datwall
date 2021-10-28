@@ -66,6 +66,12 @@ class IconManager2 @Inject constructor(
         }
     }
 
+    override suspend fun synchronizeIcons(infos: List<PackageInfo>, size: Int) {
+       infos.forEach {
+            getIcon(it, size)
+        }
+    }
+
 
     override fun getIcon(
         packageName: String,

@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers.contracts
 
+import android.content.pm.PackageInfo
 import android.graphics.Bitmap
 
 interface IIconManager2 {
@@ -10,6 +11,9 @@ interface IIconManager2 {
         get() = 50
 
     suspend fun synchronizeIcons(size: Int = defaultIconSize)
+
+    suspend fun synchronizeIcons(infos: List<PackageInfo>, size: Int = defaultIconSize)
+
 
     fun getIcon(packageName: String, size: Int = defaultIconSize, onResult: (icon: Bitmap?) -> Unit)
 

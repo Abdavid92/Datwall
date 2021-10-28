@@ -94,7 +94,7 @@ class DatwallKernel @Inject constructor(
     suspend fun main() {
 
         //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
-        if (!canContinue())
+        if (!canContinue(true))
             return
 
         //Crea los canales de notificaciones
@@ -427,14 +427,16 @@ class DatwallKernel @Inject constructor(
         )
     }
 
-    suspend fun canContinue(): Boolean {
+    suspend fun canContinue(reset: Boolean): Boolean {
         //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
         if (withContext(Dispatchers.IO) {
                 val isThrowed = context.internalDataStore.data.firstOrNull()
                     ?.get(PreferencesKeys.IS_THROWED) == true
 
-                context.internalDataStore.edit {
-                    it[PreferencesKeys.IS_THROWED] = false
+                if (reset) {
+                    context.internalDataStore.edit {
+                        it[PreferencesKeys.IS_THROWED] = false
+                    }
                 }
 
                 return@withContext isThrowed
