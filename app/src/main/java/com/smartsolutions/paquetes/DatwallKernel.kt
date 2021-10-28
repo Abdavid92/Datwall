@@ -94,13 +94,7 @@ class DatwallKernel @Inject constructor(
     suspend fun main() {
 
         //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
-        if (withContext(Dispatchers.IO){
-                val isThrowed = context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_THROWED) == true
-                context.internalDataStore.edit {
-                    it[PreferencesKeys.IS_THROWED] = false
-                }
-                return@withContext isThrowed
-            })
+        if (!canContinue())
             return
 
         //Crea los canales de notificaciones
@@ -140,7 +134,7 @@ class DatwallKernel @Inject constructor(
             else -> {
                 openActivity(SplashActivity::class.java)
                 //Sincroniza la base de datos
-                synchronizeDatabase()
+                //synchronizeDatabase()
                 //Inicia los servicios
                 startMainService()
                 //Registra los broadcasts y los callbacks
@@ -348,7 +342,7 @@ class DatwallKernel @Inject constructor(
     /**
      * Sincroniza la base de datos.
      * */
-    private suspend fun synchronizeDatabase() {
+    fun synchronizeDatabase() {
         /* Fuerzo la sincronización de la base de datos para
          * garantizar la integridad de los datos. Esto no sobrescribe
          * los valores de acceso existentes.*/
@@ -365,48 +359,6 @@ class DatwallKernel @Inject constructor(
 
         context.bindService(datwallServiceIntent, mainServiceConnection, Context.BIND_AUTO_CREATE)
     }
-
-    /*private fun stopMainService() {
-        if (datwallBinder != null)
-            context.unbindService(mainServiceConnection)
-
-        context.startService(Intent(context, DatwallService::class.java)
-            .setAction(DatwallService.ACTION_STOP))
-    }*/
-
-    /**
-     * Detiene todos los servicios y trabajos de la aplicación.
-     * */
-    /*suspend fun stopAllDatwall(){
-
-        simManager.unregisterSubscriptionChangedListener()
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-
-            if (changeNetworkReceiver.get().isRegister) {
-                changeNetworkReceiver.get().unregister(context)
-            }
-        } else {
-            if (changeNetworkCallback.get().isRegistered) {
-                ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.let {
-                    changeNetworkCallback.get().unregister(it)
-                }
-            }
-        }
-
-        updateManager.cancelUpdateApplicationStatusWorker()
-
-        synchronizationManager.cancelScheduleUserDataBytesSynchronization()
-
-        stopMainService()
-
-        stopBubbleFloating()
-        stopFirewall()
-
-        activityManager.runningAppProcesses.firstOrNull {it.processName == context.packageName}?.let {
-            Process.killProcess(it.pid)
-        }
-    }*/
 
     private suspend fun startFirewall() {
         firewallHelper.startFirewall(true)
@@ -473,6 +425,23 @@ class DatwallKernel @Inject constructor(
                 )
             }.build()
         )
+    }
+
+    suspend fun canContinue(): Boolean {
+        //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
+        if (withContext(Dispatchers.IO) {
+                val isThrowed = context.internalDataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.IS_THROWED) == true
+
+                context.internalDataStore.edit {
+                    it[PreferencesKeys.IS_THROWED] = false
+                }
+
+                return@withContext isThrowed
+            })
+            return false
+
+        return true
     }
 
     companion object {

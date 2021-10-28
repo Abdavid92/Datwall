@@ -126,104 +126,13 @@ class PackageMonitor @Inject constructor(
      * instaladas y creando, actualizando o eliminando según corresponda.
      *
      * */
-    suspend fun forceSynchronization() {
+    fun forceSynchronization() {
 
         val request = OneTimeWorkRequestBuilder<DbSynchronizationWorker>()
             .build()
 
         WorkManager.getInstance(context)
             .enqueue(request)
-            .await()
-
-        /*//Obtengo las aplicaciones instaladas
-        val installedPackages = packageManager.getInstalledPackages(0)
-
-        //Obtengo las aplicaciones guardadas en base de datos
-        val apps = appRepository.all()
-
-        val appsToCreateOrReplace = mutableListOf<App>()
-        val appsToDelete = mutableListOf<App>()
-
-        installedPackages.forEach { info ->
-            //Por cada aplicación instalada, busco en la aplicaciones guardadas.
-            var app = apps.firstOrNull { it.packageName == info.packageName }
-
-            if (app == null) {
-                /*Si no la encuentro la instancio, la lleno
-                * y la guardo en la base de datos.*/
-                app = App()
-
-                appRepository.fillNewApp(app, info)
-                appsToCreateOrReplace.add(app)
-            } else if (versionNotEquals(app.version, info)) {
-                /*Pero si la encuentro reviso que la version sea diferente.
-                * Si lo es, la actualizo.*/
-                appRepository.fillApp(app, info)
-                appsToCreateOrReplace.add(app)
-            }
-
-            Log.i(TAG, "forceSynchronization: finish the process ${info.packageName}")
-        }
-
-        Log.i(TAG, "forceSynchronization: find uninstalled apps")
-
-        //Esta iteración es para buscar las aplicaciones que han sido desinstaladas.
-        apps.forEach { app ->
-            //Si no esta dentro de las aplicaciones instaladas, la elimino de la base de datos.
-            if (installedPackages.firstOrNull { app.packageName == it.packageName } == null) {
-                appsToDelete.add(app)
-            }
-        }
-
-        Log.i(TAG, "forceSynchronization: finish the finding of uninstalled apps")
-
-        Log.i(TAG, "forceSynchronization: creating or replacing apps")
-        appRepository.createOrReplace(appsToCreateOrReplace)
-
-        Log.i(TAG, "forceSynchronization: deleting uninstall apps")
-        appRepository.delete(appsToDelete)
-
-        Log.i(TAG, "forceSynchronization: update access of groups")
-        //Actualizo los accesos a los grupos
-        appRepository.getAllByGroup()
-            .filterIsInstance<AppGroup>()
-            .forEach { group ->
-
-            group.access = group.getMasterApp().access
-
-            appRepository.update(group)
-        }
-
-        Log.i(TAG, "forceSynchronization: restoring old configuration")
-        restoreOldConfiguration()
-
-        Log.i(TAG, "forceSynchronization: finish of synchronization")*/
-    }
-
-    /**
-     * Restaura las configuraciones de la versión anterior de la aplicación.
-     * */
-    private suspend fun restoreOldConfiguration() {
-        if (!legacyConfiguration.isConfigurationRestored()) {
-
-            val apps = appRepository.all()
-                .filter { !it.access }
-
-            val updateApps = mutableListOf<App>()
-
-            legacyConfiguration.getLegacyRules().forEach { packageName ->
-                apps.firstOrNull { it.packageName == packageName }?.let {
-                    updateApps.add(it.apply {
-                        access = true
-                    })
-                }
-            }
-
-            if (updateApps.isNotEmpty())
-                appRepository.update(updateApps)
-
-            legacyConfiguration.setConfigurationRestored()
-        }
     }
 
     @Suppress("DEPRECATION")

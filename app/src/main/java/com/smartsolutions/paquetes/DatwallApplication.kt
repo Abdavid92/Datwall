@@ -100,6 +100,10 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             }
         }
 
+        launch {
+
+        }
+
         main()
     }
 

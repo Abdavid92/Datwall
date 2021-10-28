@@ -22,7 +22,7 @@ import kotlin.coroutines.CoroutineContext
 class PackageMonitorReceiver : BroadcastReceiver(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 
     /**
      * Monitor de paquetes. Este se encarga de sincronizar la base de datos con los
