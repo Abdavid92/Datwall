@@ -77,11 +77,11 @@ class EventsRecyclerAdapter constructor(
     }
 
 
-    inner class ItemViewHolder(private val binding: ItemEventsBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    inner class ItemViewHolder(var binding: ItemEventsBinding?) :
+        RecyclerView.ViewHolder(binding!!.root) {
 
         fun bind(event: Event) {
-            binding.apply {
+            binding?.apply {
 
                 typeEvent.text = event.type.name
 
@@ -90,7 +90,7 @@ class EventsRecyclerAdapter constructor(
                         Event.EventType.INFO -> Color.BLUE
                         Event.EventType.ERROR -> Color.RED
                         Event.EventType.WARNING -> {
-                            binding.typeEvent.setTextColor(Color.BLACK)
+                           typeEvent.setTextColor(Color.BLACK)
                             Color.YELLOW
                         }
                     }
@@ -120,6 +120,11 @@ class EventsRecyclerAdapter constructor(
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         holder.bind(eventsShow[position])
+    }
+
+    override fun onViewRecycled(holder: ItemViewHolder) {
+        holder.binding = null
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int {
