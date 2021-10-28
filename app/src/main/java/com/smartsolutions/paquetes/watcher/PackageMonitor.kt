@@ -6,10 +6,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.await
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
+import com.smartsolutions.paquetes.workers.DbSynchronizationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,7 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class PackageMonitor @Inject constructor(
     @ApplicationContext
-    context: Context,
+    private val context: Context,
     private val appRepository: IAppRepository,
     private val legacyConfiguration: LegacyConfigurationHelper
 ) {
@@ -123,7 +127,15 @@ class PackageMonitor @Inject constructor(
      *
      * */
     suspend fun forceSynchronization() {
-        //Obtengo las aplicaciones instaladas
+
+        val request = OneTimeWorkRequestBuilder<DbSynchronizationWorker>()
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueue(request)
+            .await()
+
+        /*//Obtengo las aplicaciones instaladas
         val installedPackages = packageManager.getInstalledPackages(0)
 
         //Obtengo las aplicaciones guardadas en base de datos
@@ -185,7 +197,7 @@ class PackageMonitor @Inject constructor(
         Log.i(TAG, "forceSynchronization: restoring old configuration")
         restoreOldConfiguration()
 
-        Log.i(TAG, "forceSynchronization: finish of synchronization")
+        Log.i(TAG, "forceSynchronization: finish of synchronization")*/
     }
 
     /**

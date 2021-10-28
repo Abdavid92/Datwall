@@ -42,10 +42,10 @@
         <!-- Activities -->
         <activity
             android:name=".ui.WhiteActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Datwall.Transparent.AskDialog.WhiteTransparent"
             android:excludeFromRecents="true"
-            android:noHistory="true" />
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@style/Theme.Datwall.Transparent.AskDialog.WhiteTransparent" />
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -77,7 +77,7 @@
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleInstance"/>
+            android:launchMode="singleInstance" />
         <activity
             android:name=".ui.PresentationActivity"
             android:theme="@style/WelcomeTheme" />
@@ -85,9 +85,7 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
-            tools:replace="screenOrientation" />
-
-        <!-- Services -->
+            tools:replace="screenOrientation" /> <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:description="@string/main_service_description"
