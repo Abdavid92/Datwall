@@ -68,7 +68,6 @@ class HistoryHolderFragment : Fragment() {
         configureBarChart()
 
         viewModel.getPurchasedPackages(simId).observe(viewLifecycleOwner) {
-            binding.progressBar.visibility = View.GONE
             setAdapter(it)
             setValuesBarCHart(it.filterIsInstance<HistoryViewModel.HeaderPurchasedPackage>().sortedBy { it.date })
 
@@ -83,6 +82,7 @@ class HistoryHolderFragment : Fragment() {
                     barChart.visibility = View.VISIBLE
                 }
             }
+            binding.progressBar.visibility = View.GONE
         }
 
     }
