@@ -37,6 +37,7 @@ class PackagesConfigurationFragment2 @Inject constructor(
         super.onViewCreated(view, savedInstanceState)
 
 
+
     }
 
     override fun onDestroyView() {
