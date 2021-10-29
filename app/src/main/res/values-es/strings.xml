@@ -333,4 +333,11 @@
     <string name="vertical_notification_summary">"Este estilo muestra los tipos de datos en barras verticales, de una forma compacta y simple. "</string>
     <string name="btn_always_allow_text">Permitir Siempre</string>
     <string name="vertical_notification">Estilo vertical</string>
+    <string name="sim_to_configure">Sim a Configurar</string>
+    <string name="sim_to_configure_sumary">Esta es la Sim de la cual se comprobará los tipos de paquetes disponibles</string>
+    <string name="sim_configuration_mode_select">Modo de Configuración</string>
+    <string name="automatic_configuration_mode_summary">Se detectará de forma automática, usando el servicio de accesibilidad, los paquetes disponibles para la Sim seleccionada</string>
+    <string name="manual_configuration_mode_summary">Usted seleccionará manualmente los paquetes disponibles para la Sim seleccionada</string>
+    <string name="configure_packages">Configurar Paquetes</string>
+    <string name="packages_avaibles">Paquetes Disponibles</string>
 </resources>

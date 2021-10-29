@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.View
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
@@ -21,9 +22,11 @@ import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 import java.util.*
 import javax.inject.Inject
 
@@ -45,6 +48,8 @@ class UsageViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getApplication<Application>().uiDataStore.data.collect {
                 withContext(Dispatchers.Default){
+                    swipeLiveData.postValue(Unit)
+                    delay(300)
                     period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
                     filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
                     liveData.postValue(getTraffic(period, filter))
@@ -54,6 +59,7 @@ class UsageViewModel @Inject constructor(
     }
 
     private val liveData = MutableLiveData<Pair<Long, List<UsageApp>>>()
+    private val swipeLiveData = MutableLiveData<Unit>()
     private var type: TrafficType = TrafficType.International
 
     fun setUsagePeriod(@Period period: Int){
@@ -82,6 +88,58 @@ class UsageViewModel @Inject constructor(
     fun getUsage(type: TrafficType): LiveData<Pair<Long, List<UsageApp>>>{
         this.type = type
        return liveData
+    }
+
+    fun subscribeEventSwipe(): LiveData<Unit>{
+        return swipeLiveData
+    }
+
+    fun processAndFillPieCharData(total: Long, apps: List<UsageApp>, pieChart: PieChart) {
+        viewModelScope.launch {
+            val entries = mutableListOf<PieEntry>()
+
+            val filtered = filterByTrafficApps(total, apps)
+            val colours = mutableListOf<Int>()
+
+            filtered.first.forEach {
+                entries.add(
+                    PieEntry(
+                        it.app.traffic!!.totalBytes.bytes.toFloat(),
+                        it.app.name
+                    )
+                )
+                colours.add(it.colour)
+            }
+
+            if (filtered.second.isNotEmpty()) {
+                entries.add(
+                    PieEntry(
+                        filtered.second[0].app.traffic!!.totalBytes.bytes.toFloat(),
+                        UsageHolderFragment.OTHERS_LABEL
+                    )
+                )
+                val colour = Color.GRAY
+                filtered.second.forEach {
+                    it.colour = colour
+                }
+                colours.add(colour)
+            }
+
+            val pieData = PieData(PieDataSet(entries, "").apply {
+                valueTextSize = 11f
+                colors = colours
+            })
+
+            pieData.setDrawValues(false)
+
+            withContext(Dispatchers.Main) {
+                pieChart.apply {
+                    data = pieData
+                    animateY(1000, Easing.EaseInOutCubic)
+                }.postInvalidate()
+                pieChart.visibility = View.VISIBLE
+            }
+        }
     }
 
 
@@ -133,7 +191,6 @@ class UsageViewModel @Inject constructor(
     }
 
 
-
     private fun filterByTrafficApps(total: Long, list: List<UsageApp>): Pair<List<UsageApp>, List<UsageApp>> {
         val onePercent = total/100
 
@@ -149,55 +206,6 @@ class UsageViewModel @Inject constructor(
         }
 
         return Pair(apps, others)
-    }
-
-
-    fun processAndFillPieCharData(total: Long, apps: List<UsageApp>, pieChart: PieChart) {
-        viewModelScope.launch {
-            val entries = mutableListOf<PieEntry>()
-
-            val filtered = filterByTrafficApps(total, apps)
-            val colours = mutableListOf<Int>()
-
-            filtered.first.forEach {
-                entries.add(
-                    PieEntry(
-                        it.app.traffic!!.totalBytes.bytes.toFloat(),
-                        it.app.name
-                    )
-                )
-                colours.add(it.colour)
-            }
-
-            if (filtered.second.isNotEmpty()) {
-                entries.add(
-                    PieEntry(
-                        filtered.second[0].app.traffic!!.totalBytes.bytes.toFloat(),
-                        UsageHolderFragment.OTHERS_LABEL
-                    )
-                )
-                val colour = Color.GRAY
-                filtered.second.forEach {
-                    it.colour = colour
-                }
-                colours.add(colour)
-            }
-
-            val pieData = PieData(PieDataSet(entries, "").apply {
-                valueTextSize = 11f
-                colors = colours
-            })
-
-            pieData.setDrawValues(false)
-
-            withContext(Dispatchers.Main) {
-                pieChart.apply {
-                    data = pieData
-                    animateY(1000, Easing.EaseInOutCubic)
-                }.postInvalidate()
-                pieChart.visibility = View.VISIBLE
-            }
-        }
     }
 
 

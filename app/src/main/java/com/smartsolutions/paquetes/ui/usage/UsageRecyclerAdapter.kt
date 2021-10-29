@@ -11,17 +11,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUsageBinding
 import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 class UsageRecyclerAdapter constructor(
     private val fragment: Fragment,
     private var apps: List<UsageApp>,
     private val iconManager: IIconManager2
-): RecyclerView.Adapter<UsageRecyclerAdapter.UsageViewHolder>() {
+): RecyclerView.Adapter<UsageRecyclerAdapter.UsageViewHolder>(), CoroutineScope {
 
     private var appsShow = apps.toMutableList()
 
-    private val callBack = object : DiffUtil.Callback() {
+    private val callBack get() = object : DiffUtil.Callback() {
         override fun getOldListSize(): Int {
             return appsShow.size
         }
@@ -50,13 +51,17 @@ class UsageRecyclerAdapter constructor(
 
 
     fun updateApps(apps: List<UsageApp>){
-        this.apps = apps
+        launch {
+            this@UsageRecyclerAdapter.apps = apps
 
-        val result = DiffUtil.calculateDiff(callBack, true)
+            val result = DiffUtil.calculateDiff(callBack, true)
 
-        appsShow = apps.toMutableList()
+            appsShow = apps.toMutableList()
 
-        result.dispatchUpdatesTo(this)
+            withContext(Dispatchers.Main) {
+                result.dispatchUpdatesTo(this@UsageRecyclerAdapter)
+            }
+        }
     }
 
     inner class UsageViewHolder(var binding: ItemUsageBinding?): RecyclerView.ViewHolder(binding!!.root) {
@@ -102,5 +107,8 @@ class UsageRecyclerAdapter constructor(
     override fun getItemCount(): Int {
        return appsShow.size
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 
 }

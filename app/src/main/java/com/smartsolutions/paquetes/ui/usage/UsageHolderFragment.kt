@@ -60,6 +60,10 @@ class UsageHolderFragment : Fragment() {
             viewModel.refreshData()
         }
 
+        viewModel.subscribeEventSwipe().observe(viewLifecycleOwner) {
+            binding.swipeRefresh.isRefreshing = true
+        }
+
         configurePieChart()
 
         type?.let {
@@ -86,7 +90,7 @@ class UsageHolderFragment : Fragment() {
             adapter = UsageRecyclerAdapter(this, apps, viewModel.iconManager)
             binding.recyclerView.adapter = adapter
         }else {
-            adapter!!.updateApps(apps)
+            adapter?.updateApps(apps)
         }
     }
 
