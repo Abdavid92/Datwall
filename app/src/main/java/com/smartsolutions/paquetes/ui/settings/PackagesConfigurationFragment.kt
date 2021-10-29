@@ -72,11 +72,6 @@ class PackagesConfigurationFragment @Inject constructor(
 
             binding.btnContinue.isClickable = false
 
-            /*binding.btnContinue.showProgress {
-                progressColor = Color.WHITE
-                buttonText = null
-            }*/
-
             complete()
         }
 
