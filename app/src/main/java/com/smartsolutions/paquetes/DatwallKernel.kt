@@ -16,7 +16,6 @@ import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
-import com.smartsolutions.paquetes.ui.WhiteActivity
 import com.smartsolutions.paquetes.ui.activation.ActivationActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
@@ -76,7 +75,10 @@ class DatwallKernel @Inject constructor(
 
     private var openActivity: Class<out Activity>? = null
     private val openActivitySubscribers =
-        mutableMapOf<LifecycleOwner, (activity: Class<out Activity>) -> Unit>()
+        mutableMapOf<LifecycleOwner, (
+            activity: Class<out Activity>,
+            application: DatwallApplication
+        ) -> Unit>()
 
     init {
         launch {
@@ -133,8 +135,6 @@ class DatwallKernel @Inject constructor(
             }
             else -> {
                 openActivity(SplashActivity::class.java)
-                //Sincroniza la base de datos
-                //synchronizeDatabase()
                 //Inicia los servicios
                 startMainService()
                 //Registra los broadcasts y los callbacks
@@ -149,13 +149,16 @@ class DatwallKernel @Inject constructor(
 
     fun addOpenActivityListener(
         lifecycleOwner: LifecycleOwner,
-        listener: (activity: Class<out Activity>) -> Unit) {
+        listener: (
+            activity: Class<out Activity>,
+            application: DatwallApplication
+        ) -> Unit) {
 
         if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
             openActivitySubscribers[lifecycleOwner] = listener
 
             if (openActivity != null && lifecycleOwner::class.java.name != openActivity!!.name)
-                listener(openActivity!!)
+                listener(openActivity!!, context.applicationContext as DatwallApplication)
 
             lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
 
@@ -168,6 +171,10 @@ class DatwallKernel @Inject constructor(
                 }
             })
         }
+    }
+
+    fun removeOpenActivityListener(key: LifecycleOwner) {
+        openActivitySubscribers.remove(key)
     }
 
     private fun considerNotify(title: String, description: String) {
@@ -218,11 +225,6 @@ class DatwallKernel @Inject constructor(
                 context.internalDataStore.edit {
                     it[PreferencesKeys.ENABLED_LTE] = true
                 }
-            }
-
-            withContext(Dispatchers.Main) {
-                context.startActivity(Intent(context, WhiteActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
         }
     }
@@ -388,7 +390,7 @@ class DatwallKernel @Inject constructor(
             runCatching {
                 openActivitySubscribers.forEach {
                     if (it.key.javaClass.name != activity.name)
-                        it.value(activity)
+                        it.value(activity, context.applicationContext as DatwallApplication)
                 }
             }
         }

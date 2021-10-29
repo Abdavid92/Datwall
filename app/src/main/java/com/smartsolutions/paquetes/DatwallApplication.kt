@@ -127,9 +127,16 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
     fun addOpenActivityListener(
         lifecycleOwner: LifecycleOwner,
-        listener: (activity: Class<out Activity>) -> Unit
+        listener: (
+            activity: Class<out Activity>,
+            application: DatwallApplication
+        ) -> Unit
     ) {
         kernel.addOpenActivityListener(lifecycleOwner, listener)
+    }
+
+    fun removeOpenActivityListener(key: LifecycleOwner) {
+        kernel.removeOpenActivityListener(key)
     }
 
     override fun getWorkManagerConfiguration() =

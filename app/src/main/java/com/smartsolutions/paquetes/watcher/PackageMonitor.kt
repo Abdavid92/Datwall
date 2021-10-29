@@ -6,7 +6,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.asFlow
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.await
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
@@ -15,6 +17,7 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.workers.DbSynchronizationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,8 +29,7 @@ import javax.inject.Singleton
 class PackageMonitor @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val appRepository: IAppRepository,
-    private val legacyConfiguration: LegacyConfigurationHelper
+    private val appRepository: IAppRepository
 ) {
 
     private val packageManager = context.packageManager
@@ -125,14 +127,17 @@ class PackageMonitor @Inject constructor(
      * Fuerza la sincronización de la base de datos revisando todas las aplicaciones
      * instaladas y creando, actualizando o eliminando según corresponda.
      *
+     * @return [Flow] con el estado de la operación.
      * */
-    fun forceSynchronization() {
+    fun forceSynchronization(): Flow<Operation.State> {
 
         val request = OneTimeWorkRequestBuilder<DbSynchronizationWorker>()
             .build()
 
-        WorkManager.getInstance(context)
+        return WorkManager.getInstance(context)
             .enqueue(request)
+            .state
+            .asFlow()
     }
 
     @Suppress("DEPRECATION")

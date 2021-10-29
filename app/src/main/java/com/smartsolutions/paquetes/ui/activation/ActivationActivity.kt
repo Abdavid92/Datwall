@@ -23,12 +23,9 @@ class ActivationActivity : AbstractActivity(R.layout.activity_activation), OnCom
             .add(R.id.container, ApplicationStatusFragment())
             .commit()
 
-        /*viewModel.nextActivity().observe(this) {
-            startActivity(Intent(this, it))
-            finish()
-        }*/
-        viewModel.addOpenActivityListener(this) {
-            startActivity(Intent(this, it))
+        viewModel.addOpenActivityListener(this) { activity, application ->
+            application.removeOpenActivityListener(this)
+            startActivity(Intent(this, activity))
             finish()
         }
     }

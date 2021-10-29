@@ -103,26 +103,6 @@ class DatwallService : Service(), CoroutineScope {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        Log.i(TAG, "Starting service")
-
-        mNotificationBuilder = CircularNotificationBuilder(
-            this,
-            NotificationHelper.MAIN_CHANNEL_ID
-        )
-
-        startForeground(
-            NotificationHelper.MAIN_NOTIFICATION_ID,
-            mNotificationBuilder.build()
-        )
-
-        registerBandWithCollector()
-        registerUserDataBytesCollector()
-        dataStoreCollector()
-
-        watcher.start()
-
-        trafficRegistration.register()
-
         if (intent?.action == ACTION_STOP) {
 
             mNotificationManager.notify(
@@ -137,12 +117,46 @@ class DatwallService : Service(), CoroutineScope {
 
             return START_NOT_STICKY
         }
+
+        Log.i(TAG, "Starting service")
+
+        mNotificationBuilder = CircularNotificationBuilder(
+            this,
+            NotificationHelper.MAIN_CHANNEL_ID
+        )
+
+        val notification = NotificationCompat.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_main_notification)
+            .setContentTitle("Servicio Mis Datos")
+            .setContentText("Depurando servicio")
+            .build()
+
+        startForeground(
+            NotificationHelper.MAIN_NOTIFICATION_ID,
+            notification
+        )
+
+        /*Log.i(TAG, "registering band with collector")
+        registerBandWithCollector()
+
+        Log.i(TAG, "registering user data bytes collector")
+        registerUserDataBytesCollector()
+
+        Log.i(TAG, "registering data store collector")
+        dataStoreCollector()
+
+        Log.i(TAG, "starting watcher")
+        watcher.start()
+
+        Log.i(TAG, "registering traffic registration")
+        trafficRegistration.register()*/
+
         return START_STICKY
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-
+        
         launch {
 
             val userData = userDataBytesRepository
@@ -163,7 +177,7 @@ class DatwallService : Service(), CoroutineScope {
         if (dataStoreJob != null)
             return
 
-        dataStoreJob = launch {
+        dataStoreJob = launch(Dispatchers.IO) {
             settingsDataStore.data.collect { preferences ->
 
                 val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS] ?:
@@ -198,7 +212,7 @@ class DatwallService : Service(), CoroutineScope {
                 percents[4] = preferences[PreferencesKeys.DAILY_BAG_NOTIFICATION] ?:
                 defaultPercent
 
-                showSecondaryNotifications = preferences[PreferencesKeys.SHOW_SECONDARY_NOTIFICATIONS] == true
+                showSecondaryNotifications = preferences[PreferencesKeys.SHOW_SECONDARY_NOTIFICATIONS] ?: true
             }
         }
     }
@@ -210,7 +224,7 @@ class DatwallService : Service(), CoroutineScope {
         if (bandWidthJob != null)
             return
 
-        bandWidthJob = launch {
+        bandWidthJob = launch(Dispatchers.IO) {
 
             watcher.bandWithFlow.collect {
 
@@ -403,8 +417,6 @@ class DatwallService : Service(), CoroutineScope {
 
         trafficRegistration.stop()
         trafficRegistration.unregister()
-
-        super.onDestroy()
 
         Log.i(TAG, "Service was destroyed")
     }

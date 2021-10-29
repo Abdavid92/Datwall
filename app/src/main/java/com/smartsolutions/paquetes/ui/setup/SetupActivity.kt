@@ -23,8 +23,9 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup), OnCompletedList
             nextOrComplete()
         }
 
-        viewModel.addOpenActivityListener(this) {
-            startActivity(Intent(this, it))
+        viewModel.addOpenActivityListener(this) { activity, application ->
+            application.removeOpenActivityListener(this)
+            startActivity(Intent(this, activity))
             finish()
         }
     }

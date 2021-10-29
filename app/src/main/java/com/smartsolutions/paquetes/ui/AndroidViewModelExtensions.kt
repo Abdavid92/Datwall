@@ -11,7 +11,10 @@ fun AndroidViewModel.next() {
 
 fun AndroidViewModel.addOpenActivityListener(
     lifecycleOwner: LifecycleOwner,
-    listener: (activity: Class<out Activity>) -> Unit
+    listener: (
+        activity: Class<out Activity>,
+        application: DatwallApplication
+    ) -> Unit
 ) {
     getApplication<DatwallApplication>()
         .addOpenActivityListener(lifecycleOwner, listener)

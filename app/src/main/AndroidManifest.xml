@@ -41,12 +41,6 @@
         tools:targetApi="n">
         <!-- Activities -->
         <activity
-            android:name=".ui.WhiteActivity"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:noHistory="true"
-            android:theme="@style/Theme.Datwall.Transparent.AskDialog.WhiteTransparent" />
-        <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".ui.MainActivity" />

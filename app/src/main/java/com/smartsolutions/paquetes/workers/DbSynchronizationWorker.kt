@@ -106,7 +106,7 @@ class DbSynchronizationWorker @AssistedInject constructor(
         Log.i(TAG, "forceSynchronization: restoring old configuration")
         restoreOldConfiguration()
 
-        Log.i(TAG, "forceSynchronization: synchronize icons")
+        Log.i(TAG, "forceSynchronization: synchronizing icons")
         iconManager.synchronizeIcons(installedPackages)
 
         Log.i(TAG, "forceSynchronization: finish of synchronization")

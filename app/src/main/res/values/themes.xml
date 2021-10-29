@@ -89,17 +89,10 @@
         <item name="colorSecondaryVariant">@color/red_dark</item>
     </style>
 
-    <style name="Theme.Datwall.Transparent.AskDialog">
+    <!--<style name="Theme.Datwall.Transparent.AskDialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowAnimationStyle">@style/Animation.AppCompat.Dialog</item>
         <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
-    </style>
-
-    <style name="Theme.Datwall.Transparent.AskDialog.WhiteTransparent">
-        <item name="enterAnim">@null</item>
-        <item name="exitAnim">@null</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowAnimationStyle">@null</item>
-    </style>
+    </style>-->
 </resources>
