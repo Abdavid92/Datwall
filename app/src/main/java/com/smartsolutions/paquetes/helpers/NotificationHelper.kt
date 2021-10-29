@@ -139,10 +139,10 @@ class NotificationHelper @Inject constructor(
      * */
    companion object NotificationChannels {
 
-        const val MAIN_NOTIFICATION_ID = 0
-        const val ALERT_NOTIFICATION_ID = 1
-        const val WORKERS_NOTIFICATION_ID = 2
-        const val FIREWALL_NOTIFICATION_ID = 3
+        const val MAIN_NOTIFICATION_ID = 1
+        const val ALERT_NOTIFICATION_ID = 2
+        const val WORKERS_NOTIFICATION_ID = 3
+        const val FIREWALL_NOTIFICATION_ID = 4
 
         //Canal principal
         const val MAIN_CHANNEL_ID = "main_channel"

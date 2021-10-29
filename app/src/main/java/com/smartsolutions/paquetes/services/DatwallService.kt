@@ -125,18 +125,12 @@ class DatwallService : Service(), CoroutineScope {
             NotificationHelper.MAIN_CHANNEL_ID
         )
 
-        val notification = NotificationCompat.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_main_notification)
-            .setContentTitle("Servicio Mis Datos")
-            .setContentText("Depurando servicio")
-            .build()
-
         startForeground(
             NotificationHelper.MAIN_NOTIFICATION_ID,
-            notification
+            mNotificationBuilder.build()
         )
 
-        /*Log.i(TAG, "registering band with collector")
+        Log.i(TAG, "registering band with collector")
         registerBandWithCollector()
 
         Log.i(TAG, "registering user data bytes collector")
@@ -149,7 +143,7 @@ class DatwallService : Service(), CoroutineScope {
         watcher.start()
 
         Log.i(TAG, "registering traffic registration")
-        trafficRegistration.register()*/
+        trafficRegistration.register()
 
         return START_STICKY
     }
