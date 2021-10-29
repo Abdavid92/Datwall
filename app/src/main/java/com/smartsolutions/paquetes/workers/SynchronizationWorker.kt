@@ -1,18 +1,17 @@
 package com.smartsolutions.paquetes.workers
 
 import android.content.Context
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.IEventRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -52,6 +51,15 @@ class SynchronizationWorker @AssistedInject constructor(
             if (canExecute) {
                 canExecute =
                     (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (2 * 1000) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
+
+            }
+
+            if (canExecute){
+                val wasTraffic = DataUnitBytes(RxWatcher.lastBytes).getValue(DataUnitBytes.DataUnit.MB).value > 100
+                canExecute = wasTraffic
+                if (wasTraffic){
+                    RxWatcher.lastBytes = 0L
+                }
             }
         }
 
