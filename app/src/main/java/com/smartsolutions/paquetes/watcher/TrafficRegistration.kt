@@ -112,7 +112,7 @@ class TrafficRegistration @Inject constructor(
 
                     val currentTime = System.currentTimeMillis()
 
-                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 12)) {
+                    if (lastTime < currentTime - (DateUtils.MILLIS_PER_SECOND * 15)) {
 
                         verifyTimeStart()
 

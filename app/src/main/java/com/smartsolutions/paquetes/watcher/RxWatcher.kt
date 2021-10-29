@@ -93,6 +93,7 @@ class RxWatcher @Inject constructor(
             val upload = tx - txBytes
             lastRxBytes = download
             lastTxBytes = upload
+            lastBytes += download + upload
 
             if (download >= 0 && upload >= 0) {
                 (bandWithFlow as MutableSharedFlow)
@@ -154,7 +155,8 @@ class RxWatcher @Inject constructor(
         @JvmStatic
         private var txBytes = 0L
 
-        var lastRxBytes = -1L
-        var lastTxBytes = -1L
+        var lastBytes = 0L
+        var lastRxBytes = 0L
+        var lastTxBytes = 0L
     }
 }
