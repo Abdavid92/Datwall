@@ -39,7 +39,8 @@ interface ISimManager {
 
     /**
      * Establece en el repositorio la Sim dada como predeterminada para el tipo dado. Esta función
-     * solamente es necesaria en SDK 23 o inferior
+     * solamente es necesaria en SDK 23 o inferior. En versiones superiores este método no hace nada.
+     *
      * @param type - El tipo que se establecerá como predeterminado [SimDelegate.SimType.DATA] o
      * [SimDelegate.SimType.VOICE]
      * @param sim - La Sim que se establece el valor predeterminado

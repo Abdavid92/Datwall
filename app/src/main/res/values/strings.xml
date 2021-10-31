@@ -340,4 +340,5 @@
     <string name="manual_configuration_mode_summary">Usted seleccionará manualmente los paquetes disponibles para la Sim seleccionada</string>
     <string name="configure_packages">Configurar Paquetes</string>
     <string name="packages_avaibles">Paquetes Disponibles</string>
+    <string name="package_configuration_required">Es necesario terminar la configuración de los paquetes antes de continuar.</string>
 </resources>

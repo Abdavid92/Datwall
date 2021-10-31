@@ -10,8 +10,8 @@
 
     <!--Botón primario-->
     <style name="BaseButton.PrimaryButton">
-        <item name="android:background">@drawable/btn_primary</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:background">@drawable/btn_primary_background</item>
+        <item name="android:textColor">@color/btn_primary_text_color</item>
     </style>
 
     <!--Botón secundario-->

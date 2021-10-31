@@ -18,56 +18,28 @@ import javax.inject.Inject
 @HiltViewModel
 class SimsConfigurationViewModel @Inject constructor(
     application: Application,
-    private val simManager: ISimManager,
-    private val permissionsManager: IPermissionsManager
+    permissionsManager: IPermissionsManager,
+    private val simManager: ISimManager
 ): AndroidViewModel(application) {
 
-    private val _sims = MutableLiveData<List<Sim>>()
+    private val delegate = SimsDelegate(
+        getApplication(),
+        simManager,
+        permissionsManager,
+        viewModelScope
+    )
 
     fun getSims(
         fragment: AbstractSettingsFragment,
         fragmentManager: FragmentManager
     ): LiveData<List<Sim>> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            permissionsManager
-                .findPermission(IPermissionsManager.CALL_CODE)?.let { permission ->
-                    if (!permission.checkPermission(permission, getApplication())) {
-
-                        SinglePermissionFragment.newInstance(
-                            IPermissionsManager.CALL_CODE,
-                            object : SinglePermissionFragment.SinglePermissionCallback {
-                                override fun onGranted() {
-                                    fillSims()
-                                }
-
-                                override fun onDenied() {
-                                    fragment.complete()
-                                }
-                            }
-                        ).show(fragmentManager, null)
-                    } else {
-                        fillSims()
-                    }
-                }
-        } else {
-            fillSims()
-        }
-
-        return _sims
+        return delegate.getSims(fragment, fragmentManager)
     }
 
     fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim) {
         viewModelScope.launch {
             simManager.setDefaultSim(SimDelegate.SimType.DATA, defaultDataSim)
             simManager.setDefaultSim(SimDelegate.SimType.VOICE, defaultVoiceSim)
-        }
-    }
-
-    private fun fillSims() {
-        viewModelScope.launch {
-            simManager.flowInstalledSims().collect {
-                _sims.postValue(it)
-            }
         }
     }
 }

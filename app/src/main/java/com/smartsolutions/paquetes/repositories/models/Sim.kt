@@ -31,6 +31,8 @@ data class Sim(
     var setupDate: Long,
     /**
      * Tipos de redes disponibles para la linea.
+     * Cuando no se han configurado los paquetes para esta línea el valor de
+     * esta propieda será [Networks.NETWORK_NONE].
      * */
     @Networks
     var network: String

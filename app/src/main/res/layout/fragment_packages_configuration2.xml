@@ -6,6 +6,7 @@
 
     <data>
         <import type="com.smartsolutions.paquetes.annotations.Networks" />
+        <import type="android.view.View" />
         <variable
             name="automatic"
             type="Boolean" />
@@ -33,8 +34,8 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/nested_scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             style="@style/BackgroundStyle"
@@ -44,7 +45,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="@dimen/activity_horizontal_margin">
-
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_sim_selection"
@@ -66,6 +66,7 @@
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textSize="16sp"
                             android:textStyle="bold"
+                            android:textColor="?attr/colorPrimaryVariant"
                             android:padding="8dp"
                             android:textAlignment="center"
                             android:text="@string/sim_to_configure"
@@ -78,13 +79,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAlignment="center"
+                            android:textAppearance="@style/TextAppearance.AppCompat"
                             android:text="@string/sim_to_configure_sumary"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/title_card_sim_selection"/>
 
                         <androidx.appcompat.widget.AppCompatSpinner
-                            android:id="@+id/spinner_sim"
+                            android:id="@+id/sims"
                             style="@style/Widget.AppCompat.Spinner"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -96,11 +98,9 @@
                             app:layout_constraintTop_toBottomOf="@id/summary_card_sim_selection"
                             tools:entries="@array/filter_events" />
 
-
-
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.cardview.widget.CardView>
 
+                </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_mode_selection"
@@ -113,7 +113,6 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:paddingStart="5dp"
                         android:layout_height="wrap_content">
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -123,6 +122,7 @@
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textSize="16sp"
                             android:textStyle="bold"
+                            android:textColor="?attr/colorPrimaryVariant"
                             android:padding="8dp"
                             android:textAlignment="center"
                             android:text="@string/sim_configuration_mode_select"
@@ -130,20 +130,22 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"/>
 
-
                         <RadioGroup
                             android:id="@+id/radio_group_mode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/title_card_mode_selection">
+                            app:layout_constraintTop_toBottomOf="@id/title_card_mode_selection"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp">
 
-                            <RadioButton
+                            <androidx.appcompat.widget.AppCompatRadioButton
                                 android:id="@+id/automatic_mode"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/automatic_mode"/>
+                                android:text="@string/automatic_mode"
+                                android:checked="@={automatic}"/>
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_marginStart="15dp"
@@ -152,7 +154,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/automatic_configuration_mode_summary" />
 
-                            <RadioButton
+                            <androidx.appcompat.widget.AppCompatRadioButton
                                 android:id="@+id/manual_mode"
                                 android:layout_marginTop="6dp"
                                 android:layout_width="match_parent"
@@ -168,24 +170,23 @@
 
                         </RadioGroup>
 
-
-
                         <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/button_configure_sim"
+                            android:id="@+id/btn_start_configuration"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/radio_group_mode"
                             app:layout_constraintBottom_toBottomOf="parent"
+                            style="@style/BaseButton.SecondaryButton"
                             android:text="@string/configure_packages"
                             android:layout_marginTop="10dp"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginBottom="10dp"/>
-
+                            android:layout_marginBottom="10dp"
+                            android:enabled="@{automatic}"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.cardview.widget.CardView>
 
+                </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_manual_options"
@@ -194,9 +195,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/card_mode_selection"
-                    app:cardUseCompatPadding="true"
-                    android:visibility="gone"
-                    tools:visibility="visible">
+                    app:cardUseCompatPadding="true">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -228,26 +227,27 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/title_card_manual_option"
-                            tools:entries="@array/sim_networks" />
+                            android:enabled="@{!automatic}"
+                            android:entries="@array/sim_networks" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
+
                 </androidx.cardview.widget.CardView>
 
-
-                <ProgressBar
-                    android:id="@+id/progress_bar"
-                    android:visibility="gone"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="20dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/card_manual_options" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.core.widget.NestedScrollView>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_continue"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:enabled="@{network != Networks.NETWORK_NONE}"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

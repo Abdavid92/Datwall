@@ -26,8 +26,8 @@ class SimsConfigurationFragment @Inject constructor(
         val voiceSim = view.findViewById<AppCompatSpinner>(R.id.voice_sim)
 
         viewModel.getSims(this, childFragmentManager).observe(viewLifecycleOwner) {
-            dataSim.adapter = Adapter(it)
-            voiceSim.adapter = Adapter(it)
+            dataSim.adapter = SimsAdapter(it)
+            voiceSim.adapter = SimsAdapter(it)
         }
 
         view.findViewById<Button>(R.id.btn_save)
@@ -42,43 +42,5 @@ class SimsConfigurationFragment @Inject constructor(
 
     companion object {
         fun newInstance() = SimsConfigurationFragment()
-    }
-
-    class Adapter(
-        private val sims: List<Sim>
-    ) : BaseAdapter() {
-
-        override fun getCount(): Int {
-            return sims.size
-        }
-
-        override fun getItem(position: Int): Sim {
-            return sims[position]
-        }
-
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val layoutInflater = LayoutInflater.from(parent.context)
-
-            val view = convertView ?: layoutInflater
-                .inflate(R.layout.item_sim_spinner, parent, false)
-
-            bindView(view, position)
-
-            return view
-        }
-
-        private fun bindView(view: View, position: Int) {
-            val icon = view.findViewById<ImageView>(R.id.sim_icon)
-            val name = view.findViewById<TextView>(R.id.sim_name)
-
-            val sim = getItem(position)
-
-            icon.setImageBitmap(sim.icon)
-            name.text = sim.phone ?: "Sim ${position + 1 }"
-        }
     }
 }

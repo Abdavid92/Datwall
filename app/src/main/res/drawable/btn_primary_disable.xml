@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <size android:height="@dimen/min_height_button"
+        android:width="@dimen/min_width_button" />
+    <solid android:color="@color/material_on_background_disabled"/>
+    <corners android:radius="25dp" />
+</shape>

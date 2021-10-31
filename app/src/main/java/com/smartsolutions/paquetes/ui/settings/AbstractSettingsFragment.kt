@@ -11,7 +11,7 @@ abstract class AbstractSettingsFragment : Fragment {
 
     constructor(@LayoutRes contentLayoutId: Int): super(contentLayoutId)
 
-    fun complete() {
+    open fun complete() {
         activity?.let {
             if (it is OnCompletedListener)
                 it.onCompleted()
