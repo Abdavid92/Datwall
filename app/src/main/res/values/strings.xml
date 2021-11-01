@@ -341,4 +341,23 @@
     <string name="configure_packages">Configurar Paquetes</string>
     <string name="packages_avaibles">Paquetes Disponibles</string>
     <string name="package_configuration_required">Es necesario terminar la configuración de los paquetes antes de continuar.</string>
+    <string name="summary_activation">Para continuar necesitamos saber el estado de su licencia en el servidor. Presione verificar para proceder</string>
+    <string name="button_verify">Verificar</string>
+    <string name="wifi_off_title">Wifi Apagada</string>
+    <string name="wifi_off_description">Para poder obtener el identificador de su dispositivo se necesita que la wifi esté encendida. Puede usar el botón de abajo para encederla.</string>
+    <string name="button_wifi_on">Encender Wifi</string>
+    <string name="must_have_complete">Debe completar la configuración antes de continuar</string>
+    <string name="is_purchased_title">Licencia Comprada</string>
+    <string name="is_purchased_description">Se ha restaurado la licencia. Puede usar la app sin límites</string>
+    <string name="is_descontinued_title">App Descontinuada</string>
+    <string name="is_descontinued_description">Lo sentimos, la app ha sido descontinuada y no puede utilizarla</string>
+    <string name="is_deprecated_title">App Desactualizada</string>
+    <string name="is_deprecated_description">La versión de la app que está usando es muy vieja y no es funcional. Debe actualizar para poder continuar</string>
+    <string name="is_trial_period_title">Período de Prueba</string>
+    <string name="is_trial_period_expire_title">Período de Prueba Terminado</string>
+    <string name="is_trial_period_expire_description">El período de prueba se ha terminado. Para poder usar la app debe comprar la licencia</string>
+    <string name="purchase_licence">Comprar Licencia</string>
+    <string name="is_failed_title">Hubo un Error</string>
+    <string name="btn_update">Actualizar</string>
+    <string name="title_activation">Activación y Licencia</string>
 </resources>

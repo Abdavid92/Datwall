@@ -20,14 +20,14 @@ class ActivationActivity : AbstractActivity(R.layout.activity_activation), OnCom
         setSupportActionBar(findViewById(R.id.toolbar))
 
         supportFragmentManager.beginTransaction()
-            .add(R.id.container, ApplicationStatusFragment())
+            .add(R.id.container, ApplicationStatus2Fragment.newInstance())
             .commit()
 
-        viewModel.addOpenActivityListener(this) { activity, application ->
+        /*viewModel.addOpenActivityListener(this) { activity, application ->
             application.removeOpenActivityListener(this)
             startActivity(Intent(this, activity))
             finish()
-        }
+        }*/
     }
 
     override fun onCompleted() {

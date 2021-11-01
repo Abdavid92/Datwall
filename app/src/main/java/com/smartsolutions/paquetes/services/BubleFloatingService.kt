@@ -569,10 +569,14 @@ class BubbleFloatingService : Service(), CoroutineScope {
         try {
             windowManager.addView(view, params)
         } catch (e: Exception) {
-            if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                launch(Dispatchers.Default) {
-                    bubbleServiceHelper.notifyStop()
-                    bubbleServiceHelper.stopBubble(true)
+            try {
+                windowManager.addView(view, params)
+            } catch (e: Exception) {
+                if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    launch(Dispatchers.Default) {
+                        bubbleServiceHelper.notifyStop()
+                        bubbleServiceHelper.stopBubble(true)
+                    }
                 }
             }
         }
