@@ -58,10 +58,13 @@ class ActivationManager @Inject constructor(
         launch {
             dataStore.data.collect {
                 it[PreferencesKeys.LICENSE]?.let { s ->
-                    license = gson.fromJson(
-                        decrypt(s),
-                        License::class.java
-                    )
+
+                    runCatching {
+                        license = gson.fromJson(
+                            decrypt(s),
+                            License::class.java
+                        )
+                    }
                 }
             }
         }
@@ -200,25 +203,21 @@ class ActivationManager @Inject constructor(
     }
 
     override suspend fun getLocalLicense(): License? {
-        if (license != null)
-            return license
+        if (license == null) {
 
-        dataStore.data.firstOrNull()
-            ?.get(PreferencesKeys.LICENSE)
-            ?.let {
-                try {
-                    val license = gson.fromJson(decrypt(it), License::class.java)
+            dataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.LICENSE)
+                ?.let {
+                    runCatching {
+                        val license = gson.fromJson(decrypt(it), License::class.java)
 
-                    if (this.license == null)
-                        this.license = license
-
-                    license
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                        if (this.license == null)
+                            this.license = license
+                    }
                 }
-            }
+        }
 
-        return null
+        return license
     }
 
     private fun readTransaction(body: String): String {

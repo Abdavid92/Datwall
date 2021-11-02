@@ -9,12 +9,13 @@ plugins {
 //Duración de los json web tokens
 def tokenDuration = "5"
 //Clave secreta con encriptación que se usa para firmar los tokens
-def secretKey = "\"ZjluOTRuRE1JOFlCOWRmOTNuRk93bXZuNzViTEU5M21KODluMzIybk1JRk8zMk1mbjNvZmo0TmY3NE5mY3IzTQ==\""
+def encKey = Base64.encoder.encode(("f9n94nDMI8YB9df93nFOwmvn75bLE93mJ89n322nMIFO32Mfn3ofj4Nf74Nfcr3M").getBytes())
+def secretKey = "\"${new String(encKey)}\""
 
 /*Nombre de la aplicación.*/
 def name = "Mis Datos"
 /*Clave de la aplicación.*/
-def applicationKey = "WIwzfl2mFbZa3fRCEQUcLeSASxrERxt1C23oPpWcu53n43tZ3tcY4ZAApNl7uJrm1AhV9DLAt29liGq8"
+def applicationKey = "htUlDdfGBjszGLxVc2p82I3zPQbn8qtfguCrlcd0TddiCkJkrKDf4uUZO73btMYrGAi0tuWkc9Gaipvw"
 /*Audiencia.*/
 def audience = "https://licenses.apps-smartsolutions.com"
 
