@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.packages
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -15,7 +16,9 @@ import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
+import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
+import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -55,7 +58,21 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonConfigureSim.setOnClickListener {
-
+            startActivity(
+                Intent(
+                    requireContext(),
+                    FragmentContainerActivity::class.java
+                ).apply {
+                    putExtra(
+                        FragmentContainerActivity.EXTRA_FRAGMENT,
+                        PackagesConfigurationFragment::class.java.name
+                    )
+                    putExtra(
+                        PackagesConfigurationFragment.EXTRA_DEFAULT_SIM_ID,
+                        sim?.id
+                    )
+                }
+            )
         }
 
         viewModel.getSimAndPackages(simId).observe(viewLifecycleOwner) {

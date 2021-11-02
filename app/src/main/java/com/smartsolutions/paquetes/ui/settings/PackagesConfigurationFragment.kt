@@ -34,10 +34,13 @@ class PackagesConfigurationFragment @Inject constructor(
      * */
     private var configurationRequired: Boolean = DEFAULT_CONFIGURATION_REQUIRED
 
+    private var defaultSimId: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        configurationRequired = arguments?.getBoolean(CONFIGURATION_REQUIRED) ?: configurationRequired
+        configurationRequired = arguments?.getBoolean(EXTRA_CONFIGURATION_REQUIRED) ?: configurationRequired
+        defaultSimId = arguments?.getString(EXTRA_DEFAULT_SIM_ID)
     }
 
     override fun onCreateView(
@@ -179,13 +182,6 @@ class PackagesConfigurationFragment @Inject constructor(
 
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
-
-        binding.btnStartConfiguration.setOnClickListener {
-            viewModel.configureDataPackages(
-                this,
-                childFragmentManager
-            )
-        }
     }
 
     private fun prepareSimSelection() {
@@ -193,30 +189,57 @@ class PackagesConfigurationFragment @Inject constructor(
         /*Si hay varias sims preparo el spinner de selección de sims*/
         if (viewModel.isSeveralSimsInstalled()) {
 
-            viewModel.getSims(this, childFragmentManager).observe(viewLifecycleOwner) {
-                binding.sims.adapter = SimsAdapter(it)
+            viewModel.getSims(this, childFragmentManager).observe(viewLifecycleOwner) { simsList ->
 
-                binding.sims.onItemSelectedListener = null
+                binding.apply {
+                    sims.adapter = SimsAdapter(simsList)
 
-                binding.sims.setSelection(it.indexOf(it.find { sim -> sim.defaultVoice }))
+                    sims.onItemSelectedListener = null
 
-                binding.sims.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
+                    var simIndex: Int? = null
 
-                        if (!it[position].defaultVoice) {
-                            DefaultSimsDialogFragment
-                                .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
-                                .show(childFragmentManager, null)
+                    simsList.firstOrNull { sim -> sim.id == defaultSimId }?.let { sim ->
+                        simIndex = simsList.indexOf(sim)
+                    }
+
+                    sims.setSelection(simIndex ?: simsList.indexOf(simsList.find { sim -> sim.defaultVoice }))
+
+                    sims.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+
+                            if (!simsList[position].defaultVoice) {
+                                DefaultSimsDialogFragment
+                                    .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
+                                    .show(childFragmentManager, null)
+                            }
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+
                         }
                     }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                    btnStartConfiguration.setOnClickListener {
 
+                        val selection = sims.selectedItemPosition
+
+                        if (!simsList[selection].defaultVoice) {
+
+                            DefaultSimsDialogFragment
+                                .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
+                                .show(childFragmentManager, null)
+                        } else {
+
+                            viewModel.configureDataPackages(
+                                this@PackagesConfigurationFragment,
+                                childFragmentManager
+                            )
+                        }
                     }
                 }
             }
@@ -233,7 +256,9 @@ class PackagesConfigurationFragment @Inject constructor(
 
     companion object {
 
-        private const val CONFIGURATION_REQUIRED = "configuration_required"
+        const val EXTRA_CONFIGURATION_REQUIRED = "com.smartsolutions.paquetes.extra.CONFIGURATION_REQUIRED"
+
+        const val EXTRA_DEFAULT_SIM_ID = "com.smartsolutions.paquetes.extra.DEFAUL_SIM_ID"
 
         private const val DEFAULT_CONFIGURATION_REQUIRED = true
 
@@ -249,7 +274,7 @@ class PackagesConfigurationFragment @Inject constructor(
         ): PackagesConfigurationFragment {
 
             val args = Bundle().apply {
-                putBoolean(CONFIGURATION_REQUIRED, configurationRequired)
+                putBoolean(EXTRA_CONFIGURATION_REQUIRED, configurationRequired)
             }
 
             return PackagesConfigurationFragment().apply {

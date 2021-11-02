@@ -39,6 +39,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
+        <activity
+            android:name=".ui.FragmentContainerActivity"
+            android:exported="true" />
         <!-- Activities -->
         <activity
             android:name=".ui.settings.SettingsActivity"
