@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="0dp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_weight="1"
     android:baselineAligned="false"
-    android:paddingRight="4dp"
+    android:paddingEnd="4dp"
     tools:layout_width="wrap_content">
 
     <RelativeLayout
@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center"
+        android:gravity="start"
         android:orientation="vertical">
 
         <TextView
@@ -56,7 +56,6 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -68,7 +67,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="500 MB"
-            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="11sp" />
 
@@ -77,10 +75,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="10/12"
-            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="10sp" />
-
 
     </LinearLayout>
 
