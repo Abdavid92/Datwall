@@ -16,8 +16,6 @@ import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
-import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
-import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.settings.PackagesConfigurationFragment">
 
     <data>
         <import type="com.smartsolutions.paquetes.annotations.Networks" />
+        <import type="android.view.View" />
         <variable
             name="automatic"
             type="Boolean" />
@@ -33,102 +34,220 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <FrameLayout
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nested_scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="@dimen/activity_horizontal_margin"
             style="@style/BackgroundStyle"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-            <androidx.cardview.widget.CardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center">
+                android:layout_height="match_parent"
+                android:padding="@dimen/activity_horizontal_margin">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_sim_selection"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="@dimen/activity_horizontal_margin">
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:cardUseCompatPadding="true">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/summary"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/packages_configuration_summary"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_height="wrap_content">
 
-                    <RadioGroup
-                        android:id="@+id/configuration_mode"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@id/summary">
-
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/automatic_mode"
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/title_card_sim_selection"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/automatic_mode"
-                            android:checked="@={automatic}" />
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorPrimaryVariant"
+                            android:padding="8dp"
+                            android:textAlignment="center"
+                            android:text="@string/sim_to_configure"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
 
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/manual_mode"
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/summary_card_sim_selection"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/manual_mode" />
+                            android:textAlignment="center"
+                            android:textAppearance="@style/TextAppearance.AppCompat"
+                            android:text="@string/sim_to_configure_sumary"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/title_card_sim_selection"/>
 
-                    </RadioGroup>
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/sims"
+                            style="@style/Widget.AppCompat.Spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="6dp"
+                            android:minHeight="48dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/summary_card_sim_selection"
+                            tools:entries="@array/filter_events" />
 
-                    <androidx.appcompat.widget.AppCompatSpinner
-                        android:id="@+id/sim_network"
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_mode_selection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/card_sim_selection"
+                    app:cardUseCompatPadding="true">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/activity_horizontal_margin"
-                        android:enabled="@{!automatic}"
-                        android:entries="@array/sim_networks"
-                        android:minHeight="48dp"
-                        style="@style/Widget.AppCompat.Spinner"
-                        app:layout_constraintTop_toBottomOf="@id/configuration_mode"
-                        tools:layout_editor_absoluteX="16dp" />
+                        android:layout_height="wrap_content">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/result_msg"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/sim_network"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textSize="16sp"
-                        android:layout_marginTop="@dimen/activity_horizontal_margin"
-                        tools:text="Resultado de la operación" />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/title_card_mode_selection"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorPrimaryVariant"
+                            android:padding="8dp"
+                            android:textAlignment="center"
+                            android:text="@string/sim_configuration_mode_select"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btn_start_configuration"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/BaseButton.SecondaryButton"
-                        android:text="@{automatic ? @string/start_packages_configuration : @string/btn_save}"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/result_msg"
-                        android:layout_marginTop="@dimen/activity_horizontal_margin"
-                        tools:text="@string/start_packages_configuration" />
+                        <RadioGroup
+                            android:id="@+id/radio_group_mode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/title_card_mode_selection"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp">
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                            <androidx.appcompat.widget.AppCompatRadioButton
+                                android:id="@+id/automatic_mode"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/automatic_mode"
+                                android:checked="@={automatic}"/>
 
-            </androidx.cardview.widget.CardView>
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_marginStart="15dp"
+                                android:layout_marginEnd="15dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/automatic_configuration_mode_summary" />
 
-        </FrameLayout>
+                            <androidx.appcompat.widget.AppCompatRadioButton
+                                android:id="@+id/manual_mode"
+                                android:layout_marginTop="6dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/manual_mode"/>
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_marginStart="15dp"
+                                android:layout_marginEnd="15dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/manual_configuration_mode_summary" />
+
+                        </RadioGroup>
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_start_configuration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/radio_group_mode"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            style="@style/BaseButton.SecondaryButton"
+                            android:text="@string/configure_packages"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:enabled="@{automatic}"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_manual_options"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/card_mode_selection"
+                    app:cardUseCompatPadding="true">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/title_card_manual_option"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:padding="8dp"
+                            android:textAlignment="center"
+                            android:text="@string/packages_avaibles"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinner_packages"
+                            style="@style/Widget.AppCompat.Spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="6dp"
+                            android:minHeight="48dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/title_card_manual_option"
+                            android:enabled="@{!automatic}"
+                            android:entries="@array/sim_networks" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_continue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:text="@string/btn_continue"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:enabled="@{network != Networks.NETWORK_NONE}"
             android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            android:enabled="@{network != Networks.NETWORK_NONE}" />
+            android:layout_margin="@dimen/fab_margin"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

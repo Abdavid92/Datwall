@@ -7,14 +7,13 @@ import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
-import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment2
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import javax.inject.Inject
 import javax.inject.Provider
 
 class ConfigurationManager @Inject constructor(
     private val simConfigurationFragment: Provider<SimsConfigurationFragment>,
-    private val packagesConfigurationFragment: Provider<PackagesConfigurationFragment2>,
+    private val packagesConfigurationFragment: Provider<PackagesConfigurationFragment>,
     private val simManager: ISimManager,
     private val dataPackageManager: IDataPackageManager
 ) : IConfigurationManager {

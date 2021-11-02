@@ -1,12 +1,12 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import android.app.Application
 import android.os.Build
+import android.view.View
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.google.android.material.snackbar.Snackbar
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.SimDelegate
@@ -26,9 +26,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PackagesConfigurationViewModel @Inject constructor(
+    application: Application,
+    private val simManager: ISimManager,
     private val dataPackageManager: IDataPackageManager,
-    private val simManager: ISimManager
-) : ViewModel() {
+    permissionsManager: IPermissionsManager
+) : AndroidViewModel(application) {
+
+    private val delegate = SimsDelegate(
+        getApplication(),
+        simManager,
+        permissionsManager,
+        viewModelScope
+    )
 
     private val _configurationResult = MutableLiveData<Result<Sim>>()
     val configurationResult: LiveData<Result<Sim>>
@@ -40,6 +49,18 @@ class PackagesConfigurationViewModel @Inject constructor(
     @Networks
     var lastNetworkResult: String = Networks.NETWORK_NONE
         private set
+
+    /**
+     * Indica si hay varias sims instaladas.
+     * */
+    fun isSeveralSimsInstalled() = simManager.isSeveralSimsInstalled()
+
+    fun getSims(
+        fragment: AbstractSettingsFragment,
+        fragmentManager: FragmentManager
+    ): LiveData<List<Sim>> {
+        return delegate.getSims(fragment, fragmentManager)
+    }
 
     fun configureDataPackages(
         fragment: AbstractSettingsFragment,
@@ -63,6 +84,17 @@ class PackagesConfigurationViewModel @Inject constructor(
         }
     }
 
+    fun setManualConfiguration(@Networks network: String) {
+        viewModelScope.launch {
+            dataPackageManager.setDataPackagesManualConfiguration(network)
+
+            val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)
+            lastNetworkResult = defaultSim.network
+
+            _configurationResult.postValue(Result.Success(defaultSim))
+        }
+    }
+
     private fun handleException(
         e: USSDRequestException,
         fragment: AbstractSettingsFragment,
@@ -75,7 +107,11 @@ class PackagesConfigurationViewModel @Inject constructor(
                         IPermissionsManager.CALL_CODE,
                         object : SinglePermissionFragment.SinglePermissionCallback {
                             override fun onGranted() {
-
+                                showSnackbar(
+                                    fragment,
+                                    fragmentManager,
+                                    "Permiso concedido"
+                                )
                             }
 
                             override fun onDenied() {
@@ -89,21 +125,21 @@ class PackagesConfigurationViewModel @Inject constructor(
                 throw RuntimeException("Telephony service unavailable")
             }
             USSDHelper.USSD_CODE_FAILED -> {
-                fragment.view?.let {
-                    Snackbar.make(
-                        it,
-                        "Falló el código ussd",
-                        Snackbar.LENGTH_LONG
-                    ).setAction("Reintenar") {
-                        configureDataPackages(fragment, fragmentManager)
-                    }.show()
-                }
+                showSnackbar(
+                    fragment,
+                    fragmentManager,
+                    "Falló el código ussd"
+                )
             }
             USSDHelper.ACCESSIBILITY_SERVICE_UNAVAILABLE -> {
                 StartAccessibilityServiceFragment.newInstance(
                     object : SinglePermissionFragment.SinglePermissionCallback {
                         override fun onGranted() {
-
+                            showSnackbar(
+                                fragment,
+                                fragmentManager,
+                                "Pruebe de nuevo"
+                            )
                         }
 
                         override fun onDenied() {
@@ -114,24 +150,27 @@ class PackagesConfigurationViewModel @Inject constructor(
                 ).show(fragmentManager, null)
             }
             USSDHelper.CONNECTION_TIMEOUT -> {
-                fragment.view?.let {
-                    Snackbar.make(
-                        it,
-                        "Se agotó el tiempo de espera",
-                        Snackbar.LENGTH_LONG
-                    ).setAction("Reintenar") {
-                        configureDataPackages(fragment, fragmentManager)
-                    }.show()
-                }
+                showSnackbar(
+                    fragment,
+                    fragmentManager,
+                    "Se agotó el tiempo de espera"
+                )
             }
         }
     }
 
-    fun setManualConfiguration(@Networks network: String) {
-        viewModelScope.launch {
-            dataPackageManager.setDataPackagesManualConfiguration(network)
-
-            _configurationResult.postValue(Result.Success(simManager.getDefaultSim(SimDelegate.SimType.VOICE)))
+    private fun showSnackbar(
+        fragment: AbstractSettingsFragment,
+        fragmentManager: FragmentManager,
+        msg: String) {
+        fragment.view?.let {
+            Snackbar.make(
+                it,
+                msg,
+                Snackbar.LENGTH_LONG
+            ).setAction(R.string.btn_retry) {
+                configureDataPackages(fragment, fragmentManager)
+            }.show()
         }
     }
 }
