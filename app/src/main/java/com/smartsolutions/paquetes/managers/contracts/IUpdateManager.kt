@@ -15,6 +15,9 @@ interface IUpdateManager {
     val BASE_URL_APKLIS: String
         get() = "https://archive.apklis.cu/application/apk/"
 
+    val BASE_URL_HOSTINGER: String
+        get() = "https://apps-smartsolutions.com/apks/"
+
     /**
      * Busca una actualización en el servidor. Si la encuentra,
      * la guarda en el dataStore. Este método se vale del [IActivationManager]
@@ -94,7 +97,7 @@ interface IUpdateManager {
     /**
      * Construye la url dinamicamente con los parametros recibidos
      */
-    fun buildDynamicUrl(baseUrl: String, packageName: String,  version: Int): String
+    fun buildDynamicUrl(baseUrl: String, packageName: String, version: Int): String
 
     /**
      * Construye la url dinamicamente con el androidApp

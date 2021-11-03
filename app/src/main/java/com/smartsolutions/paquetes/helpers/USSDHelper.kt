@@ -18,8 +18,11 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.repositories.IEventRepository
+import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -32,7 +35,8 @@ import kotlin.jvm.Throws
 class USSDHelper @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val accessibilityServiceHelper: AccessibilityServiceHelper
+    private val accessibilityServiceHelper: AccessibilityServiceHelper,
+    private val eventsRepository: IEventRepository
 ) {
 
     /**
@@ -117,6 +121,16 @@ class USSDHelper @Inject constructor(
                                 code = TELEPHONY_SERVICE_UNAVAILABLE
                             }
                         }
+
+                        runBlocking {
+                            eventsRepository.create(Event(
+                                System.currentTimeMillis(),
+                                Event.EventType.WARNING,
+                                "USSD Code Failed",
+                                "Code Failure: $failureCode Request: $request"
+                            ))
+                        }
+
 
                         it.resumeWithException(USSDRequestException(code, errorMessages[code]))
                     }
@@ -282,5 +296,7 @@ class USSDHelper @Inject constructor(
          * Se ha agotado el tiempo de espera.
          * */
         const val CONNECTION_TIMEOUT = 4
+
+        const val USSD_MMI_FULL = "Demasiadas peticiones de USSD"
     }
 }

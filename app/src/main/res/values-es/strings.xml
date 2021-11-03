@@ -360,4 +360,27 @@
     <string name="is_failed_title">Hubo un Error</string>
     <string name="btn_update">Actualizar</string>
     <string name="title_activation">Activación y Licencia</string>
+    <string name="update_aviable">Actualización Disponible</string>
+    <string name="download_way">Descargar mediante:</string>
+    <string name="apklis_store">Tienda Apklis</string>
+    <string name="apklis_store_summary">La descarga solo consumirá megas del bono de navegación nacional si tiene megas disponibles</string>
+    <string name="go_to_store">Ir a la Tienda</string>
+    <string name="download">Descargar</string>
+    <string name="server_store">Servidores Mis Datos</string>
+    <string name="cloud">Nube</string>
+    <string name="cloud_store_summary">La descarga consumirá de sus megas internacionales. Proceda con precaución</string>
+    <string name="downloading_update">Descargando Actualización</string>
+    <string name="status_running">En curso</string>
+    <string name="status_pending">Pendiente</string>
+    <string name="status_pending_summary">Esperando para descargar</string>
+    <string name="btn_cancel_download">Cancelar Descarga</string>
+    <string name="status_running_summary">Descargando</string>
+    <string name="status_failed">Falló la Descarga</string>
+    <string name="status_paused">En Pausa</string>
+    <string name="status_done">Descarga Completada</string>
+    <string name="status_done_summary">Se completó la descarga</string>
+    <string name="btn_install">Instalar ahora</string>
+    <string name="status_canceled">Cancelada</string>
+    <string name="status_canceled_summary">Usted ha cancelado la descarga</string>
+    <string name="cant_not_install">No se pudo instalar</string>
 </resources>

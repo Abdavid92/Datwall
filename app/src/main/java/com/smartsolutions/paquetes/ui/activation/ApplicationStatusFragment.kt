@@ -11,7 +11,7 @@ import com.smartsolutions.paquetes.databinding.FragmentApplicationStatusBinding
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
-import com.smartsolutions.paquetes.ui.settings.UpdateFragment
+import com.smartsolutions.paquetes.ui.update.Update2Fragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -78,7 +78,7 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
         binding.message.text = "Loco actualiza que estas en la pre-historia."
 
         enableBtnAction("Actualizar") {
-            UpdateFragment(license.androidApp)
+            Update2Fragment.newInstance()
                 .show(childFragmentManager, null)
         }
     }

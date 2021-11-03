@@ -14,6 +14,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationBarView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityMainBinding
+import com.smartsolutions.paquetes.ui.update.Update2Fragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,7 +48,7 @@ class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListene
                 intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
                     when(extra) {
                         FRAGMENT_UPDATE_DIALOG -> {
-                            //TODO: Crear un método que saque el diálogo de las actualizaciones
+                           Update2Fragment.newInstance().show(supportFragmentManager, null)
                         }
                         else -> {
 

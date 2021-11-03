@@ -24,6 +24,7 @@ import com.smartsolutions.paquetes.workers.UpdateApplicationStatusWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
+import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.Exception
@@ -76,7 +77,7 @@ class UpdateManager @Inject constructor(
         workManager.enqueue(request)
     }
 
-    override fun cancelUpdateApplicationStatusWorker(){
+    override fun cancelUpdateApplicationStatusWorker() {
         val workManager = WorkManager.getInstance(context)
         workManager.cancelAllWorkByTag(updateApplicationStatusWorkerTag)
     }
@@ -104,7 +105,7 @@ class UpdateManager @Inject constructor(
 
         val id = downloadManager.enqueue(request)
 
-       saveIdDownload(id)
+        saveIdDownload(id)
 
         return id
     }
@@ -166,7 +167,7 @@ class UpdateManager @Inject constructor(
                     }
                 } else {
                     isFinished = true
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         callback.onCanceled()
                     }
                 }
@@ -196,6 +197,13 @@ class UpdateManager @Inject constructor(
 
     override fun installDownloadedPackage(idDownload: Long): Boolean {
         downloadManager.getUriForDownloadedFile(idDownload)?.let { uri ->
+            uri.path?.let {
+                val file = File(it)
+                if (!file.exists()) {
+                    downloadManager.remove(idDownload)
+                    return false
+                }
+            }
             return installDownloadedPackage(uri)
         }
         return false
@@ -217,7 +225,10 @@ class UpdateManager @Inject constructor(
 
 
     override fun foundIfDownloaded(url: Uri): Uri? {
-        return localFileHelper.findFileTemporal(url.lastPathSegment ?: " ", LocalFileHelper.TYPE_DIR_UPDATES)?.first
+        return localFileHelper.findFileTemporal(
+            url.lastPathSegment ?: " ",
+            LocalFileHelper.TYPE_DIR_UPDATES
+        )?.first
     }
 
     override fun isDownloaded(id: Long): Boolean {
@@ -242,7 +253,7 @@ class UpdateManager @Inject constructor(
     }
 
 
-    override fun buildDynamicUrl(baseUrl: String, packageName: String,  version: Int): String {
+    override fun buildDynamicUrl(baseUrl: String, packageName: String, version: Int): String {
         val url = if (baseUrl.endsWith('/'))
             baseUrl
         else
@@ -277,9 +288,10 @@ class UpdateManager @Inject constructor(
     override fun getSavedDownloadId(): Long? {
         var id: Long?
         runBlocking {
-            id = context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
+            id = context.internalDataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
         }
-        if (id == -1L){
+        if (id == -1L) {
             id = null
         }
         return id

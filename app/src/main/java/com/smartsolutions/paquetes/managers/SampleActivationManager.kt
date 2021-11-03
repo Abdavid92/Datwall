@@ -35,7 +35,7 @@ class SampleActivationManager @Inject constructor(
             context.getString(R.string.app_name),
             context.packageName,
             18,
-            BuildConfig.VERSION_CODE,
+            31,
             BuildConfig.VERSION_NAME,
             AndroidApp.UpdatePriority.Low,
             "",

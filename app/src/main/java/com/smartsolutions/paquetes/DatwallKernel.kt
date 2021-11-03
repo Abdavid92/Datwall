@@ -152,7 +152,8 @@ class DatwallKernel @Inject constructor(
         listener: (
             activity: Class<out Activity>,
             application: DatwallApplication
-        ) -> Unit) {
+        ) -> Unit
+    ) {
 
         if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
             openActivitySubscribers[lifecycleOwner] = listener
@@ -310,12 +311,10 @@ class DatwallKernel @Inject constructor(
      * */
     private fun registerWorkers() {
         updateApplicationStatusJob = launch {
-            if (!updateManager.wasScheduleUpdateApplicationStatusWorker()) {
-                context.workersDataStore.data.collect {
-                    val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 24
+            context.workersDataStore.data.collect {
+                val interval = it[PreferencesKeys.INTERVAL_UPDATE_SYNCHRONIZATION] ?: 6
 
-                    updateManager.scheduleUpdateApplicationStatusWorker(interval)
-                }
+                updateManager.scheduleUpdateApplicationStatusWorker(interval)
             }
         }
 
@@ -367,14 +366,14 @@ class DatwallKernel @Inject constructor(
     }
 
     private suspend fun startBubbleFloating() {
-       bubbleServiceHelper.startBubble(false)
+        bubbleServiceHelper.startBubble(false)
     }
 
-    private suspend fun stopBubbleFloating(){
-       bubbleServiceHelper.stopBubble()
+    private suspend fun stopBubbleFloating() {
+        bubbleServiceHelper.stopBubble()
     }
 
-    private suspend fun stopFirewall(turnOf: Boolean = false){
+    private suspend fun stopFirewall(turnOf: Boolean = false) {
         if (turnOf) {
             firewallHelper.stopFirewall(true)
         } else {

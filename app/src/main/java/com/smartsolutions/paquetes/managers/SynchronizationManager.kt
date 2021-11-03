@@ -71,7 +71,7 @@ class SynchronizationManager @Inject constructor(
                 if (it.contains("mmi", true))
                     throw USSDRequestException(
                         USSDHelper.USSD_CODE_FAILED,
-                        ussdHelper.errorMessages[USSDHelper.USSD_CODE_FAILED]
+                        USSDHelper.USSD_MMI_FULL
                     )
             }
 
@@ -79,7 +79,7 @@ class SynchronizationManager @Inject constructor(
                 if (it.contains("mmi", true))
                     throw USSDRequestException(
                         USSDHelper.USSD_CODE_FAILED,
-                        ussdHelper.errorMessages[USSDHelper.USSD_CODE_FAILED]
+                        USSDHelper.USSD_MMI_FULL
                     )
             }
 

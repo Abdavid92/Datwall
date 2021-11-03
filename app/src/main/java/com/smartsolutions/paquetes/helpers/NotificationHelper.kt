@@ -49,6 +49,7 @@ class NotificationHelper @Inject constructor(
                     setSmallIcon(R.drawable.ic_update_notification)
                     setContentTitle(title)
                     setContentText(text)
+                    setAutoCancel(true)
 
                         setContentIntent(
                             PendingIntent.getActivity(

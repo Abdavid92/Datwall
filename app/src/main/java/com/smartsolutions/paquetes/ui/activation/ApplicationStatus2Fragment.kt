@@ -4,23 +4,20 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
-import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationStatus2Binding
-import com.smartsolutions.paquetes.databinding.FragmentApplicationStatusBinding
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
-import com.smartsolutions.paquetes.ui.settings.UpdateFragment
+import com.smartsolutions.paquetes.ui.update.Update2Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -118,7 +115,7 @@ class ApplicationStatus2Fragment : AbstractSettingsFragment(),
             R.drawable.ic_update_24,
             getString(R.string.btn_update)
         ) {
-            UpdateFragment(license.androidApp)
+            Update2Fragment.newInstance()
                 .show(childFragmentManager, null)
         }
     }
