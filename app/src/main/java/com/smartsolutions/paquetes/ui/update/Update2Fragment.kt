@@ -92,6 +92,7 @@ class Update2Fragment : BottomSheetDialogFragment(), IUpdateManager.DownloadStat
                 constraintDownloadOptions.visibility = View.GONE
                 constraintDownloadProgress.visibility = View.VISIBLE
                 textVersionProgress.text = "Nueva versión: ${androidApp.versionName}"
+                onPending()
             }
         }
     }
