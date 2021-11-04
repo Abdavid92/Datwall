@@ -104,6 +104,11 @@ object PreferencesKeys {
     val AUTO_UPDATE = booleanPreferencesKey("auto_update")
 
     /**
+     * Indica el modo de Actualización, si por Apklis o por nuetsro servidor
+     */
+    val UPDATE_MODE = stringPreferencesKey("update_mode")
+
+    /**
      * Intervalo en el cual se verificará el estado de la app.
      */
     val INTERVAL_UPDATE_SYNCHRONIZATION = longPreferencesKey("interval_update_synchronization")

@@ -146,4 +146,9 @@ interface IUpdateManager {
         fun onSuccessful()
         fun onCanceled()
     }
+
+    enum class UpdateMode {
+        APKLIS_SERVER,
+        DATWALL_SERVER
+    }
 }

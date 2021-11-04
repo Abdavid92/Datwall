@@ -12,6 +12,7 @@ import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.repositories.EventRepository
 import com.smartsolutions.paquetes.repositories.IEventRepository
 import com.smartsolutions.paquetes.repositories.models.Event
+import com.smartsolutions.paquetes.ui.update.UpdateViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -32,20 +33,36 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         updateManager.findUpdate()?.let { androidApp ->
-            val isAutoUpdate = withContext(Dispatchers.IO){
+            val isAutoUpdate = withContext(Dispatchers.IO) {
                 applicationContext.settingsDataStore.data
                     .firstOrNull()
                     ?.get(PreferencesKeys.AUTO_UPDATE) ?: false
             }
 
-            val url = Uri.parse(
-                updateManager.buildDynamicUrl(
-                    updateManager.BASE_URL_APKLIS,
-                    androidApp
-                )
-            )
-
             if (isAutoUpdate) {
+
+                val mode = applicationContext.settingsDataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.UPDATE_MODE) ?: IUpdateManager.UpdateMode.APKLIS_SERVER
+
+                val url = when (mode) {
+                    IUpdateManager.UpdateMode.APKLIS_SERVER -> {
+                        Uri.parse(
+                            updateManager.buildDynamicUrl(
+                                updateManager.BASE_URL_APKLIS,
+                                androidApp
+                            )
+                        )
+                    }
+                    else -> {
+                        Uri.parse(
+                            updateManager.buildDynamicUrl(
+                                updateManager.BASE_URL_HOSTINGER,
+                                androidApp
+                            )
+                        )
+                    }
+                }
+
                 if (updateManager.foundIfDownloaded(url) == null) {
                     updateManager.downloadUpdate(url)
                 } else {
@@ -62,12 +79,14 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
             }
         }
 
-        eventRepository.create(Event(
-            System.currentTimeMillis(),
-            Event.EventType.INFO,
-            "Update Worker",
-            "Launched"
-        ))
+        eventRepository.create(
+            Event(
+                System.currentTimeMillis(),
+                Event.EventType.INFO,
+                "Update Worker",
+                "Launched"
+            )
+        )
 
         return Result.success()
     }
