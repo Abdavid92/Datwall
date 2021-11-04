@@ -14,6 +14,7 @@ import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.workers.SynchronizationWorker
+import com.smartsolutions.paquetes.workersDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -57,7 +58,7 @@ class SynchronizationManager @Inject constructor(
         set(value) {
             _synchronizationUSSDModeModern = value
             launch {
-                context.settingsDataStore.edit {
+                context.workersDataStore.edit {
                     it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] = value
                 }
             }
@@ -67,10 +68,12 @@ class SynchronizationManager @Inject constructor(
     init {
         launch(Dispatchers.IO) {
             context.settingsDataStore.data.collect {
-
                 _synchronizationMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.SYNCHRONIZATION_MODE] ?: _synchronizationMode.name)
-
+            }
+        }
+        launch(Dispatchers.IO) {
+            context.workersDataStore.data.collect {
                 _synchronizationUSSDModeModern = it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] ?: true
             }
         }

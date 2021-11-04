@@ -68,6 +68,10 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
 
                 if (updateManager.foundIfDownloaded(url) == null) {
                     updateManager.downloadUpdate(url)
+                    notificationHelper.notifyUpdate(
+                        "Descargando Actualización",
+                        "Presione aquí para ver el progreso de la actualización"
+                    )
                 } else {
                     notificationHelper.notifyUpdate(
                         "Actualización Lista",

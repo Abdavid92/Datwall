@@ -11,12 +11,13 @@
     <SwitchPreferenceCompat
         app:title="@string/auto_download_update"
         app:summary="@string/auto_download_update_summary"
-        app:key="auto_download_update" />
+        app:key="auto_update"
+        android:defaultValue="false"/>
 
     <ListPreference
         app:title="@string/update_mode"
         app:key="update_mode"
-        app:dependency="auto_download_update"
+        app:dependency="auto_update"
         app:entries="@array/update_modes"
         app:entryValues="@array/update_modes_values"
         app:defaultValue="APKLIS_SERVER" />
