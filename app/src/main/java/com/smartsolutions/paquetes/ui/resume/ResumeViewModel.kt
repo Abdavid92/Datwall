@@ -13,6 +13,7 @@ import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.DataValue
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.uiDataStore
@@ -86,7 +87,7 @@ class ResumeViewModel @Inject constructor(
         var rest = 0L
 
         var total = 0L
-        list.forEach {
+        list.filter { it.type != DataBytes.DataType.National }.forEach {
             total += it.initialBytes
             usage += (it.initialBytes - it.bytes)
             rest += it.bytes
