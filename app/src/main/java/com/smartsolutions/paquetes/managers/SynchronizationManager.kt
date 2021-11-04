@@ -71,7 +71,7 @@ class SynchronizationManager @Inject constructor(
                 _synchronizationMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.SYNCHRONIZATION_MODE] ?: _synchronizationMode.name)
 
-                _synchronizationUSSDModeModern = it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] == true
+                _synchronizationUSSDModeModern = it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] ?: true
             }
         }
     }
