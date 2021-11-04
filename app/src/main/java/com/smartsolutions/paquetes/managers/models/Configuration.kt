@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.managers.models
 
 import androidx.fragment.app.Fragment
+import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import javax.inject.Provider
 
 /**
@@ -14,7 +15,7 @@ data class Configuration(
     /**
      * Fragmento que va a manejar esta configuración.
      * */
-    val fragment: Provider<out Fragment>,
+    val fragment: Provider<out AbstractSettingsFragment>,
     /**
      * Indica si está completada o no. Osea si está configuración se completo
      * correctamente o si se dañó o borró.
