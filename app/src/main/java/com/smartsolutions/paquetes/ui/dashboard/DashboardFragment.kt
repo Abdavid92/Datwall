@@ -167,8 +167,13 @@ class DashboardFragment : AbstractFragment() {
                 Pair(binding.firewallSummary, IControls.SUMMARY)
             )
 
-            startActivity(
+            /*startActivity(
                 FirewallControls.getLaunchIntent(requireContext()),
+                activityOptions.toBundle()
+            )*/
+
+            startActivity(
+                FirewallControlsFragment.getLaunchIntent(requireContext()),
                 activityOptions.toBundle()
             )
         }
@@ -185,8 +190,13 @@ class DashboardFragment : AbstractFragment() {
                 Pair(binding.bubble, IControls.SWITCH),
                 Pair(binding.bubbleSummary, IControls.SUMMARY)
             )
-            startActivity(
+            /*startActivity(
                 BubbleControls.getLaunchIntent(requireContext()),
+                activityOptions.toBundle()
+            )*/
+
+            startActivity(
+                BubbleControlsFragment.getLaunchIntent(requireContext()),
                 activityOptions.toBundle()
             )
         }

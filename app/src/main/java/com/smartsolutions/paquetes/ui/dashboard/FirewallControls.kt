@@ -94,7 +94,7 @@ class FirewallControls(
         ViewCompat.setTransitionName(binding.firewallSummary, SUMMARY)
     }
 
-    companion object {
+    /*companion object {
         fun getLaunchIntent(context: Context): Intent {
             return Intent(context, DashboardControlActivity::class.java)
                 .putExtra(
@@ -102,5 +102,5 @@ class FirewallControls(
                     FirewallControls::class.java.name
                 )
         }
-    }
+    }*/
 }

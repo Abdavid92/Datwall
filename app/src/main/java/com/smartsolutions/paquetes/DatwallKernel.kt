@@ -118,13 +118,13 @@ class DatwallKernel @Inject constructor(
                 )
             }
             //Verfica el registro y la activación
-            !isRegisteredAndValid() -> {
+            /*!isRegisteredAndValid() -> {
                 openActivity(ActivationActivity::class.java)
                 considerNotify(
                     context.getString(R.string.generic_needed_action_title_notification),
                     context.getString(R.string.generic_needed_action_description_notification)
                 )
-            }
+            }*/
             //Verfica las configuraciones iniciales
             missingSomeConfiguration() -> {
                 openActivity(SetupActivity::class.java)

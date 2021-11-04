@@ -90,7 +90,7 @@ class BubbleControls(
         ViewCompat.setTransitionName(binding.bubbleSummary, SUMMARY)
     }
 
-    companion object {
+    /*companion object {
         fun getLaunchIntent(context: Context): Intent {
             return Intent(context, DashboardControlActivity::class.java)
                 .putExtra(
@@ -98,5 +98,5 @@ class BubbleControls(
                     BubbleControls::class.java.name
                 )
         }
-    }
+    }*/
 }

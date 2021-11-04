@@ -2,20 +2,24 @@ package com.smartsolutions.paquetes.managers
 
 import android.os.Build
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Configuration
+import com.smartsolutions.paquetes.ui.activation.ApplicationStatus2Fragment
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import javax.inject.Inject
 import javax.inject.Provider
 
 class ConfigurationManager @Inject constructor(
+    private val applicationStatusFragment: Provider<ApplicationStatus2Fragment>,
     private val simConfigurationFragment: Provider<SimsConfigurationFragment>,
     private val packagesConfigurationFragment: Provider<PackagesConfigurationFragment>,
     private val simManager: ISimManager,
-    private val dataPackageManager: IDataPackageManager
+    private val dataPackageManager: IDataPackageManager,
+    private val activationManager: IActivationManager
 ) : IConfigurationManager {
 
     private var configurations: Array<Configuration>? = null
@@ -38,6 +42,18 @@ class ConfigurationManager @Inject constructor(
 
     private suspend fun fillConfigurations(): Array<Configuration> {
         val list = mutableListOf<Configuration>()
+
+        if (!isRegisteredAndValid()) {
+            list.add(
+                Configuration(
+                    true,
+                    applicationStatusFragment,
+                    {
+                        activationManager.canWork().first
+                    }
+                )
+            )
+        }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
             Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP &&
@@ -70,5 +86,18 @@ class ConfigurationManager @Inject constructor(
         )
 
         return list.toTypedArray()
+    }
+
+    /**
+     * Indica si la aplicación ya está registrada en el servidor y
+     * no está obsoleta o descontinuada.
+     * */
+    private suspend fun isRegisteredAndValid(): Boolean {
+        val status = activationManager.canWork().second
+
+        return status != IActivationManager.ApplicationStatuses.Discontinued &&
+                status != IActivationManager.ApplicationStatuses.Unknown &&
+                status != IActivationManager.ApplicationStatuses.Deprecated &&
+                status != IActivationManager.ApplicationStatuses.TooMuchOld
     }
 }

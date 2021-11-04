@@ -20,10 +20,13 @@ import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import com.smartsolutions.paquetes.ui.update.Update2Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
-class ApplicationStatus2Fragment : AbstractSettingsFragment(),
+class ApplicationStatus2Fragment @Inject constructor(
+
+): AbstractSettingsFragment(),
     IActivationManager.ApplicationStatusListener, CoroutineScope {
 
     private val request =

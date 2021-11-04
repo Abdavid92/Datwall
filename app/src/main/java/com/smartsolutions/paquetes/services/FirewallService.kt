@@ -22,11 +22,8 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import java.net.DatagramSocket
 import java.net.Socket
 import javax.inject.Inject
@@ -59,7 +56,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     /**
      * Hilo de la conexión vpn
      * */
-    private var vpnConnectionThread: Thread? = null
+    //private var vpnConnectionThread: Thread? = null
 
     private var lastApp: String? = null
 
@@ -89,12 +86,12 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             /*Si la acción es ACTION_STOP, detengo el servicio.
             * Esto se hace así porque no se puede detener un servicio en primer
             * plano desde el contexto.*/
-            when {
-                it.action == ACTION_STOP_FIREWALL_SERVICE -> {
+            when (it.action) {
+                ACTION_STOP_FIREWALL_SERVICE -> {
                     stopService()
                     return START_NOT_STICKY
                 }
-                it.action == ACTION_ALLOW_APP -> {
+                ACTION_ALLOW_APP -> {
                     it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
                         cancelAskNotification(app.uid)
 
@@ -109,7 +106,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
                     return START_NOT_STICKY
                 }
-                it.action == ACTION_NOT_ASK_APP -> {
+                ACTION_NOT_ASK_APP -> {
                     it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
                         cancelAskNotification(app.uid)
                         app.ask = false
@@ -123,7 +120,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
 
                     return START_NOT_STICKY
                 }
-                it.action == ACTION_ALWAYS_GRANT_APP -> {
+                ACTION_ALWAYS_GRANT_APP -> {
                     it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
                         cancelAskNotification(app.uid)
                         app.tempAccess = true
@@ -155,7 +152,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             (vpnConnection as TrackerVpnConnection).allowUnknownUid(true)
         }
 
-        vpnConnectionThread = Thread(vpnConnection)
+        //vpnConnectionThread = Thread(vpnConnection)
 
         registerFlows()
 
@@ -177,15 +174,20 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             observeJob = launch(Dispatchers.IO) {
                 appRepository.flow().collect {
 
-                    vpnConnection?.setAllowedPackageNames(it.filter { app ->
+                    val packages = it.filter { app ->
                         app.access || app.tempAccess
                     }.map { transformApp ->
                         return@map transformApp.packageName
-                    }.toTypedArray())
+                    }.toTypedArray()
 
-                    //Inicio el vpn
-                    if (vpnConnection?.isConnected == false)
-                        vpnConnectionThread?.start()
+                    withContext(Dispatchers.Main) {
+                        vpnConnection?.setAllowedPackageNames(packages)
+
+                        //Inicio el vpn
+                        if (vpnConnection?.isConnected == false)
+                            vpnConnection?.run()
+                            //vpnConnectionThread?.start()
+                    }
                 }
             }
         }
@@ -360,7 +362,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         //Detengo el vpn
         vpnConnection?.shutdown()
         vpnConnection?.unsubscribe(this)
-        vpnConnectionThread?.interrupt()
+        //vpnConnectionThread?.interrupt()
+        //vpnConnectionThread = null
         job.cancel()
 
         //Detengo el servicio en primer plano
@@ -436,10 +439,10 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
     override fun onDestroy() {
         super.onDestroy()
 
-        if (vpnConnectionThread?.isInterrupted == false)
+        /*if (vpnConnectionThread?.isInterrupted == false)
             vpnConnectionThread?.interrupt()
 
-        vpnConnectionThread = null
+        vpnConnectionThread = null*/
 
         observeJob?.cancel()
         observeJob = null
@@ -466,7 +469,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         )
     }
 
-    fun checkFirewallPermission(): Boolean {
+    private fun checkFirewallPermission(): Boolean {
         val permission = permissionsManager.findPermission(IPermissionsManager.VPN_CODE)
             ?: throw IllegalArgumentException("Bad code")
 

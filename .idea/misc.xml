@@ -27,20 +27,15 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable/ic_usage_menu.xml" value="0.26615384615384613" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable/primary_button_background.xml" value="0.2703125" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/drawable/progres_bar_vertical.xml" value="0.16" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_activation.xml" value="0.1" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_exceptions.xml" value="0.2" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.152" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_permissions.xml" value="0.16666666666666666" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_settings.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_setup.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/activity_splash.xml" value="0.176" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/app_item.xml" value="0.25416666666666665" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/application_status2_fragment.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/bubble_floating_layout.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/circular_notification.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/circular_notification_expanded.xml" value="0.16666666666666666" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_application_status.xml" value="0.14791666666666667" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_application_status2.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.24074074074074073" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_bottom_sheet_dialog_basic.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/fragment_dashboard.xml" value="0.4" />
@@ -71,7 +66,7 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_datwall_service.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_datwall_service_expanded.xml" value="0.4" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_datwall_service_separator.xml" value="0.16666666666666666" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_datwall_service_vertical.xml" value="0.4" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_datwall_service_vertical.xml" value="0.4639455782312925" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_events.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_header.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_header_history.xml" value="0.16944444444444445" />
@@ -97,7 +92,6 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/main_menu.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/more_nav_menu.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/usage_menu.xml" value="0.25416666666666665" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/xml/header_preferences.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/xml/history_preferences.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/xml/sync_preferences.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/xml/updates_preferences.xml" value="0.16666666666666666" />
@@ -124,6 +118,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_activation.xml" value="0.1068840579710145" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_app_control.xml" value="0.13722826086956522" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_ask.xml" value="0.1" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_dashboard_control.xml" value="0.10914855072463768" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_fragment_container.xml" value="0.1213768115942029" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_main.xml" value="0.4083333333333333" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/activity_permissions.xml" value="0.10507246376811594" />
@@ -136,6 +131,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_normal.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/firewall_controls.xml" value="0.182518115942029" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_application_status.xml" value="0.21" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_application_status2.xml" value="0.1743659420289855" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.21" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_bottom_sheet_dialog_basic.xml" value="0.15579710144927536" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_dashboard.xml" value="0.21" />
@@ -145,6 +141,8 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_packages.xml" value="0.17617753623188406" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_packages_configuration.xml" value="0.22" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_packages_configuration2.xml" value="0.22" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_packages_holder.xml" value="0.11277173913043478" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_purchased.xml" value="0.21" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_resume.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_resume_example.xml" value="0.5" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_settings.xml" value="0.17617753623188406" />
@@ -215,7 +213,7 @@
       </value>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
