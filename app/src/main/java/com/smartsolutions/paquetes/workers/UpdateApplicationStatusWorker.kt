@@ -41,8 +41,11 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
 
             if (isAutoUpdate) {
 
-                val mode = applicationContext.settingsDataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.UPDATE_MODE) ?: IUpdateManager.UpdateMode.APKLIS_SERVER
+                val mode = IUpdateManager.UpdateMode.valueOf(
+                    applicationContext.settingsDataStore.data.firstOrNull()
+                        ?.get(PreferencesKeys.UPDATE_MODE)
+                        ?: IUpdateManager.UpdateMode.APKLIS_SERVER.name
+                )
 
                 val url = when (mode) {
                     IUpdateManager.UpdateMode.APKLIS_SERVER -> {
