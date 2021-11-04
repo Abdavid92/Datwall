@@ -183,9 +183,10 @@ object PreferencesKeys {
      */
     val ENABLE_DATA_SYNCHRONIZATION = booleanPreferencesKey("enable_data_synchronization")
 
-    val SYNCHRONIZATION_ONLY_INTERNATIONAL = booleanPreferencesKey("synchronization_only_international_exist")
-
-    val SYNCHRONIZATION_ONLY_DUMMY = booleanPreferencesKey("synchronization_only_dummy")
+    /**
+     * Indica si se debe usar la api moderna para ejecutar los códigos USSD o la antigua
+     */
+    val SYNCHRONIZATION_USSD_MODE_MODERN = booleanPreferencesKey("synchronization_ussd_mode_modern")
 
     /**
      * Indica si ya fueron sembrados los paquetes comprados anteriormente

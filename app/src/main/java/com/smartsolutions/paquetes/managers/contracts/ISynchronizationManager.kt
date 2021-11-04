@@ -7,6 +7,8 @@ interface ISynchronizationManager {
 
     var synchronizationMode: IDataPackageManager.ConnectionMode
 
+    var synchronizationUSSDModeModern: Boolean
+
     @Throws(Exception::class)
     suspend fun synchronizeUserDataBytes(sim: Sim)
 

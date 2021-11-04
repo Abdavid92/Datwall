@@ -51,11 +51,27 @@ class SynchronizationManager @Inject constructor(
             _synchronizationMode = value
         }
 
+    private var _synchronizationUSSDModeModern: Boolean = true
+    override var synchronizationUSSDModeModern: Boolean
+        get() = _synchronizationUSSDModeModern
+        set(value) {
+            _synchronizationUSSDModeModern = value
+            launch {
+                context.settingsDataStore.edit {
+                    it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] = value
+                }
+            }
+        }
+
+
     init {
         launch(Dispatchers.IO) {
             context.settingsDataStore.data.collect {
+
                 _synchronizationMode = IDataPackageManager.ConnectionMode
                     .valueOf(it[PreferencesKeys.SYNCHRONIZATION_MODE] ?: _synchronizationMode.name)
+
+                _synchronizationUSSDModeModern = it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] == true
             }
         }
     }
@@ -64,37 +80,40 @@ class SynchronizationManager @Inject constructor(
         if (_synchronizationMode == IDataPackageManager.ConnectionMode.USSD) {
             val data = mutableListOf<DataBytes>()
 
-            val bytesPackages = ussdHelper.sendUSSDRequest("*222*328#")
-            val bonusPackages = ussdHelper.sendUSSDRequest("*222*266#")
+            val bytesPackages = sendUSSDRequest("*222*328#")
+            val bonusPackages = sendUSSDRequest("*222*266#")
 
-            bytesPackages.forEach {
-                if (it.contains("mmi", true))
-                    throw USSDRequestException(
-                        USSDHelper.USSD_CODE_FAILED,
-                        USSDHelper.USSD_MMI_FULL
-                    )
-            }
+            if (bytesPackages != null && bonusPackages != null) {
 
-            bonusPackages.forEach {
-                if (it.contains("mmi", true))
-                    throw USSDRequestException(
-                        USSDHelper.USSD_CODE_FAILED,
-                        USSDHelper.USSD_MMI_FULL
-                    )
-            }
+                bytesPackages.forEach {
+                    if (it.contains("mmi", true))
+                        throw USSDRequestException(
+                            USSDHelper.USSD_CODE_FAILED,
+                            USSDHelper.USSD_MMI_FULL
+                        )
+                }
 
-            data.addAll(obtainDataBytesPackages(bytesPackages))
-            data.addAll(obtainDataByteBonus(bonusPackages))
+                bonusPackages.forEach {
+                    if (it.contains("mmi", true))
+                        throw USSDRequestException(
+                            USSDHelper.USSD_CODE_FAILED,
+                            USSDHelper.USSD_MMI_FULL
+                        )
+                }
 
-            userDataBytesManager.synchronizeUserDataBytes(
-                fillMissingDataBytes(data),
-                simManager.getDefaultSim(SimDelegate.SimType.VOICE).id
-            )
+                data.addAll(obtainDataBytesPackages(bytesPackages))
+                data.addAll(obtainDataByteBonus(bonusPackages))
 
-            withContext(Dispatchers.IO) {
-                simRepository.update(sim.apply {
-                    lastSynchronization = System.currentTimeMillis()
-                })
+                userDataBytesManager.synchronizeUserDataBytes(
+                    fillMissingDataBytes(data),
+                    simManager.getDefaultSim(SimDelegate.SimType.VOICE).id
+                )
+
+                withContext(Dispatchers.IO) {
+                    simRepository.update(sim.apply {
+                        lastSynchronization = System.currentTimeMillis()
+                    })
+                }
             }
         }
     }
@@ -274,6 +293,14 @@ class SynchronizationManager @Inject constructor(
             string += it.toString()
         }
         return string
+    }
+
+    private suspend fun sendUSSDRequest(ussd: String): Array<CharSequence>? {
+        return if (_synchronizationUSSDModeModern){
+            ussdHelper.sendUSSDRequest(ussd)
+        }else {
+            ussdHelper.sendUSSDRequestLegacy(ussd, true)
+        }
     }
 
     companion object {

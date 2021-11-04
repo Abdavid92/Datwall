@@ -63,7 +63,7 @@ class ResumeHolderFragment : Fragment() {
 
     }
 
-    fun setTotals(data: Triple<Int, DataUnitBytes.DataValue, DataUnitBytes.DataValue>){
+    private fun setTotals(data: Triple<Int, DataUnitBytes.DataValue, DataUnitBytes.DataValue>){
         binding.apply {
             progressBar.isIndeterminate = false
             progressBar.max = 100
