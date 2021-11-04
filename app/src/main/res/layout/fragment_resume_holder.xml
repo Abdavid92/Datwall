@@ -31,9 +31,10 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                android:progressTint="?attr/colorPrimaryVariant"
                 android:max="100"
-                android:progress="30"
-                android:indeterminate="true"/>
+                android:progress="0"
+                android:indeterminate="false"/>
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_rest_total"
