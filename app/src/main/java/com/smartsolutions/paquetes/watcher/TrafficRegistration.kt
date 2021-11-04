@@ -1,9 +1,11 @@
 package com.smartsolutions.paquetes.watcher
 
+import android.app.usage.NetworkStats
 import android.content.Context
 import android.net.TrafficStats
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.Networks
@@ -46,7 +48,7 @@ class TrafficRegistration @Inject constructor(
     private var isRegistered = false
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.Default
 
     private var running = false
 
@@ -84,7 +86,12 @@ class TrafficRegistration @Inject constructor(
             isRegistered = true
             mainJob = launch {
                 appRepository.flow().collect {
-                    apps = it
+                    val list = mutableListOf<App>()
+                    list.addAll(it)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        list.addAll(addMissingApps())
+                    }
+                    apps = list
                 }
             }
         }
@@ -121,16 +128,18 @@ class TrafficRegistration @Inject constructor(
                         registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
                         registerTraffic(start)
 
-                        eventRepository.create(Event(
-                            System.currentTimeMillis(),
-                            Event.EventType.INFO,
-                            "Traffic Registration",
-                            "Traffic registered: rx = $rxBytesLatest tx = $txBytesLatest"
-                        ))
+                        eventRepository.create(
+                            Event(
+                                System.currentTimeMillis(),
+                                Event.EventType.INFO,
+                                "Traffic Registration",
+                                "Traffic registered: rx = $rxBytesLatest tx = $txBytesLatest"
+                            )
+                        )
 
                         rxBytesLatest = 0
                         txBytesLatest = 0
-                    }else {
+                    } else {
                         rxBytesLatest += it.first
                         txBytesLatest += it.second
                     }
@@ -232,15 +241,15 @@ class TrafficRegistration @Inject constructor(
         return toRegister
     }
 
-    fun verifyTimeStart(){
-        if (System.currentTimeMillis() - startTime > DateUtils.MILLIS_PER_DAY * 2){
+    fun verifyTimeStart() {
+        if (System.currentTimeMillis() - startTime > DateUtils.MILLIS_PER_DAY * 2) {
             startTime = getStartTime()
             lastTraffics.clear()
         }
     }
 
     fun getStartTime(): Long {
-       return System.currentTimeMillis() - (12 * DateUtils.MILLIS_PER_HOUR)
+        return System.currentTimeMillis() - (12 * DateUtils.MILLIS_PER_HOUR)
     }
 
     /**
@@ -263,7 +272,7 @@ class TrafficRegistration @Inject constructor(
 
     private fun isLTE(): Boolean {
         val isLTE = networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
-        if (isLTE){
+        if (isLTE) {
             launch(Dispatchers.IO) {
                 context.internalDataStore.edit {
                     it[PreferencesKeys.ENABLED_LTE] = true
@@ -271,6 +280,47 @@ class TrafficRegistration @Inject constructor(
             }
         }
         return isLTE
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun addMissingApps(): List<App> {
+        return listOf(
+            App(
+                "android.removed.sytem",
+                NetworkStats.Bucket.UID_REMOVED,
+                "Aplicaciones Desintaladas",
+                1,
+                false,
+                false,
+                false,
+                false,
+                false,
+                true,
+                false,
+                TrafficType.International,
+                null,
+                null,
+                null
+            ),
+            App(
+                "android.hostpot.sytem",
+                NetworkStats.Bucket.UID_TETHERING,
+                "Conexión Compartida",
+                1,
+                false,
+                false,
+                false,
+                false,
+                false,
+                true,
+                false,
+                TrafficType.International,
+                null,
+                null,
+                null
+            )
+        )
     }
 
     companion object {
