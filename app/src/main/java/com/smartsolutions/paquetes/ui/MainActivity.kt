@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -36,14 +37,18 @@ class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListene
 
         binding.navView.setupWithNavController(navController)
         binding.navView.setOnItemSelectedListener(this)
-
-        handleIntent()
     }
 
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
 
-    private fun handleIntent(){
-        intent.action?.let { action ->
+        handleIntent(intent)
+    }
+
+
+    private fun handleIntent(intent: Intent?){
+        intent?.action?.let { action ->
             if (action == ACTION_OPEN_FRAGMENT) {
                 intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
                     when(extra) {
