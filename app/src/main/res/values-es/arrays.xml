@@ -54,4 +54,8 @@
         <item>@color/gray_400</item>
     </integer-array>
 
+    <string-array name="update_modes">
+        <item>Tienda Apklis</item>
+        <item>Servidor de Mis Datos (consume megas internacionales)</item>
+    </string-array>
 </resources>

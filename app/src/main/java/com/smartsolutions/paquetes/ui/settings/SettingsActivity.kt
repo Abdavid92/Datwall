@@ -5,14 +5,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatRadioButton
-import androidx.core.view.allViews
-import androidx.core.view.children
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -27,12 +24,12 @@ import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
 import com.smartsolutions.paquetes.databinding.ItemNotificationSampleBinding
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.uiHelper
-import com.smartsolutions.paquetes.services.CircularNotificationBuilder
-import com.smartsolutions.paquetes.services.LinearNotificationBuilder
+import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.services.NotificationBuilder
 import com.smartsolutions.paquetes.ui.AbstractActivity
+import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
-import com.smartsolutions.paquetes.ui.activation.ActivationActivity
+import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 import com.smartsolutions.paquetes.ui.events.EventsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -120,7 +117,13 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             findPreference<Preference>("activation_key")
                 ?.setOnPreferenceClickListener {
 
-                    startActivity(Intent(requireContext(), ActivationActivity::class.java))
+                    startActivity(Intent(
+                        requireContext(),
+                        FragmentContainerActivity::class.java
+                    ).putExtra(
+                        FragmentContainerActivity.EXTRA_FRAGMENT,
+                        ApplicationStatusFragment::class.java.name
+                    ))
 
                     return@setOnPreferenceClickListener true
                 }
@@ -281,6 +284,17 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().workersDataStore)
             setPreferencesFromResource(R.xml.sync_preferences, rootKey)
+
+            findPreference<SwitchPreferenceCompat>("synchronization_ussd_mode_modern")
+                ?.setOnPreferenceChangeListener { preference, newValue ->
+
+                    newValue as Boolean
+
+                    findPreference<SwitchPreferenceCompat>("enable_data_synchronization")
+                        ?.isChecked = newValue
+
+                    return@setOnPreferenceChangeListener true
+                }
         }
     }
 
@@ -432,6 +446,16 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             super.onCreatePreferences(savedInstanceState, rootKey)
             setPreferencesFromResource(R.xml.updates_preferences, rootKey)
+
+            val key = "update_mode"
+
+            val defaultString = preferenceManager.preferenceDataStore
+                ?.getString(key, "APKLIS_SERVER") ?: "APKLIS_SERVER"
+
+            val defaultValue = IUpdateManager.UpdateMode.valueOf(defaultString)
+
+            findPreference<ListPreference>(key)
+                ?.setValueIndex(defaultValue.ordinal)
         }
     }
 

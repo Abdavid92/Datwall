@@ -3,9 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
+        app:title="@string/silent_sync"
+        app:key="synchronization_ussd_mode_modern"
+        app:defaultValue="true"
+        app:summaryOn="@string/silent_sync_on"
+        app:summaryOff="@string/silent_sync_off" />
+
+    <SwitchPreferenceCompat
         app:title="@string/enable_data_synchronization"
         app:summary="@string/enable_data_synchronization_summary"
         app:key="enable_data_synchronization"
+        app:dependency="synchronization_ussd_mode_modern"
         app:defaultValue="true" />
 
 </PreferenceScreen>

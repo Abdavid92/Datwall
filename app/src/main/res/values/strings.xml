@@ -221,7 +221,7 @@
     <string name="clear_icon_cache_confirmation">Caché de íconos limpiada</string>
     <string name="enable_notification_update">Notificar las actualizaciones</string>
     <string name="enable_notification_update_summary">Notificar cuando se detecte una nueva actualización</string>
-    <string name="auto_download_update">Descargar actualizaciones automáticamente</string>
+    <string name="auto_download_update">Descargar automáticamente</string>
     <string name="auto_download_update_summary">Descargar las actualizaciones automáticamente y después notificar para instalar</string>
     <string name="rest_text">Restante: %s</string>
     <string name="notification_style">Estilo de la notificación</string>
@@ -383,4 +383,9 @@
     <string name="status_canceled">Cancelada</string>
     <string name="status_canceled_summary">Usted ha cancelado la descarga</string>
     <string name="cant_not_install">No se pudo instalar</string>
+    <string name="update_mode">Modo de actualización</string>
+    <string name="synchronization_mode">Modo de sincronización</string>
+    <string name="silent_sync">Sincronización silenciosa</string>
+    <string name="silent_sync_on">Se ejecutarán los códigos ussd mediante las apis internas del sistema de forma transparente para el usuario.</string>
+    <string name="silent_sync_off">Se ejecutarán los códigos ussd mediante la aplicación de teléfono los cual mostrará un cuadro de diálogo indicando el estado de la operación. Este modo imposibilita la sincronización automática debido a la interrupción de la experiencia de ui del usuario.</string>
 </resources>

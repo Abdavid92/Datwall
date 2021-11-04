@@ -12,11 +12,10 @@ import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.ui.activation.ActivationActivity
+import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 import dagger.Lazy
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-import javax.inject.Provider
 
 abstract class AbstractFragment: Fragment {
 
@@ -52,7 +51,13 @@ abstract class AbstractFragment: Fragment {
         )
 
         view.findViewById<Button>(R.id.btn_purchase).setOnClickListener {
-            val intent = Intent(requireContext(), ActivationActivity::class.java)
+            val intent = Intent(
+                requireContext(),
+                FragmentContainerActivity::class.java
+            ).putExtra(
+                FragmentContainerActivity.EXTRA_FRAGMENT,
+                ApplicationStatusFragment::class.java.name
+            )
 
             startActivity(intent)
         }

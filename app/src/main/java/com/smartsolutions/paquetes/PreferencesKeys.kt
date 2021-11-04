@@ -104,7 +104,7 @@ object PreferencesKeys {
     val AUTO_UPDATE = booleanPreferencesKey("auto_update")
 
     /**
-     * Indica el modo de Actualización, si por Apklis o por nuetsro servidor
+     * Indica el modo de Actualización, si por Apklis o por nuestro servidor
      */
     val UPDATE_MODE = stringPreferencesKey("update_mode")
 
