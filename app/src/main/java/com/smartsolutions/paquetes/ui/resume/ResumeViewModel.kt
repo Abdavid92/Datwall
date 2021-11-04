@@ -4,12 +4,14 @@ import android.app.Application
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes.DataValue
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -30,7 +32,8 @@ class ResumeViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     private var filter = FilterUserDataBytes.NORMAL
-    private var liveUserDataBytes = MutableLiveData<List<UserDataBytes>>()
+    private var liveUserDataBytes =
+        MutableLiveData<Pair<List<UserDataBytes>, Triple<Int, DataValue, DataValue>>>()
     private var userDataBytes = emptyList<UserDataBytes>()
 
     init {
@@ -41,7 +44,11 @@ class ResumeViewModel @Inject constructor(
                 )
                 withContext(Dispatchers.Default) {
                     if (userDataBytes.isNotEmpty()) {
-                        liveUserDataBytes.postValue(filter(userDataBytes))
+                        liveUserDataBytes.postValue(
+                            filter(userDataBytes) to calculateTotals(
+                                userDataBytes
+                            )
+                        )
                     }
                 }
             }
@@ -62,18 +69,33 @@ class ResumeViewModel @Inject constructor(
         return simManager.flowInstalledSims().asLiveData(Dispatchers.IO)
     }
 
-    fun getUserDataBytes(simId: String): LiveData<List<UserDataBytes>> {
+    fun getUserDataBytes(simId: String): LiveData<Pair<List<UserDataBytes>, Triple<Int, DataValue, DataValue>>> {
         viewModelScope.launch(Dispatchers.IO) {
             userDataBytesRepository.flowBySimId(simId).collect { userData ->
                 userDataBytes = userData
                 withContext(Dispatchers.Default) {
-                    liveUserDataBytes.postValue(filter(userData))
+                    liveUserDataBytes.postValue(filter(userData) to calculateTotals(userData))
                 }
             }
         }
         return liveUserDataBytes
     }
 
+    private fun calculateTotals(list: List<UserDataBytes>): Triple<Int, DataValue, DataValue> {
+        var usage = 0L
+        var rest = 0L
+
+        var total = 0L
+        list.forEach {
+            total += it.initialBytes
+            usage += (it.initialBytes - it.bytes)
+            rest += it.bytes
+        }
+
+        val percent = DateCalendarUtils.calculatePercent(total.toDouble(), rest.toDouble())
+
+        return Triple(percent, DataUnitBytes(rest).getValue(), DataUnitBytes(usage).getValue())
+    }
 
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {
         viewModelScope.launch {
@@ -112,16 +134,10 @@ class ResumeViewModel @Inject constructor(
         }
     }
 
-    fun setDefaultSim(type: SimDelegate.SimType, sim: Sim) {
-        viewModelScope.launch {
-            simManager.setDefaultSim(type, sim)
-        }
-    }
-
 
     private fun filter(userData: List<UserDataBytes>): List<UserDataBytes> {
-        return when (filter){
-           FilterUserDataBytes.SIZE_ASC -> {
+        return when (filter) {
+            FilterUserDataBytes.SIZE_ASC -> {
                 userData.sortedBy { it.bytes }
             }
             FilterUserDataBytes.SIZE_DESC -> {

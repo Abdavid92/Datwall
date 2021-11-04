@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.databinding.FragmentResumeHolderBinding
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,16 +48,30 @@ class ResumeHolderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.getUserDataBytes(simID).observe(viewLifecycleOwner) {
-            if (it.isEmpty()) {
+            if (it.first.isEmpty()) {
                 binding.linNoData.visibility = View.VISIBLE
                 binding.recycler.visibility = View.GONE
+                binding.cardResumeProgress.visibility = View.GONE
             } else {
                 binding.linNoData.visibility = View.GONE
                 binding.recycler.visibility = View.VISIBLE
-                setAdapter(it)
+                binding.cardResumeProgress.visibility = View.VISIBLE
+                setTotals(it.second)
+                setAdapter(it.first)
             }
         }
 
+    }
+
+    fun setTotals(data: Triple<Int, DataUnitBytes.DataValue, DataUnitBytes.DataValue>){
+        binding.apply {
+            progressBar.isIndeterminate = false
+            progressBar.max = 100
+            progressBar.progress = data.first
+            textPercentTotal.text = "${data.first}%"
+            textRestTotal.text = "Rest: ${data.second.value} ${data.second.dataUnit}"
+            textUsageTotal.text = "Gast: ${data.third.value} ${data.third.dataUnit}"
+        }
     }
 
     fun showChartUsageGeneral(dataType: DataBytes.DataType) {
