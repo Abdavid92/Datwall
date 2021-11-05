@@ -82,15 +82,6 @@ class SimManager @Inject constructor(
             return null
         }
 
-        if (installedSims.size == 1){
-            val sim = installedSims[0].apply {
-                defaultData = true
-                defaultVoice = true
-            }
-            setDefaultSim(type, sim)
-            return sim
-        }
-
         val defaults = if (type == SimDelegate.SimType.DATA) {
             installedSims.filter { it.defaultData }
         } else {
