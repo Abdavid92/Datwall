@@ -93,9 +93,7 @@
     <string name="btn_close">Cerrar</string>
     <string name="btn_retry">Reintentar</string>
     <string name="begin_activation_title">Iniciando activación</string>
-    <string name="sims_configuration_summary">
-        A continuación, debe establecer las lineas predeterminadas para datos y llamadas.
-    </string>
+    <string name="sims_configuration_summary">A continuación, debe establecer cuáles son las líneas predeterminadas para datos y llamadas. Asegúrese de que configure las predeterminadas como mismo está configurado en el sistema android. De lo contrario se producirán errores</string>
     <string name="btn_save">Guardar</string>
     <string name="start_accessibility_service_title">Servicio de accesibilidad</string>
     <string name="start_accessibility_service_summary">Es necesario encender el servicio de accesibilidad para poder efectuar esta operación.</string>
@@ -388,4 +386,5 @@
     <string name="silent_sync">Sincronización silenciosa</string>
     <string name="silent_sync_on">Se ejecutarán los códigos ussd mediante las apis internas del sistema de forma transparente para el usuario.</string>
     <string name="silent_sync_off">Se ejecutarán los códigos ussd mediante la aplicación de teléfono los cual mostrará un cuadro de diálogo indicando el estado de la operación. Este modo imposibilita la sincronización automática debido a la interrupción de la experiencia de ui del usuario.</string>
+    <string name="title_sim_configuration">Configuración de Sim</string>
 </resources>
