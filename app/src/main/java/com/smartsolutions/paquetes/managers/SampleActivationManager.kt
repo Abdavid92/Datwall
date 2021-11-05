@@ -51,7 +51,7 @@ class SampleActivationManager @Inject constructor(
     }
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
-        return true to IActivationManager.ApplicationStatuses.Purchased
+        return false to IActivationManager.ApplicationStatuses.TrialPeriod
     }
 
     override suspend fun isInTrialPeriod(): Boolean {

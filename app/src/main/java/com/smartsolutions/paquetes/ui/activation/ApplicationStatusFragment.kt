@@ -24,9 +24,7 @@ import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
-class ApplicationStatusFragment @Inject constructor(
-
-): AbstractSettingsFragment(),
+class ApplicationStatusFragment : AbstractSettingsFragment(),
     IActivationManager.ApplicationStatusListener, CoroutineScope {
 
     private val request =

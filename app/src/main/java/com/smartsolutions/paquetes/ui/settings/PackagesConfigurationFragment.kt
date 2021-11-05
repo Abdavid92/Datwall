@@ -16,9 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PackagesConfigurationFragment @Inject constructor(
-
-) : AbstractSettingsFragment() {
+class PackagesConfigurationFragment : AbstractSettingsFragment() {
 
     private val viewModel by viewModels<PackagesConfigurationViewModel>()
 
@@ -127,7 +125,7 @@ class PackagesConfigurationFragment @Inject constructor(
             }
         }
 
-        binding.radioGroupMode.setOnCheckedChangeListener { group, checkedId ->
+        binding.radioGroupMode.setOnCheckedChangeListener { _, checkedId ->
 
             if (checkedId == R.id.manual_mode) {
                 binding.nestedScroll.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
