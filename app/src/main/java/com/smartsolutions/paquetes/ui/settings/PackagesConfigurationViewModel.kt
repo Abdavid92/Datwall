@@ -2,7 +2,6 @@ package com.smartsolutions.paquetes.ui.settings
 
 import android.app.Application
 import android.os.Build
-import android.view.View
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.google.android.material.snackbar.Snackbar

@@ -171,6 +171,7 @@ class PackagesConfigurationFragment @Inject constructor(
                 }
 
                 if (binding.automatic == true) {
+                    binding.cardManualOptions.visibility = View.VISIBLE
                     binding.spinnerPackages.setSelection(spinnerPackagesIndex, true)
                 }
 
@@ -179,7 +180,7 @@ class PackagesConfigurationFragment @Inject constructor(
                 it.getThrowableOrNull()?.message
             }
 
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
         }
     }
 

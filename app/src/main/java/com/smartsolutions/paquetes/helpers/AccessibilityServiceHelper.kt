@@ -38,25 +38,20 @@ class AccessibilityServiceHelper @Inject constructor(
     /**
      * Indica si el servicio está encendido pero no checkea si está listo.
      * */
-    fun accessibilityServiceALive(): Boolean {
+    private fun accessibilityServiceALive(): Boolean {
         val pref = Settings.Secure
             .getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
 
         val serviceName = UIScannerService::class.qualifiedName
 
-        val systemContainService = pref != null &&
+        return pref != null &&
                 pref.contains(context.packageName + "/" + serviceName)
-
-        val serviceALive = (context.applicationContext as DatwallApplication)
-            .uiScannerServiceEnabled
-
-        return systemContainService && serviceALive
     }
 
     /**
      * Indica si el servicio está listo.
      * */
-    fun accessibilityServiceReady(): Boolean {
+    private fun accessibilityServiceReady(): Boolean {
         return (context.applicationContext as DatwallApplication)
             .uiScannerServiceReady
     }

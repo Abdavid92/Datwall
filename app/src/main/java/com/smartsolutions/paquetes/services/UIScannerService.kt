@@ -54,8 +54,6 @@ class UIScannerService : AccessibilityService() {
 
             //Lanzo el broadcast.
             sendBroadcast(intent)
-            /*LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(intent)*/
 
             tryCloseDialog(event)
         }

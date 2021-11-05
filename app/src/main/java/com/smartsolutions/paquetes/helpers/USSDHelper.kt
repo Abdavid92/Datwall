@@ -189,8 +189,6 @@ class USSDHelper @Inject constructor(
 
                         override fun onReceive(context: Context, intent: Intent) {
                             context.unregisterReceiver(this)
-                            /*LocalBroadcastManager.getInstance(context)
-                                .unregisterReceiver(this)*/
 
                             val result = intent.getBooleanExtra(EXTRA_RESULT, false)
                             val response = intent.getCharSequenceArrayExtra(EXTRA_RESPONSE)
@@ -211,8 +209,6 @@ class USSDHelper @Inject constructor(
                     val filter = IntentFilter(ACTION_SEND_USSD_REQUEST)
 
                     context.registerReceiver(receiver, filter)
-                    /*LocalBroadcastManager.getInstance(context)
-                        .registerReceiver(receiver, filter)*/
 
                     val handler = Handler(Looper.getMainLooper())
 
@@ -224,9 +220,6 @@ class USSDHelper @Inject constructor(
                             context.startService(cancelIntent)
 
                             context.unregisterReceiver(receiver)
-
-                            /*LocalBroadcastManager.getInstance(context)
-                                .unregisterReceiver(receiver)*/
 
                             it.resumeWithException(
                                 USSDRequestException(
