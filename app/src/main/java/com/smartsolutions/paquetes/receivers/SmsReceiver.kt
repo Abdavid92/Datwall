@@ -69,17 +69,8 @@ class SmsReceiver : BroadcastReceiver() {
                 if (phoneNumber.equals("cubacel", true))
                     dataPackageManager.registerDataPackage(body, simIndex)
 
-                val waitingPurchased = withContext(Dispatchers.IO){
-                    context.settingsDataStore
-                        .data
-                        .firstOrNull()
-                        ?.get(PreferencesKeys.WAITING_PURCHASED) == true
-                }
-
-                if (waitingPurchased) {
-                    activationManager.get()
-                        .confirmPurchase(body, phoneNumber, simIndex)
-                }
+                activationManager.get()
+                    .confirmPurchase(body, phoneNumber, simIndex)
             }
         }
     }
@@ -97,7 +88,8 @@ class SmsReceiver : BroadcastReceiver() {
                     "simnum" -> slot = bundle.getInt("simnum", -1)
                     "slotId" -> slot = bundle.getInt("slotId", -1)
                     "slotIdx" -> slot = bundle.getInt("slotIdx", -1)
-                    "android.telephony.extra.SLOT_INDEX" -> slot = bundle.getInt("android.telephony.extra.SLOT_INDEX", -1)
+                    "android.telephony.extra.SLOT_INDEX" -> slot =
+                        bundle.getInt("android.telephony.extra.SLOT_INDEX", -1)
                     else -> if (key.contains("slot", true) || key.contains("sim", true)
                     ) {
                         val value = bundle.getString(key, "-1")
