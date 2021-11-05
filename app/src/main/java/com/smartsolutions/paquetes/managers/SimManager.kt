@@ -73,8 +73,19 @@ class SimManager @Inject constructor(
         return sims
     }
 
-    override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Sim {
+    override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Sim? {
         val installedSims = getInstalledSims(relations)
+
+        if (installedSims.isEmpty()){
+            return null
+        }
+
+        if (installedSims.size == 1){
+            return installedSims[0].apply {
+                defaultData = true
+                defaultVoice = true
+            }
+        }
 
         val defaults = if (type == SimDelegate.SimType.DATA) {
             installedSims.filter { it.defaultData }

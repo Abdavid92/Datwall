@@ -101,7 +101,9 @@ class ResumeViewModel @Inject constructor(
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {
         viewModelScope.launch {
             try {
-                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
+                simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let {
+                    synchronizationManager.synchronizeUserDataBytes(it)
+                }
                 withContext(Dispatchers.Main) {
                     callback.onSuccess()
                 }

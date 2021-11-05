@@ -91,39 +91,39 @@ class DataPackageManager @Inject constructor(
         var enabledLte = false
 
         //Linea predeterminada para llamadas
-        val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)
+        simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+            plainsResultText?.let {
+                val text = it.string()
 
-        plainsResultText?.let {
-            val text = it.string()
+                if (text.contains("Planes", true))
+                    enabledCombinedPlains = true
+            }
 
-            if (text.contains("Planes", true))
-                enabledCombinedPlains = true
-        }
+            lteResultText?.let {
+                val text = it.string()
 
-        lteResultText?.let {
-            val text = it.string()
+                if (text.contains("Paquetes LTE", true))
+                    enabledLte = true
+            }
 
-            if (text.contains("Paquetes LTE", true))
-                enabledLte = true
-        }
+            when {
+                enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_3G_4G
+                enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_3G
+                !enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_4G
+                !enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_NONE
+            }
 
-        when {
-            enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_3G_4G
-            enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_3G
-            !enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_4G
-            !enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_NONE
-        }
+            //Fecha en la que se configuró esta linea.
+            defaultSim.setupDate = System.currentTimeMillis()
 
-        //Fecha en la que se configuró esta linea.
-        defaultSim.setupDate = System.currentTimeMillis()
-
-        withContext(Dispatchers.IO) {
-            simRepository.update(defaultSim)
+            withContext(Dispatchers.IO) {
+                simRepository.update(defaultSim)
+            }
         }
     }
 
     override suspend fun setDataPackagesManualConfiguration(network: String) {
-        val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE).apply {
+        val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.apply {
             this.network = network
 
             //Fecha en la que se configuró esta linea.
@@ -131,14 +131,16 @@ class DataPackageManager @Inject constructor(
         }
 
         withContext(Dispatchers.IO) {
-            simRepository.update(defaultSim)
+            defaultSim?.let {
+                simRepository.update(it)
+            }
         }
     }
 
     override suspend fun isConfiguredDataPackages(): Boolean {
         return try {
             simManager.getDefaultSim(SimDelegate.SimType.VOICE)
-                .network != Networks.NETWORK_NONE
+                ?.network ?: Networks.NETWORK_NONE != Networks.NETWORK_NONE
         } catch (e: IllegalStateException) {
             false
         }
@@ -179,7 +181,9 @@ class DataPackageManager @Inject constructor(
             val bytes = getBytesFromText("Bonos: ", smsBody)
 
             if (bytes != -1L) {
-                userDataBytesManager.addPromoBonus(defaultSim.id, bytes)
+                defaultSim?.id?.let {
+                    userDataBytesManager.addPromoBonus(it, bytes)
+                }
             }
             return
         }
@@ -189,8 +193,10 @@ class DataPackageManager @Inject constructor(
             withContext(Dispatchers.IO){
                 dataPackageRepository.get(it.id)
             }?.let { dataPackage ->
-                userDataBytesManager.addDataBytes(dataPackage, defaultSim.id)
-                purchasedPackagesManager.confirmPurchased(dataPackage.id, defaultSim.id)
+                defaultSim?.id?.let {
+                    userDataBytesManager.addDataBytes(dataPackage, it)
+                    purchasedPackagesManager.confirmPurchased(dataPackage.id, it)
+                }
             }
         }
     }

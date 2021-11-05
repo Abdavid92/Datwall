@@ -48,59 +48,61 @@ class StatisticsManager @Inject constructor(
         if (timeUnit.ordinal < TimeUnit.HOURS.ordinal)
             throw IllegalArgumentException()
 
-        val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
+        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
+            val enabledLte = withContext(Dispatchers.IO){
+                context.settingsDataStore.data.firstOrNull()
+                    ?.get(PreferencesKeys.ENABLED_LTE) ?: false
+            }
 
-        val enabledLte = withContext(Dispatchers.IO){
-            context.settingsDataStore.data.firstOrNull()
-                ?.get(PreferencesKeys.ENABLED_LTE) ?: false
-        }
-
-        val list = if (enabledLte) {
-            withContext(Dispatchers.IO){
-                userDataBytesRepository.bySimId(sim.id)
-            }.filter { it.type != DataBytes.DataType.National &&
+            val list = if (enabledLte) {
+                withContext(Dispatchers.IO){
+                    userDataBytesRepository.bySimId(sim.id)
+                }.filter { it.type != DataBytes.DataType.National &&
                         !it.isExpired()
                 }
-        } else {
-           withContext(Dispatchers.IO){
-               userDataBytesRepository.bySimId(sim.id)
-           }.filter {
+            } else {
+                withContext(Dispatchers.IO){
+                    userDataBytesRepository.bySimId(sim.id)
+                }.filter {
                     it.type == DataBytes.DataType.International &&
-                    it.type == DataBytes.DataType.PromoBonus
+                            it.type == DataBytes.DataType.PromoBonus
                     !it.isExpired()
                 }
+            }
+
+            var dateExpired = 0L
+            var bytes = 0L
+
+            var containPackages = false
+
+            list.forEach {
+                if (it.expiredTime > dateExpired)
+                    dateExpired = it.expiredTime
+
+                bytes += it.bytes
+
+                if (it.type != DataBytes.DataType.DailyBag)
+                    containPackages = true
+            }
+
+            val date = Date()
+
+            if (dateExpired == 0L && containPackages) {
+                dateExpired = DateUtils.addDays(date, DataPackages.GENERAL_DURATION).time
+            } else if (dateExpired == 0L && !containPackages) {
+                val dailyBag = DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.DailyBag }
+                dateExpired = DateUtils.addDays(date, dailyBag.duration).time
+            }
+
+            var quantity = timeUnit.convert(dateExpired - date.time, timeUnit)
+
+            if (quantity < 1L)
+                quantity = 1
+
+            return DataUnitBytes(bytes / quantity)
         }
 
-        var dateExpired = 0L
-        var bytes = 0L
-
-        var containPackages = false
-
-        list.forEach {
-            if (it.expiredTime > dateExpired)
-                dateExpired = it.expiredTime
-
-            bytes += it.bytes
-
-            if (it.type != DataBytes.DataType.DailyBag)
-                containPackages = true
-        }
-
-        val date = Date()
-
-        if (dateExpired == 0L && containPackages) {
-            dateExpired = DateUtils.addDays(date, DataPackages.GENERAL_DURATION).time
-        } else if (dateExpired == 0L && !containPackages) {
-            val dailyBag = DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.DailyBag }
-            dateExpired = DateUtils.addDays(date, dailyBag.duration).time
-        }
-
-        var quantity = timeUnit.convert(dateExpired - date.time, timeUnit)
-
-        if (quantity < 1L)
-            quantity = 1
-
-        return DataUnitBytes(bytes / quantity)
+        return DataUnitBytes(0L)
     }
 
 }

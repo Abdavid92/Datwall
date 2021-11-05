@@ -153,11 +153,13 @@ class DatwallService : Service(), CoroutineScope {
         
         launch {
 
-            val userData = userDataBytesRepository
-                .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
-                .filter { it.exists() }
+            simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+                val userData = userDataBytesRepository
+                    .bySimId(it)
+                    .filter { it.exists() }
 
-            updateNotification(userData)
+                updateNotification(userData)
+            }
         }
     }
 
@@ -184,11 +186,13 @@ class DatwallService : Service(), CoroutineScope {
                         NotificationHelper.MAIN_CHANNEL_ID
                     )
 
-                    val userData = userDataBytesRepository
-                        .bySimId(simManager.getDefaultSim(SimDelegate.SimType.DATA).id)
-                        .filter { it.exists() }
+                    simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+                        val userData = userDataBytesRepository
+                            .bySimId(it)
+                            .filter { it.exists() }
 
-                    updateNotification(userData)
+                        updateNotification(userData)
+                    }
                 }
 
                 percents[0] = preferences[PreferencesKeys.INTERNATIONAL_NOTIFICATION] ?:

@@ -64,7 +64,7 @@ class PurchasedPackagesManager @Inject constructor(
 
             pending.forEach {
                 if (System.currentTimeMillis() - it.date > DateUtils.MILLIS_PER_DAY) {
-                    withContext(Dispatchers.IO){
+                    withContext(Dispatchers.IO) {
                         purchasedPackageRepository.delete(it)
                     }
                     pendingToDelete.add(it)
@@ -78,7 +78,7 @@ class PurchasedPackagesManager @Inject constructor(
 
                 if (pendingToConfirmed != null) {
                     pendingToConfirmed.pending = false
-                    withContext(Dispatchers.IO){
+                    withContext(Dispatchers.IO) {
                         purchasedPackageRepository.update(pendingToConfirmed)
                     }
                 } else {
@@ -97,28 +97,28 @@ class PurchasedPackagesManager @Inject constructor(
         purchasedPackageRepository.getAll()
 
     override suspend fun clearHistory() {
-      withContext(Dispatchers.IO) {
-          purchasedPackageRepository
-              .getAll()
-      }.firstOrNull()?.let {
-          withContext(Dispatchers.IO) {
-              purchasedPackageRepository.delete(it)
-          }
-      }
+        withContext(Dispatchers.IO) {
+            purchasedPackageRepository
+                .getAll()
+        }.firstOrNull()?.let {
+            withContext(Dispatchers.IO) {
+                purchasedPackageRepository.delete(it)
+            }
+        }
     }
 
 
     override suspend fun seedOldPurchasedPackages() {
-        if (withContext(Dispatchers.IO){
+        if (withContext(Dispatchers.IO) {
                 dataStore.data.firstOrNull()
                     ?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true
             }) {
 
-                withContext(Dispatchers.IO) {
-                    dataStore.edit {
-                        it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
-                    }
+            withContext(Dispatchers.IO) {
+                dataStore.edit {
+                    it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
                 }
+            }
 
             val smses = smsReader.getAllSmsReceived().filter { it.number.contains("cubacel", true) }
             val packages = mutableListOf<PurchasedPackage>()
@@ -141,16 +141,18 @@ class PurchasedPackagesManager @Inject constructor(
                                     )
                                 }
                             } else {
-                                packages.add(
-                                    PurchasedPackage(
-                                        System.currentTimeMillis(),
-                                        sms.date,
-                                        IDataPackageManager.ConnectionMode.USSD,
-                                        simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
-                                        false,
-                                        pack.id
+                                simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+                                    packages.add(
+                                        PurchasedPackage(
+                                            System.currentTimeMillis(),
+                                            sms.date,
+                                            IDataPackageManager.ConnectionMode.USSD,
+                                            it,
+                                            false,
+                                            pack.id
+                                        )
                                     )
-                                )
+                                }
                             }
                             break
                         }

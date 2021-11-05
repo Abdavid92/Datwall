@@ -15,7 +15,7 @@ import java.util.*
  * */
 abstract class NetworkUsageManager(private val simManager: ISimManager) {
 
-    protected lateinit var simId: String
+    protected var simId: String? = null
 
     /**
      * Obtiene el tráfico de un tiempo dado de una o varias aplicaciones por el uid.
@@ -173,7 +173,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
 
 
     suspend fun updateSimID() {
-        simId = simManager.getDefaultSim(SimDelegate.SimType.DATA).id
+        simId = simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id
     }
 
     companion object {

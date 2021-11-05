@@ -96,32 +96,33 @@ class UserDataBytesManager @Inject constructor(
         isLte: Boolean
     ) {
 
-        val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
-        var total = rxBytes + txBytes
+        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
+            var total = rxBytes + txBytes
 
-        if (nationalBytes > 0) {
-            withContext(Dispatchers.IO) {
-                return@withContext userDataBytesRepository.bySimId(sim.id)
-            }.first { it.type == DataType.National }
-                .apply {
-                    if (bytes < nationalBytes) {
-                        total += (nationalBytes - bytes)
-                        bytes = 0L
-                    } else {
-                        bytes -= nationalBytes
+            if (nationalBytes > 0) {
+                withContext(Dispatchers.IO) {
+                    return@withContext userDataBytesRepository.bySimId(sim.id)
+                }.first { it.type == DataType.National }
+                    .apply {
+                        if (bytes < nationalBytes) {
+                            total += (nationalBytes - bytes)
+                            bytes = 0L
+                        } else {
+                            bytes -= nationalBytes
+                        }
+
+                        withContext(Dispatchers.IO) {
+                            userDataBytesRepository.update(this@apply)
+                        }
                     }
 
-                    withContext(Dispatchers.IO) {
-                        userDataBytesRepository.update(this@apply)
-                    }
-                }
+            }
 
-        }
-
-        if (isLte) {
-            registerLteTraffic(fixTrafficByTime(total), sim.id)
-        } else {
-            registerTraffic(fixTrafficByTime(total), sim.id)
+            if (isLte) {
+                registerLteTraffic(fixTrafficByTime(total), sim.id)
+            } else {
+                registerTraffic(fixTrafficByTime(total), sim.id)
+            }
         }
     }
 

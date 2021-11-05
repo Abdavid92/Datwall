@@ -85,11 +85,14 @@ class DateCalendarUtils @Inject constructor(
             }
             PERIOD_PACKAGE -> {
                 runBlocking(Dispatchers.Default) {
-                    purchasedPackagesManager.getHistory().firstOrNull()?.filter {
-                        it.simId == simManager.getDefaultSim(SimDelegate.SimType.DATA).id
-                    }?.maxByOrNull { it.date }?.let {
-                        return@runBlocking it.date to System.currentTimeMillis()
+                    simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let { id ->
+                        purchasedPackagesManager.getHistory().firstOrNull()?.filter {
+                            it.simId == id
+                        }?.maxByOrNull { it.date }?.let {
+                            return@runBlocking it.date to System.currentTimeMillis()
+                        }
                     }
+
                     return@runBlocking Pair(0L, 0L)
                 }
             }

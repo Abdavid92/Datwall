@@ -35,7 +35,7 @@ interface ISimManager {
      * @throws IllegalStateException - Si en SDK 23 o inferior no existe una Sim marcada como
      * predeterminada en el repositorio o hay mas de una Sim marcada como predeterminada
      */
-    suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean = false): Sim
+    suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean = false): Sim?
 
     /**
      * Establece en el repositorio la Sim dada como predeterminada para el tipo dado. Esta función

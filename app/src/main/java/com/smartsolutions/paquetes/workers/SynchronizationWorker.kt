@@ -43,7 +43,7 @@ class SynchronizationWorker @AssistedInject constructor(
         if(context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.ENABLED_LTE) == true) {
             try {
                 canExecute = userDataBytesRepository.get(
-                    simManager.getDefaultSim(SimDelegate.SimType.DATA).id,
+                    simManager.getDefaultSim(SimDelegate.SimType.DATA)!!.id,
                     DataBytes.DataType.International
                 ).exists()
             } catch (e: Exception) { }
@@ -66,7 +66,7 @@ class SynchronizationWorker @AssistedInject constructor(
         if (canExecute) {
             notifyUpdate()
             try {
-                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE))
+                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE)!!)
             } catch (e: Exception) {
             }
             cancelNotification()

@@ -24,11 +24,11 @@ class NetworkUsageManagerLegacy @Inject constructor(
         if (updateSim) {
             updateSimID()
         }
-        val traffic = Traffic(uid, 0L, 0L, simId)
+        val traffic = Traffic(uid, 0L, 0L, simId ?: "")
         traffic.startTime = start
         traffic.endTime = finish
         withContext(Dispatchers.IO) {
-            trafficRepository.getByUid(uid, simId, start, finish)
+            trafficRepository.getByUid(uid, simId ?: "", start, finish)
         }.forEach {
             traffic += it
         }
@@ -38,7 +38,7 @@ class NetworkUsageManagerLegacy @Inject constructor(
     override suspend fun getAppsUsage(start: Long, finish: Long): List<Traffic> {
         updateSimID()
         return withContext(Dispatchers.IO){
-            trafficRepository.getByTime(simId, start, finish)
+            trafficRepository.getByTime(simId ?: "", start, finish)
         }
     }
 
@@ -56,11 +56,11 @@ class NetworkUsageManagerLegacy @Inject constructor(
 
     override suspend fun getUsageTotal(start: Long, finish: Long): Traffic {
         updateSimID()
-        val traffic = Traffic(0, 0L, 0L, simId)
+        val traffic = Traffic(0, 0L, 0L, simId ?: "")
         traffic.startTime = start
         traffic.endTime = finish
         withContext(Dispatchers.IO) {
-            trafficRepository.getByUid(GENERAL_TRAFFIC_UID, simId, start, finish)
+            trafficRepository.getByUid(GENERAL_TRAFFIC_UID, simId ?: "", start, finish)
         }.forEach {
             traffic += it
         }

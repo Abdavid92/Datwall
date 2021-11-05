@@ -200,27 +200,26 @@ class TrafficRegistration @Inject constructor(
         val traffics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             networkUsageManager.getAppsUsage(startTime, System.currentTimeMillis())
         } else {
-            val sim = simManager.getDefaultSim(SimDelegate.SimType.DATA)
             val traffics = mutableListOf<Traffic>()
+            simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
+                apps.forEach { app ->
+                    traffics.add(Traffic(
+                        app.uid,
+                        TrafficStats.getUidRxBytes(app.uid),
+                        TrafficStats.getUidTxBytes(app.uid),
+                        sim.id
+                    ).apply {
+                        network = if (isLTE()) {
+                            Networks.NETWORK_4G
+                        } else {
+                            Networks.NETWORK_3G
+                        }
 
-            apps.forEach { app ->
-                traffics.add(Traffic(
-                    app.uid,
-                    TrafficStats.getUidRxBytes(app.uid),
-                    TrafficStats.getUidTxBytes(app.uid),
-                    sim.id
-                ).apply {
-                    network = if (isLTE()) {
-                        Networks.NETWORK_4G
-                    } else {
-                        Networks.NETWORK_3G
-                    }
-
-                    startTime = start
-                    endTime = System.currentTimeMillis()
-                })
+                        startTime = start
+                        endTime = System.currentTimeMillis()
+                    })
+                }
             }
-
             traffics.toList()
         }
 
@@ -257,16 +256,18 @@ class TrafficRegistration @Inject constructor(
      */
     private suspend fun registerLollipopTraffic(rx: Long, tx: Long, currentTime: Long) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && rx > 0 && tx > 0) {
-            val traffic = Traffic(
-                NetworkUsageManager.GENERAL_TRAFFIC_UID,
-                rx,
-                tx,
-                simManager.getDefaultSim(SimDelegate.SimType.DATA).id
-            ).apply {
-                startTime = currentTime - DateUtils.MILLIS_PER_SECOND
-                endTime = currentTime
+            simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+                val traffic = Traffic(
+                    NetworkUsageManager.GENERAL_TRAFFIC_UID,
+                    rx,
+                    tx,
+                    it
+                    ).apply {
+                    startTime = currentTime - DateUtils.MILLIS_PER_SECOND
+                    endTime = currentTime
+                }
+                trafficRepository.create(traffic)
             }
-            trafficRepository.create(traffic)
         }
     }
 

@@ -65,7 +65,10 @@ abstract class AbstractNetworkUsage(
             return null
         }
 
-        cache.add(BucketCache(simId, System.currentTimeMillis(), start, finish, buckets))
+        simId?.let {
+            cache.add(BucketCache(it, System.currentTimeMillis(), start, finish, buckets))
+        }
+
 
         return buckets
     }
@@ -82,8 +85,10 @@ abstract class AbstractNetworkUsage(
         return try {
             val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
 
-            generalCache.add(BucketCache(simId, System.currentTimeMillis(), start, finish, result))
-
+            simId?.let {
+                generalCache.add(BucketCache(it, System.currentTimeMillis(), start, finish, result))
+            }
+            
             result
         } catch (e: Exception) {
             null

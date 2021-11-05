@@ -30,7 +30,7 @@ class NetworkUsageManagerDefault @Inject constructor(
             updateSimID()
         }
         val buckets = getUsage(start, finish)
-        val traffic = Traffic(uid, 0L, 0L, simId)
+        val traffic = Traffic(uid, 0L, 0L, simId ?: "")
         traffic.startTime = start
         traffic.endTime = finish
         buckets?.let {bucketsList ->
@@ -52,7 +52,7 @@ class NetworkUsageManagerDefault @Inject constructor(
                 var traffic = result.firstOrNull { it.uid == bucket.uid }
 
                 if (traffic == null) {
-                    traffic = Traffic(bucket.uid, bucket.rxBytes, bucket.txBytes, simId)
+                    traffic = Traffic(bucket.uid, bucket.rxBytes, bucket.txBytes, simId ?: "")
                     result.add(traffic)
                 } else {
                     traffic += bucket
@@ -78,11 +78,11 @@ class NetworkUsageManagerDefault @Inject constructor(
     override suspend fun getUsageTotal(start : Long, finish : Long) : Traffic {
         updateSimID()
         getUsageGeneral(start, finish)?.let {
-            val traffic = Traffic(0, it.rxBytes, it.txBytes, simId)
+            val traffic = Traffic(0, it.rxBytes, it.txBytes, simId  ?: "")
             traffic.startTime = start
             traffic.endTime = finish
             return traffic
         }
-        return Traffic(0, 0L, 0L, simId)
+        return Traffic(0, 0L, 0L, simId ?: "")
     }
 }

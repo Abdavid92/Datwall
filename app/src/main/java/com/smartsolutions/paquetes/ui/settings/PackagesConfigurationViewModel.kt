@@ -70,10 +70,13 @@ class PackagesConfigurationViewModel @Inject constructor(
             try {
                 dataPackageManager.configureDataPackages()
 
-                val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)
-                lastNetworkResult = defaultSim.network
+                simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+                    lastNetworkResult = defaultSim.network
 
-                _configurationResult.postValue(Result.Success(defaultSim))
+                    _configurationResult.postValue(Result.Success(defaultSim))
+                    return@launch
+                }
+                _configurationResult.postValue(Result.Failure(Throwable("No Sim Default")))
             } catch (e: USSDRequestException) {
                 _configurationResult.postValue(Result.Failure(e))
 
@@ -88,10 +91,13 @@ class PackagesConfigurationViewModel @Inject constructor(
         viewModelScope.launch {
             dataPackageManager.setDataPackagesManualConfiguration(network)
 
-            val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)
-            lastNetworkResult = defaultSim.network
+            simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+                lastNetworkResult = defaultSim.network
 
-            _configurationResult.postValue(Result.Success(defaultSim))
+                _configurationResult.postValue(Result.Success(defaultSim))
+                return@launch
+            }
+            _configurationResult.postValue(Result.Failure(Throwable("No Sim Default")))
         }
     }
 

@@ -74,7 +74,8 @@ class SynchronizationManager @Inject constructor(
         }
         launch(Dispatchers.IO) {
             context.workersDataStore.data.collect {
-                _synchronizationUSSDModeModern = it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] ?: true
+                _synchronizationUSSDModeModern =
+                    it[PreferencesKeys.SYNCHRONIZATION_USSD_MODE_MODERN] ?: true
             }
         }
     }
@@ -107,16 +108,18 @@ class SynchronizationManager @Inject constructor(
                 data.addAll(obtainDataBytesPackages(bytesPackages))
                 data.addAll(obtainDataByteBonus(bonusPackages))
 
-                userDataBytesManager.synchronizeUserDataBytes(
-                    fillMissingDataBytes(data),
-                    simManager.getDefaultSim(SimDelegate.SimType.VOICE).id
-                )
-
-                withContext(Dispatchers.IO) {
-                    simRepository.update(sim.apply {
-                        lastSynchronization = System.currentTimeMillis()
-                    })
+                simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let {
+                    userDataBytesManager.synchronizeUserDataBytes(
+                        fillMissingDataBytes(data),
+                        it.id
+                    )
+                    withContext(Dispatchers.IO) {
+                        simRepository.update(it.apply {
+                            lastSynchronization = System.currentTimeMillis()
+                        })
+                    }
                 }
+
             }
         }
     }
@@ -299,9 +302,9 @@ class SynchronizationManager @Inject constructor(
     }
 
     private suspend fun sendUSSDRequest(ussd: String): Array<CharSequence>? {
-        return if (_synchronizationUSSDModeModern){
+        return if (_synchronizationUSSDModeModern) {
             ussdHelper.sendUSSDRequest(ussd)
-        }else {
+        } else {
             ussdHelper.sendUSSDRequestLegacy(ussd, true)
         }
     }
