@@ -5,7 +5,6 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import java.util.*
@@ -20,11 +19,6 @@ class UIScannerService : AccessibilityService() {
      * Indica si se está esperando el resultado de un código ussd
      * */
     private var waitingUssdCodeResult = false
-
-    override fun onCreate() {
-        super.onCreate()
-        setServiceStatusLive(true)
-    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -59,8 +53,9 @@ class UIScannerService : AccessibilityService() {
                 .putExtra(USSDHelper.EXTRA_RESPONSE, response)
 
             //Lanzo el broadcast.
-            LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(intent)
+            sendBroadcast(intent)
+            /*LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(intent)*/
 
             tryCloseDialog(event)
         }
@@ -105,12 +100,12 @@ class UIScannerService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        setServiceStatusLive(false)
+        setServiceStatus(false)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        setServiceStatusLive(false)
+        setServiceStatus(false)
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -120,10 +115,6 @@ class UIScannerService : AccessibilityService() {
 
     private fun setServiceStatus(ready: Boolean) {
         (application as DatwallApplication).uiScannerServiceReady = ready
-    }
-
-    private fun setServiceStatusLive(aLive: Boolean) {
-        (application as DatwallApplication).uiScannerServiceEnabled = aLive
     }
 
     companion object {

@@ -15,7 +15,6 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.repositories.IEventRepository
@@ -189,8 +188,9 @@ class USSDHelper @Inject constructor(
                     val receiver = object : BroadcastReceiver() {
 
                         override fun onReceive(context: Context, intent: Intent) {
-                            LocalBroadcastManager.getInstance(context)
-                                .unregisterReceiver(this)
+                            context.unregisterReceiver(this)
+                            /*LocalBroadcastManager.getInstance(context)
+                                .unregisterReceiver(this)*/
 
                             val result = intent.getBooleanExtra(EXTRA_RESULT, false)
                             val response = intent.getCharSequenceArrayExtra(EXTRA_RESPONSE)
@@ -210,8 +210,9 @@ class USSDHelper @Inject constructor(
 
                     val filter = IntentFilter(ACTION_SEND_USSD_REQUEST)
 
-                    LocalBroadcastManager.getInstance(context)
-                        .registerReceiver(receiver, filter)
+                    context.registerReceiver(receiver, filter)
+                    /*LocalBroadcastManager.getInstance(context)
+                        .registerReceiver(receiver, filter)*/
 
                     val handler = Handler(Looper.getMainLooper())
 
@@ -222,8 +223,10 @@ class USSDHelper @Inject constructor(
 
                             context.startService(cancelIntent)
 
-                            LocalBroadcastManager.getInstance(context)
-                                .unregisterReceiver(receiver)
+                            context.unregisterReceiver(receiver)
+
+                            /*LocalBroadcastManager.getInstance(context)
+                                .unregisterReceiver(receiver)*/
 
                             it.resumeWithException(
                                 USSDRequestException(

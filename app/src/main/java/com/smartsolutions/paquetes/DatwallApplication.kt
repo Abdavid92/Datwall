@@ -43,12 +43,7 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
     private var kernelRunning = false
 
     /**
-     * Indica si el servicio está encendido.
-     * */
-    var uiScannerServiceEnabled = false
-
-    /**
-     * Indica si el servicio está listo para trabajar.
+     * Indica si el servicio de accesibilidad está listo para trabajar.
      * */
     var uiScannerServiceReady = false
 

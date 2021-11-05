@@ -23,8 +23,7 @@ class PackagesConfigurationFragment @Inject constructor(
     private val viewModel by viewModels<PackagesConfigurationViewModel>()
 
     private var _binding: FragmentPackagesConfigurationBinding? = null
-    private val binding: FragmentPackagesConfigurationBinding
-        get() = _binding!!
+    private val binding get() = _binding!!
 
     /**
      * Indica si es obligatorio configurar los paquetes. De ser así el fragmento no

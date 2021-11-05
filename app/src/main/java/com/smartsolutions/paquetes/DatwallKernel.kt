@@ -32,7 +32,6 @@ import kotlin.coroutines.CoroutineContext
 class DatwallKernel @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val activationManager: IActivationManager,
     private val permissionManager: IPermissionsManager,
     private val configurationManager: IConfigurationManager,
     private val updateManager: IUpdateManager,
@@ -116,14 +115,6 @@ class DatwallKernel @Inject constructor(
                     context.getString(R.string.missing_permmissions_description_notification)
                 )
             }
-            //Verfica el registro y la activación
-            /*!isRegisteredAndValid() -> {
-                openActivity(ActivationActivity::class.java)
-                considerNotify(
-                    context.getString(R.string.generic_needed_action_title_notification),
-                    context.getString(R.string.generic_needed_action_description_notification)
-                )
-            }*/
             //Verfica las configuraciones iniciales
             missingSomeConfiguration() -> {
                 openActivity(SetupActivity::class.java)
@@ -246,19 +237,6 @@ class DatwallKernel @Inject constructor(
                 stopBubbleFloating()
             }
         }
-    }
-
-    /**
-     * Indica si la aplicación ya está registrada en el servidor y
-     * no está obsoleta o descontinuada.
-     * */
-    private suspend fun isRegisteredAndValid(): Boolean {
-        val status = activationManager.canWork().second
-
-        return status != IActivationManager.ApplicationStatuses.Discontinued &&
-                status != IActivationManager.ApplicationStatuses.Unknown &&
-                status != IActivationManager.ApplicationStatuses.Deprecated &&
-                status != IActivationManager.ApplicationStatuses.TooMuchOld
     }
 
     /**
