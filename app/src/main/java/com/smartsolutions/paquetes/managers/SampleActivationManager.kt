@@ -20,7 +20,7 @@ class SampleActivationManager @Inject constructor(
 
     private val license = License(
         "vskhbfvski",
-        false,
+        true,
         false,
         Build.MANUFACTURER,
         Build.MODEL,
@@ -51,7 +51,7 @@ class SampleActivationManager @Inject constructor(
     }
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
-        return false to IActivationManager.ApplicationStatuses.TrialPeriod
+        return true to IActivationManager.ApplicationStatuses.Purchased
     }
 
     override suspend fun isInTrialPeriod(): Boolean {
@@ -59,7 +59,11 @@ class SampleActivationManager @Inject constructor(
     }
 
     override fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener) {
-        listener.onTrialPeriod(license, false)
+        listener.onPurchased(license)
+        /*listener.onTrialPeriod(license.apply {
+            isPurchased = false
+            isRestored = false
+        }, false)*/
     }
 
     override suspend fun transferCreditByUSSD(key: String, license: License): Result<Unit> {

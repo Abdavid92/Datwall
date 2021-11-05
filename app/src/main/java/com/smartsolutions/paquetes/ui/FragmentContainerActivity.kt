@@ -1,13 +1,16 @@
 package com.smartsolutions.paquetes.ui
 
 import android.os.Bundle
+import androidx.fragment.app.commit
+import androidx.fragment.app.commitNow
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class FragmentContainerActivity : AbstractActivity(R.layout.activity_fragment_container),
-    OnCompletedListener {
+    OnCompletedListener, IReplaceFragments {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,5 +43,12 @@ class FragmentContainerActivity : AbstractActivity(R.layout.activity_fragment_co
     companion object {
 
         const val EXTRA_FRAGMENT = "com.smartsolutions.paquetes.extra.FRAGMENT"
+    }
+
+    override fun replace(fragment: AbstractSettingsFragment) {
+        supportFragmentManager.commitNow {
+            setReorderingAllowed(true)
+            replace(R.id.container_view, fragment)
+        }
     }
 }
