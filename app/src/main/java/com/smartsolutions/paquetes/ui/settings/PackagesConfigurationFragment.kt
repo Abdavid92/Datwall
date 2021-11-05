@@ -244,8 +244,20 @@ class PackagesConfigurationFragment @Inject constructor(
                 }
             }
         } else {
-            /*Sino oculto la tarjeta de selección de sims*/
-            binding.cardSimSelection.visibility = View.GONE
+
+            binding.apply {
+
+                //Sino oculto la tarjeta de selección de sims
+                cardSimSelection.visibility = View.GONE
+
+                btnStartConfiguration.setOnClickListener {
+
+                    viewModel.configureDataPackages(
+                        this@PackagesConfigurationFragment,
+                        childFragmentManager
+                    )
+                }
+            }
         }
     }
 

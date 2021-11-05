@@ -14,9 +14,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class ConfigurationManager @Inject constructor(
-    private val applicationStatusFragment: Provider<ApplicationStatusFragment>,
-    private val simConfigurationFragment: Provider<SimsConfigurationFragment>,
-    private val packagesConfigurationFragment: Provider<PackagesConfigurationFragment>,
     private val simManager: ISimManager,
     private val dataPackageManager: IDataPackageManager,
     private val activationManager: IActivationManager
@@ -47,11 +44,10 @@ class ConfigurationManager @Inject constructor(
             list.add(
                 Configuration(
                     true,
-                    applicationStatusFragment,
-                    {
-                        activationManager.canWork().first
-                    }
-                )
+                    ApplicationStatusFragment::class.java
+                ) {
+                    activationManager.canWork().first
+                }
             )
         }
 
@@ -61,28 +57,26 @@ class ConfigurationManager @Inject constructor(
             list.add(
                 Configuration(
                     true,
-                    simConfigurationFragment,
-                    {
-                        try {
-                            simManager.getDefaultSim(SimDelegate.SimType.DATA)
-                            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
+                    SimsConfigurationFragment::class.java
+                ) {
+                    try {
+                        simManager.getDefaultSim(SimDelegate.SimType.DATA)
+                        simManager.getDefaultSim(SimDelegate.SimType.VOICE)
 
-                            return@Configuration true
-                        } catch (e: IllegalStateException) {
-                            return@Configuration false
-                        }
+                        return@Configuration true
+                    } catch (e: IllegalStateException) {
+                        return@Configuration false
                     }
-                )
+                }
             )
         }
         list.add(
             Configuration(
                 true,
-                packagesConfigurationFragment,
-                {
-                    return@Configuration dataPackageManager.isConfiguredDataPackages()
-                }
-            )
+                PackagesConfigurationFragment::class.java
+            ) {
+                return@Configuration dataPackageManager.isConfiguredDataPackages()
+            }
         )
 
         return list.toTypedArray()

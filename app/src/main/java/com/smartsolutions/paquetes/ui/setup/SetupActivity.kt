@@ -37,7 +37,7 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup), OnCompletedList
     private fun nextOrComplete() {
         if (viewModel.hasNextConfiguration()) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.setup_container, viewModel.nextConfiguration()!!.fragment.get())
+                .replace(R.id.setup_container, viewModel.nextConfiguration()!!.fragment, null)
                 .commit()
         } else {
             viewModel.next()
