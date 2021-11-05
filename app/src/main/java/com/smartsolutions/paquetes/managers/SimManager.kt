@@ -70,6 +70,8 @@ class SimManager @Inject constructor(
             )
         }
 
+        verifyDefaultSim(sims)
+
         return sims
     }
 
@@ -81,10 +83,12 @@ class SimManager @Inject constructor(
         }
 
         if (installedSims.size == 1){
-            return installedSims[0].apply {
+            val sim = installedSims[0].apply {
                 defaultData = true
                 defaultVoice = true
             }
+            setDefaultSim(type, sim)
+            return sim
         }
 
         val defaults = if (type == SimDelegate.SimType.DATA) {
@@ -135,6 +139,7 @@ class SimManager @Inject constructor(
                         all.firstOrNull { it.id == simDelegate.getSimId(subscription) })
                 )
             }
+            verifyDefaultSim(installed)
             installed
         }
     }
@@ -241,6 +246,13 @@ class SimManager @Inject constructor(
                     simRepository.create(it)
                 }
             }
+        }
+    }
+
+    private suspend fun verifyDefaultSim(sims: List<Sim>){
+        if (sims.size == 1 && !sims[0].defaultVoice || !sims[0].defaultData ){
+            setDefaultSim(SimDelegate.SimType.DATA, sims[0])
+            setDefaultSim(SimDelegate.SimType.VOICE, sims[0])
         }
     }
 
