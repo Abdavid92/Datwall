@@ -41,12 +41,14 @@ class SynchronizationWorker @AssistedInject constructor(
         var canExecute = true
 
         if(context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.ENABLED_LTE) == true) {
-            try {
-                canExecute = userDataBytesRepository.get(
+            canExecute = try {
+                userDataBytesRepository.get(
                     simManager.getDefaultSim(SimDelegate.SimType.DATA)!!.id,
                     DataBytes.DataType.International
                 ).exists()
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+                false
+            }
 
             if (canExecute) {
                 canExecute =
