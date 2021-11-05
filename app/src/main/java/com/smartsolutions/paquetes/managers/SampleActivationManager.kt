@@ -20,7 +20,7 @@ class SampleActivationManager @Inject constructor(
 
     private val license = License(
         "vskhbfvski",
-        true,
+        false,
         false,
         Build.MANUFACTURER,
         Build.MODEL,
@@ -59,7 +59,7 @@ class SampleActivationManager @Inject constructor(
     }
 
     override fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener) {
-        listener.onPurchased(license)
+        listener.onTrialPeriod(license, false)
     }
 
     override suspend fun transferCreditByUSSD(key: String, license: License): Result<Unit> {
