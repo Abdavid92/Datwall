@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPurchaseModeBinding
@@ -13,8 +14,6 @@ class PurchaseModeFragment : Fragment() {
 
     private var _binding: FragmentPurchaseModeBinding? = null
     private val binding get() = _binding!!
-
-    private val viewModel: Purchase2ViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,7 +27,19 @@ class PurchaseModeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.apply {
+            groupMode.setOnCheckedChangeListener { group, checkedId ->
+                val fragment = if (checkedId == R.id.banking_mode){
+                    BankingTransferFragment.newInstance()
+                }else {
+                    CreditTransferFragment.newInstance()
+                }
 
+                parentFragmentManager.commit {
+                    replace(R.id.container, fragment)
+                }
+            }
+        }
 
     }
 

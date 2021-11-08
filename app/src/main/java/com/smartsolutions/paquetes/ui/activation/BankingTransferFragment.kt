@@ -1,35 +1,29 @@
 package com.smartsolutions.paquetes.ui.activation
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.databinding.FragmentPurchase2Binding
+import com.smartsolutions.paquetes.databinding.FragmentBankaryTransferBinding
 
 
-class Purchase2Fragment : Fragment() {
+class BankingTransferFragment : Fragment() {
 
-    private var _binding: FragmentPurchase2Binding? = null
+    private var _binding: FragmentBankaryTransferBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentPurchase2Binding.inflate(layoutInflater, container, false)
+       _binding = FragmentBankaryTransferBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        childFragmentManager.commit {
-            add(R.id.container, TermsAndConditionsFragment.newInstance())
-        }
 
     }
 
@@ -39,9 +33,7 @@ class Purchase2Fragment : Fragment() {
         _binding = null
     }
 
-
     companion object {
-        fun newInstance() = Purchase2Fragment()
+        fun newInstance() = BankingTransferFragment()
     }
-
 }

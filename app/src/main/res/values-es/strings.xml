@@ -396,4 +396,8 @@
     <string name="title_purchase">Licencia y Activación</string>
     <string name="agree_terms_and_conditions">Acepto los términos y condiciones</string>
     <string name="must_have_agree">Debe aceptar los términos y condiciones para continuar</string>
+    <string name="banking_transfer">Transferencia Bancaria vía Transfermóvil</string>
+    <string name="credit_transfer">Transferencia de Saldo Móvil</string>
+    <string name="transfer_mode">Modo de Compra</string>
+    <string name="mode_transfer_description">Seleccione el modo de transferencia que utilizará para pagar la licencia de la app</string>
 </resources>
