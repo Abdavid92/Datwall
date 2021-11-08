@@ -78,7 +78,7 @@
         ▪ <b>¿Cuánto dura la licencia?</b>\nLa licencia es de por vida para su dispositivo, aún si actualiza la app o incluso restaura de fábrica su dispositivo, exceptuando los dispositivos con Android 11 en adelante. De Android 11 en adelante la licencia siempre es válida mientras no restaure de fábrica\n\n
         ▪ <b>¿Mi licencia sirve para otro teléfono?</b>\nNo. La licencia solo es válida para este dispositivo. Si cambia de teléfono deberá comprar una licencia nueva\n\n
         ▪ <b>¿Cómo obtengo la licencia?</b>\nPara obtener la licencia debe utilizar la opción que aparece en esta página para Transferir y Activar Mis Datos y seguir las instrucciones que se le darán\n\n
-        ▪ <b>¿Cómo Mis Datos detecta la transferencia?</b>\nMis Datos detecta la transferencia mediante el permiso de Accesibilidad. Debe conceder este permiso antes de realizar la transferencia\n\n
+        ▪ <b>¿Cómo Mis Datos detecta la transferencia?</b>\nMis Datos detecta la transferencia mediante el sms de confirmación recibido. No debe quitarle el permiso de lectura de sms durante el proceso de activación\n\n
         ▪ <b>¿Qué puedo hacer si recibo el mensaje Problema de conexión o código MMI incorrecto al hacer la transferencia?</b>\nEste error casi siempre se produce cuando hay mala cobertura. Le recomendamos que busque un lugar con buena cobertura o intente poner modo avión por unos segundos y luego desactivarlo.\n
     </string>
     <string name="transfermovil_instruccions">

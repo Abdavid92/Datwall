@@ -51,7 +51,7 @@ class SampleActivationManager @Inject constructor(
     }
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
-        return true to IActivationManager.ApplicationStatuses.Purchased
+        return false to IActivationManager.ApplicationStatuses.TrialPeriod
     }
 
     override suspend fun isInTrialPeriod(): Boolean {
@@ -59,11 +59,11 @@ class SampleActivationManager @Inject constructor(
     }
 
     override fun getApplicationStatus(listener: IActivationManager.ApplicationStatusListener) {
-        listener.onPurchased(license)
-        /*listener.onTrialPeriod(license.apply {
+        //listener.onPurchased(license)
+        listener.onTrialPeriod(license.apply {
             isPurchased = false
             isRestored = false
-        }, false)*/
+        }, false)
     }
 
     override suspend fun transferCreditByUSSD(key: String, license: License): Result<Unit> {
