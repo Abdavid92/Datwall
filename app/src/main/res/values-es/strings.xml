@@ -407,4 +407,5 @@
     <string name="transfer">Transferir</string>
     <string name="must_have_input_key">Debe introducir la clave de transferencias</string>
     <string name="key_to_short">La clave debe ser de 4 dígitos</string>
+    <string name="purchased_done">Licencia Comprada</string>
 </resources>
