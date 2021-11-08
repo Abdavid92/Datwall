@@ -33,7 +33,7 @@ class Purchase2Fragment : AbstractSettingsFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         childFragmentManager.commit {
-            add(R.id.container, PurchaseSuccessfulFragment())
+            add(R.id.container, TermsAndConditionsFragment())
         }
 
         viewModel.onConfirmPurchase().observe(viewLifecycleOwner) {

@@ -59,6 +59,14 @@ class CreditTransferFragment : AbstractSettingsFragment() {
                 }
             }
         }
+
+        viewModel.onConfirmPurchase().observe(viewLifecycleOwner) {
+            if (it.isSuccess) {
+                childFragmentManager.commit {
+                    add(R.id.container, PurchaseSuccessfulFragment())
+                }
+            }
+        }
     }
 
     override fun onPause() {
