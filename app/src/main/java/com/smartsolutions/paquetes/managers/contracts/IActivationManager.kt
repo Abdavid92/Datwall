@@ -1,10 +1,16 @@
 package com.smartsolutions.paquetes.managers.contracts
 
+import androidx.lifecycle.LiveData
 import com.smartsolutions.paquetes.serverApis.models.AndroidApp
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
 
 interface IActivationManager {
+
+    /**
+     * [LiveData] que contiene el resultado de la confirmación de la compra.
+     * */
+    val onConfirmPurchase: LiveData<Result<Unit>>
 
     /**
      * Indica si la aplicación puede trabajar dependiendo del

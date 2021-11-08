@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPurchase2Binding
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
@@ -15,6 +16,8 @@ class Purchase2Fragment : AbstractSettingsFragment() {
 
     private var _binding: FragmentPurchase2Binding? = null
     private val binding get() = _binding!!
+
+    private val viewModel by viewModels<Purchase2ViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,6 +35,13 @@ class Purchase2Fragment : AbstractSettingsFragment() {
             add(R.id.container, TermsAndConditionsFragment.newInstance())
         }
 
+        viewModel.onConfirmPurchase().observe(viewLifecycleOwner) {
+
+            if (it.isSuccess) {
+
+
+            }
+        }
     }
 
 

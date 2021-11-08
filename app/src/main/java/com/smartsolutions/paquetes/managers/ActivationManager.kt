@@ -8,6 +8,8 @@ import android.provider.Settings
 import android.util.Base64
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -49,6 +51,11 @@ class ActivationManager @Inject constructor(
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
+
+    private val _onConfirmPurchase = MutableLiveData<Result<Unit>>()
+
+    override val onConfirmPurchase: LiveData<Result<Unit>>
+        get() = _onConfirmPurchase
 
     private val dataStore = context.internalDataStore
 
@@ -147,43 +154,46 @@ class ActivationManager @Inject constructor(
         phone: String,
         simIndex: Int
     ): Result<Unit> {
-        if (!isWaitingPurchased() || !phone.contains("PAGOxMOVIL", true) &&
-            !phone.contains("Cubacel", true)){
+
+        if (!phone.contains("PAGOxMOVIL", true) &&
+            !phone.contains("Cubacel", true)) {
             return Result.Failure(IllegalStateException())
         }
 
-        try {
-            val data = dataStore.data.first()[PreferencesKeys.LICENSE]
-            val license = gson.fromJson(
-                decrypt(data),
-                License::class.java
-            )
+        getLocalLicense()?.let { license ->
 
-            val androidApp = license.androidApp
-            val price = androidApp.price.toString()
+            try {
 
-            val priceTransfermovil = "${androidApp.price}.00"
+                val androidApp = license.androidApp
+                val price = androidApp.price.toString()
 
-            if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)){
-                license.transaction = readTransaction(smsBody)
-            }else if(smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
-                fillPhone(simIndex, license)
-            }else{
-                return Result.Failure(NoSuchElementException())
+                val priceTransfermovil = "${androidApp.price}.00"
+
+                if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)){
+                    license.transaction = readTransaction(smsBody)
+                }else if(smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
+                    fillPhone(simIndex, license)
+                }else{
+                    return Result.Failure(NoSuchElementException())
+                }
+
+                license.isPurchased = true
+
+                dataStore.edit {
+                    it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(license))
+                    it[PreferencesKeys.WAITING_PURCHASED] = false
+                    scheduleWorker()
+                }
+
+                return Result.Success(Unit).also {
+                    _onConfirmPurchase.postValue(it)
+                }
+            } catch (e: Exception) {
+                return Result.Failure(e)
             }
-
-            license.isPurchased = true
-
-            dataStore.edit {
-                it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(license))
-                it[PreferencesKeys.WAITING_PURCHASED] = false
-                scheduleWorker()
-            }
-
-            return Result.Success(Unit)
-        } catch (e: Exception) {
-            return Result.Failure(e)
         }
+
+        return Result.Failure(NullPointerException())
     }
 
     override suspend fun isWaitingPurchased(): Boolean {

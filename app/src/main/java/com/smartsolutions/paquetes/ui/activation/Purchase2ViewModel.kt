@@ -28,6 +28,7 @@ class Purchase2ViewModel @Inject constructor(
     private var _license: License? = null
     private var cardCopied = false
 
+    fun onConfirmPurchase() = activationManager.onConfirmPurchase
 
     fun loadLicence() {
         viewModelScope.launch {
