@@ -10,8 +10,9 @@ import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPurchase2Binding
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class Purchase2Fragment : AbstractSettingsFragment() {
 
     private var _binding: FragmentPurchase2Binding? = null
@@ -32,7 +33,7 @@ class Purchase2Fragment : AbstractSettingsFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         childFragmentManager.commit {
-            add(R.id.container, TermsAndConditionsFragment.newInstance())
+            add(R.id.container, PurchaseSuccessfulFragment())
         }
 
         viewModel.onConfirmPurchase().observe(viewLifecycleOwner) {

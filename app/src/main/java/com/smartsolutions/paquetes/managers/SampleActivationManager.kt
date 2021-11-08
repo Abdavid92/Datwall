@@ -2,6 +2,8 @@ package com.smartsolutions.paquetes.managers
 
 import android.content.Context
 import android.os.Build
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
@@ -43,12 +45,17 @@ class SampleActivationManager @Inject constructor(
             true,
             7,
             30,
-            "",
+            "87462374673295092934",
             "",
             "",
             ""
         )
     }
+
+    private val _onConfrimPurchase = MutableLiveData<Result<Unit>>()
+
+    override val onConfirmPurchase: LiveData<Result<Unit>>
+        get() = _onConfrimPurchase
 
     override suspend fun canWork(): Pair<Boolean, IActivationManager.ApplicationStatuses> {
         return false to IActivationManager.ApplicationStatuses.TrialPeriod
@@ -75,6 +82,7 @@ class SampleActivationManager @Inject constructor(
         phone: String,
         simIndex: Int
     ): Result<Unit> {
+        _onConfrimPurchase.postValue(Result.Success(Unit))
         return Result.Success(Unit)
     }
 

@@ -17,6 +17,7 @@ import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +32,7 @@ class Purchase2ViewModel @Inject constructor(
     fun onConfirmPurchase() = activationManager.onConfirmPurchase
 
     fun loadLicence() {
-        viewModelScope.launch {
+        runBlocking {
             _license = activationManager.getLocalLicense()
         }
     }

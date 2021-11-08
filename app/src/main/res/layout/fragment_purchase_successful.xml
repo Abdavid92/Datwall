@@ -6,6 +6,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.activation.PurchaseSuccessfulFragment">
 
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/confetti_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
