@@ -74,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/transfermovil_instructions"
@@ -141,32 +141,32 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/ussd_instructions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            android:text="@string/ussd_instructions"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="@string/ussd_instructions" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tranfer_key_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/ussd_instructions"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="@dimen/activity_horizontal_margin">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ussd_instructions">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/tranfer_key"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="6"
-                android:inputType="numberSigned"
                 android:hint="Clave"
+                android:inputType="numberSigned"
                 android:maxLength="4" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -175,20 +175,20 @@
             android:id="@+id/btn_ussd_tranfer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/tranfer_key_layout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:text="Tranferir" />
+            android:text="Tranferir"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tranfer_key_layout" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_ussd_back"
+            style="@style/BaseButton.SecondaryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/BaseButton.SecondaryButton"
             android:text="@string/btn_back"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.appcompat.widget.LinearLayoutCompat>

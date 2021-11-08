@@ -5,13 +5,20 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentBankaryTransferBinding
+import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
+import dagger.hilt.android.AndroidEntryPoint
 
-
-class BankingTransferFragment : Fragment() {
+@AndroidEntryPoint
+class BankingTransferFragment : AbstractSettingsFragment() {
 
     private var _binding: FragmentBankaryTransferBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: Purchase2ViewModel by viewModels ()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,10 +31,46 @@ class BankingTransferFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.loadLicence()
 
+        binding.apply {
+            headerDescription.text = getString(R.string.transfermovil_instruccions, viewModel.getPrice())
+            cardNumber.text = getString(R.string.debit_card_number, viewModel.getDebitCardNumber())
+
+            btnCopyToClipboard.setOnClickListener {
+                viewModel.copyDebitCardToClipboard()
+            }
+
+            btnOpenTransfermovil.setOnClickListener {
+                viewModel.openTransfermovil(root)
+            }
+
+            btnCancel.setOnClickListener {
+                complete()
+            }
+
+            btnBack.setOnClickListener {
+                parentFragmentManager.commit {
+                    replace(R.id.container, PurchaseModeFragment.newInstance())
+                }
+            }
+        }
 
     }
 
+
+    override fun onPause() {
+        super.onPause()
+        showWaiting(true)
+    }
+
+    private fun showWaiting(show: Boolean){
+        if (show){
+            binding.constraintWaitingPurchase.visibility = View.VISIBLE
+        }else {
+            binding.constraintWaitingPurchase.visibility = View.GONE
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()

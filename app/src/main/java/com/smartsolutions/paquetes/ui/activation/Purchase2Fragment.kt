@@ -8,9 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPurchase2Binding
+import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 
 
-class Purchase2Fragment : Fragment() {
+class Purchase2Fragment : AbstractSettingsFragment() {
 
     private var _binding: FragmentPurchase2Binding? = null
     private val binding get() = _binding!!

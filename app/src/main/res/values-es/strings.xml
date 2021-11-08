@@ -402,4 +402,9 @@
     <string name="mode_transfer_description">Seleccione el modo de transferencia que utilizará para pagar la licencia de la app</string>
     <string name="must_have_select">Debe seleccionar una opción antes de continuar</string>
     <string name="open_transfermovil">Abrir Transfermóvil</string>
+    <string name="waiting_confirm">Esperando SMS de confirmación</string>
+    <string name="hint_key_transfer">Clave</string>
+    <string name="transfer">Transferir</string>
+    <string name="must_have_input_key">Debe introducir la clave de transferencias</string>
+    <string name="key_to_short">La clave debe ser de 4 dígitos</string>
 </resources>

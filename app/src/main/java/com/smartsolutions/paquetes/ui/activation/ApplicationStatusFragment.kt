@@ -146,7 +146,7 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
 
                 if (activity is IReplaceFragments) {
                     (activity as IReplaceFragments)
-                        .replace(PurchaseFragment())
+                        .replace(Purchase2Fragment.newInstance())
                 }
             }
         }
