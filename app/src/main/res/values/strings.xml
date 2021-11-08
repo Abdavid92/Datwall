@@ -400,4 +400,6 @@
     <string name="credit_transfer">Transferencia de Saldo Móvil</string>
     <string name="transfer_mode">Modo de Compra</string>
     <string name="mode_transfer_description">Seleccione el modo de transferencia que utilizará para pagar la licencia de la app</string>
+    <string name="must_have_select">Debe seleccionar una opción antes de continuar</string>
+    <string name="open_transfermovil">Abrir Transfermóvil</string>
 </resources>

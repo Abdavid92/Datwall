@@ -11,15 +11,15 @@
         android:id="@+id/first_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/terms_and_conditions"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constrainedHeight="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/purchase">
+            app:layout_constraintBottom_toTopOf="@id/purchase"
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
@@ -29,21 +29,21 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="@string/terms_and_conditions_title"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                    android:layout_marginBottom="8dp" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/document_terms_conditions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/terms_and_conditions"/>
+                    android:text="@string/terms_and_conditions" />
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/accept_terms_conditions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Acepto los términos y condiciones"/>
+                    android:text="Acepto los términos y condiciones" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -51,21 +51,21 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_cancel"
+            style="@style/BaseButton.SecondaryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/purchase"
-            style="@style/BaseButton.SecondaryButton"
             android:layout_marginEnd="16dp"
-            android:text="@string/btn_cancel" />
+            android:text="@string/btn_cancel"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/purchase" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/purchase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Comprar licencia"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="Comprar licencia" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -74,26 +74,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/transfermovil_instructions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:text="@string/transfermovil_instruccions"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="@string/transfermovil_instruccions" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/card_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/transfermovil_instructions"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:text="@string/debit_card_number"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/transfermovil_instructions" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_copy_to_clipboard"
@@ -102,18 +102,18 @@
             android:layout_marginTop="16dp"
             android:text="@string/copy_to_clipboard"
             android:textAllCaps="false"
-            app:layout_constraintTop_toBottomOf="@id/card_number"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_number" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_open_transfermovil"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAllCaps="false"
-            android:text="Abrir Transfermovil"
-            app:layout_constraintTop_toBottomOf="@id/btn_copy_to_clipboard"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"
+            android:text="Abrir Transfermovil"
+            android:textAllCaps="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_copy_to_clipboard"
             tools:ignore="HardcodedText" />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -121,18 +121,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
+            android:text="@string/btn_continue"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_transfermovil_back"
-            android:text="@string/btn_continue" />
+            app:layout_constraintEnd_toStartOf="@id/btn_transfermovil_back" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_transfermovil_back"
+            style="@style/BaseButton.SecondaryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_back"
-            style="@style/BaseButton.SecondaryButton"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

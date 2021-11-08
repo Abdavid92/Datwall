@@ -25,6 +25,7 @@ class BankingTransferFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+
     }
 
 
