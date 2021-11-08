@@ -7,6 +7,8 @@ import android.transition.Transition
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.SharedElementCallback
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -40,42 +42,21 @@ class BubbleControlsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (sharedElementEnterTransition as Transition?)
-            ?.addListener(object : Transition.TransitionListener {
+        viewModel.setBubbleSwitchListener(
+            binding.bubble,
+            childFragmentManager
+        )
+        viewModel.setBubbleAllWayListener(
+            binding.allWay,
+            binding.onlyConsume
+        )
+        viewModel.setTransparencyListener(
+            binding.bubbleTransparency
+        )
+        viewModel.setSizeListener(
+            binding.bubbleSize
+        )
 
-                override fun onTransitionStart(transition: Transition?) {
-
-                }
-
-                override fun onTransitionEnd(transition: Transition?) {
-                    transition?.removeListener(this)
-                    viewModel.setBubbleSwitchListener(
-                        binding.bubble,
-                        childFragmentManager
-                    )
-                    viewModel.setBubbleAllWayListener(
-                        binding.allWay,
-                        binding.onlyConsume
-                    )
-                    viewModel.setTransparencyListener(
-                        binding.bubbleTransparency
-                    )
-                    viewModel.setSizeListener(
-                        binding.bubbleSize
-                    )
-                }
-
-                override fun onTransitionCancel(transition: Transition?) {
-                    transition?.removeListener(this)
-                }
-
-                override fun onTransitionPause(transition: Transition?) {
-                }
-
-                override fun onTransitionResume(transition: Transition?) {
-                }
-
-            })
         binding.bubbleControls.setOnClickListener {
             //Empty
         }

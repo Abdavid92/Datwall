@@ -226,8 +226,13 @@ class DatwallService : Service(), CoroutineScope {
 
             watcher.bandWithFlow.collect {
 
-                if (activationManager.canWork().first)
+                val canWork = activationManager.canWork()
+
+                if (canWork.first)
                     updateBandWith(it.first, it.second)
+                else if (canWork.second == IActivationManager.ApplicationStatuses.TrialPeriod) {
+                    launchExpiredNotification()
+                }
             }
         }
     }
@@ -390,7 +395,7 @@ class DatwallService : Service(), CoroutineScope {
         return uiHelper.getResource(name) ?: R.drawable.ic_main_notification
     }
 
-    fun launchExpiredNotification() {
+    private fun launchExpiredNotification() {
         val notification = NotificationCompat.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_main_notification)
             .setContentTitle(getString(R.string.expired_try_period))
@@ -429,13 +434,7 @@ class DatwallService : Service(), CoroutineScope {
         fun startTrafficRegistration() {
             launch {
 
-                val canWork = service.activationManager.canWork()
-
-                if (!canWork.first) {
-                    if (canWork.second == IActivationManager.ApplicationStatuses.TrialPeriod) {
-                        service.launchExpiredNotification()
-                    }
-                } else {
+                if (service.activationManager.canWork().first) {
                     service.trafficRegistration.start()
                 }
             }

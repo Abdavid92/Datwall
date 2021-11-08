@@ -12,7 +12,9 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPurchaseBinding
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PurchaseFragment : AbstractSettingsFragment() {
 
     private val viewModel by viewModels<PurchaseViewModel>()
@@ -65,7 +67,7 @@ class PurchaseFragment : AbstractSettingsFragment() {
 
             btnUssdTranfer.setOnClickListener(::ussdTransfer)
 
-            btnContinue.setOnClickListener {
+            btnCancel.setOnClickListener {
                 complete()
             }
 

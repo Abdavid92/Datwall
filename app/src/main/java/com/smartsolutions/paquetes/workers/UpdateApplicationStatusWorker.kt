@@ -32,68 +32,72 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        updateManager.findUpdate()?.let { androidApp ->
-            val isAutoUpdate = withContext(Dispatchers.IO) {
-                applicationContext.settingsDataStore.data
-                    .firstOrNull()
-                    ?.get(PreferencesKeys.AUTO_UPDATE) ?: false
-            }
 
-            if (isAutoUpdate) {
+        runCatching {
 
-                val mode = IUpdateManager.UpdateMode.valueOf(
-                    applicationContext.settingsDataStore.data.firstOrNull()
-                        ?.get(PreferencesKeys.UPDATE_MODE)
-                        ?: IUpdateManager.UpdateMode.APKLIS_SERVER.name
-                )
-
-                val url = when (mode) {
-                    IUpdateManager.UpdateMode.APKLIS_SERVER -> {
-                        Uri.parse(
-                            updateManager.buildDynamicUrl(
-                                updateManager.BASE_URL_APKLIS,
-                                androidApp
-                            )
-                        )
-                    }
-                    else -> {
-                        Uri.parse(
-                            updateManager.buildDynamicUrl(
-                                updateManager.BASE_URL_HOSTINGER,
-                                androidApp
-                            )
-                        )
-                    }
+            updateManager.findUpdate()?.let { androidApp ->
+                val isAutoUpdate = withContext(Dispatchers.IO) {
+                    applicationContext.settingsDataStore.data
+                        .firstOrNull()
+                        ?.get(PreferencesKeys.AUTO_UPDATE) ?: false
                 }
 
-                if (updateManager.foundIfDownloaded(url) == null) {
-                    updateManager.downloadUpdate(url)
-                    notificationHelper.notifyUpdate(
-                        "Descargando Actualización",
-                        "Presione aquí para ver el progreso de la actualización"
+                if (isAutoUpdate) {
+
+                    val mode = IUpdateManager.UpdateMode.valueOf(
+                        applicationContext.settingsDataStore.data.firstOrNull()
+                            ?.get(PreferencesKeys.UPDATE_MODE)
+                            ?: IUpdateManager.UpdateMode.APKLIS_SERVER.name
                     )
+
+                    val url = when (mode) {
+                        IUpdateManager.UpdateMode.APKLIS_SERVER -> {
+                            Uri.parse(
+                                updateManager.buildDynamicUrl(
+                                    updateManager.BASE_URL_APKLIS,
+                                    androidApp
+                                )
+                            )
+                        }
+                        else -> {
+                            Uri.parse(
+                                updateManager.buildDynamicUrl(
+                                    updateManager.BASE_URL_HOSTINGER,
+                                    androidApp
+                                )
+                            )
+                        }
+                    }
+
+                    if (updateManager.foundIfDownloaded(url) == null) {
+                        updateManager.downloadUpdate(url)
+                        notificationHelper.notifyUpdate(
+                            "Descargando Actualización",
+                            "Presione aquí para ver el progreso de la actualización"
+                        )
+                    } else {
+                        notificationHelper.notifyUpdate(
+                            "Actualización Lista",
+                            "Presione aquí para ir a instalar la actualización"
+                        )
+                    }
                 } else {
                     notificationHelper.notifyUpdate(
-                        "Actualización Lista",
-                        "Presione aquí para ir a instalar la actualización"
+                        "Actualización Disponible",
+                        "Presione aquí para descargar la actualización"
                     )
                 }
-            } else {
-                notificationHelper.notifyUpdate(
-                    "Actualización Disponible",
-                    "Presione aquí para descargar la actualización"
-                )
             }
-        }
 
-        eventRepository.create(
-            Event(
-                System.currentTimeMillis(),
-                Event.EventType.INFO,
-                "Update Worker",
-                "Launched"
+            eventRepository.create(
+                Event(
+                    System.currentTimeMillis(),
+                    Event.EventType.INFO,
+                    "Update Worker",
+                    "Launched"
+                )
             )
-        )
+        }
 
         return Result.success()
     }

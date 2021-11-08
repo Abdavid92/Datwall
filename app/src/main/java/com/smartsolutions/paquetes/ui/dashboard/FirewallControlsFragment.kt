@@ -17,8 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class FirewallControlsFragment : Fragment() {
 
     private var _binding: FirewallControlsBinding? = null
-    private val binding: FirewallControlsBinding
-        get() = _binding!!
+    private val binding get() = _binding!!
 
     private val viewModel by activityViewModels<DashboardViewModel>()
 
@@ -42,40 +41,18 @@ class FirewallControlsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (sharedElementEnterTransition as Transition?)
-            ?.addListener(object : Transition.TransitionListener {
-                override fun onTransitionStart(transition: Transition?) {
+        viewModel.setFirewallSwitchListener(binding.firewall, childFragmentManager)
 
-                }
+        viewModel.setFirewallDynamicModeListener(
+            binding.dynamicMode,
+            binding.staticMode
+        )
 
-                override fun onTransitionEnd(transition: Transition?) {
-                    transition?.removeListener(this)
-
-                    viewModel.setFirewallSwitchListener(binding.firewall, childFragmentManager)
-
-                    viewModel.setFirewallDynamicModeListener(
-                        binding.dynamicMode,
-                        binding.staticMode
-                    )
-
-                    viewModel.appsData.observe(viewLifecycleOwner) {
-                        binding.allowedAppsValue.text = it[0].toString()
-                        binding.blockedAppsValue.text = it[1].toString()
-                        binding.allAppsValue.text = it[2].toString()
-                    }
-                }
-
-                override fun onTransitionCancel(transition: Transition?) {
-                    transition?.removeListener(this)
-                }
-
-                override fun onTransitionPause(transition: Transition?) {
-                }
-
-                override fun onTransitionResume(transition: Transition?) {
-                }
-
-            })
+        viewModel.appsData.observe(viewLifecycleOwner) {
+            binding.allowedAppsValue.text = it[0].toString()
+            binding.blockedAppsValue.text = it[1].toString()
+            binding.allAppsValue.text = it[2].toString()
+        }
 
         binding.root.setOnClickListener {
             activity?.onBackPressed()

@@ -52,6 +52,8 @@ class ActivationManager @Inject constructor(
 
     private val dataStore = context.internalDataStore
 
+    private var deviceId: String? = null
+
     private var license: License? = null
 
     init {
@@ -294,7 +296,11 @@ class ActivationManager @Inject constructor(
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> {
 
-                var deviceId = dataStore.data
+                deviceId?.let {
+                    return it
+                }
+
+                deviceId = dataStore.data
                     .firstOrNull()
                     ?.get(PreferencesKeys.DEVICE_ID)
 
@@ -314,7 +320,7 @@ class ActivationManager @Inject constructor(
                     .Secure
                     .getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
-                context.settingsDataStore.edit {
+                dataStore.edit {
                     it[PreferencesKeys.DEVICE_ID] = deviceId!!
                 }
 
