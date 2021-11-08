@@ -393,4 +393,7 @@
     <string name="silent_sync_on">Se ejecutarán los códigos ussd mediante las apis internas del sistema de forma transparente para el usuario.</string>
     <string name="silent_sync_off">Se ejecutarán los códigos ussd mediante la aplicación de teléfono los cual mostrará un cuadro de diálogo indicando el estado de la operación. Este modo imposibilita la sincronización automática debido a la interrupción de la experiencia de ui del usuario.</string>
     <string name="title_sim_configuration">Configuración de Sim</string>
+    <string name="title_purchase">Licencia y Activación</string>
+    <string name="agree_terms_and_conditions">Acepto los términos y condiciones</string>
+    <string name="must_have_agree">Debe aceptar los términos y condiciones para continuar</string>
 </resources>
