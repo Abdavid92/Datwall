@@ -87,10 +87,10 @@ class FirewallControlsFragment : Fragment() {
 
     private fun setTransitionNames() {
         binding.apply {
-            ViewCompat.setTransitionName(firewallControls, IControls.CARD_VIEW)
-            ViewCompat.setTransitionName(firewallHeader, IControls.HEADER)
-            ViewCompat.setTransitionName(firewall, IControls.SWITCH)
-            ViewCompat.setTransitionName(firewallSummary, IControls.SUMMARY)
+            ViewCompat.setTransitionName(firewallControls, DashboardControlActivity.CARD_VIEW)
+            ViewCompat.setTransitionName(firewallHeader, DashboardControlActivity.HEADER)
+            ViewCompat.setTransitionName(firewall, DashboardControlActivity.SWITCH)
+            ViewCompat.setTransitionName(firewallSummary, DashboardControlActivity.SUMMARY)
         }
     }
 

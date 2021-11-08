@@ -11,7 +11,7 @@
         android:id="@+id/first_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/terms_and_conditions"
@@ -74,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/transfermovil_instructions"
@@ -99,11 +99,11 @@
             android:id="@+id/btn_copy_to_clipboard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/copy_to_clipboard"
             android:textAllCaps="false"
             app:layout_constraintTop_toBottomOf="@id/card_number"
-            app:layout_constraintEnd_toEndOf="parent"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_open_transfermovil"
@@ -113,22 +113,24 @@
             android:text="Abrir Transfermovil"
             app:layout_constraintTop_toBottomOf="@id/btn_copy_to_clipboard"
             app:layout_constraintEnd_toEndOf="parent"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+            android:layout_marginTop="16dp"
+            tools:ignore="HardcodedText" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_transfermovil_continue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_transfermovil_back"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:text="@string/btn_continue" />
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_transfermovil_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_back"
+            style="@style/BaseButton.SecondaryButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -169,7 +171,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_ussd_tranfer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -179,10 +181,11 @@
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:text="Tranferir" />
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_ussd_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/BaseButton.SecondaryButton"
             android:text="@string/btn_back"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />

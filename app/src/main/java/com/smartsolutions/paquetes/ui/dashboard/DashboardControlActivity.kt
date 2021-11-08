@@ -9,8 +9,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class DashboardControlActivity : TransparentActivity(R.layout.activity_dashboard_control) {
 
-    //private lateinit var controls: IControls
-
     val viewModel by viewModels<DashboardViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,14 +16,6 @@ class DashboardControlActivity : TransparentActivity(R.layout.activity_dashboard
 
         val className = intent.getStringExtra(EXTRA_CONTROLS_CLASS_NAME)
             ?: throw IllegalArgumentException("The class name extra must be provided")
-
-        /*controls = Class.forName(className)
-            .getDeclaredConstructor(DashboardControlActivity::class.java)
-            .newInstance(this) as IControls
-
-        setContentView(controls.getRoot())
-
-        controls.init()*/
 
         val fragment = supportFragmentManager.fragmentFactory.instantiate(
             classLoader,
@@ -37,17 +27,12 @@ class DashboardControlActivity : TransparentActivity(R.layout.activity_dashboard
             .commit()
     }
 
-    override fun onBackPressed() {
-        //controls.onBackPressed()
-        super.onBackPressed()
-    }
-
-    override fun onDestroy() {
-        //controls.onDestroy()
-        super.onDestroy()
-    }
-
     companion object {
         const val EXTRA_CONTROLS_CLASS_NAME = "com.smartsolutions.paquetes.ui.dashboard.extra.CONTROLS_CLASS_NAME"
+
+        const val CARD_VIEW = "control:card_view"
+        const val HEADER = "control:header"
+        const val SWITCH = "control:switch"
+        const val SUMMARY = "control:summary"
     }
 }

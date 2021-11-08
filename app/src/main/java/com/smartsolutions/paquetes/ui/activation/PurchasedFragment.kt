@@ -51,7 +51,7 @@ class PurchasedFragment : AbstractSettingsFragment(R.layout.fragment_purchased) 
 
         view.findViewById<Button>(R.id.btn_open_transfermovil)
             .setOnClickListener {
-                viewModel.openTransfermovil()
+                viewModel.openTransfermovil(it)
             }
 
         view.findViewById<Button>(R.id.btn_ussd_tranfer)

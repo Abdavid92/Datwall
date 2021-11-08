@@ -161,16 +161,11 @@ class DashboardFragment : AbstractFragment() {
         binding.firewallControl.setOnClickListener {
             val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 requireActivity(),
-                Pair(binding.firewallControl, IControls.CARD_VIEW),
-                Pair(binding.firewallHeader, IControls.HEADER),
-                Pair(binding.firewall, IControls.SWITCH),
-                Pair(binding.firewallSummary, IControls.SUMMARY)
+                Pair(binding.firewallControl, DashboardControlActivity.CARD_VIEW),
+                Pair(binding.firewallHeader, DashboardControlActivity.HEADER),
+                Pair(binding.firewall, DashboardControlActivity.SWITCH),
+                Pair(binding.firewallSummary, DashboardControlActivity.SUMMARY)
             )
-
-            /*startActivity(
-                FirewallControls.getLaunchIntent(requireContext()),
-                activityOptions.toBundle()
-            )*/
 
             startActivity(
                 FirewallControlsFragment.getLaunchIntent(requireContext()),
@@ -185,15 +180,11 @@ class DashboardFragment : AbstractFragment() {
         binding.bubbleControl.setOnClickListener {
             val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 requireActivity(),
-                Pair(binding.bubbleControl, IControls.CARD_VIEW),
-                Pair(binding.bubbleHeader, IControls.HEADER),
-                Pair(binding.bubble, IControls.SWITCH),
-                Pair(binding.bubbleSummary, IControls.SUMMARY)
+                Pair(binding.bubbleControl, DashboardControlActivity.CARD_VIEW),
+                Pair(binding.bubbleHeader, DashboardControlActivity.HEADER),
+                Pair(binding.bubble, DashboardControlActivity.SWITCH),
+                Pair(binding.bubbleSummary, DashboardControlActivity.SUMMARY)
             )
-            /*startActivity(
-                BubbleControls.getLaunchIntent(requireContext()),
-                activityOptions.toBundle()
-            )*/
 
             startActivity(
                 BubbleControlsFragment.getLaunchIntent(requireContext()),

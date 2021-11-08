@@ -87,10 +87,10 @@ class BubbleControlsFragment : Fragment() {
     private fun setTransitionNames() {
 
         binding.apply {
-            ViewCompat.setTransitionName(bubbleControls, IControls.CARD_VIEW)
-            ViewCompat.setTransitionName(header, IControls.HEADER)
-            ViewCompat.setTransitionName(bubble, IControls.SWITCH)
-            ViewCompat.setTransitionName(bubbleSummary, IControls.SUMMARY)
+            ViewCompat.setTransitionName(bubbleControls, DashboardControlActivity.CARD_VIEW)
+            ViewCompat.setTransitionName(header, DashboardControlActivity.HEADER)
+            ViewCompat.setTransitionName(bubble, DashboardControlActivity.SWITCH)
+            ViewCompat.setTransitionName(bubbleSummary, DashboardControlActivity.SUMMARY)
         }
     }
 

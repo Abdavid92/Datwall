@@ -3,11 +3,16 @@ package com.smartsolutions.paquetes.ui.activation
 import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
+import com.google.android.material.snackbar.Snackbar
+import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
@@ -16,7 +21,6 @@ import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +33,21 @@ class PurchasedViewModel @Inject constructor(
 
     private var cardCopied = false
 
-    private var license: License? = null
+    private var _license: License? = null
+
+    private val licenseLiveData = MutableLiveData<License?>()
+    val license: LiveData<License?>
+        get() {
+            if (licenseLiveData.value == null) {
+                viewModelScope.launch {
+
+                    _license = activationManager.getLocalLicense()
+                    licenseLiveData.postValue(_license)
+                }
+            }
+
+            return licenseLiveData
+        }
 
     /**
      * Esta propiedad se debe llamar antes de usar cualquier método de este viewmodel.
@@ -52,12 +70,13 @@ class PurchasedViewModel @Inject constructor(
 
     fun initDeviceAppAndActivation() {
         viewModelScope.launch {
+
             val licenseResult = activationManager.getLicense()
 
             if (licenseResult.isFailure)
                 _beginActivationResult.postValue(Result.Failure((licenseResult as Result.Failure).throwable))
             else {
-                license = licenseResult.getOrNull()
+                _license = licenseResult.getOrNull()
             }
         }
     }
@@ -68,7 +87,7 @@ class PurchasedViewModel @Inject constructor(
     fun copyDebitCardToClipboard() {
         checkLicense()
 
-        license?.let {
+        _license?.let {
 
             val clipboardManager = ContextCompat.getSystemService(
                 getApplication(),
@@ -94,13 +113,13 @@ class PurchasedViewModel @Inject constructor(
     fun getDebitCardNumber(): String? {
         checkLicense()
 
-        license?.let {
+        _license?.let {
             return it.androidApp.debitCard
         }
         return null
     }
 
-    fun openTransfermovil() {
+    fun openTransfermovil(view: View) {
         val transfermovilPackageName = "cu.etecsa.cubacel.tr.tm"
 
         val packageManager = getApplication<Application>().packageManager
@@ -113,18 +132,24 @@ class PurchasedViewModel @Inject constructor(
 
             getApplication<Application>().startActivity(intent)
         } else {
-            Toast.makeText(
-                getApplication(),
-                "No tiene Transfermovil instalado.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Snackbar.make(
+                view,
+                "No tiene Transfermovil instalado",
+                Snackbar.LENGTH_LONG
+            ).setAction("Instalar") {
+
+                val transferIntent = Intent(Intent.ACTION_VIEW)
+                    .setData(Uri.parse("https://apklis.cu/application/$transfermovilPackageName"))
+
+                getApplication<DatwallApplication>().startActivity(transferIntent)
+            }.show()
         }
     }
 
     fun transferCreditByUSSD(key: String) {
         checkLicense()
 
-        license?.let {
+        _license?.let {
             viewModelScope.launch {
                 (ussdTransferenceResult as MutableLiveData).postValue(
                     activationManager.transferCreditByUSSD(key, it)
@@ -136,7 +161,7 @@ class PurchasedViewModel @Inject constructor(
     fun getPrice(): String {
         checkLicense()
 
-        license?.let {
+        _license?.let {
             return "${it.androidApp.price}$"
         }
         return "30$"
@@ -163,7 +188,7 @@ class PurchasedViewModel @Inject constructor(
     }
 
     private fun checkLicense() {
-        if (license == null)
+        if (_license == null)
             throw Exception("License is null. First call " +
                     "method initDeviceAppAndActivation()")
     }
