@@ -9,15 +9,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.databinding.FragmentPurchasedBinding
+import com.smartsolutions.paquetes.databinding.FragmentPurchaseBinding
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
 
 class PurchaseFragment : AbstractSettingsFragment() {
 
-    private val viewModel by viewModels<PurchasedViewModel>()
+    private val viewModel by viewModels<PurchaseViewModel>()
 
-    private var _binding: FragmentPurchasedBinding? = null
+    private var _binding: FragmentPurchaseBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -26,7 +26,7 @@ class PurchaseFragment : AbstractSettingsFragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentPurchasedBinding.inflate(
+        _binding = FragmentPurchaseBinding.inflate(
             inflater,
             container,
             false

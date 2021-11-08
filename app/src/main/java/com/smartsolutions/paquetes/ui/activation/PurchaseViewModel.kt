@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PurchasedViewModel @Inject constructor(
+class PurchaseViewModel @Inject constructor(
     application: Application,
     private val activationManager: IActivationManager,
     private val permissionManager: IPermissionsManager
