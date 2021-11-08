@@ -1,12 +1,9 @@
 package com.smartsolutions.paquetes.helpers
 
-import android.content.ContentResolver
 import android.content.Context
-import android.database.Cursor
 import android.os.Build
 import android.provider.Telephony
-import android.widget.Toast
-import androidx.annotation.RequiresApi
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,31 +20,35 @@ class SmsInboxReaderHelper @Inject constructor(
 
         withContext(Dispatchers.IO) {
             context.contentResolver.query(
-                Telephony.Sms.Inbox.CONTENT_URI,
+                Telephony.Sms.CONTENT_URI,
                 null,
                 null,
                 null,
                 Telephony.Sms.DEFAULT_SORT_ORDER
-            )?.let { cursor ->
-
-                while (cursor.moveToNext()) {
-                    kotlin.runCatching {
-                        list.add(
-                            SMS(
-                                cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.DATE)),
-                                cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.ADDRESS)),
-                                cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.BODY)),
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                                    cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms.Inbox.SUBSCRIPTION_ID))
-                                } else {
-                                    -1L
-                                }
+            )?.use { cursor ->
+                if (cursor.moveToFirst()){
+                    repeat(cursor.count){
+                        kotlin.runCatching {
+                            list.add(
+                                SMS(
+                                    cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE)),
+                                    cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)),
+                                    cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY)),
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                                        cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID))
+                                    } else {
+                                        -1L
+                                    }
+                                )
                             )
-                        )
+                        }.onFailure {
+                            Log.i("SMS_READER", "Failure ${it.message}")
+                        }
+                        if (!cursor.moveToNext()){
+                            return@repeat
+                        }
                     }
                 }
-
-                cursor.close()
             }
         }
 
