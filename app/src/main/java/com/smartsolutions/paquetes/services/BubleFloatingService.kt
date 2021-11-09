@@ -156,6 +156,10 @@ class BubbleFloatingService : Service(), CoroutineScope {
                 )
                 TRANSPARENCY = it[PreferencesKeys.BUBBLE_TRANSPARENCY] ?: 0.5f
                 ALWAYS_SHOW = it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] ?: false
+                withContext(Dispatchers.Main) {
+                    setTransparency(true, true)
+                    updateBubble()
+                }
             }
         }
 
@@ -323,6 +327,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
         bubbleBinding.appValue.text = "${traffic.totalBytes.getValue().value.toInt()}"
         bubbleBinding.unitApp.text = traffic.totalBytes.getValue().dataUnit.name
+
+        if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
+            hideBubble()
+        } else if (!isShowBubble) {
+            showBubble()
+        }
     }
 
 
@@ -484,12 +494,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
                     app = appCurrent
                     setTraffic(appCurrent)
-
-                    if (!ALWAYS_SHOW && traffic.totalBytes.bytes <= 0) {
-                        hideBubble()
-                    } else if (!isShowBubble) {
-                        showBubble()
-                    }
 
                     setThemeBubble()
 

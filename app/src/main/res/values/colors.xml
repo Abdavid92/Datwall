@@ -39,6 +39,18 @@
     <color name="green_medium">#5ADC22</color>
     <color name="green_dark">#329800</color>
     <color name="red_light">#FF7B7B</color>
-    <color name="red_medium">#FF0000</color>
+    <color name="red_medium">#FF4747</color>
     <color name="red_dark">#B50000</color>
+    <color name="orange_light">#FFC274</color>
+    <color name="orange_medium">#FFA340</color>
+    <color name="orange_dark">#FF6F00</color>
+    <color name="brow_light">#E6A389</color>
+    <color name="brow_medium">#CD734F</color>
+    <color name="brow_dark">#9C4928</color>
+    <color name="magent_light">#98FFFF</color>
+    <color name="magent_medium">#11EDED</color>
+    <color name="magent_dark">#04B3B3</color>
+    <color name="dark_medium">#777777</color>
+    <color name="dark_dark">#000000</color>
+
 </resources>

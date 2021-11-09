@@ -62,13 +62,15 @@
 
     <!-- Themes for App -->
 
-    <style name="Theme.Datwall.BlueGreen">
+    <!-- Basic -->
+
+    <style name="Theme.Datwall.Red">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/blue_medium_dark</item>
-        <item name="colorPrimaryVariant">@color/blue_dark</item>
+        <item name="colorPrimary">@color/red_medium</item>
+        <item name="colorPrimaryVariant">@color/red_dark</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorSecondary">@color/red_light</item>
+        <item name="colorSecondaryVariant">@color/red_medium</item>
     </style>
 
     <style name="Theme.Datwall.Green">
@@ -76,8 +78,83 @@
         <item name="colorPrimary">@color/green_medium</item>
         <item name="colorPrimaryVariant">@color/green_dark</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/green_medium</item>
+        <item name="colorSecondary">@color/green_light</item>
         <item name="colorSecondaryVariant">@color/green_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.Blue">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/blue_medium_dark</item>
+        <item name="colorPrimaryVariant">@color/blue_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/blue_medium</item>
+        <item name="colorSecondaryVariant">@color/blue_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.Purple">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/purple_medium</item>
+        <item name="colorPrimaryVariant">@color/purple_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/purple_light</item>
+        <item name="colorSecondaryVariant">@color/purple_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.Orange">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/orange_medium</item>
+        <item name="colorPrimaryVariant">@color/orange_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/orange_light</item>
+        <item name="colorSecondaryVariant">@color/orange_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.Brown">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/brow_medium</item>
+        <item name="colorPrimaryVariant">@color/brow_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/brow_light</item>
+        <item name="colorSecondaryVariant">@color/brow_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.Magent">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/magent_medium</item>
+        <item name="colorPrimaryVariant">@color/magent_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/magent_light</item>
+        <item name="colorSecondaryVariant">@color/magent_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.Dark">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/dark_medium</item>
+        <item name="colorPrimaryVariant">@color/dark_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/gray_400</item>
+        <item name="colorSecondaryVariant">@color/dark_dark</item>
+    </style>
+
+
+    <!-- Combined -->
+
+    <style name="Theme.Datwall.RedOrange">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/red_medium</item>
+        <item name="colorPrimaryVariant">@color/red_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/orange_medium</item>
+        <item name="colorSecondaryVariant">@color/orange_dark</item>
+    </style>
+
+    <style name="Theme.Datwall.OrangeRed">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/orange_medium</item>
+        <item name="colorPrimaryVariant">@color/orange_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/red_medium</item>
+        <item name="colorSecondaryVariant">@color/red_dark</item>
     </style>
 
     <style name="Theme.Datwall.GreenRed">
@@ -89,10 +166,15 @@
         <item name="colorSecondaryVariant">@color/red_dark</item>
     </style>
 
-    <!--<style name="Theme.Datwall.Transparent.AskDialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowAnimationStyle">@style/Animation.AppCompat.Dialog</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
-    </style>-->
+    <style name="Theme.Datwall.BlueGreen">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/blue_medium_dark</item>
+        <item name="colorPrimaryVariant">@color/blue_dark</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+    </style>
+
+
+
 </resources>
