@@ -277,7 +277,7 @@ class DashboardViewModel @Inject constructor(
 
     fun setSizeListener(bubbleSize: IndicatorSeekBar) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().settingsDataStore
+            val dataStore = getApplication<DatwallApplication>().uiDataStore
 
             val size = BubbleFloatingService.BubbleSize.valueOf(
                 dataStore.data.firstOrNull()
@@ -325,7 +325,7 @@ class DashboardViewModel @Inject constructor(
 
     fun setBubbleAllWayListener(allWay: AppCompatRadioButton, onlyConsume: AppCompatRadioButton) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().settingsDataStore
+            val dataStore = getApplication<DatwallApplication>().uiDataStore
 
             val allWayStore = withContext(Dispatchers.IO){
                 dataStore.data

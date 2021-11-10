@@ -191,20 +191,56 @@ class UIHelper(
     fun getThemeList(): Array<ThemeWrapper> {
         return arrayOf(
             ThemeWrapper(
-                R.style.Theme_Datwall,
-                newTheme(R.style.Theme_Datwall)
-            ),
-            ThemeWrapper(
-                R.style.Theme_Datwall_BlueGreen,
-                newTheme(R.style.Theme_Datwall_BlueGreen)
+                R.style.Theme_Datwall_Red,
+                newTheme(R.style.Theme_Datwall_Red)
             ),
             ThemeWrapper(
                 R.style.Theme_Datwall_Green,
                 newTheme(R.style.Theme_Datwall_Green)
             ),
             ThemeWrapper(
+                R.style.Theme_Datwall_Blue,
+                newTheme(R.style.Theme_Datwall_Blue)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_Purple,
+                newTheme(R.style.Theme_Datwall_Purple)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_Orange,
+                newTheme(R.style.Theme_Datwall_Orange)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_Brown,
+                newTheme(R.style.Theme_Datwall_Brown)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_Magent,
+                newTheme(R.style.Theme_Datwall_Magent)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_Dark,
+                newTheme(R.style.Theme_Datwall_Dark)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall,
+                newTheme(R.style.Theme_Datwall)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_RedOrange,
+                newTheme(R.style.Theme_Datwall_RedOrange)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_OrangeRed,
+                newTheme(R.style.Theme_Datwall_OrangeRed)
+            ),
+            ThemeWrapper(
                 R.style.Theme_Datwall_GreenRed,
                 newTheme(R.style.Theme_Datwall_GreenRed)
+            ),
+            ThemeWrapper(
+                R.style.Theme_Datwall_BlueGreen,
+                newTheme(R.style.Theme_Datwall_BlueGreen)
             )
         )
     }
