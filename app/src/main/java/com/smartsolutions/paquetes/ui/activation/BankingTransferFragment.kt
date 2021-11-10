@@ -58,8 +58,8 @@ class BankingTransferFragment : AbstractSettingsFragment() {
 
         viewModel.onConfirmPurchase().observe(viewLifecycleOwner) {
             if (it.isSuccess) {
-                childFragmentManager.commit {
-                    add(R.id.container, PurchaseSuccessfulFragment())
+                parentFragmentManager.commit {
+                    replace(R.id.container, PurchaseSuccessfulFragment())
                 }
             }
         }

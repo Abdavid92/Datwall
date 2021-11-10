@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.workers
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
@@ -19,6 +20,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
 import retrofit2.HttpException
 
+@HiltWorker
 class ActivationWorker @AssistedInject constructor(
     @Assisted
     context: Context,

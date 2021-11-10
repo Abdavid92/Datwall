@@ -1,7 +1,9 @@
 package com.smartsolutions.paquetes.managers
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
@@ -15,17 +17,16 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.gson.Gson
-import com.smartsolutions.paquetes.BuildConfig
-import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
-import com.smartsolutions.paquetes.settingsDataStore
+import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
+import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.workers.ActivationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -40,19 +41,20 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+private const val TAG_WORKER = "Activation_Worker"
+
 class ActivationManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val gson: Gson,
     private val client: IActivationClient,
     private val ussdHelper: USSDHelper,
-    private val simManager: ISimManager
+    private val simManager: ISimManager,
+    private val notificationHelper: NotificationHelper
 ) : IActivationManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
-
-    private val _onConfirmPurchase = MutableLiveData<Result<Unit>>()
 
     override val onConfirmPurchase: LiveData<Result<Unit>>
         get() = _onConfirmPurchase
@@ -130,7 +132,7 @@ class ActivationManager @Inject constructor(
 
     override suspend fun transferCreditByUSSD(key: String, license: License): Result<Unit> {
         val price = license.androidApp.price
-        if (key.isEmpty() || key.isBlank() || key.length != 4){
+        if (key.isEmpty() || key.isBlank() || key.length != 4) {
             return Result.Failure(IllegalArgumentException())
         }
 
@@ -142,8 +144,9 @@ class ActivationManager @Inject constructor(
         try {
             ussdHelper.sendUSSDRequestLegacy(
                 "*234*1*${license.androidApp.phone}*$key*${price}#",
-                false)
-        }catch (e: Exception){
+                false
+            )
+        } catch (e: Exception) {
             return Result.Failure(e)
         }
         return Result.Success(Unit)
@@ -156,7 +159,8 @@ class ActivationManager @Inject constructor(
     ): Result<Unit> {
 
         if (!phone.contains("PAGOxMOVIL", true) &&
-            !phone.contains("Cubacel", true)) {
+            !phone.contains("Cubacel", true)
+        ) {
             return Result.Failure(IllegalStateException())
         }
 
@@ -169,11 +173,11 @@ class ActivationManager @Inject constructor(
 
                 val priceTransfermovil = "${androidApp.price}.00"
 
-                if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)){
+                if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)) {
                     license.transaction = readTransaction(smsBody)
-                }else if(smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
+                } else if (smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
                     fillPhone(simIndex, license)
-                }else{
+                } else {
                     return Result.Failure(NoSuchElementException())
                 }
 
@@ -185,6 +189,8 @@ class ActivationManager @Inject constructor(
                 }
 
                 scheduleWorker()
+
+                notifyLicencePurchased()
 
                 return Result.Success(Unit).also {
                     _onConfirmPurchase.postValue(it)
@@ -250,8 +256,10 @@ class ActivationManager @Inject constructor(
         val workRequest = OneTimeWorkRequestBuilder<ActivationWorker>()
             .setConstraints(
                 Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build())
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .addTag(TAG_WORKER)
             .build()
 
         WorkManager.getInstance(context)
@@ -301,6 +309,35 @@ class ActivationManager @Inject constructor(
         return isBigger && calendar.get(Calendar.MONTH) != currentCalendar.get(Calendar.MONTH)
     }
 
+    private fun notifyLicencePurchased() {
+        notificationHelper.notify(
+            NotificationHelper.ALERT_NOTIFICATION_ID,
+            notificationHelper.buildNotification(
+                NotificationHelper.ALERT_CHANNEL_ID,
+                R.drawable.ic_money_notification
+            ).apply {
+                setContentTitle(context.getString(R.string.purchased_done))
+                setContentText(context.getString(R.string.purchased_description))
+                setAutoCancel(true)
+                setContentIntent(
+                    PendingIntent.getActivity(
+                        context,
+                        12,
+                        Intent(context, MainActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        },
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        } else {
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                        }
+                    )
+                )
+            }.build()
+        )
+    }
+
     @SuppressLint("HardwareIds")
     @Suppress("DEPRECATION")
     private suspend fun getDeviceId(): String {
@@ -320,8 +357,8 @@ class ActivationManager @Inject constructor(
                 }
 
                 val wifiManager = ContextCompat
-                    .getSystemService(context, WifiManager::class.java) ?:
-                throw NullPointerException()
+                    .getSystemService(context, WifiManager::class.java)
+                    ?: throw NullPointerException()
 
                 if (!wifiManager.isWifiEnabled) {
                     throw IllegalStateException("Wifi must be enabled.")
@@ -372,6 +409,8 @@ class ActivationManager @Inject constructor(
     }
 
     companion object {
+        private val _onConfirmPurchase = MutableLiveData<Result<Unit>>()
+
         fun encrypt(data: String?): String {
             return String(Base64.encode(data?.toByteArray(), Base64.DEFAULT))
         }

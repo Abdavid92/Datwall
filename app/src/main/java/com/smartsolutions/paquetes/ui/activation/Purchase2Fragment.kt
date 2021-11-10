@@ -39,7 +39,7 @@ class Purchase2Fragment : AbstractSettingsFragment() {
         viewModel.onConfirmPurchase().observe(viewLifecycleOwner) {
             if (it.isSuccess) {
                 childFragmentManager.commit {
-                    add(R.id.container, PurchaseSuccessfulFragment())
+                    replace(R.id.container, PurchaseSuccessfulFragment())
                 }
             }
         }
