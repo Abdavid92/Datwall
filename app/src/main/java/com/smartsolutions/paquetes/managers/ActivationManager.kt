@@ -182,8 +182,9 @@ class ActivationManager @Inject constructor(
                 dataStore.edit {
                     it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(license))
                     it[PreferencesKeys.WAITING_PURCHASED] = false
-                    scheduleWorker()
                 }
+
+                scheduleWorker()
 
                 return Result.Success(Unit).also {
                     _onConfirmPurchase.postValue(it)
