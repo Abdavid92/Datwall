@@ -241,7 +241,11 @@ class ActivationManager @Inject constructor(
 
     private fun readTransaction(body: String): String {
         val toFind = "Nro. Transaccion "
-        return body.substring(body.indexOf(toFind) + toFind.length, body.length)
+        return try {
+            body.substring(body.indexOf(toFind) + toFind.length, body.length)
+        }catch (e: Exception){
+            "UNKNOWN"
+        }
     }
 
     private suspend fun fillPhone(simIndex: Int, license: License) {
