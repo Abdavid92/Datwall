@@ -84,11 +84,6 @@ object PreferencesKeys {
     val DEVICE_ID = stringPreferencesKey("device_id")
 
     /**
-     * Indica si se está esperando la confirmación de la compra.
-     * */
-    val WAITING_PURCHASED = booleanPreferencesKey("waiting_purchased")
-
-    /**
      * DeviceApp obtenido del servidor.
      * */
     val DEVICE_APP = stringPreferencesKey("device_app")

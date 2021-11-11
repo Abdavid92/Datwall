@@ -41,10 +41,6 @@ class ActivationWorker @AssistedInject constructor(
                 License::class.java
             )
 
-            if (license.isPurchased){
-                license.isRestored = true
-            }
-
             license.isPurchased = true
 
             val result = client.updateLicense(license)

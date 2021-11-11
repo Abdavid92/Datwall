@@ -50,11 +50,6 @@ interface IActivationManager {
     suspend fun confirmPurchase(smsBody: String, phone: String, simIndex: Int): Result<Unit>
 
     /**
-     * Indica si se está esperando la confirmación de la compra de licencia.
-     * */
-    suspend fun isWaitingPurchased(): Boolean
-
-    /**
      * Obtiene la licencia del servidor y la guarda en el dataStore.
      *
      * @return [Result]

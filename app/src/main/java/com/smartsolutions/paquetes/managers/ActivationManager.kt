@@ -137,7 +137,6 @@ class ActivationManager @Inject constructor(
         }
 
         dataStore.edit {
-            it[PreferencesKeys.WAITING_PURCHASED] = true
             it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(license))
         }
 
@@ -173,7 +172,11 @@ class ActivationManager @Inject constructor(
 
                 val priceTransfermovil = "${androidApp.price}.00"
 
-                if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil) && !smsBody.contains("telefono", true)) {
+                if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil) && !smsBody.contains(
+                        "telefono",
+                        true
+                    )
+                ) {
                     license.transaction = readTransaction(smsBody)
                 } else if (smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
                     fillPhone(simIndex, license)
@@ -185,7 +188,6 @@ class ActivationManager @Inject constructor(
 
                 dataStore.edit {
                     it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(license))
-                    it[PreferencesKeys.WAITING_PURCHASED] = false
                 }
 
                 scheduleWorker()
@@ -203,16 +205,17 @@ class ActivationManager @Inject constructor(
         return Result.Failure(NullPointerException())
     }
 
-    override suspend fun isWaitingPurchased(): Boolean {
-        return dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PURCHASED) == true
-    }
-
     override suspend fun getLicense(): Result<License> {
         val result = client.getLicense(getDeviceId())
 
         if (result.isSuccess) {
+            val licence = result.getOrThrow()
+
+            if (licence.isPurchased)
+                licence.isRestored = true
+
             dataStore.edit {
-                it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(result.getOrThrow()))
+                it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(licence))
             }
 
             license = result.getOrThrow()
@@ -243,7 +246,7 @@ class ActivationManager @Inject constructor(
         val toFind = "Nro. Transaccion"
         return try {
             body.substring(body.indexOf(toFind) + toFind.length, body.length)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             "UNKNOWN"
         }
     }
