@@ -57,7 +57,7 @@ class SynchronizationWorker @AssistedInject constructor(
             }
 
             if (canExecute){
-                val wasTraffic = DataUnitBytes(RxWatcher.lastBytes).getValue(DataUnitBytes.DataUnit.MB).value > 100
+                val wasTraffic = DataUnitBytes(RxWatcher.lastBytes).getValue(DataUnitBytes.DataUnit.MB).value > 50
                 canExecute = wasTraffic
                 if (wasTraffic){
                     RxWatcher.lastBytes = 0L

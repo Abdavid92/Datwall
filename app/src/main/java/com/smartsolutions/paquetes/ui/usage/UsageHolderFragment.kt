@@ -60,10 +60,6 @@ class UsageHolderFragment : Fragment() {
             viewModel.refreshData()
         }
 
-        viewModel.subscribeEventSwipe().observe(viewLifecycleOwner) {
-            binding.swipeRefresh.isRefreshing = true
-        }
-
         configurePieChart()
 
         type?.let {

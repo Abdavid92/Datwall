@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
 import android.content.Context
+import android.os.Build
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.smartsolutions.paquetes.PreferencesKeys
@@ -125,7 +126,7 @@ class SynchronizationManager @Inject constructor(
     }
 
     override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int) {
-        if (intervalInMinutes < 15 || intervalInMinutes > 120)
+        if (intervalInMinutes < 15 || intervalInMinutes > 120 || Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
             return
 
         val workRequest = PeriodicWorkRequestBuilder<SynchronizationWorker>(

@@ -1,5 +1,8 @@
 package com.smartsolutions.paquetes.repositories.models
 
+import androidx.annotation.Keep
+
+@Keep
 data class SpecialApp(
     val packageName: String,
     val name: String?,

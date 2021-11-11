@@ -52,8 +52,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "SECRET_KEY", secretKey
             buildConfigField "int", "TOKEN_DURATION", tokenDuration
@@ -64,8 +64,8 @@ android {
             buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
         debug {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "SECRET_KEY", secretKey
             buildConfigField "int", "TOKEN_DURATION", tokenDuration
