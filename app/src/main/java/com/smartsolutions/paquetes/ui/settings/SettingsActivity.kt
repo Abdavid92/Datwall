@@ -1,6 +1,8 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +12,7 @@ import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatRadioButton
+import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -23,6 +26,7 @@ import com.smartsolutions.paquetes.databinding.FragmentNotificationStyleBinding
 import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
 import com.smartsolutions.paquetes.databinding.ItemNotificationSampleBinding
 import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.helpers.findView
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.services.NotificationBuilder
@@ -115,17 +119,21 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             setPreferencesFromResource(R.xml.header_preferences, rootKey)
 
             findPreference<Preference>("activation_key")
-                ?.setOnPreferenceClickListener {
+                ?.let {
+                    it.setOnPreferenceClickListener {
 
-                    startActivity(Intent(
-                        requireContext(),
-                        FragmentContainerActivity::class.java
-                    ).putExtra(
-                        FragmentContainerActivity.EXTRA_FRAGMENT,
-                        ApplicationStatusFragment::class.java.name
-                    ))
+                        startActivity(
+                            Intent(
+                                requireContext(),
+                                FragmentContainerActivity::class.java
+                            ).putExtra(
+                                FragmentContainerActivity.EXTRA_FRAGMENT,
+                                ApplicationStatusFragment::class.java.name
+                            )
+                        )
 
-                    return@setOnPreferenceClickListener true
+                        return@setOnPreferenceClickListener true
+                    }
                 }
         }
     }
@@ -256,9 +264,9 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 }
                 R.id.action_restore_default -> {
                     preferenceDataStore.putInt(
-                            PreferencesKeys.THEME_MODE.name,
-                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        )
+                        PreferencesKeys.THEME_MODE.name,
+                        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                    )
 
                     preferenceDataStore
                         .putInt(PreferencesKeys.APP_THEME.name, R.style.Theme_Datwall)
@@ -281,7 +289,8 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     @Keep
     class SynchronizationFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().workersDataStore)
+            preferenceManager.preferenceDataStore =
+                PreferenceDataStore(requireContext().workersDataStore)
             setPreferencesFromResource(R.xml.sync_preferences, rootKey)
 
             findPreference<SwitchPreferenceCompat>("synchronization_ussd_mode_modern")
@@ -409,7 +418,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                         .setTitle(R.string.clear_history)
                         .setMessage(R.string.clear_history_confirmation)
                         .setNegativeButton(R.string.btn_not, null)
-                        .setPositiveButton(R.string.btn_yes) { _,_ ->
+                        .setPositiveButton(R.string.btn_yes) { _, _ ->
                             viewModel.clearHistory()
                         }.show()
 
@@ -459,7 +468,10 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     }
 
     @Keep
+    @AndroidEntryPoint
     class AboutFragment : Fragment(), TitleFragment {
+
+        private val viewModel by viewModels<SettingsViewModel>()
 
         private lateinit var binding: FragmentAboutBinding
 
@@ -488,6 +500,31 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         @SuppressLint("SetTextI18n")
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
+
+            binding.appIcon.setOnLongClickListener {
+                viewModel.getIdentifierDevice {
+                    it?.let {
+                        val clipboardManager = ContextCompat.getSystemService(
+                            requireContext(),
+                            ClipboardManager::class.java
+                        ) ?: throw NullPointerException()
+
+                        val clipData = ClipData.newPlainText(
+                            "Identificador Mis Datos",
+                            it
+                        )
+
+                        clipboardManager.setPrimaryClip(clipData)
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Identificador del dispositivo copiado al portapapeles",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                return@setOnLongClickListener true
+            }
 
             binding.appVersion.text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
 
@@ -536,7 +573,8 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            preferenceManager.preferenceDataStore = PreferenceDataStore(requireContext().settingsDataStore)
+            preferenceManager.preferenceDataStore =
+                PreferenceDataStore(requireContext().settingsDataStore)
         }
 
         override fun title(): CharSequence {
@@ -659,8 +697,9 @@ fun Fragment.showRestartDialog() {
         .setTitle(R.string.need_restart)
         .setMessage(R.string.need_restart_summary)
         .setNegativeButton(R.string.btn_cancel, null)
-        .setPositiveButton(R.string.restart
-        ) { _,_ ->
+        .setPositiveButton(
+            R.string.restart
+        ) { _, _ ->
             startActivity(Intent(requireContext(), SplashActivity::class.java))
             requireActivity().finishAffinity()
         }.show()

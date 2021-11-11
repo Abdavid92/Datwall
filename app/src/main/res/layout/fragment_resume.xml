@@ -87,7 +87,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:text="@string/syncronize"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:icon="@drawable/ic_sync"
         app:iconPadding="8dp"
         app:layout_anchor="@id/pager"

@@ -173,7 +173,7 @@ class ActivationManager @Inject constructor(
 
                 val priceTransfermovil = "${androidApp.price}.00"
 
-                if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil)) {
+                if (smsBody.contains(androidApp.debitCard) && smsBody.contains(priceTransfermovil) && !smsBody.contains("telefono", true)) {
                     license.transaction = readTransaction(smsBody)
                 } else if (smsBody.contains(androidApp.phone) && smsBody.contains(price)) {
                     fillPhone(simIndex, license)
@@ -240,7 +240,7 @@ class ActivationManager @Inject constructor(
     }
 
     private fun readTransaction(body: String): String {
-        val toFind = "Nro. Transaccion "
+        val toFind = "Nro. Transaccion"
         return try {
             body.substring(body.indexOf(toFind) + toFind.length, body.length)
         }catch (e: Exception){

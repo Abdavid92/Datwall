@@ -118,7 +118,6 @@ class AppControlActivity : TransparentActivity() {
         }
         setAskCheckboxListener(binding.included.ask)
         setForegroundAccessCheckboxListener(binding.included.foregroundAccess)
-        binding.included.btnSave.setOnClickListener(::onSave)
 
         if (app?.executable == true) {
             binding.included.btnOpen.setOnClickListener(::onOpen)
@@ -165,7 +164,22 @@ class AppControlActivity : TransparentActivity() {
         }
     }
 
-    private fun onSave(view: View) {
+    override fun onBackPressed() {
+        saveResult()
+        super.onBackPressed()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        onBackPressed()
+    }
+
+    private fun saveAndBack() {
+        saveResult()
+        onBackPressed()
+    }
+
+    private fun saveResult() {
         if (wasChanges) {
             /*Si hubo cambios establezco el resultado en ok e
             * inserto la app con los cambios.*/
@@ -177,7 +191,6 @@ class AppControlActivity : TransparentActivity() {
             //Sino establezco el resultado en canceled
             setResult(RESULT_CANCELED)
         }
-        onBackPressed()
     }
 
     private fun onOpen(view: View) {
@@ -185,7 +198,7 @@ class AppControlActivity : TransparentActivity() {
             AlertDialog.Builder(this)
                 .setTitle(R.string.lose_changes)
                 .setMessage(R.string.lose_changes_msg)
-                .setPositiveButton(R.string.btn_yes) { _,_ ->
+                .setPositiveButton(R.string.btn_yes) { _, _ ->
                     openApp()
                 }
                 .setNegativeButton(R.string.btn_not, null)
@@ -215,7 +228,7 @@ class AppControlActivity : TransparentActivity() {
         app?.let { app ->
             binding.name.text = app.name
             binding.packageName.text = app.packageName
-            iconManager.getIcon(app.packageName, app.version){
+            iconManager.getIcon(app.packageName, app.version) {
                 binding.icon.setImageBitmap(it)
             }
         }
@@ -233,7 +246,7 @@ class AppControlActivity : TransparentActivity() {
     private fun setForegroundAccessCheckboxListener(checkBox: CompoundButton) {
         checkBox.setOnCheckedChangeListener(null)
         checkBox.isChecked = app?.foregroundAccess ?: false
-        checkBox.setOnCheckedChangeListener { _, isChecked -> 
+        checkBox.setOnCheckedChangeListener { _, isChecked ->
             app?.foregroundAccess = isChecked
             wasChanges = true
         }
@@ -245,12 +258,14 @@ class AppControlActivity : TransparentActivity() {
     }
 
     override fun onDestroy() {
+        saveResult()
         _binding = null
         super.onDestroy()
     }
 
     companion object {
         const val EXTRA_APP = "com.smartsolutions.paquetes.ui.applications.extra.APP"
-        const val EXTRA_WAS_CHANGES = "com.smartsolutions.paquetes.ui.applications.extra.WAS_CHANGES"
+        const val EXTRA_WAS_CHANGES =
+            "com.smartsolutions.paquetes.ui.applications.extra.WAS_CHANGES"
     }
 }
