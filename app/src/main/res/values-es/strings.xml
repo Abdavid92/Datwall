@@ -408,4 +408,5 @@
     <string name="key_to_short">La clave debe ser de 4 dígitos</string>
     <string name="purchased_done">Licencia Comprada</string>
     <string name="purchased_description">Felicidades. Puede usar la app sin límites</string>
+    <string name="purchase_now_licence">Comprar Ahora</string>
 </resources>

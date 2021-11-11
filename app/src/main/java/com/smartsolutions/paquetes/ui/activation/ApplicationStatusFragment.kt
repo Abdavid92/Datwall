@@ -132,6 +132,15 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
                 "Puede seguir usando la app en período de prueba por $days días",
                 R.drawable.ic_timer_24
             )
+            binding.btnPurchaseNown.apply {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    if (activity is IReplaceFragments) {
+                        (activity as IReplaceFragments)
+                            .replace(Purchase2Fragment.newInstance())
+                    }
+                }
+            }
             binding.btnAction.setOnClickListener {
                 complete()
             }
