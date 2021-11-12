@@ -15,6 +15,8 @@ interface ISimManager {
      */
     fun isSeveralSimsInstalled(): Boolean
 
+    suspend fun isBrokenDualSim(): Boolean
+
     /**
      * Busca las lineas que están activas, las crea si no existen en el repositorio o sincroniza sus
      * valores con el sistema y actualiza el repositorio

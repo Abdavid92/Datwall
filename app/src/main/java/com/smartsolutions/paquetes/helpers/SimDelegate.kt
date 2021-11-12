@@ -22,6 +22,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -34,7 +35,7 @@ import kotlin.jvm.Throws
 class SimDelegate @Inject constructor(
     @ApplicationContext
     private val context: Context
-): CoroutineScope {
+) {
 
     private lateinit var subscriptionManager: SubscriptionManager
 
@@ -71,7 +72,7 @@ class SimDelegate @Inject constructor(
                 )
             }
         }catch (e: Exception){
-            launch {
+            runBlocking {
                 context.internalDataStore.edit {
                     it[PreferencesKeys.IS_DUAL_SIM_BROKEN] = true
                 }
@@ -147,7 +148,4 @@ class SimDelegate @Inject constructor(
         VOICE,
         DATA
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default
 }

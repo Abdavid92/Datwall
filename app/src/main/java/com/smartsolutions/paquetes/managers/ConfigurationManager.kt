@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
+import android.content.Context
 import android.os.Build
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
@@ -10,11 +11,14 @@ import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.apache.commons.lang.mutable.Mutable
 import javax.inject.Inject
 import javax.inject.Provider
 
 class ConfigurationManager @Inject constructor(
+    @ApplicationContext
+    private val context: Context,
     private val simManager: ISimManager,
     private val dataPackageManager: IDataPackageManager,
     private val activationManager: IActivationManager
@@ -87,8 +91,7 @@ class ConfigurationManager @Inject constructor(
         if (simManager.isSeveralSimsInstalled()){
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
                 Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP ||
-                simManager.getDefaultSim(SimDelegate.SimType.VOICE) == null ||
-                simManager.getDefaultSim(SimDelegate.SimType.DATA) == null){
+                simManager.isBrokenDualSim()){
                return true
             }
         }

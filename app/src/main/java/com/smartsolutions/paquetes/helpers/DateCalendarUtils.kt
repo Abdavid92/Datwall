@@ -222,7 +222,11 @@ class DateCalendarUtils @Inject constructor(
          * @param part - Valor relativo.
          * */
         fun calculatePercent(total : Double, part : Double): Int {
-            return (100 * part / total).toInt()
+            return if(total <= 0 || part <= 0){
+                    0
+            }else {
+                (100 * part / total).toInt()
+            }
         }
 
         fun isInDiscountHour (start: Long, finish: Long) : Boolean{

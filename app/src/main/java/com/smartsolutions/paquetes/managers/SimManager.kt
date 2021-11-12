@@ -7,8 +7,10 @@ import android.os.Looper
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import androidx.annotation.RequiresApi
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -16,6 +18,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,6 +56,12 @@ class SimManager @Inject constructor(
             return false
         }
         return simDelegate.getActiveSimsInfo().size > 1
+    }
+
+    override suspend fun isBrokenDualSim(): Boolean {
+        getDefaultSim(SimDelegate.SimType.DATA)
+        getDefaultSim(SimDelegate.SimType.VOICE)
+        return context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_DUAL_SIM_BROKEN) == true
     }
 
     override suspend fun getInstalledSims(relations: Boolean): List<Sim> {
