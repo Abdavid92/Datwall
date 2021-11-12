@@ -10,6 +10,7 @@ import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
+import org.apache.commons.lang.mutable.Mutable
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -51,19 +52,16 @@ class ConfigurationManager @Inject constructor(
             )
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
-            Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP &&
-            simManager.isSeveralSimsInstalled()) {
+
+        if (addSimConfigurationFragment()) {
             list.add(
                 Configuration(
                     true,
                     SimsConfigurationFragment::class.java
                 ) {
                     try {
-                        simManager.getDefaultSim(SimDelegate.SimType.DATA)
-                        simManager.getDefaultSim(SimDelegate.SimType.VOICE)
-
-                        return@Configuration true
+                        return@Configuration simManager.getDefaultSim(SimDelegate.SimType.DATA) != null &&
+                                simManager.getDefaultSim(SimDelegate.SimType.VOICE) != null
                     } catch (e: IllegalStateException) {
                         return@Configuration false
                     }
@@ -81,6 +79,21 @@ class ConfigurationManager @Inject constructor(
 
         return list.toTypedArray()
     }
+
+
+    private suspend fun addSimConfigurationFragment(): Boolean{
+        if (simManager.isSeveralSimsInstalled()){
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP ||
+                simManager.getDefaultSim(SimDelegate.SimType.VOICE) == null ||
+                simManager.getDefaultSim(SimDelegate.SimType.DATA) == null){
+               return true
+            }
+        }
+
+        return false
+    }
+
 
     /**
      * Indica si la aplicación ya está registrada en el servidor y
