@@ -243,8 +243,10 @@ class DatwallKernel @Inject constructor(
      * Indica si falta alguna configuración importante.
      * */
     private suspend fun missingSomeConfiguration(): Boolean {
-        return configurationManager.getUncompletedConfigurations()
-            .isNotEmpty()
+
+        val configurations = configurationManager.getUncompletedConfigurations()
+
+        return configurations.isNotEmpty()
     }
 
     /**
