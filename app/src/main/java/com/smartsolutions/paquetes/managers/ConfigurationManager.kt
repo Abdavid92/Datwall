@@ -60,8 +60,10 @@ class ConfigurationManager @Inject constructor(
                     SimsConfigurationFragment::class.java
                 ) {
                     try {
-                        return@Configuration simManager.getDefaultSim(SimDelegate.SimType.DATA) != null &&
-                                simManager.getDefaultSim(SimDelegate.SimType.VOICE) != null
+                        val voice = simManager.getDefaultSim(SimDelegate.SimType.VOICE)
+                        val data = simManager.getDefaultSim(SimDelegate.SimType.DATA)
+
+                        return@Configuration voice != null && data != null
                     } catch (e: IllegalStateException) {
                         return@Configuration false
                     }
