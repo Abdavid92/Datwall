@@ -194,21 +194,6 @@ class AppControlActivity : TransparentActivity() {
     }
 
     private fun onOpen(view: View) {
-        if (wasChanges) {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.lose_changes)
-                .setMessage(R.string.lose_changes_msg)
-                .setPositiveButton(R.string.btn_yes) { _, _ ->
-                    openApp()
-                }
-                .setNegativeButton(R.string.btn_not, null)
-                .show()
-        } else {
-            openApp()
-        }
-    }
-
-    private fun openApp() {
         app?.let {
             val intent = packageManager.getLaunchIntentForPackage(it.packageName)
 
