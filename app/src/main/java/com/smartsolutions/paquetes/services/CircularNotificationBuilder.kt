@@ -131,8 +131,11 @@ class CircularNotificationBuilder(
         addSeparator: Boolean
     ) {
 
-        val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
-            .toInt()
+        val percent = if (userDataBytes.initialBytes != 0L)
+            (100 * userDataBytes.bytes / userDataBytes.initialBytes)
+                .toInt()
+        else
+            0
 
         val color = if (uiHelper.isUIDarkTheme())
             Color.LTGRAY
@@ -189,8 +192,12 @@ class CircularNotificationBuilder(
         title: String,
         addSeparator: Boolean
     ) {
-        val percent = (100 * userDataBytes.bytes / userDataBytes.initialBytes)
-            .toInt()
+
+        val percent = if (userDataBytes.initialBytes != 0L)
+            (100 * userDataBytes.bytes / userDataBytes.initialBytes)
+                .toInt()
+        else
+            0
 
         val color = if (uiHelper.isUIDarkTheme())
             Color.LTGRAY
