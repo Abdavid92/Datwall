@@ -64,8 +64,8 @@ android {
             buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
         debug {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "SECRET_KEY", secretKey
             buildConfigField "int", "TOKEN_DURATION", tokenDuration

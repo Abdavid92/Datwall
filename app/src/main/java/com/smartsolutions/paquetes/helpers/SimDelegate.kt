@@ -102,9 +102,9 @@ class SimDelegate @Inject constructor(
 
     fun getSimId(subscriptionInfo: SubscriptionInfo): String =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            subscriptionInfo.cardId.toString()
+            subscriptionInfo.subscriptionId.toString()
         else
-            subscriptionInfo.iccId
+            subscriptionInfo.subscriptionId.toString()
 
     @MainThread
     fun addOnSubscriptionsChangedListener(

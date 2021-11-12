@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
+import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -22,6 +23,8 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
 
     private var _binding: FragmentPackagesConfigurationBinding? = null
     private val binding get() = _binding!!
+
+    private var simSelected: Sim? = null
 
     /**
      * Indica si es obligatorio configurar los paquetes. De ser así el fragmento no
@@ -99,6 +102,12 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                 id: Long
             ) {
 
+                if (simSelected?.defaultVoice != true) {
+                    binding.radioGroupMode.check(R.id.automatic_mode)
+                    Toast.makeText(requireContext(), getString(R.string.no_sim_default_voice), Toast.LENGTH_SHORT).show()
+                    return
+                }
+
                 if (binding.automatic == false) {
 
                     val network = when (position) {
@@ -128,6 +137,12 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
         binding.radioGroupMode.setOnCheckedChangeListener { _, checkedId ->
 
             if (checkedId == R.id.manual_mode) {
+                if (simSelected?.defaultVoice != true) {
+                    DefaultSimsDialogFragment
+                        .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
+                        .show(childFragmentManager, null)
+                    binding.radioGroupMode.check(R.id.automatic_mode)
+                }
                 binding.nestedScroll.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
             }
         }
@@ -200,8 +215,6 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                         simIndex = simsList.indexOf(sim)
                     }
 
-                    sims.setSelection(simIndex ?: simsList.indexOf(simsList.find { sim -> sim.defaultVoice }))
-
                     sims.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(
                             parent: AdapterView<*>?,
@@ -209,18 +222,16 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                             position: Int,
                             id: Long
                         ) {
-
-                            if (!simsList[position].defaultVoice) {
-                                DefaultSimsDialogFragment
-                                    .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
-                                    .show(childFragmentManager, null)
-                            }
+                            simSelected = simsList[position]
                         }
 
                         override fun onNothingSelected(parent: AdapterView<*>?) {
 
                         }
                     }
+
+
+                    sims.setSelection(simIndex ?: simsList.indexOf(simsList.find { sim -> sim.defaultVoice }))
 
                     btnStartConfiguration.setOnClickListener {
 
