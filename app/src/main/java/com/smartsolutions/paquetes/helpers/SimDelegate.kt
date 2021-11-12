@@ -14,10 +14,17 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.ExecutorCompat
+import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.internalDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
 /**
@@ -27,7 +34,7 @@ import kotlin.jvm.Throws
 class SimDelegate @Inject constructor(
     @ApplicationContext
     private val context: Context
-) {
+): CoroutineScope {
 
     private lateinit var subscriptionManager: SubscriptionManager
 
@@ -64,6 +71,11 @@ class SimDelegate @Inject constructor(
                 )
             }
         }catch (e: Exception){
+            launch {
+                context.internalDataStore.edit {
+                    it[PreferencesKeys.IS_DUAL_SIM_BROKEN] = true
+                }
+            }
             null
         }
     }
@@ -135,4 +147,7 @@ class SimDelegate @Inject constructor(
         VOICE,
         DATA
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default
 }

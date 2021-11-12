@@ -30,6 +30,10 @@ val Context.workersDataStore by preferencesDataStore(name = "workers_settings")
  * Contiene las claves de las preferencias.
  * */
 object PreferencesKeys {
+    /**
+     * Indica si no se pueden obtener las lineas predeterminadas del sistema y por ende se necesita configuración manual
+     */
+    val IS_DUAL_SIM_BROKEN = booleanPreferencesKey("is_dual_sim_broken")
 
     /**
      * Indica la hora en que se empezó a esperar la confirmación de la compra
