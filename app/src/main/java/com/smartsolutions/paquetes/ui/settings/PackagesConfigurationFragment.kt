@@ -102,10 +102,12 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                 id: Long
             ) {
 
-                if (simSelected?.defaultVoice != true) {
-                    binding.radioGroupMode.check(R.id.automatic_mode)
-                    Toast.makeText(requireContext(), getString(R.string.no_sim_default_voice), Toast.LENGTH_SHORT).show()
-                    return
+                simSelected?.let {
+                    if(!it.defaultVoice){
+                        binding.radioGroupMode.check(R.id.automatic_mode)
+                        Toast.makeText(requireContext(), getString(R.string.no_sim_default_voice), Toast.LENGTH_SHORT).show()
+                        return
+                    }
                 }
 
                 if (binding.automatic == false) {
@@ -137,11 +139,13 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
         binding.radioGroupMode.setOnCheckedChangeListener { _, checkedId ->
 
             if (checkedId == R.id.manual_mode) {
-                if (simSelected?.defaultVoice != true) {
-                    DefaultSimsDialogFragment
-                        .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
-                        .show(childFragmentManager, null)
-                    binding.radioGroupMode.check(R.id.automatic_mode)
+                simSelected?.let {
+                    if (!it.defaultVoice){
+                        DefaultSimsDialogFragment
+                            .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
+                            .show(childFragmentManager, null)
+                        binding.radioGroupMode.check(R.id.automatic_mode)
+                    }
                 }
                 binding.nestedScroll.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
             }
