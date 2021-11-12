@@ -112,4 +112,10 @@ class Purchase2ViewModel @Inject constructor(
         }
     }
 
+    fun setWaitingPurchase(){
+        viewModelScope.launch {
+            activationManager.setWaitingPurchase(true)
+        }
+    }
+
 }

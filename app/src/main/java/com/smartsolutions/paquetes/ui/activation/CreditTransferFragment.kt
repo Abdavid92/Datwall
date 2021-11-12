@@ -37,6 +37,8 @@ class CreditTransferFragment : AbstractSettingsFragment() {
 
         viewModel.loadLicence()
 
+        viewModel.setWaitingPurchase()
+
         binding.apply {
 
             btnTransfer.setOnClickListener {

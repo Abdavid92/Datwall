@@ -69,8 +69,10 @@ class SmsReceiver : BroadcastReceiver() {
                 if (phoneNumber.equals("cubacel", true))
                     dataPackageManager.registerDataPackage(body, simIndex)
 
-                activationManager.get()
-                    .confirmPurchase(body, phoneNumber, simIndex)
+                if (activationManager.get().isWaitingPurchase()) {
+                    activationManager.get()
+                        .confirmPurchase(body, phoneNumber, simIndex)
+                }
             }
         }
     }

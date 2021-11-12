@@ -32,6 +32,11 @@ val Context.workersDataStore by preferencesDataStore(name = "workers_settings")
 object PreferencesKeys {
 
     /**
+     * Indica la hora en que se empezó a esperar la confirmación de la compra
+     */
+    val WAITING_PUCHASE = longPreferencesKey("waiting_purchase")
+
+    /**
      * Licencia de la aplicación.
      * */
     val LICENSE = stringPreferencesKey("license")

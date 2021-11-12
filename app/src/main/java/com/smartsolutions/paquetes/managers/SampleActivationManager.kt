@@ -86,6 +86,14 @@ class SampleActivationManager @Inject constructor(
         return Result.Success(Unit)
     }
 
+    override suspend fun isWaitingPurchase(): Boolean {
+        return false
+    }
+
+    override suspend fun setWaitingPurchase(value: Boolean) {
+
+    }
+
     override suspend fun getLicense(): Result<License> {
         return Result.Success(license)
     }

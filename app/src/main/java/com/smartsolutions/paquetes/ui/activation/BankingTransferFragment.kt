@@ -33,6 +33,8 @@ class BankingTransferFragment : AbstractSettingsFragment() {
 
         viewModel.loadLicence()
 
+        viewModel.setWaitingPurchase()
+
         binding.apply {
             headerDescription.text = getString(R.string.transfermovil_instruccions, viewModel.getPrice())
             cardNumber.text = getString(R.string.debit_card_number, viewModel.getDebitCardNumber())

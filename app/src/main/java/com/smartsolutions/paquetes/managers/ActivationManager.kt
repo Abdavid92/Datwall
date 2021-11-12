@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.commons.lang.time.DateUtils
 import java.net.NetworkInterface
 import java.util.*
 import javax.inject.Inject
@@ -203,6 +204,23 @@ class ActivationManager @Inject constructor(
         }
 
         return Result.Failure(NullPointerException())
+    }
+
+    override suspend fun isWaitingPurchase(): Boolean {
+        val time = dataStore.data.firstOrNull()?.get(PreferencesKeys.WAITING_PUCHASE) ?: 0L
+        return System.currentTimeMillis() - time <= DateUtils.MILLIS_PER_DAY
+    }
+
+    override suspend fun setWaitingPurchase(value: Boolean) {
+        if (value) {
+            dataStore.edit {
+                it[PreferencesKeys.WAITING_PUCHASE] = System.currentTimeMillis()
+            }
+        }else {
+            dataStore.edit {
+                it.remove(PreferencesKeys.WAITING_PUCHASE)
+            }
+        }
     }
 
     override suspend fun getLicense(): Result<License> {

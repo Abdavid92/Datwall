@@ -49,6 +49,12 @@ interface IActivationManager {
      * */
     suspend fun confirmPurchase(smsBody: String, phone: String, simIndex: Int): Result<Unit>
 
+
+    suspend fun isWaitingPurchase(): Boolean
+
+
+    suspend fun setWaitingPurchase(value: Boolean)
+
     /**
      * Obtiene la licencia del servidor y la guarda en el dataStore.
      *
