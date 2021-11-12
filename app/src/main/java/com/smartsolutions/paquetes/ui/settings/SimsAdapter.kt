@@ -47,6 +47,6 @@ class SimsAdapter(
         val sim = getItem(position)
 
         icon.setImageBitmap(sim.icon)
-        name.text = sim.phone ?: "Sim ${position + 1}"
+        name.text = sim.phone ?: "Sim ${sim.slotIndex + 1}"
     }
 }

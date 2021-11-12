@@ -13,6 +13,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 class DefaultSimRecyclerAdapter(
     private var fragment: DefaultSimsDialogFragment,
     var sims: List<Sim>,
+    val isBrokenDualSim: Boolean,
     var isDefaultVoice: Boolean
 ) : RecyclerView.Adapter<DefaultSimRecyclerAdapter.SimHolder>() {
 
@@ -36,10 +37,10 @@ class DefaultSimRecyclerAdapter(
                     textSim.text = "Sim ${sim.slotIndex + 1}"
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (!isBrokenDualSim) {
                     radioButton.isClickable = false
                 } else {
-                    radioButton.setOnCheckedChangeListener { _,_ ->
+                    radioButton.setOnCheckedChangeListener { _, _ ->
                         fragment.setDefaultSim(sim, isDefaultVoice)
                     }
                 }

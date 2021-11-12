@@ -33,8 +33,9 @@ class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sim
                 viewModel.saveChanges(
                     dataSim.selectedItem as Sim,
                     voiceSim.selectedItem as Sim
-                )
-                complete()
+                ){
+                    complete()
+                }
             }
     }
 

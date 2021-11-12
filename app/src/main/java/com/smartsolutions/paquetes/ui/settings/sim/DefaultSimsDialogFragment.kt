@@ -64,11 +64,7 @@ class DefaultSimsDialogFragment : BottomSheetDialogFragment() {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            binding.buttonSettings.visibility = View.VISIBLE
-        }else {
-            binding.buttonSettings.visibility = View.GONE
-        }
+        binding.buttonSettings.visibility = View.VISIBLE
 
         binding.buttonSettings.setOnClickListener {
             val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS)
@@ -90,18 +86,18 @@ class DefaultSimsDialogFragment : BottomSheetDialogFragment() {
         }
 
         viewModel.getInstalledSims().observe(viewLifecycleOwner){
-            setAdapter(it)
+            setAdapter(it.first, it.second)
         }
     }
 
 
 
-    private fun setAdapter(sims: List<Sim>){
+    private fun setAdapter(sims: List<Sim>, isBrokenDualSim: Boolean){
         if (adapterVoice == null || adapterData == null){
-            adapterData = DefaultSimRecyclerAdapter(this, sims, false)
+            adapterData = DefaultSimRecyclerAdapter(this, sims, isBrokenDualSim, false)
             binding.recyclerData.adapter = adapterData
 
-            adapterVoice = DefaultSimRecyclerAdapter(this, sims, true)
+            adapterVoice = DefaultSimRecyclerAdapter(this, sims, isBrokenDualSim, true)
             binding.recyclerVoice.adapter = adapterVoice
         }else {
             adapterData?.sims = sims

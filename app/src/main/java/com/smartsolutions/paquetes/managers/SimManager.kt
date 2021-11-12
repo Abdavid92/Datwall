@@ -107,9 +107,6 @@ class SimManager @Inject constructor(
     }
 
     override suspend fun setDefaultSim(type: SimDelegate.SimType, sim: Sim) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            return
-
         resetDefaultValues(type)
         if (type == SimDelegate.SimType.DATA) {
             sim.defaultData = true
@@ -258,9 +255,11 @@ class SimManager @Inject constructor(
     }
 
     private suspend fun verifyDefaultSim(sims: List<Sim>) {
-        if (sims.size == 1 && !sims[0].defaultVoice || !sims[0].defaultData) {
-            setDefaultSim(SimDelegate.SimType.DATA, sims[0])
-            setDefaultSim(SimDelegate.SimType.VOICE, sims[0])
+        if (sims.isNotEmpty()) {
+            if (sims.size == 1 && !sims[0].defaultVoice || !sims[0].defaultData) {
+                setDefaultSim(SimDelegate.SimType.DATA, sims[0])
+                setDefaultSim(SimDelegate.SimType.VOICE, sims[0])
+            }
         }
     }
 

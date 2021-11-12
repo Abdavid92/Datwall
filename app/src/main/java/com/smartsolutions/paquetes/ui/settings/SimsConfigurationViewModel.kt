@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,10 +37,13 @@ class SimsConfigurationViewModel @Inject constructor(
         return delegate.getSims(fragment, fragmentManager)
     }
 
-    fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim) {
+    fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim, onComplete: () -> Unit) {
         viewModelScope.launch {
             simManager.setDefaultSim(SimDelegate.SimType.DATA, defaultDataSim)
             simManager.setDefaultSim(SimDelegate.SimType.VOICE, defaultVoiceSim)
+            withContext(Dispatchers.Main){
+                onComplete()
+            }
         }
     }
 }
