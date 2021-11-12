@@ -78,7 +78,7 @@ class SimManager @Inject constructor(
     override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Sim? {
         val installedSims = getInstalledSims(relations)
 
-        if (installedSims.isEmpty()){
+        if (installedSims.isEmpty()) {
             return null
         }
 
@@ -174,10 +174,17 @@ class SimManager @Inject constructor(
 
     private suspend fun synchronizeSim(sim: Sim, update: Boolean = true): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val defaultData =
-                simDelegate.getSimId(simDelegate.getActiveSim(SimDelegate.SimType.DATA)) == sim.id
-            val defaultVoice =
-                simDelegate.getSimId(simDelegate.getActiveSim(SimDelegate.SimType.VOICE)) == sim.id
+            var defaultData = false
+            simDelegate.getActiveSim(SimDelegate.SimType.DATA)?.let {
+                defaultData =
+                    simDelegate.getSimId(it) == sim.id
+            }
+
+            var defaultVoice = false
+            simDelegate.getActiveSim(SimDelegate.SimType.VOICE)?.let {
+                 defaultVoice =
+                    simDelegate.getSimId(it) == sim.id
+            }
 
             if (defaultData != sim.defaultData || defaultVoice != sim.defaultVoice) {
                 sim.apply {

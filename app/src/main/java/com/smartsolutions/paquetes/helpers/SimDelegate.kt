@@ -46,7 +46,7 @@ class SimDelegate @Inject constructor(
      * */
     @Throws(MissingPermissionException::class)
     @RequiresApi(Build.VERSION_CODES.N)
-    fun getActiveSim(type: SimType): SubscriptionInfo {
+    fun getActiveSim(type: SimType): SubscriptionInfo? {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
@@ -54,13 +54,17 @@ class SimDelegate @Inject constructor(
             throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
         }
 
-        return when (type) {
-            SimType.DATA -> subscriptionManager.getActiveSubscriptionInfo(
-                SubscriptionManager.getDefaultDataSubscriptionId()
-            )
-            SimType.VOICE -> subscriptionManager.getActiveSubscriptionInfo(
-                SubscriptionManager.getDefaultVoiceSubscriptionId()
-            )
+        return try {
+            when (type) {
+                SimType.DATA -> subscriptionManager.getActiveSubscriptionInfo(
+                    SubscriptionManager.getDefaultDataSubscriptionId()
+                )
+                SimType.VOICE -> subscriptionManager.getActiveSubscriptionInfo(
+                    SubscriptionManager.getDefaultVoiceSubscriptionId()
+                )
+            }
+        }catch (e: Exception){
+            null
         }
     }
 
