@@ -89,9 +89,18 @@ class SimManager @Inject constructor(
         }
 
         if (defaults.isEmpty() || defaults.size > 1) {
-            if (defaults.size > 1)
+            if (defaults.isEmpty() && installedSims.size == 1) {
+                return installedSims[0].apply {
+                    defaultVoice = true
+                    defaultData = true
+                }
+            }
+            if (defaults.size > 1) {
                 resetDefaultValues(type)
-            throw IllegalStateException("Default Sim not configured")
+                return null
+            }
+
+            return null
         }
 
         return defaults[0]
@@ -174,28 +183,29 @@ class SimManager @Inject constructor(
 
     private suspend fun synchronizeSim(sim: Sim, update: Boolean = true): Sim {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            var defaultData = false
+            var wasChanges = false
+
             simDelegate.getActiveSim(SimDelegate.SimType.DATA)?.let {
-                defaultData =
+                val defaultData =
                     simDelegate.getSimId(it) == sim.id
+
+                wasChanges = sim.defaultData != defaultData
+
+                sim.defaultData = defaultData
             }
 
-            var defaultVoice = false
             simDelegate.getActiveSim(SimDelegate.SimType.VOICE)?.let {
-                 defaultVoice =
+                val defaultVoice =
                     simDelegate.getSimId(it) == sim.id
+                if (!wasChanges) {
+                    wasChanges = sim.defaultVoice != defaultVoice
+                }
+                sim.defaultVoice = defaultVoice
             }
 
-            if (defaultData != sim.defaultData || defaultVoice != sim.defaultVoice) {
-                sim.apply {
-                    this.defaultData = defaultData
-                    this.defaultVoice = defaultVoice
-                }
-
-                if (update) {
-                    withContext(Dispatchers.IO) {
-                        simRepository.update(sim)
-                    }
+            if (wasChanges && update) {
+                withContext(Dispatchers.IO) {
+                    simRepository.update(sim)
                 }
             }
         }
@@ -247,8 +257,8 @@ class SimManager @Inject constructor(
         }
     }
 
-    private suspend fun verifyDefaultSim(sims: List<Sim>){
-        if (sims.size == 1 && !sims[0].defaultVoice || !sims[0].defaultData ){
+    private suspend fun verifyDefaultSim(sims: List<Sim>) {
+        if (sims.size == 1 && !sims[0].defaultVoice || !sims[0].defaultData) {
             setDefaultSim(SimDelegate.SimType.DATA, sims[0])
             setDefaultSim(SimDelegate.SimType.VOICE, sims[0])
         }
