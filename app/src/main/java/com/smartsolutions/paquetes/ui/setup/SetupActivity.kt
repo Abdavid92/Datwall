@@ -25,7 +25,7 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup),
             nextOrComplete()
         }
 
-        viewModel.addOpenActivityListener(this) { activity, application ->
+        viewModel.addOpenActivityListener(this) { activity, args, application ->
             application.removeOpenActivityListener(this)
             startActivity(Intent(this, activity))
             finish()
@@ -51,5 +51,10 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup),
             setReorderingAllowed(true)
             replace(R.id.setup_container, fragment)
         }
+    }
+
+    companion object {
+
+        const val EXTRA_INITIAL_FRAGMENT = "com.smartsolutions.paquetes.extra.INITIAL_FRAGMENT"
     }
 }

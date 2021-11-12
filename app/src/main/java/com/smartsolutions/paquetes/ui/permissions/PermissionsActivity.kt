@@ -35,7 +35,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
         steppers.stepperAdapter = StepperAdapter(viewModel.permissions, this)
 
-        viewModel.addOpenActivityListener(this) { activity, application ->
+        viewModel.addOpenActivityListener(this) { activity, args, application ->
             application.removeOpenActivityListener(this)
             startActivity(Intent(this, activity))
             finish()

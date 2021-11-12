@@ -6,12 +6,14 @@ import android.app.PendingIntent
 import android.content.*
 import android.net.ConnectivityManager
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
+import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
@@ -71,10 +73,11 @@ class DatwallKernel @Inject constructor(
     }
 
 
-    private var openActivity: Class<out Activity>? = null
+    private var openActivity: Pair<Class<out Activity>, Bundle?>? = null
     private val openActivitySubscribers =
         mutableMapOf<LifecycleOwner, (
             activity: Class<out Activity>,
+            args: Bundle?,
             application: DatwallApplication
         ) -> Unit>()
 
@@ -106,6 +109,8 @@ class DatwallKernel @Inject constructor(
         //Crea o actualiza los paquetes de datos
         createOrUpdatePackages()
 
+        val configurations = missingSomeConfiguration()
+
         when {
             //Verifica los permisos
             missingSomePermission() -> {
@@ -116,8 +121,16 @@ class DatwallKernel @Inject constructor(
                 )
             }
             //Verfica las configuraciones iniciales
-            missingSomeConfiguration() -> {
-                openActivity(SetupActivity::class.java)
+            configurations.isNotEmpty() -> {
+                openActivity(
+                    SetupActivity::class.java,
+                    Bundle().apply {
+                        putString(
+                            SetupActivity.EXTRA_INITIAL_FRAGMENT,
+                            configurations[0].fragment.name
+                        )
+                    }
+                )
                 considerNotify(
                     context.getString(R.string.missing_configuration_title_notification),
                     context.getString(R.string.missing_configuration_description_notification)
@@ -141,6 +154,7 @@ class DatwallKernel @Inject constructor(
         lifecycleOwner: LifecycleOwner,
         listener: (
             activity: Class<out Activity>,
+            args: Bundle?,
             application: DatwallApplication
         ) -> Unit
     ) {
@@ -148,8 +162,12 @@ class DatwallKernel @Inject constructor(
         if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
             openActivitySubscribers[lifecycleOwner] = listener
 
-            if (openActivity != null && lifecycleOwner::class.java.name != openActivity!!.name)
-                listener(openActivity!!, context.applicationContext as DatwallApplication)
+            if (openActivity != null && lifecycleOwner::class.java.name != openActivity!!.first.name)
+                listener(
+                    openActivity!!.first,
+                    openActivity!!.second,
+                    context.applicationContext as DatwallApplication
+                )
 
             lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
 
@@ -242,11 +260,8 @@ class DatwallKernel @Inject constructor(
     /**
      * Indica si falta alguna configuración importante.
      * */
-    private suspend fun missingSomeConfiguration(): Boolean {
-
-        val configurations = configurationManager.getUncompletedConfigurations()
-
-        return configurations.isNotEmpty()
+    private suspend fun missingSomeConfiguration(): Array<Configuration> {
+        return configurationManager.getUncompletedConfigurations()
     }
 
     /**
@@ -360,15 +375,19 @@ class DatwallKernel @Inject constructor(
         }
     }
 
-    private suspend fun openActivity(activity: Class<out Activity>) {
-        openActivity = activity
+    private suspend fun openActivity(activity: Class<out Activity>, args: Bundle? = null) {
+        openActivity = activity to args
 
         withContext(Dispatchers.Main) {
 
             runCatching {
                 openActivitySubscribers.forEach {
                     if (it.key.javaClass.name != activity.name)
-                        it.value(activity, context.applicationContext as DatwallApplication)
+                        it.value(
+                            activity,
+                            args,
+                            context.applicationContext as DatwallApplication
+                        )
                 }
             }
         }

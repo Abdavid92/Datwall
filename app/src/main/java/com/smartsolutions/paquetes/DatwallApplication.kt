@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes
 
 import android.app.Activity
 import android.app.Application
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.LifecycleOwner
@@ -124,6 +125,7 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
         lifecycleOwner: LifecycleOwner,
         listener: (
             activity: Class<out Activity>,
+            args: Bundle?,
             application: DatwallApplication
         ) -> Unit
     ) {

@@ -40,7 +40,7 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash), CoroutineScop
                 }) {
 
                 withContext(Dispatchers.Main) {
-                    viewModel.addOpenActivityListener(this@SplashActivity) { activity, application ->
+                    viewModel.addOpenActivityListener(this@SplashActivity) { activity, args, application ->
                         application.removeOpenActivityListener(this@SplashActivity)
                         startActivity(Intent(this@SplashActivity, activity))
                         finish()
@@ -57,7 +57,7 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash), CoroutineScop
 
         if (requestCode == WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST) {
 
-            viewModel.addOpenActivityListener(this) { activity, application ->
+            viewModel.addOpenActivityListener(this) { activity, args, application ->
                 application.removeOpenActivityListener(this)
                 startActivity(Intent(this, activity))
                 finish()

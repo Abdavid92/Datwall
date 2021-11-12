@@ -57,7 +57,10 @@ class LinearNotificationBuilder(
                     restTotal += it.bytes
                 }
 
-            val percent = (100 * restTotal / initialTotal).toInt()
+            val percent = if (initialTotal != 0L)
+                (100 * restTotal / initialTotal).toInt()
+            else
+                0
 
             remoteViews.setProgressBar(
                 R.id.data_progress,

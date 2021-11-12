@@ -34,7 +34,7 @@ android {
         applicationId "com.smartsolutions.paquetes"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 20
+        versionCode 29
         versionName "4.0.1"
         archivesBaseName = "Mis Datos-$versionName"
 
