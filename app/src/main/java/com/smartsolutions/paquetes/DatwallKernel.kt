@@ -109,8 +109,6 @@ class DatwallKernel @Inject constructor(
         //Crea o actualiza los paquetes de datos
         createOrUpdatePackages()
 
-        val configurations = missingSomeConfiguration()
-
         when {
             //Verifica los permisos
             missingSomePermission() -> {
@@ -121,10 +119,13 @@ class DatwallKernel @Inject constructor(
                 )
             }
             //Verfica las configuraciones iniciales
-            configurations.isNotEmpty() -> {
+            missingSomeConfiguration() -> {
                 openActivity(
                     SetupActivity::class.java,
                     Bundle().apply {
+
+                        val configurations = configurationManager.getUncompletedConfigurations()
+
                         putString(
                             SetupActivity.EXTRA_INITIAL_FRAGMENT,
                             configurations[0].fragment.name
@@ -260,8 +261,8 @@ class DatwallKernel @Inject constructor(
     /**
      * Indica si falta alguna configuración importante.
      * */
-    private suspend fun missingSomeConfiguration(): Array<Configuration> {
-        return configurationManager.getUncompletedConfigurations()
+    private suspend fun missingSomeConfiguration(): Boolean {
+        return configurationManager.getUncompletedConfigurations().isNotEmpty()
     }
 
     /**
