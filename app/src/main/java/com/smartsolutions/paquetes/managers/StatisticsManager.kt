@@ -5,11 +5,13 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -36,39 +38,54 @@ class StatisticsManager @Inject constructor(
 
         val usage = networkUsageManager.getUsageTotal(start, finish)
 
-        var quantity = timeUnit.convert(finish - start, timeUnit)
+        var quantity = timeUnit.convert(finish - start, TimeUnit.MILLISECONDS)
 
         if (quantity < 1L)
             quantity = 1
 
-        return DataUnitBytes(usage.totalBytes.bytes / quantity)
+        return if (usage.totalBytes.bytes > 0) {
+            DataUnitBytes(usage.totalBytes.bytes / quantity)
+        } else {
+            DataUnitBytes(0L)
+        }
     }
 
     override suspend fun getRemainder(timeUnit: TimeUnit): DataUnitBytes {
+        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
+            return getRemainder(timeUnit, userDataBytesRepository.bySimId(sim.id))
+        }
+
+        return DataUnitBytes(0L)
+    }
+
+    override suspend fun getRemainder(
+        timeUnit: TimeUnit,
+        userData: List<UserDataBytes>
+    ): DataUnitBytes {
         if (timeUnit.ordinal < TimeUnit.HOURS.ordinal)
             throw IllegalArgumentException()
 
-        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
-            val enabledLte = withContext(Dispatchers.IO){
-                context.settingsDataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.ENABLED_LTE) ?: false
-            }
+        val enabledLte = withContext(Dispatchers.IO) {
+            context.internalDataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.ENABLED_LTE) ?: false
+        }
 
-            val list = if (enabledLte) {
-                withContext(Dispatchers.IO){
-                    userDataBytesRepository.bySimId(sim.id)
-                }.filter { it.type != DataBytes.DataType.National &&
-                        !it.isExpired()
-                }
-            } else {
-                withContext(Dispatchers.IO){
-                    userDataBytesRepository.bySimId(sim.id)
-                }.filter {
-                    it.type == DataBytes.DataType.International &&
-                            it.type == DataBytes.DataType.PromoBonus
-                    !it.isExpired()
-                }
+        val list = if (enabledLte) {
+            userData.filter {
+                it.type != DataBytes.DataType.National &&
+                        !it.isExpired() &&
+                        it.exists()
             }
+        } else {
+            userData.filter {
+                (it.type == DataBytes.DataType.International ||
+                        it.type == DataBytes.DataType.PromoBonus) &&
+                        !it.isExpired() &&
+                        it.exists()
+            }
+        }
+
+        if (list.isNotEmpty()) {
 
             var dateExpired = 0L
             var bytes = 0L
@@ -90,11 +107,12 @@ class StatisticsManager @Inject constructor(
             if (dateExpired == 0L && containPackages) {
                 dateExpired = DateUtils.addDays(date, DataPackages.GENERAL_DURATION).time
             } else if (dateExpired == 0L && !containPackages) {
-                val dailyBag = DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.DailyBag }
+                val dailyBag =
+                    DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.DailyBag }
                 dateExpired = DateUtils.addDays(date, dailyBag.duration).time
             }
 
-            var quantity = timeUnit.convert(dateExpired - date.time, timeUnit)
+            var quantity = timeUnit.convert(dateExpired - date.time, TimeUnit.MILLISECONDS)
 
             if (quantity < 1L)
                 quantity = 1

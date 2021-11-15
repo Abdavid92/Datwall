@@ -409,4 +409,7 @@
     <string name="purchased_done">Licencia Comprada</string>
     <string name="purchased_description">Felicidades. Puede usar la app sin límites</string>
     <string name="purchase_now_licence">Comprar Ahora</string>
+    <string name="average">Promedios</string>
+    <string name="header_average_dayli">Consumo Diario</string>
+    <string name="header_average_rest">Restantes Diarios</string>
 </resources>

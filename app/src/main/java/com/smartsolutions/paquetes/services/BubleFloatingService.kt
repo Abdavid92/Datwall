@@ -621,6 +621,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
             windowManager.addView(view, params)
             false
         } catch (e: Exception) {
+            isShowBubble = false
             true
         }
     }

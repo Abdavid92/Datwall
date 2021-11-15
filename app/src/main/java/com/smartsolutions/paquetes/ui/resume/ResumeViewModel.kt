@@ -8,7 +8,9 @@ import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
+import com.smartsolutions.paquetes.managers.StatisticsManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.DataValue
@@ -22,6 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.commons.lang.time.DateUtils
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,13 +33,15 @@ class ResumeViewModel @Inject constructor(
     application: Application,
     private val simManager: ISimManager,
     private val userDataBytesRepository: IUserDataBytesRepository,
-    private val synchronizationManager: ISynchronizationManager
+    private val synchronizationManager: ISynchronizationManager,
+    private val statisticsManager: IStatisticsManager
 ) : AndroidViewModel(application) {
 
     private var filter = FilterUserDataBytes.NORMAL
     private var liveUserDataBytes =
         MutableLiveData<Pair<List<UserDataBytes>, Triple<Int, DataValue, DataValue>>>()
     private var userDataBytes = emptyList<UserDataBytes>()
+    private var liveAverages = MutableLiveData<Pair<DataUnitBytes, DataUnitBytes>>()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -75,12 +81,19 @@ class ResumeViewModel @Inject constructor(
             userDataBytesRepository.flowBySimId(simId).collect { userData ->
                 userDataBytes = userData
                 withContext(Dispatchers.Default) {
+                    obtainAverages(userData)
                     liveUserDataBytes.postValue(filter(userData) to calculateTotals(userData))
                 }
             }
         }
         return liveUserDataBytes
     }
+
+    fun getAverages(): LiveData<Pair<DataUnitBytes, DataUnitBytes>>{
+        return liveAverages
+    }
+
+
 
     private fun calculateTotals(list: List<UserDataBytes>): Triple<Int, DataValue, DataValue> {
         var usage = 0L
@@ -96,6 +109,14 @@ class ResumeViewModel @Inject constructor(
         val percent = DateCalendarUtils.calculatePercent(total.toDouble(), rest.toDouble())
 
         return Triple(percent, DataUnitBytes(rest).getValue(), DataUnitBytes(usage).getValue())
+    }
+
+
+    private suspend fun obtainAverages(userData: List<UserDataBytes>){
+        val rest = statisticsManager.getRemainder(TimeUnit.DAYS, userData)
+        val usage = statisticsManager.getAverage(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY * 7, System.currentTimeMillis(), TimeUnit.DAYS)
+
+        liveAverages.postValue(usage to rest)
     }
 
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {

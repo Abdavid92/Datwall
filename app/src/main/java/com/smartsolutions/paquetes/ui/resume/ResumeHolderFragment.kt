@@ -61,6 +61,15 @@ class ResumeHolderFragment : Fragment() {
             }
         }
 
+        viewModel.getAverages().observe(viewLifecycleOwner){
+            binding.apply {
+                val usage = it.first.getValue()
+                val rest = it.second.getValue()
+                averageDay.text = "${usage.value} ${usage.dataUnit}"
+                averageRest.text = "${rest.value} ${rest.dataUnit}"
+            }
+        }
+
     }
 
     private fun setTotals(data: Triple<Int, DataUnitBytes.DataValue, DataUnitBytes.DataValue>){
