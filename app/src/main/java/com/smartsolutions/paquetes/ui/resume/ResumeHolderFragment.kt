@@ -65,8 +65,10 @@ class ResumeHolderFragment : Fragment() {
             binding.apply {
                 val usage = it.first.getValue()
                 val rest = it.second.getValue()
-                averageDay.text = "${usage.value} ${usage.dataUnit}"
-                averageRest.text = "${rest.value} ${rest.dataUnit}"
+                averageDay.text = "${usage.value}"
+                averageDayUnit.text = "${usage.dataUnit}"
+                averageRest.text = "${rest.value}"
+                averageRestUnit.text = "${rest.dataUnit}"
             }
         }
 

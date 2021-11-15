@@ -412,4 +412,5 @@
     <string name="average">Promedios</string>
     <string name="header_average_dayli">Consumo Diario</string>
     <string name="header_average_rest">Restantes Diarios</string>
+    <string name="data_aviable">Megas Disponibles</string>
 </resources>
