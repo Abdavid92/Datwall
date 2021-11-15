@@ -158,6 +158,13 @@ object PreferencesKeys {
     val BUBBLE_ALWAYS_SHOW = booleanPreferencesKey("bubble_always_show")
 
     /**
+     * Coordenadas de la última posición de la burbuja en la pantalla
+     */
+    val BUBBLE_POSITION_X = intPreferencesKey("bubble_position_x")
+
+    val BUBBLE_POSITION_Y = intPreferencesKey("bubble_position_y")
+
+    /**
      * Filtro que organiza los userDataBytes que se muestran al usuario
      */
     val RESUME_FILTER = stringPreferencesKey("resume_filter")

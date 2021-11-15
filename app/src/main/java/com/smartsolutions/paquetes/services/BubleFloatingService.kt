@@ -11,16 +11,19 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
+import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
 import com.smartsolutions.paquetes.helpers.*
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager2
 import com.smartsolutions.paquetes.managers.models.Traffic
@@ -31,6 +34,8 @@ import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
+import java.text.FieldPosition
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -69,37 +74,38 @@ class BubbleFloatingService : Service(), CoroutineScope {
     lateinit var uiHelper: UIHelper
 
     private var _bubbleBinding: BubbleFloatingLayoutBinding? = null
-    private val bubbleBinding get() = if(_bubbleBinding == null){
-        _bubbleBinding = BubbleFloatingLayoutBinding.inflate(LayoutInflater.from(this))
-        _bubbleBinding!!
-    }else {
-        _bubbleBinding!!
-    }
+    private val bubbleBinding
+        get() = if (_bubbleBinding == null) {
+            _bubbleBinding = BubbleFloatingLayoutBinding.inflate(LayoutInflater.from(this))
+            _bubbleBinding!!
+        } else {
+            _bubbleBinding!!
+        }
 
     private var _closeBinding: BubbleCloseFloatingLayoutBinding? = null
-    private val closeBinding get() = if (_closeBinding == null) {
-        _closeBinding = BubbleCloseFloatingLayoutBinding.inflate(LayoutInflater.from(this))
-        _closeBinding!!
-    }else {
-        _closeBinding!!
-    }
+    private val closeBinding
+        get() = if (_closeBinding == null) {
+            _closeBinding = BubbleCloseFloatingLayoutBinding.inflate(LayoutInflater.from(this))
+            _closeBinding!!
+        } else {
+            _closeBinding!!
+        }
 
 
     private var currentMenu: BubbleMenuFloatingLayoutBinding? = null
 
     private lateinit var windowManager: WindowManager
-    private val params = getParams(WindowManager.LayoutParams.WRAP_CONTENT)
-    private val paramsClose = getParams(WindowManager.LayoutParams.MATCH_PARENT)
+    private lateinit var params: WindowManager.LayoutParams
+    private lateinit var paramsClose: WindowManager.LayoutParams
 
     private var app: App? = null
     private var bitmapIcon: Bitmap? = null
     private var traffic: Traffic = Traffic()
-    private var isShowBubble = true
+    private var isShowBubble = false
     private var isShowMenu = false
     private var VPN_ENABLED = false
 
     private var delayTransparency = 0
-    private var ticks = 4
     private var lastX = 0
     private var lastY = 0
     private var initialX: Int = 0
@@ -111,6 +117,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private var yMinClose = 0
     private var yMaxClose = 0
     private var moving = 0
+    private var trics = 0
 
 
     override fun onBind(intent: Intent): IBinder? {
@@ -131,6 +138,9 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
         windowManager = ContextCompat.getSystemService(this, WindowManager::class.java)
             ?: throw NullPointerException()
+
+        params = getParams(WindowManager.LayoutParams.WRAP_CONTENT, true)
+        paramsClose = getParams(android.view.WindowManager.LayoutParams.MATCH_PARENT)
 
         uiHelper = UIHelper(this)
 
@@ -197,6 +207,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
                     } else {
                         lastX = params.x
                         lastY = params.y
+                        saveLastPosition()
                     }
                     hideClose()
                     if (moving < 10) {
@@ -207,7 +218,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
                                 hideMenu(it)
                             }
                         }
-
                     }
                     moving = 0
                 }
@@ -229,11 +239,14 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun showBubble() {
         params.x = lastX
         params.y = lastY
+        if (isDontAddView) {
+            addView(bubbleBinding.root, params)
+        }
         updateView(bubbleBinding.root, params)
         bubbleBinding.root.visibility = View.VISIBLE
-        if (!isShowBubble){
+        if (!isShowBubble) {
             setTransparency(true, true)
-        }else {
+        } else {
             bubbleBinding.root.alpha = 1f
             setTransparency(true)
         }
@@ -500,7 +513,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
                     iconManager.getIcon(
                         appCurrent.packageName,
                         appCurrent.version
-                    ){
+                    ) {
                         bitmapIcon = it
                         bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
                     }
@@ -511,7 +524,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         launch {
             appRepository.flow().collect { list ->
                 app?.let { app ->
-                    this@BubbleFloatingService.app = list.firstOrNull{ it == app }
+                    this@BubbleFloatingService.app = list.firstOrNull { it == app }
                 }
             }
         }
@@ -526,14 +539,28 @@ class BubbleFloatingService : Service(), CoroutineScope {
                         delayTransparency++
                     }
 
-                    updateBubble()
+                    if (trics > 2) {
+                        trics = 0
+                        updateBubble()
+                    } else {
+                        trics++
+                    }
                 }
             }
         }
     }
 
+    private fun saveLastPosition() {
+        launch {
+            applicationContext.internalDataStore.edit {
+                it[PreferencesKeys.BUBBLE_POSITION_X] = lastX
+                it[PreferencesKeys.BUBBLE_POSITION_Y] = lastY
+            }
+        }
+    }
 
-    private fun getParams(hw: Int): WindowManager.LayoutParams {
+
+    private fun getParams(hw: Int, withLastPosition: Boolean = false): WindowManager.LayoutParams {
         return WindowManager.LayoutParams(
             hw,
             hw,
@@ -544,7 +571,27 @@ class BubbleFloatingService : Service(), CoroutineScope {
             },
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
-        )
+        ).apply {
+            if (withLastPosition) {
+                val position = runBlocking {
+                    val x = applicationContext.internalDataStore.data.firstOrNull()
+                        ?.get(PreferencesKeys.BUBBLE_POSITION_X)
+                    val y = applicationContext.internalDataStore.data.firstOrNull()
+                        ?.get(PreferencesKeys.BUBBLE_POSITION_Y)
+
+                    return@runBlocking x to y
+                }
+
+                position.first?.let {
+                    lastX = it
+                    this.x = it
+                }
+                position.second?.let {
+                    lastY = it
+                    this.y = it
+                }
+            }
+        }
     }
 
     private fun getScreenWidth(): Int {
@@ -570,19 +617,11 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
     private fun addView(view: View, params: WindowManager.LayoutParams) {
-        try {
+        isDontAddView = try {
             windowManager.addView(view, params)
+            false
         } catch (e: Exception) {
-            try {
-                windowManager.addView(view, params)
-            } catch (e: Exception) {
-                if (e is RuntimeException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    launch(Dispatchers.Default) {
-                        bubbleServiceHelper.notifyStop()
-                        bubbleServiceHelper.stopBubble(true)
-                    }
-                }
-            }
+            true
         }
     }
 
@@ -625,6 +664,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
         var SIZE = BubbleSize.MEDIUM
         var TRANSPARENCY = 0.5f
         var ALWAYS_SHOW = true
+
+        var isDontAddView = false
 
         fun setSizeBubble(context: Context, bubble: View, size: BubbleSize) {
             when (size) {
