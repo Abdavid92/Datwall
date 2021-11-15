@@ -50,15 +50,20 @@ class PackagesViewModel @Inject constructor(
         val list = mutableListOf<IDataPackage>()
         return when (sim.network) {
             Networks.NETWORK_3G -> {
-                getNetworksPackages(Networks.NETWORK_3G, sim.packages)
+                list.addAll(getNetworksPackages(Networks.NETWORK_3G, sim.packages))
+                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
+                list
             }
             Networks.NETWORK_3G_4G -> {
                 list.addAll(getNetworksPackages(Networks.NETWORK_3G_4G, sim.packages))
                 list.addAll(getNetworksPackages(Networks.NETWORK_4G, sim.packages))
+                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
                 list
             }
             Networks.NETWORK_4G -> {
-                getNetworksPackages(sim.network, sim.packages)
+                list.addAll(getNetworksPackages(sim.network, sim.packages))
+                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
+                list
             }
             else -> emptyList()
         }
@@ -89,6 +94,15 @@ class PackagesViewModel @Inject constructor(
                 )
 
                 ordered.addAll(list.filter { it.network == Networks.NETWORK_4G })
+            }
+            Networks.NETWORK_NONE -> {
+                ordered.add(
+                    HeaderPackagesItem(
+                        name = getApplication<Application>().getString(R.string.others_title)
+                    )
+                )
+
+                ordered.add(DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.MessagingBag })
             }
         }
 

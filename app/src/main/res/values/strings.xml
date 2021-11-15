@@ -413,4 +413,6 @@
     <string name="header_average_dayli">Consumo Diario</string>
     <string name="header_average_rest">Restantes Diarios</string>
     <string name="data_aviable">Megas Disponibles</string>
+    <string name="data_type_messaging_bag">Bolsa Mensajería</string>
+    <string name="others_title">Otros</string>
 </resources>

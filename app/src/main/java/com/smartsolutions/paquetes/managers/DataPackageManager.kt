@@ -153,7 +153,7 @@ class DataPackageManager @Inject constructor(
             throw UnsupportedOperationException("The sim must be provide with relations")
         }
 
-        if (!sim.packages.contains(dataPackage)) {
+        if (!sim.packages.contains(dataPackage) && dataPackage.id != DataPackages.PackageId.MessagingBag) {
             throw IllegalStateException(context.getString(R.string.pkg_not_configured))
         }
 
@@ -183,6 +183,13 @@ class DataPackageManager @Inject constructor(
             if (bytes != -1L) {
                 defaultSim?.id?.let {
                     userDataBytesManager.addPromoBonus(it, bytes)
+                }
+            }
+            return
+        } else if (smsBody.contains(DataPackages.MESSAGING_BAG_KEY)){
+            defaultSim?.id?.let { simId ->
+                DataPackages.PACKAGES.firstOrNull { it.id == DataPackages.PackageId.MessagingBag }?.let {
+                    userDataBytesManager.addMessagingBag(simId, it)
                 }
             }
             return
@@ -224,6 +231,9 @@ class DataPackageManager @Inject constructor(
             Networks.NETWORK_3G,
             Networks.NETWORK_3G_4G -> {
                 "*133*5*${dataPackage.index}#"
+            }
+            Networks.NETWORK_NONE -> {
+                "*133*1*${dataPackage.index}#"
             }
             else -> throw IllegalStateException()
         }

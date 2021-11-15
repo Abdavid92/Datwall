@@ -32,8 +32,9 @@ interface BindingManagerModule {
     @Binds
     fun bindIUserDataBytesManager(impl: UserDataBytesManager): IUserDataBytesManager
 
+    //TODO Cambiar ActivationManager
     @Binds
-    fun bindIActivationManager(impl: ActivationManager): IActivationManager
+    fun bindIActivationManager(impl: SampleActivationManager): IActivationManager
 
     @Binds
     fun bindIUpdateManager(impl: UpdateManager): IUpdateManager

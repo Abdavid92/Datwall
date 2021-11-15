@@ -110,6 +110,7 @@ abstract class NotificationBuilder(
          * */
         fun getDataTitle(dataType: DataBytes.DataType): String {
             return when (dataType) {
+                DataBytes.DataType.MessagingBag -> "Mensaj."
                 DataBytes.DataType.International -> "3G/LTE"
                 DataBytes.DataType.InternationalLte -> "LTE"
                 DataBytes.DataType.PromoBonus -> "Promo"

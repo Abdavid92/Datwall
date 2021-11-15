@@ -66,7 +66,7 @@ class UserDataBytes(
      * */
     val priority: Int
         get() = when (type) {
-            DataType.National -> 0 //Prioridad nula
+            DataType.National, DataType.MessagingBag -> 0 //Prioridad nula
             DataType.DailyBag -> 1
             DataType.PromoBonus -> 2
             DataType.InternationalLte -> 3
@@ -97,6 +97,7 @@ class UserDataBytes(
 
     fun getName(context: Context): String {
         return when (type){
+            DataType.MessagingBag -> context.getString(R.string.data_type_messaging_bag)
             DataType.International -> context.getString(R.string.data_type_international)
             DataType.InternationalLte -> context.getString(R.string.data_type_international_lte)
             DataType.National -> context.getString(R.string.data_type_national)

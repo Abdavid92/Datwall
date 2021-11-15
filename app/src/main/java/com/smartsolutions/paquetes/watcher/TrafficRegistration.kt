@@ -165,6 +165,7 @@ class TrafficRegistration @Inject constructor(
     private suspend fun registerTraffic(start: Long) {
         val international = Traffic()
         val national = Traffic()
+        val messaging = Traffic()
 
         getTrafficsToRegister(start).forEach { traffic ->
             apps.firstOrNull { it.uid == traffic.uid }?.let { app ->
@@ -174,6 +175,9 @@ class TrafficRegistration @Inject constructor(
                     }
                     TrafficType.National -> {
                         national += traffic
+                    }
+                    TrafficType.Messaging -> {
+                        messaging += traffic
                     }
                     TrafficType.Free -> {
                         //Ignored
@@ -186,6 +190,7 @@ class TrafficRegistration @Inject constructor(
             international._rxBytes,
             international._txBytes,
             national.totalBytes.bytes,
+            messaging.totalBytes.bytes,
             isLTE()
         )
     }
@@ -262,7 +267,7 @@ class TrafficRegistration @Inject constructor(
                     rx,
                     tx,
                     it
-                    ).apply {
+                ).apply {
                     startTime = currentTime - DateUtils.MILLIS_PER_SECOND
                     endTime = currentTime
                 }

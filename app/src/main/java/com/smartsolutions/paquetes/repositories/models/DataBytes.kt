@@ -16,6 +16,7 @@ open class DataBytes(
         InternationalLte,
         PromoBonus,
         National,
-        DailyBag
+        DailyBag,
+        MessagingBag
     }
 }

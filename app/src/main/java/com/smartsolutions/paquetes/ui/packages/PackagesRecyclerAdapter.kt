@@ -21,6 +21,7 @@ class PackagesRecyclerAdapter(
             dataPackages[position].network == Networks.NETWORK_3G_4G ||
             dataPackages[position].network == Networks.NETWORK_3G -> 1
             dataPackages[position].network == Networks.NETWORK_4G -> 2
+            dataPackages[position].network == Networks.NETWORK_NONE -> 2
             else -> -1
         }
     }
@@ -101,6 +102,13 @@ class PackagesRecyclerAdapter(
 
                 buttonBuy.setOnClickListener {
                     fragment.purchasePackage(iPackage)
+                }
+                if (iPackage.id == DataPackages.PackageId.MessagingBag){
+                    hMbCu.visibility = View.GONE
+                    valueMbCu.visibility = View.GONE
+                    hMbLte.text = "Megas"
+                    val international = DataUnitBytes(iPackage.bytes).getValue()
+                    valueMbLte.text = "${international.value} ${international.dataUnit}"
                 }
             }
         }

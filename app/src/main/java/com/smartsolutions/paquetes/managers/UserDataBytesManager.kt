@@ -26,9 +26,9 @@ class UserDataBytesManager @Inject constructor(
 
     override suspend fun addDataBytes(dataPackage: DataPackage, simId: String) {
         if (dataPackage.id == DataPackages.PackageId.DailyBag) {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 userDataBytesRepository.get(simId, DataType.DailyBag)
-            } .apply {
+            }.apply {
                 bytes += dataPackage.bytesLte
                 initialBytes = bytes
                 startTime = 0
@@ -41,7 +41,7 @@ class UserDataBytesManager @Inject constructor(
 
 
         } else {
-            val userDataBytes = withContext(Dispatchers.IO){
+            val userDataBytes = withContext(Dispatchers.IO) {
                 userDataBytesRepository.bySimId(simId)
             }.apply {
 
@@ -64,7 +64,7 @@ class UserDataBytesManager @Inject constructor(
                 national.expiredTime = 0
             }
 
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 userDataBytesRepository.update(userDataBytes)
             }
         }
@@ -89,33 +89,65 @@ class UserDataBytesManager @Inject constructor(
         }
     }
 
+    override suspend fun addMessagingBag(simId: String, dataPackage: DataPackage) {
+        withContext(Dispatchers.IO) {
+            userDataBytesRepository.bySimId(simId)
+        }.firstOrNull { it.type == DataType.MessagingBag }?.let {
+            it.bytes += dataPackage.bytes
+            it.initialBytes = it.bytes
+            it.startTime = System.currentTimeMillis()
+            it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
+
+            userDataBytesRepository.update(it)
+        }
+    }
+
     override suspend fun registerTraffic(
         rxBytes: Long,
         txBytes: Long,
         nationalBytes: Long,
+        messagingBytes: Long,
         isLte: Boolean
     ) {
 
         simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
             var total = rxBytes + txBytes
+            var national = nationalBytes
 
-            if (nationalBytes > 0) {
+            if (messagingBytes > 0) {
                 withContext(Dispatchers.IO) {
                     return@withContext userDataBytesRepository.bySimId(sim.id)
-                }.first { it.type == DataType.National }
+                }.first { it.type == DataType.MessagingBag }
                     .apply {
-                        if (bytes < nationalBytes) {
-                            total += (nationalBytes - bytes)
+                        if (bytes < messagingBytes) {
+                            national += (messagingBytes - bytes)
                             bytes = 0L
                         } else {
-                            bytes -= nationalBytes
+                            bytes -= messagingBytes
                         }
 
                         withContext(Dispatchers.IO) {
                             userDataBytesRepository.update(this@apply)
                         }
                     }
+            }
 
+            if (national > 0) {
+                withContext(Dispatchers.IO) {
+                    return@withContext userDataBytesRepository.bySimId(sim.id)
+                }.first { it.type == DataType.National }
+                    .apply {
+                        if (bytes < national) {
+                            total += (national - bytes)
+                            bytes = 0L
+                        } else {
+                            bytes -= national
+                        }
+
+                        withContext(Dispatchers.IO) {
+                            userDataBytesRepository.update(this@apply)
+                        }
+                    }
             }
 
             if (isLte) {
@@ -160,7 +192,7 @@ class UserDataBytesManager @Inject constructor(
 
         withContext(Dispatchers.IO) {
             return@withContext userDataBytesRepository.bySimId(simId)
-        }.filter { it.type != DataType.National }
+        }.filter { it.type != DataType.National && it.type != DataType.MessagingBag }
             .sortedBy { it.priority }
             .forEach {
                 if (consumed > 0)

@@ -155,13 +155,24 @@ class SynchronizationManager @Inject constructor(
         if (response.contains(PAQUETES))
             data.addAll(getInternationals(response))
 
-        val value = getBytesFromText(DIARIA, response)
+        var value = getBytesFromText(DIARIA, response)
         if (value > 0) {
             data.add(
                 DataBytes(
                     DataBytes.DataType.DailyBag,
                     value,
-                    getExpireDatePackages(response, true)
+                    getExpireDatePackages(response, DIARIA)
+                )
+            )
+        }
+
+        value  = getBytesFromText(MENSAJERIA, response)
+        if (value > 0) {
+            data.add(
+                DataBytes(
+                    DataBytes.DataType.MessagingBag,
+                    value,
+                    getExpireDatePackages(response, MENSAJERIA)
                 )
             )
         }
@@ -232,28 +243,24 @@ class SynchronizationManager @Inject constructor(
             DataBytes(
                 DataBytes.DataType.International,
                 international,
-                getExpireDatePackages(text, false)
+                getExpireDatePackages(text, PAQUETES)
             ),
             DataBytes(
                 DataBytes.DataType.InternationalLte,
                 internationalLte,
-                getExpireDatePackages(text, false)
+                getExpireDatePackages(text, PAQUETES)
             )
         )
     }
 
-    private fun getExpireDatePackages(text: String, isBolsa: Boolean): Long {
-        if (isBolsa && !text.contains(DIARIA) || !isBolsa && !text.contains(PAQUETES)) {
+    private fun getExpireDatePackages(text: String, key: String): Long {
+        if (!text.contains(key)) {
             return 0L
         }
 
-        val start = if (isBolsa) {
-            text.indexOf("validos", text.indexOf(DIARIA)) + 7
-        } else {
-            text.indexOf("validos", text.indexOf(PAQUETES)) + 7
-        }
+        val start = text.indexOf("validos", text.indexOf(key)) + key.length
 
-        val finish = if (isBolsa) {
+        val finish = if (key == DIARIA) {
             text.indexOf("horas", start)
         } else {
             text.indexOf("dias", start)
@@ -261,7 +268,7 @@ class SynchronizationManager @Inject constructor(
 
         return try {
             val value = text.substring(start, finish).trimStart().trimEnd().toInt()
-            if (isBolsa) {
+            if (key == DIARIA) {
                 DateUtils.addHours(Date(), value).time
             } else {
                 var date = DateUtils.addDays(Date(), value)
@@ -311,6 +318,7 @@ class SynchronizationManager @Inject constructor(
     }
 
     companion object {
+        const val MENSAJERIA = "Mensajeria:"
         const val DIARIA = "Diaria:"
         const val PAQUETES = "Paquetes:"
         const val PROMO_BONO = "Datos"

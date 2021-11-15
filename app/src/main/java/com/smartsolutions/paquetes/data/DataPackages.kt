@@ -5,12 +5,15 @@ import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.data.DataPackages.PackageId.*
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.*
 import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_4G
+import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_NONE
 
 object DataPackages {
 
-    const val PACKAGES_VERSION = 1
+    const val PACKAGES_VERSION = 2
 
     const val PROMO_BONUS_KEY = "Su cuenta ha sido recargada en promocion"
+
+    const val MESSAGING_BAG_KEY = "bolsa Mensajeria"
 
     const val GENERAL_DURATION = 30
 
@@ -121,6 +124,20 @@ object DataPackages {
             3,
             GENERAL_DURATION,
             "12GB LTE" //TODO: Revisar la clave
+        ),
+        DataPackage(
+            MessagingBag,
+            "Bolsa Mensajería",
+            "Proporciona 600 MB para consumir solamente usando el correo Nauta o Todus. Tiene una " +
+                    "vigencia de 30 días a partir del primer uso",
+            25f,
+            DataValue(600.0, DataUnit.MB).toBytes(),
+            0L,
+            0L,
+            NETWORK_NONE,
+            2,
+            GENERAL_DURATION,
+            MESSAGING_BAG_KEY
         )
     )
 
@@ -131,6 +148,7 @@ object DataPackages {
         Combined_Extra,
         P_1GB_LTE,
         P_2_5GB_LTE,
-        P_4GB_12GB_LTE
+        P_4GB_12GB_LTE,
+        MessagingBag
     }
 }

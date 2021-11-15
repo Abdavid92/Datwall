@@ -9,7 +9,9 @@ interface IUserDataBytesManager {
 
     suspend fun addPromoBonus(simId: String, bytes: Long)
 
-    suspend fun registerTraffic(rxBytes: Long, txBytes: Long, nationalBytes: Long, isLte: Boolean)
+    suspend fun addMessagingBag(simId: String, dataPackage: DataPackage)
+
+    suspend fun registerTraffic(rxBytes: Long, txBytes: Long, nationalBytes: Long, messagingBytes: Long, isLte: Boolean)
 
     suspend fun synchronizeUserDataBytes(data: List<DataBytes>, simId: String)
 }

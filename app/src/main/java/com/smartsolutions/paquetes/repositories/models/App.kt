@@ -150,5 +150,6 @@ class App(
 enum class TrafficType {
     International,
     National,
+    Messaging,
     Free
 }
