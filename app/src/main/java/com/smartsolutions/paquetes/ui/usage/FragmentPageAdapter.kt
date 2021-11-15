@@ -12,6 +12,7 @@ class FragmentPageAdapter constructor(
     val fragmentsList = listOf(
         Pair(TrafficType.International, fragment.getString(R.string.tab_international)),
         Pair(TrafficType.National, fragment.getString(R.string.tab_national)),
+        Pair(TrafficType.Messaging, fragment.getString(R.string.tab_messaging)),
         Pair(TrafficType.Free, fragment.getString(R.string.tab_free))
     )
 

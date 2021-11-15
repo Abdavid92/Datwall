@@ -415,4 +415,9 @@
     <string name="data_aviable">Megas Disponibles</string>
     <string name="data_type_messaging_bag">Bolsa Mensajería</string>
     <string name="others_title">Otros</string>
+    <string name="traffic_messaging">Mensajería</string>
+    <string name="vpn_access_summary">Permite el acceso en todo momento a Internet</string>
+    <string name="foreground_access_summary">Solamente permite acceso a Internet cuando la app esté abierta y en primer plano</string>
+    <string name="traffic_type_summary">Determina el tipo de consumo de esta app y por lo tanto de qué megas se descontará su consumo</string>
+    <string name="tab_messaging">Mensajería</string>
 </resources>

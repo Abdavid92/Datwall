@@ -98,6 +98,7 @@ class AppControlActivity : TransparentActivity() {
             TrafficType.International -> binding.included.trafficInternational.isChecked = true
             TrafficType.National -> binding.included.trafficNational.isChecked = true
             TrafficType.Free -> binding.included.trafficFree.isChecked = true
+            TrafficType.Messaging -> binding.included.trafficMessaging.isChecked = true
         }
 
         binding.included.trafficTypeGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -105,14 +106,29 @@ class AppControlActivity : TransparentActivity() {
                 R.id.traffic_international -> app?.trafficType = TrafficType.International
                 R.id.traffic_national -> app?.trafficType = TrafficType.National
                 R.id.traffic_free -> app?.trafficType = TrafficType.Free
+                R.id.traffic_messaging -> app?.trafficType = TrafficType.Messaging
             }
             //Indico que hubo cambios
             wasChanges = true
         }
 
         app?.let {
+
+            if (it.access){
+                binding.included.ask.isEnabled = false
+                binding.included.foregroundAccess.isEnabled = false
+                binding.included.foregroundAccessSummary.isEnabled = false
+            }
+
             //Asigno el evento del checkBox del vpn
             uiHelper.setVpnAccessCheckBoxListener(it, binding.included.vpnAccess) {
+
+                binding.included.vpnAccess.isChecked.also {
+                    binding.included.ask.isEnabled = !it
+                    binding.included.foregroundAccess.isEnabled = !it
+                    binding.included.foregroundAccessSummary.isEnabled = !it
+                }
+
                 wasChanges = true
             }
         }
