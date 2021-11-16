@@ -11,6 +11,12 @@
             app:summary="@string/notification_style_summary"
             app:key="notification_style" />
 
+        <SwitchPreferenceCompat
+            app:title="@string/notification_style_mode"
+            app:summaryOn="@string/notification_style_mode_on"
+            app:summaryOff="@string/notification_style_mode_off"
+            app:key="notification_style_mode_app" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

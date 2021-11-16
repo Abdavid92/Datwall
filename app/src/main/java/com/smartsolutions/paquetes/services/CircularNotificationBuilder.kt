@@ -74,10 +74,24 @@ class CircularNotificationBuilder(
 
             setFirstExpiredDate(expandedRemoteViews, dataBytes)
 
+            val backgroundColor = getBackgroundColor()
+
+            remoteViews.setInt(
+                R.id.content_view,
+                "setBackgroundColor",
+                backgroundColor
+            )
+
+            expandedRemoteViews.setInt(
+                R.id.root_layout,
+                "setBackgroundColor",
+                backgroundColor
+            )
+
             setCustomContentView(remoteViews)
             setCustomBigContentView(expandedRemoteViews)
 
-            color = getBackgroundColor()
+            color = backgroundColor
         }
 
         return this
@@ -137,7 +151,7 @@ class CircularNotificationBuilder(
         else
             0
 
-        val color = if (uiHelper.isUIDarkTheme())
+        val color = if (isUIDarkTheme())
             Color.LTGRAY
         else
             Color.DKGRAY
@@ -146,7 +160,7 @@ class CircularNotificationBuilder(
             val separator = RemoteViews(mContext.packageName, R.layout.item_datwall_service_separator)
                 .apply {
 
-                    if (uiHelper.isUIDarkTheme())
+                    if (isUIDarkTheme())
                         setInt(
                             R.id.separator,
                             "setBackgroundColor",
@@ -199,7 +213,7 @@ class CircularNotificationBuilder(
         else
             0
 
-        val color = if (uiHelper.isUIDarkTheme())
+        val color = if (isUIDarkTheme())
             Color.LTGRAY
         else
             Color.DKGRAY
@@ -208,7 +222,7 @@ class CircularNotificationBuilder(
             val separator = RemoteViews(mContext.packageName, R.layout.item_datwall_service_separator)
                 .apply {
 
-                    if (uiHelper.isUIDarkTheme())
+                    if (isUIDarkTheme())
                         setInt(
                             R.id.separator,
                             "setBackgroundColor",
@@ -269,7 +283,7 @@ class CircularNotificationBuilder(
             expandedRemoteViews.setInt(
                 R.id.date_exp,
                 "setTextColor",
-                if (uiHelper.isUIDarkTheme())
+                if (isUIDarkTheme())
                     Color.LTGRAY
                 else
                     Color.DKGRAY

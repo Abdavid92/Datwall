@@ -51,6 +51,12 @@ object PreferencesKeys {
     val NOTIFICATION_CLASS = stringPreferencesKey("notification_class")
 
     /**
+     * Indica si el tema de la notificación principal se debe guiar por
+     * el tema de la aplicación o del sistema.
+     * */
+    val NOTIFICATION_STYLE_MODE_APP = booleanPreferencesKey("notification_style_mode_app")
+
+    /**
      * Indica si se deben descargar automáticamente las actualizaciones.
      * */
     val AUTO_DOWNLOAD_UPDATE = booleanPreferencesKey("auto_download_update")

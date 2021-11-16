@@ -59,8 +59,16 @@ class VerticalNotificationBuilder constructor(
                 )
             }
 
+            val backgroundColor = getBackgroundColor()
+
+            remoteViews.setInt(
+                R.id.content_view,
+                "setBackgroundColor",
+                backgroundColor
+            )
+
             setCustomContentView(remoteViews)
-            color = getBackgroundColor()
+            color = backgroundColor
         }
 
         return this
@@ -115,7 +123,7 @@ class VerticalNotificationBuilder constructor(
         else
             0
 
-        val color = if (uiHelper.isUIDarkTheme())
+        val color = if (isUIDarkTheme())
             Color.LTGRAY
         else
             Color.DKGRAY
@@ -125,7 +133,7 @@ class VerticalNotificationBuilder constructor(
                 RemoteViews(mContext.packageName, R.layout.item_datwall_service_separator)
                     .apply {
 
-                        if (uiHelper.isUIDarkTheme())
+                        if (isUIDarkTheme())
                             setInt(
                                 R.id.separator,
                                 "setBackgroundColor",

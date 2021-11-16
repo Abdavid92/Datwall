@@ -4,18 +4,20 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewParent
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.ui.SplashActivity
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,7 +26,7 @@ abstract class NotificationBuilder(
     channelId: String
 ) : NotificationCompat.Builder(context, channelId) {
 
-    protected val uiHelper = UIHelper(context)
+    private val uiHelper = UIHelper(context)
 
     /**
      * Construye una notificación personalizada usando los [UserDataBytes]
@@ -77,10 +79,25 @@ abstract class NotificationBuilder(
 
     @SuppressLint("RestrictedApi")
     protected fun getBackgroundColor(): Int {
-        return if (uiHelper.isUIDarkTheme())
+
+        return if (isUIDarkTheme())
             ContextCompat.getColor(mContext, R.color.background_dark)
         else
             ContextCompat.getColor(mContext, R.color.white)
+    }
+
+    @SuppressLint("RestrictedApi")
+    protected fun isUIDarkTheme(): Boolean {
+        return runBlocking {
+            val notiThemeApp = mContext.settingsDataStore.data
+                .firstOrNull()
+                ?.get(PreferencesKeys.NOTIFICATION_STYLE_MODE_APP) == true
+
+            return@runBlocking if (notiThemeApp)
+                uiHelper.isAppUIDarkTheme()
+            else
+                uiHelper.isUIDarkTheme()
+        }
     }
 
     companion object {

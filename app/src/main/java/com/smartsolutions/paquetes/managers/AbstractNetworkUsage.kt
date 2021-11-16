@@ -43,8 +43,11 @@ abstract class AbstractNetworkUsage(
     protected fun getUsage(start: Long, finish: Long): List<NetworkStats.Bucket>? {
         clearCache()
 
-        cache.firstOrNull{ it.simId ==  simId && it.start == start && it.finish == finish }?.let {
-            return it.buckets
+        synchronized(cache) {
+            cache.firstOrNull { it.simId == simId && it.start == start && it.finish == finish }
+                ?.let {
+                    return it.buckets
+                }
         }
 
         val buckets: MutableList<NetworkStats.Bucket> = ArrayList()
@@ -66,7 +69,10 @@ abstract class AbstractNetworkUsage(
         }
 
         simId?.let {
-            cache.add(BucketCache(it, System.currentTimeMillis(), start, finish, buckets))
+
+            synchronized(cache) {
+                cache.add(BucketCache(it, System.currentTimeMillis(), start, finish, buckets))
+            }
         }
 
 
@@ -78,15 +84,29 @@ abstract class AbstractNetworkUsage(
     protected fun getUsageGeneral(start: Long, finish: Long): NetworkStats.Bucket? {
         clearCache()
 
-        generalCache.firstOrNull{ it.simId == simId && it.start == start && it.finish == finish }?.let {
-            return it.buckets
+        synchronized(generalCache) {
+            generalCache.firstOrNull { it.simId == simId && it.start == start && it.finish == finish }
+                ?.let {
+                    return it.buckets
+                }
         }
 
         return try {
             val result = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE, subscriberId, start, finish)
 
             simId?.let {
-                generalCache.add(BucketCache(it, System.currentTimeMillis(), start, finish, result))
+
+                synchronized(generalCache) {
+                    generalCache.add(
+                        BucketCache(
+                            it,
+                            System.currentTimeMillis(),
+                            start,
+                            finish,
+                            result
+                        )
+                    )
+                }
             }
             
             result
@@ -99,19 +119,25 @@ abstract class AbstractNetworkUsage(
         val cacheToClear = mutableListOf<BucketCache<List<NetworkStats.Bucket>>>()
         val generalCacheToClear = mutableListOf<BucketCache<NetworkStats.Bucket>>()
 
-        cache.forEach {
-            if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_DAY){
-                cacheToClear.add(it)
+        synchronized(cache) {
+            cache.forEach {
+                if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_DAY) {
+                    cacheToClear.add(it)
+                }
             }
-        }
-        generalCache.forEach {
-            if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_DAY){
-                generalCacheToClear.add(it)
-            }
+
+            cache.removeAll(cacheToClear)
         }
 
-        cache.removeAll(cacheToClear)
-        generalCache.removeAll(generalCacheToClear)
+        synchronized(generalCache) {
+            generalCache.forEach {
+                if ((System.currentTimeMillis() - it.queryTime) > DateUtils.MILLIS_PER_DAY) {
+                    generalCacheToClear.add(it)
+                }
+            }
+
+            generalCache.removeAll(generalCacheToClear)
+        }
     }
 
     internal data class BucketCache<T>(

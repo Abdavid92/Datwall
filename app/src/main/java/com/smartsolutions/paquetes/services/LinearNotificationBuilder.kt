@@ -83,7 +83,7 @@ class LinearNotificationBuilder(
                 )
             }
 
-            val textColor = if (uiHelper.isUIDarkTheme()) {
+            val textColor = if (isUIDarkTheme()) {
                 Color.LTGRAY
             } else {
                 Color.DKGRAY
@@ -93,6 +93,12 @@ class LinearNotificationBuilder(
 
             remoteViews.setInt(R.id.rest_date, methodName, textColor)
             remoteViews.setInt(R.id.date_exp, methodName, textColor)
+
+            remoteViews.setInt(
+                R.id.root_view,
+                "setBackgroundColor",
+                getBackgroundColor()
+            )
 
             setCustomContentView(remoteViews)
         }

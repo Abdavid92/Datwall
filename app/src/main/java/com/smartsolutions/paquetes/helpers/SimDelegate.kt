@@ -93,7 +93,7 @@ class SimDelegate @Inject constructor(
             throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
         }
 
-        return subscriptionManager.activeSubscriptionInfoList
+        return subscriptionManager.activeSubscriptionInfoList ?: emptyList()
     }
 
     /**

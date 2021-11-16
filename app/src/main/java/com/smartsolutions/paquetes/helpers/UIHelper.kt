@@ -21,20 +21,16 @@ import android.view.Window
 import android.widget.CompoundButton
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.annotation.RequiresApi
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.ThemeWrapper
-import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
-import kotlinx.coroutines.runBlocking
 import kotlin.Exception
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 class UIHelper(
@@ -50,6 +46,14 @@ class UIHelper(
             UI_MODE_NIGHT_NO -> return false
         }
         return false
+    }
+
+    /**
+     * Verifica que tema está configurado en la aplicación. Este
+     * ajuste puede o no coincidir con los del sistema.
+     * */
+    fun isAppUIDarkTheme(): Boolean {
+        return AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
     }
 
     /**
