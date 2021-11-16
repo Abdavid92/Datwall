@@ -258,7 +258,7 @@ class SynchronizationManager @Inject constructor(
             return 0L
         }
 
-        val start = text.indexOf("validos", text.indexOf(key)) + key.length
+        val start = text.indexOf("validos", text.indexOf(key)) + 7
 
         val finish = if (key == DIARIA) {
             text.indexOf("horas", start)
