@@ -16,17 +16,14 @@ import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
-import com.smartsolutions.paquetes.repositories.IEventRepository
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
-import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import org.apache.commons.lang.time.DateUtils
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -41,8 +38,7 @@ class TrafficRegistration @Inject constructor(
     private val networkUtils: NetworkUtils,
     private val simManager: ISimManager,
     private val trafficRepository: ITrafficRepository,
-    private val watcher: RxWatcher,
-    private val eventRepository: IEventRepository
+    private val watcher: RxWatcher
 ) : CoroutineScope {
 
     private var isRegistered = false
@@ -128,13 +124,9 @@ class TrafficRegistration @Inject constructor(
                         registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
                         registerTraffic(start)
 
-                        eventRepository.create(
-                            Event(
-                                System.currentTimeMillis(),
-                                Event.EventType.INFO,
-                                "Traffic Registration",
-                                "Traffic registered: rx = $rxBytesLatest tx = $txBytesLatest"
-                            )
+                        com.abdavid92.persistentlog.Log.i(
+                            "Traffic Registration",
+                            "Traffic registered: rx = $rxBytesLatest tx = $txBytesLatest"
                         )
 
                         rxBytesLatest = 0

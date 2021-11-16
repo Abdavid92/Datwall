@@ -3,10 +3,10 @@ package com.smartsolutions.paquetes.ui.events
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.abdavid92.persistentlog.Event
+import com.abdavid92.persistentlog.EventType
 import com.smartsolutions.paquetes.databinding.ItemEventsBinding
-import com.smartsolutions.paquetes.repositories.models.Event
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -17,7 +17,7 @@ class EventsRecyclerAdapter constructor(
     private val fragment: EventsFragment
 ) : RecyclerView.Adapter<EventsRecyclerAdapter.ItemViewHolder>(), CoroutineScope {
 
-    private var filter: Event.EventType? = null
+    private var filter: EventType? = null
     private var filtered = events
     private var eventsShow = events
     private var job: Job? = null
@@ -48,7 +48,7 @@ class EventsRecyclerAdapter constructor(
     }
 
 
-    fun setFilter(type: Event.EventType?) {
+    fun setFilter(type: EventType?) {
         filter = type
         updateEvents(events)
     }
@@ -67,7 +67,7 @@ class EventsRecyclerAdapter constructor(
                 updateEvents(events)
             } else {
                 isSearching = true
-                eventsShow = filtered.filter { it.title.contains(string) }
+                eventsShow = filtered.filter { it.tag?.contains(string) == true }
                 withContext(Dispatchers.Main) {
                     notifyDataSetChanged()
                 }
@@ -87,21 +87,22 @@ class EventsRecyclerAdapter constructor(
 
                 linTypeEvent.setBackgroundColor(
                     when (event.type) {
-                        Event.EventType.INFO -> Color.BLUE
-                        Event.EventType.ERROR -> Color.RED
-                        Event.EventType.WARNING -> {
+                        EventType.Info -> Color.BLUE
+                        EventType.Error -> Color.RED
+                        EventType.Warning -> {
                            typeEvent.setTextColor(Color.BLACK)
                             Color.YELLOW
                         }
+                        EventType.Debug -> Color.GREEN
                     }
                 )
 
-                titleEvent.text = event.title
-                descriptionEvent.text = event.message
+                titleEvent.text = event.tag
+                descriptionEvent.text = event.msg
 
                 dateEvent.text =
                     SimpleDateFormat("dd-MMM-yyyy hh:mm:ss aa", Locale.getDefault()).format(
-                        Date(event.date)
+                        event.date
                     )
 
                 root.setOnClickListener {

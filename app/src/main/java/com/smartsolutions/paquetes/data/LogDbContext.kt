@@ -1,12 +1,12 @@
 package com.smartsolutions.paquetes.data
 
-import android.content.Context
+/*import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.smartsolutions.paquetes.repositories.models.Event
+import com.smartsolutions.paquetes.repositories.models.Event*/
 
-@Database(
+/*@Database(
     entities = [
         Event::class
     ],
@@ -41,4 +41,4 @@ abstract class LogDbContext : RoomDatabase() {
             return instance!!
         }
     }
-}
+}*/

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import com.smartsolutions.paquetes.repositories.models.*
 import kotlinx.coroutines.runBlocking
 
-const val DATABASE_VERSION = 1
+const val DATABASE_VERSION = 2
 
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
@@ -26,8 +26,7 @@ const val DATABASE_VERSION = 1
         Sim::class,
         UserDataBytes::class,
         Traffic::class,
-        UsageGeneral::class,
-        Event::class], version = DATABASE_VERSION, exportSchema = false
+        UsageGeneral::class], version = DATABASE_VERSION, exportSchema = false
 )
 abstract class DbContext : RoomDatabase() {
 
@@ -60,8 +59,14 @@ abstract class DbContext : RoomDatabase() {
 
     abstract fun getTrafficDao(): ITrafficDao
 
-    abstract fun getEventDao(): IEventDao
+    /*abstract fun getEventDao(): IEventDao*/
 
+    internal class Migration_1_2 : Migration(1, 2) {
+
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("DROP TABLE IF EXISTS events")
+        }
+    }
 
     companion object {
 
@@ -80,8 +85,9 @@ abstract class DbContext : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context,
                         DbContext::class.java,
-                        "data.db"
-                    ).build()
+                        "data.db")
+                        .addMigrations(Migration_1_2())
+                        .build()
 
                     INSTANCE = instance
                 }

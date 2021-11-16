@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.helpers
 
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
@@ -25,15 +26,23 @@ class LegacyConfigurationHelperTest {
 
     @Test
     fun isPurchased() {
-        val isPurchased = configurationHelper.isPurchased()
 
-        assertTrue(isPurchased)
+        runBlocking {
+
+            val isPurchased = configurationHelper.isPurchased()
+
+            assertTrue(isPurchased)
+        }
     }
 
     @Test
     fun getLegacyRules() {
-        val result = configurationHelper.getLegacyRules()
 
-        assertNotNull(result)
+        runBlocking {
+
+            val result = configurationHelper.getLegacyRules()
+
+            assertNotNull(result)
+        }
     }
 }

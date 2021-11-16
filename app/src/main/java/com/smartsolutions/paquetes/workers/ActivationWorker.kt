@@ -4,14 +4,11 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.abdavid92.persistentlog.Log
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.internalDataStore
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.managers.ActivationManager
-import com.smartsolutions.paquetes.repositories.EventRepository
-import com.smartsolutions.paquetes.repositories.IEventRepository
-import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result.Failure
@@ -27,8 +24,7 @@ class ActivationWorker @AssistedInject constructor(
     @Assisted
     params: WorkerParameters,
     private val gson: Gson,
-    private val client: IActivationClient,
-    private val eventRepository: IEventRepository
+    private val client: IActivationClient
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -59,12 +55,12 @@ class ActivationWorker @AssistedInject constructor(
         } catch (e: Exception) {
             Result.failure()
         }
-        eventRepository.create(Event(
-            System.currentTimeMillis(),
-            Event.EventType.INFO,
+
+        Log.i(
             "Activation Worker",
             result.toString()
-        ))
+        )
+
         return result
     }
 }

@@ -7,12 +7,13 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import com.abdavid92.persistentlog.Event
+import com.abdavid92.persistentlog.EventType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentEventsBinding
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
-import com.smartsolutions.paquetes.repositories.models.Event
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -48,16 +49,16 @@ class EventsFragment : BottomSheetDialogFragment() {
                id: Long
            ) {
                adapter?.setFilter( when(position){
-                   1 -> Event.EventType.ERROR
-                   2 -> Event.EventType.INFO
-                   3 -> Event.EventType.WARNING
+                   1 -> EventType.Error
+                   2 -> EventType.Info
+                   3 -> EventType.Warning
                    else -> null
                })
            }
            override fun onNothingSelected(parent: AdapterView<*>?) {}
        }
 
-        viewModel.getEvents().observe(viewLifecycleOwner){
+        viewModel.getEvents().observe(viewLifecycleOwner) {
             setAdapter(it)
             if (it.isEmpty()){
                 binding.linNoData.visibility = View.VISIBLE
@@ -90,15 +91,15 @@ class EventsFragment : BottomSheetDialogFragment() {
 
     fun showEventDetail(event: Event){
         AlertDialog.Builder(requireContext())
-            .setTitle(event.title)
-            .setMessage(event.message)
+            .setTitle(event.tag)
+            .setMessage(event.msg)
             .setPositiveButton(getString(R.string.btn_close), null)
             .setNegativeButton(getString(R.string.send_inform)) { _, _ ->
                 localFileHelper.sendFileByEmail(
                     BuildConfig.DEVELOPERS_EMAIL,
                     "Informe de Evento Datwall",
                     event.type.name,
-                    "${event.title} \n ${event.message}"
+                    "${event.tag} \n ${event.msg}"
                 )
             }.show()
     }

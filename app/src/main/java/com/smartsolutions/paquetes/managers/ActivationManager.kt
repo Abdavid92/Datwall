@@ -19,6 +19,7 @@ import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
+import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
@@ -51,7 +52,8 @@ class ActivationManager @Inject constructor(
     private val client: IActivationClient,
     private val ussdHelper: USSDHelper,
     private val simManager: ISimManager,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val legacyConfigurationHelper: LegacyConfigurationHelper
 ) : IActivationManager, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -232,6 +234,11 @@ class ActivationManager @Inject constructor(
             if (licence.isPurchased)
                 licence.isRestored = true
 
+            if (legacyConfigurationHelper.isPurchased() && !licence.isPurchased) {
+                licence.isPurchased = true
+                scheduleWorker()
+            }
+
             dataStore.edit {
                 it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(licence))
             }
@@ -287,8 +294,10 @@ class ActivationManager @Inject constructor(
             .addTag(TAG_WORKER)
             .build()
 
-        WorkManager.getInstance(context)
-            .enqueue(workRequest)
+        val workManager = WorkManager.getInstance(context)
+
+        workManager.cancelAllWorkByTag(TAG_WORKER)
+        workManager.enqueue(workRequest)
     }
 
     private fun processApplicationStatus(license: License): Pair<Boolean, IActivationManager.ApplicationStatuses> {

@@ -7,16 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Process
-import android.provider.Settings
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.repositories.IEventRepository
-import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.SplashActivity
@@ -24,7 +20,6 @@ import com.smartsolutions.paquetes.ui.exceptions.ExceptionsActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -38,8 +33,7 @@ class ExceptionsController @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val localFileHelper: LocalFileHelper,
-    private val notificationHelper: NotificationHelper,
-    private val eventRepository: IEventRepository
+    private val notificationHelper: NotificationHelper
 ) : Thread.UncaughtExceptionHandler, CoroutineScope {
 
     var isRegistered = false
@@ -126,14 +120,7 @@ class ExceptionsController @Inject constructor(
         errorReport += "Modelo: ${Build.MODEL}\n"
         errorReport += "Versión SDK: ${Build.VERSION.SDK_INT}\n"
 
-        launch {
-            eventRepository.create(Event(
-                System.currentTimeMillis(),
-                Event.EventType.ERROR,
-                exception.javaClass.name,
-                stacktrace.toString()
-            ))
-        }
+        Log.e(exception.javaClass.name, stacktrace.toString(), exception)
 
         localFileHelper.saveToFileTemporal(
             errorReport,

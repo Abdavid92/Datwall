@@ -1,13 +1,13 @@
 package com.smartsolutions.paquetes.repositories
 
-import com.smartsolutions.paquetes.data.IEventDao
+/*import com.smartsolutions.paquetes.data.IEventDao
 import com.smartsolutions.paquetes.repositories.models.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import javax.inject.Inject*/
 
-class EventRepository @Inject constructor(
+/*class EventRepository @Inject constructor(
     private val dao: IEventDao
 ) : IEventRepository {
 
@@ -29,4 +29,4 @@ class EventRepository @Inject constructor(
         dao.delete(event.toList())
     }
 
-}
+}*/

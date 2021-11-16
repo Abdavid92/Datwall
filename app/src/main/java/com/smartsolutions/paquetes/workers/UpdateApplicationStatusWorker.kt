@@ -5,14 +5,11 @@ import android.net.Uri
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
-import com.smartsolutions.paquetes.repositories.EventRepository
-import com.smartsolutions.paquetes.repositories.IEventRepository
-import com.smartsolutions.paquetes.repositories.models.Event
-import com.smartsolutions.paquetes.ui.update.UpdateViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +24,7 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
     @Assisted
     params: WorkerParameters,
     private val updateManager: IUpdateManager,
-    private val notificationHelper: NotificationHelper,
-    private val eventRepository: IEventRepository
+    private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -89,14 +85,7 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
                 }
             }
 
-            eventRepository.create(
-                Event(
-                    System.currentTimeMillis(),
-                    Event.EventType.INFO,
-                    "Update Worker",
-                    "Launched"
-                )
-            )
+            Log.i("Update Worker", "Launched")
         }
 
         return Result.success()
