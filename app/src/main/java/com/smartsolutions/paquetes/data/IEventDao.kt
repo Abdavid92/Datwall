@@ -1,10 +1,10 @@
 package com.smartsolutions.paquetes.data
 
-import androidx.room.*
+/*import androidx.room.*
 import com.smartsolutions.paquetes.repositories.models.Event
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.Flow*/
 
-@Dao
+/*@Dao
 interface IEventDao {
 
     @Query("SELECT * FROM events")
@@ -22,4 +22,4 @@ interface IEventDao {
     @Delete
     fun delete(events: List<Event>)
 
-}
+}*/

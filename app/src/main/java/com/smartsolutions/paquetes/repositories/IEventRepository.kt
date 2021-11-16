@@ -1,9 +1,9 @@
 package com.smartsolutions.paquetes.repositories
 
-import com.smartsolutions.paquetes.repositories.models.Event
-import kotlinx.coroutines.flow.Flow
+/*import com.smartsolutions.paquetes.repositories.models.Event
+import kotlinx.coroutines.flow.Flow*/
 
-interface IEventRepository {
+/*interface IEventRepository {
     fun flow(): Flow<List<Event>>
 
     suspend fun all(): List<Event>
@@ -13,4 +13,4 @@ interface IEventRepository {
     suspend fun update(vararg event: Event)
 
     suspend fun delete(vararg event: Event)
-}
+}*/

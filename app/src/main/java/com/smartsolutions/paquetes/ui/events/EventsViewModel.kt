@@ -1,24 +1,24 @@
 package com.smartsolutions.paquetes.ui.events
 
-import android.app.usage.UsageEvents
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import com.smartsolutions.paquetes.repositories.IEventRepository
-import com.smartsolutions.paquetes.repositories.models.Event
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.abdavid92.persistentlog.Event
+import com.abdavid92.persistentlog.EventType
+import com.abdavid92.persistentlog.LogManager
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-@HiltViewModel
-class EventsViewModel @Inject constructor(
-    private val eventRepository: IEventRepository
-): ViewModel() {
+class EventsViewModel : ViewModel() {
 
-    var filter: Event.EventType? = null
+    var filter: EventType? = null
 
-    fun getEvents(): LiveData<List<Event>>{
-        return eventRepository.flow().map { it.sortedByDescending { it.date } }.asLiveData()
+    fun getEvents(): LiveData<List<Event>> {
+
+        val manager = LogManager.newInstance()
+
+        return manager.flow()
+            .map { it.sortedByDescending { s -> s.date } }
+            .asLiveData()
     }
 
 }

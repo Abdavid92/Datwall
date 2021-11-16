@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
@@ -12,10 +13,8 @@ import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
-import com.smartsolutions.paquetes.repositories.IEventRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
-import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -32,8 +31,7 @@ class SynchronizationWorker @AssistedInject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager,
     private val simManager: ISimManager,
-    private val notificationHelper: NotificationHelper,
-    private val eventRepository: IEventRepository
+    private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(context, params) {
 
 
@@ -74,12 +72,7 @@ class SynchronizationWorker @AssistedInject constructor(
             cancelNotification()
         }
 
-        eventRepository.create(Event(
-            System.currentTimeMillis(),
-            Event.EventType.INFO,
-            "Synchronization Worker",
-            "Launched = $canExecute"
-        ))
+        Log.i("Synchronization Worker", "Launched = $canExecute")
 
         return Result.success()
     }

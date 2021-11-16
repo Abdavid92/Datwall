@@ -72,6 +72,15 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             exceptionsController.register()
         }
 
+        val preferences = getSharedPreferences("old_changes", MODE_PRIVATE)
+
+        if (!preferences.getBoolean("logs_dropped", false)) {
+            this.deleteDatabase("logs.db")
+            preferences.edit()
+                .putBoolean("logs_dropped", true)
+                .apply()
+        }
+
         val themeMode: Int
 
         runBlocking(Dispatchers.IO) {

@@ -15,10 +15,9 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
-import com.smartsolutions.paquetes.repositories.IEventRepository
-import com.smartsolutions.paquetes.repositories.models.Event
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.runBlocking
@@ -34,8 +33,7 @@ import kotlin.jvm.Throws
 class USSDHelper @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val accessibilityServiceHelper: AccessibilityServiceHelper,
-    private val eventsRepository: IEventRepository
+    private val accessibilityServiceHelper: AccessibilityServiceHelper
 ) {
 
     /**
@@ -121,15 +119,7 @@ class USSDHelper @Inject constructor(
                             }
                         }
 
-                        runBlocking {
-                            eventsRepository.create(Event(
-                                System.currentTimeMillis(),
-                                Event.EventType.WARNING,
-                                "USSD Code Failed",
-                                "Code Failure: $failureCode Request: $request"
-                            ))
-                        }
-
+                        Log.w("USSD Code Failed", "Code Failure: $failureCode Request: $request")
 
                         it.resumeWithException(USSDRequestException(code, errorMessages[code]))
                     }

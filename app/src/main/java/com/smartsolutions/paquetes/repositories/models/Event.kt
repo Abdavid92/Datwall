@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 
-@Entity(tableName = "events")
+/*@Entity(tableName = "events")
 @TypeConverters(Event.EventTypeConverter::class)
 data class Event(
     @PrimaryKey
@@ -29,4 +29,4 @@ data class Event(
         INFO,
         WARNING
     }
-}
+}*/

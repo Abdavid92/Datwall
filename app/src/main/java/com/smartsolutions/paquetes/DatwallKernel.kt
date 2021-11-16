@@ -11,6 +11,8 @@ import android.os.IBinder
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.managers.models.Configuration
@@ -21,11 +23,14 @@ import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.*
+import com.smartsolutions.paquetes.workers.DropLogsWorker
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -322,6 +327,19 @@ class DatwallKernel @Inject constructor(
                     synchronizationManager.cancelScheduleUserDataBytesSynchronization()
             }
         }
+
+        //Programación del worker que limpia los logs
+        val workManager = WorkManager.getInstance(context)
+
+        val tag = "drop_log_worker"
+
+        workManager.cancelAllWorkByTag(tag)
+
+        val request = PeriodicWorkRequestBuilder<DropLogsWorker>(
+            3, TimeUnit.DAYS
+        ).build()
+
+        workManager.enqueue(request)
     }
 
     /**

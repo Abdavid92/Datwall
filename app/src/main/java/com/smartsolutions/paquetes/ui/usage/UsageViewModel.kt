@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui.usage
 
 import android.app.Application
+import android.content.Context
 import android.graphics.Color
 import android.view.View
 import androidx.datastore.preferences.core.edit
@@ -12,15 +13,23 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.Period
+import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.uiDataStore
+import dagger.hilt.android.internal.lifecycle.HiltViewModelMap
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -34,13 +43,17 @@ import javax.inject.Inject
 class UsageViewModel @Inject constructor(
     application: Application,
     private val networkUsageManager: NetworkUsageManager,
+    private val simManager: ISimManager,
     private val appRepository: IAppRepository,
     private val dateCalendarUtils: DateCalendarUtils,
     val iconManager: IIconManager2
 ) : AndroidViewModel(application) {
 
+    private val liveData = MutableLiveData<Pair<Long, List<UsageApp>>>()
+    private var type: TrafficType = TrafficType.International
     private var period = 0
     private var filter = UsageFilters.MAX_USAGE
+
     var apps = mutableListOf<UsageApp>()
     var others = mutableListOf<UsageApp>()
 
@@ -48,7 +61,6 @@ class UsageViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getApplication<Application>().uiDataStore.data.collect {
                 withContext(Dispatchers.Default){
-                    swipeLiveData.postValue(Unit)
                     delay(300)
                     period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
                     filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
@@ -57,10 +69,6 @@ class UsageViewModel @Inject constructor(
             }
         }
     }
-
-    private val liveData = MutableLiveData<Pair<Long, List<UsageApp>>>()
-    private val swipeLiveData = MutableLiveData<Unit>()
-    private var type: TrafficType = TrafficType.International
 
     fun setUsagePeriod(@Period period: Int){
         viewModelScope.launch(Dispatchers.IO) {
@@ -88,10 +96,6 @@ class UsageViewModel @Inject constructor(
     fun getUsage(type: TrafficType): LiveData<Pair<Long, List<UsageApp>>>{
         this.type = type
        return liveData
-    }
-
-    fun subscribeEventSwipe(): LiveData<Unit>{
-        return swipeLiveData
     }
 
     fun processAndFillPieCharData(total: Long, apps: List<UsageApp>, pieChart: PieChart) {
@@ -149,11 +153,12 @@ class UsageViewModel @Inject constructor(
         var total = 0L
 
         val uids = mutableListOf<Int>()
+
         traffics.forEach {
             uids.add(it.uid)
         }
 
-        val apps = withContext(Dispatchers.IO){
+        val apps = withContext(Dispatchers.IO) {
             appRepository.get(uids.toIntArray())
         }.filter { it.trafficType == type }.toMutableList()
 
@@ -164,9 +169,16 @@ class UsageViewModel @Inject constructor(
             }
         }
 
+        val simId = simManager.getDefaultSim(SimDelegate.SimType.DATA)
+            ?.id ?: "unknown"
+
         apps.forEach { app ->
             app.traffic = traffics.firstOrNull { it.uid == app.uid }
             total += app.traffic?.totalBytes?.bytes ?: 0
+
+            if (app.traffic == null) {
+                app.traffic = Traffic(app.uid, 0, 0, simId)
+            }
         }
 
         val appsShorted = when (filter) {
@@ -192,7 +204,7 @@ class UsageViewModel @Inject constructor(
 
 
     private fun filterByTrafficApps(total: Long, list: List<UsageApp>): Pair<List<UsageApp>, List<UsageApp>> {
-        val onePercent = total/100
+        val onePercent = total / 100
 
         apps.clear()
         others.clear()
@@ -208,7 +220,6 @@ class UsageViewModel @Inject constructor(
         return Pair(apps, others)
     }
 
-
     private fun getRandomsColors(size: Int): MutableList<Int> {
         val colors = mutableListOf<Int>()
         val rnd = Random()
@@ -222,6 +233,7 @@ class UsageViewModel @Inject constructor(
                 )
             )
         }
+
         return colors
     }
 
@@ -231,12 +243,13 @@ class UsageViewModel @Inject constructor(
             throw IllegalArgumentException()
 
         val list = mutableListOf<UsageApp>()
+
         for (pos in apps.indices) {
             list.add(UsageApp(apps[pos], colours[pos]))
         }
+
         return list
     }
-
 
     enum class UsageFilters {
         ALPHABETICAL,
