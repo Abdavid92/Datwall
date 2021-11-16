@@ -260,6 +260,13 @@ class SynchronizationManager @Inject constructor(
 
         val start = text.indexOf("validos", text.indexOf(key)) + 7
 
+        if (key == MENSAJERIA){
+            val packagesIndex = text.indexOf(PAQUETES)
+            if (packagesIndex in 1 until start){
+                return 0L
+            }
+        }
+
         val finish = if (key == DIARIA) {
             text.indexOf("horas", start)
         } else {

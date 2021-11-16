@@ -100,7 +100,7 @@ class ResumeViewModel @Inject constructor(
         var rest = 0L
 
         var total = 0L
-        list.filter { it.type != DataBytes.DataType.National }.forEach {
+        list.filter { it.type != DataBytes.DataType.National && it.type != DataBytes.DataType.MessagingBag }.forEach {
             total += it.initialBytes
             usage += (it.initialBytes - it.bytes)
             rest += it.bytes

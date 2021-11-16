@@ -73,6 +73,7 @@ class StatisticsManager @Inject constructor(
         val list = if (enabledLte) {
             userData.filter {
                 it.type != DataBytes.DataType.National &&
+                        it.type != DataBytes.DataType.MessagingBag &&
                         !it.isExpired() &&
                         it.exists()
             }
