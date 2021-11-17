@@ -95,7 +95,7 @@ abstract class NotificationBuilder(
         return runBlocking {
             val notiThemeApp = mContext.settingsDataStore.data
                 .firstOrNull()
-                ?.get(PreferencesKeys.NOTIFICATION_STYLE_MODE_APP) == true
+                ?.get(PreferencesKeys.NOTIFICATION_STYLE_THEME_MODE_APP) == true
 
             return@runBlocking if (notiThemeApp)
                 uiHelper.isAppUIDarkTheme()
