@@ -37,9 +37,7 @@ class UsageHolderFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            type = it.getInt(FRAGMENT_TYPE)
-        }
+        type = arguments?.getInt(FRAGMENT_TYPE) ?: throw IllegalArgumentException()
     }
 
     override fun onCreateView(
