@@ -148,6 +148,14 @@
 
         <com.google.android.material.chip.Chip
             android:checkable="true"
+            android:id="@+id/chip_messaging_bag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/traffic_messaging"
+            app:checkedIcon="@drawable/ic__check_24"/>
+
+        <com.google.android.material.chip.Chip
+            android:checkable="true"
             android:id="@+id/chip_promo_bonus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
