@@ -426,4 +426,8 @@
     <string name="notification_style_mode">Aplicar el modo oscuro de la app</string>
     <string name="notification_style_mode_on">El tema de la notificación se guiará por el tema de la aplicación</string>
     <string name="notification_style_mode_off">El tema de la notificación se guiará por el sistema</string>
+    <string name="initial_bytes">Megas Iniciales</string>
+    <string name="rest_bytes">Megas Restantes</string>
+    <string name="btn_change">Cambiar</string>
+    <string name="date_bytes">Fecha de Expiración</string>
 </resources>

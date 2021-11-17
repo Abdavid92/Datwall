@@ -39,7 +39,9 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
         if (typeName == null && isEdit == true) {
             throw IllegalArgumentException()
         }
-        dataType = DataBytes.DataType.valueOf(typeName!!)
+        typeName?.let {
+            dataType = DataBytes.DataType.valueOf(it)
+        }
     }
 
     override fun onCreateView(
@@ -52,6 +54,8 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
 
 
     }
