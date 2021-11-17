@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.smartsolutions.paquetes.databinding.FragmentEditAddUserDataBytesBinding
 import com.smartsolutions.paquetes.databinding.FragmentEditUserDataBytesBinding
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -21,7 +22,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
 
     private val viewModel by viewModels<EditUserDataBytesViewModel>()
 
-    private var _binding: FragmentEditUserDataBytesBinding? = null
+    private var _binding: FragmentEditAddUserDataBytesBinding? = null
     private val binding get() = _binding!!
 
     private var simID: String? = null
@@ -45,7 +46,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentEditUserDataBytesBinding.inflate(inflater, container, false)
+        _binding = FragmentEditAddUserDataBytesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
