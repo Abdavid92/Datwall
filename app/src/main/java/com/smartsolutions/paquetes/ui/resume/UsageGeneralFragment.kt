@@ -72,6 +72,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
             DataBytes.DataType.National.name -> R.id.chip_national
             DataBytes.DataType.DailyBag.name -> R.id.chip_bag_daily
             DataBytes.DataType.PromoBonus.name -> R.id.chip_promo_bonus
+            DataBytes.DataType.MessagingBag.name -> R.id.chip_messaging_bag
             else -> null
         }
 
@@ -86,6 +87,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
                 R.id.chip_national -> DataBytes.DataType.National.name
                 R.id.chip_bag_daily -> DataBytes.DataType.DailyBag.name
                 R.id.chip_promo_bonus -> DataBytes.DataType.PromoBonus.name
+                R.id.chip_messaging_bag -> DataBytes.DataType.MessagingBag.name
                 else -> DataBytes.DataType.International.name
             }
 
