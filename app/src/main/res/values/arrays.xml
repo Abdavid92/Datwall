@@ -76,4 +76,12 @@
         <item>APKLIS_SERVER</item>
         <item>DATWALL_SERVER</item>
     </string-array>
+
+    <string-array name="data_unit_types">
+        <item>B</item>
+        <item>KB</item>
+        <item>MB</item>
+        <item>GB</item>
+    </string-array>
+
 </resources>

@@ -19,6 +19,7 @@ import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.GB
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.KB
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.MB
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
@@ -199,5 +200,17 @@ fun setTabLayoutMediatorSims(context: Context, tabLayout: TabLayout, pager2: Vie
             }
         }.attach()
     } catch (e: Exception) {
+    }
+}
+
+
+fun getDataTypeName(type: DataBytes.DataType, context: Context): String {
+    return when (type){
+        DataBytes.DataType.MessagingBag -> context.getString(R.string.data_type_messaging_bag)
+        DataBytes.DataType.International -> context.getString(R.string.data_type_international)
+        DataBytes.DataType.InternationalLte -> context.getString(R.string.data_type_international_lte)
+        DataBytes.DataType.National -> context.getString(R.string.data_type_national)
+        DataBytes.DataType.PromoBonus -> context.getString(R.string.data_type_promo_bonus)
+        DataBytes.DataType.DailyBag -> context.getString(R.string.data_type_daily_bag)
     }
 }

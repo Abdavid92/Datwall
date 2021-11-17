@@ -77,10 +77,19 @@ class UserDataBytesRecyclerAdapter constructor(
                 textUsageValue.text = usage.value.toString()
                 textUsageUnit.text = usage.dataUnit.name
                 expireDate.text = expire
-                this.restDate.text = "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
+                this.restDate.text = if (restDate.first > 0){
+                    "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
+                }else {
+                    "-"
+                }
 
                 root.setOnClickListener {
                     fragment.showChartUsageGeneral(userDataBytes.type)
+                }
+
+                root.setOnLongClickListener {
+                    fragment.showEditFragment(userDataBytes.type)
+                    return@setOnLongClickListener true
                 }
             }
         }

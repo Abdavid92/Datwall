@@ -85,6 +85,14 @@ class ResumeHolderFragment : Fragment() {
         }
     }
 
+    fun showEditFragment(dataType: DataBytes.DataType?) {
+        EditUserDataBytesFragment.newInstance(
+            simID,
+            dataType != null,
+            dataType
+        ).show(childFragmentManager, null)
+    }
+
     fun showChartUsageGeneral(dataType: DataBytes.DataType) {
         UsageGeneralFragment.newInstance(
             simID,

@@ -5,6 +5,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.*
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.helpers.getDataTypeName
 import java.util.*
 
 /**
@@ -96,14 +97,7 @@ class UserDataBytes(
 
 
     fun getName(context: Context): String {
-        return when (type){
-            DataType.MessagingBag -> context.getString(R.string.data_type_messaging_bag)
-            DataType.International -> context.getString(R.string.data_type_international)
-            DataType.InternationalLte -> context.getString(R.string.data_type_international_lte)
-            DataType.National -> context.getString(R.string.data_type_national)
-            DataType.PromoBonus -> context.getString(R.string.data_type_promo_bonus)
-            DataType.DailyBag -> context.getString(R.string.data_type_daily_bag)
-        }
+       return getDataTypeName(type, context)
     }
 
     override fun equals(other: Any?): Boolean {
