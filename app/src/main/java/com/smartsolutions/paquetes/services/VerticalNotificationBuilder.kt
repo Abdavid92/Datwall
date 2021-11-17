@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.services
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
@@ -26,7 +27,10 @@ class VerticalNotificationBuilder constructor(
         setSmallIcon(R.drawable.ic_main_notification)
         setContentTitle(context.getString(R.string.empty_noti_title))
         setContentText(context.getString(R.string.empty_noti_text))
-        setStyle(NotificationCompat.DecoratedCustomViewStyle())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            setStyle(NotificationCompat.DecoratedCustomViewStyle())
+
         setContentIntent(getSplashActivityPendingIntent(context))
         setOngoing(true)
         setColorized(true)
