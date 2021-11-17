@@ -55,7 +55,11 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.getUserDataBytes(simID!!).observe(viewLifecycleOwner){
 
+
+
+        }
 
 
     }
