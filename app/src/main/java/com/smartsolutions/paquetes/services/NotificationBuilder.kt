@@ -86,8 +86,12 @@ abstract class NotificationBuilder(
             ContextCompat.getColor(mContext, R.color.white)
     }
 
+    /**
+     * Indica si el modo oscuro está activado.
+     * */
     @SuppressLint("RestrictedApi")
     protected fun isUIDarkTheme(): Boolean {
+
         return runBlocking {
             val notiThemeApp = mContext.settingsDataStore.data
                 .firstOrNull()

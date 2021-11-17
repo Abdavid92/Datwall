@@ -28,7 +28,10 @@ class CircularNotificationBuilder(
         setSmallIcon(R.drawable.ic_main_notification)
         setContentTitle(context.getString(R.string.empty_noti_title))
         setContentText(context.getString(R.string.empty_noti_text))
-        setStyle(NotificationCompat.DecoratedCustomViewStyle())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            setStyle(NotificationCompat.DecoratedCustomViewStyle())
+
         setContentIntent(getSplashActivityPendingIntent(context))
         setOngoing(true)
         setColorized(true)
