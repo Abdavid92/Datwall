@@ -423,7 +423,7 @@
     <string name="data_value">Cantidad de Datos</string>
     <string name="edit_user_data_bytes">Editar %s</string>
     <string name="add_user_data_bytes">Agregar Megas</string>
-    <string name="notification_style_mode">Aplicar el modo oscuro de la app</string>
+    <string name="notification_style_mode">Aplicar el tema de la app</string>
     <string name="notification_style_mode_on">El tema de la notificación se guiará por el tema de la aplicación</string>
     <string name="notification_style_mode_off">El tema de la notificación se guiará por el sistema</string>
     <string name="initial_bytes">Megas Iniciales</string>
