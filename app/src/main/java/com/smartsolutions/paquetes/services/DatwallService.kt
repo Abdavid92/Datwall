@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.smartsolutions.paquetes.*
@@ -43,6 +44,7 @@ class DatwallService : Service(), CoroutineScope {
     private var bandWidthJob: Job? = null
     private var userDataByteJob: Job? = null
     private var dataStoreJob: Job? = null
+    private var configurationChangeJob: Job? = null
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
@@ -139,6 +141,9 @@ class DatwallService : Service(), CoroutineScope {
         Log.i(TAG, "registering data store collector")
         dataStoreCollector()
 
+        Log.i(TAG, "registering configuration change collector")
+        registerConfigurationChangeCollector()
+
         Log.i(TAG, "starting watcher")
         watcher.start()
 
@@ -148,18 +153,50 @@ class DatwallService : Service(), CoroutineScope {
         return START_STICKY
     }
 
+    private fun registerConfigurationChangeCollector() {
+        if (configurationChangeJob != null)
+            return
+
+        var currentTheme: Int = -1
+        var currentThemeMode: Int = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+
+        configurationChangeJob = launch {
+            settingsDataStore.data.collect {
+
+                val newTheme = it[PreferencesKeys.APP_THEME] ?: currentTheme
+
+                if (currentTheme != newTheme) {
+                    currentTheme = newTheme
+
+                    fillNotification()
+                }
+
+                val themeMode = it[PreferencesKeys.THEME_MODE] ?: currentThemeMode
+
+                if (currentThemeMode != themeMode) {
+                    currentThemeMode = themeMode
+
+                    fillNotification()
+                }
+            }
+        }
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         
         launch {
+            fillNotification()
+        }
+    }
 
-            simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
-                val userData = userDataBytesRepository
-                    .bySimId(it)
-                    .filter { it.exists() }
+    private suspend fun fillNotification() {
+        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+            val userData = userDataBytesRepository
+                .bySimId(it)
+                .filter { it.exists() }
 
-                updateNotification(userData)
-            }
+            updateNotification(userData)
         }
     }
 
@@ -414,6 +451,7 @@ class DatwallService : Service(), CoroutineScope {
         bandWidthJob?.cancel()
         userDataByteJob?.cancel()
         dataStoreJob?.cancel()
+        configurationChangeJob?.cancel()
 
 
         watcher.stop()

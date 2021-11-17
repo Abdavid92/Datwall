@@ -53,7 +53,12 @@ class UIHelper(
      * ajuste puede o no coincidir con los del sistema.
      * */
     fun isAppUIDarkTheme(): Boolean {
-        return AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+        return when (AppCompatDelegate.getDefaultNightMode()) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> isUIDarkTheme()
+            else -> isUIDarkTheme()
+        }
     }
 
     /**
