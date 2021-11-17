@@ -1,17 +1,26 @@
 package com.smartsolutions.paquetes.ui.resume
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.DatePicker
+import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentEditAddUserDataBytesBinding
 import com.smartsolutions.paquetes.databinding.FragmentEditUserDataBytesBinding
+import com.smartsolutions.paquetes.helpers.getDataTypeName
+import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.*
 
 private const val ARG_SIM_ID = "arg_sim_id"
 private const val ARG_IS_EDIT = "arg_is_edit"
@@ -28,6 +37,8 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
     private var simID: String? = null
     private var isEdit: Boolean? = null
     private var dataType: DataBytes.DataType? = null
+
+    private var expireDate: Long? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,8 +66,90 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getUserDataBytes(simID!!).observe(viewLifecycleOwner){
+        viewModel.getUserDataBytes(simID!!).observe(viewLifecycleOwner) {
 
+            val list = if (isEdit == true) {
+                binding.title.text = getString(
+                    R.string.edit_user_data_bytes,
+                    getDataTypeName(dataType!!, requireContext())
+                )
+                binding.spinnerDataType.visibility = View.GONE
+                listOf(it.first { it.type == dataType })
+            } else {
+                binding.title.text = getString(R.string.add_user_data_bytes)
+                it.filter { !it.exists() || it.isExpired() }
+            }
+
+            if(list.isEmpty()){
+                dismiss()
+                return@observe
+            }
+
+            setSpinnerDataType(list)
+
+            binding.apply {
+
+                spinnerDataType.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            fillValuesUserDataBytes(list[position])
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    }
+
+                spinnerDataType.setSelection(0)
+
+                fillValuesUserDataBytes(list[0])
+
+                btnDate.setOnClickListener {
+                    val calendar = Calendar.getInstance()
+                    DatePickerDialog(
+                        requireContext(),
+                        { _, year, month, dayOfMonth ->
+                            val cal = Calendar.getInstance()
+                            cal.set(Calendar.YEAR, year)
+                            cal.set(Calendar.MONTH, month)
+                            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                            expireDate = cal.timeInMillis
+                            binding.textDate.text = getExpiredTime(expireDate!!)
+                            cal.clear()
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ).show()
+                    calendar.clear()
+                }
+
+                buttonAction.setOnClickListener {
+                    viewModel.updateUserDataBytes(
+                        list[binding.spinnerDataType.selectedItemPosition].apply {
+                            bytes = DataUnitBytes.DataValue(
+                                binding.editValueRest.text?.toString()?.toDouble() ?: 0.0,
+                                DataUnitBytes.DataUnit.values()[binding.spinnerDataUnitRest.selectedItemPosition]
+                            ).toBytes()
+
+                            initialBytes = DataUnitBytes.DataValue(
+                                binding.editValueInitial.text?.toString()?.toDouble() ?: 0.0,
+                                DataUnitBytes.DataUnit.values()[binding.spinnerDataUnitInitial.selectedItemPosition]
+                            ).toBytes()
+
+                            expiredTime = expireDate ?: expiredTime
+
+                            if (initialBytes < bytes) {
+                                initialBytes = bytes
+                            }
+                        }
+                    )
+                    dismiss()
+                }
+            }
 
 
         }
@@ -76,14 +169,40 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private fun fillValuesUserDataBytes(userDataBytes: UserDataBytes) {
+        binding.apply {
+            if (isEdit == true) {
+                val initial = DataUnitBytes(userDataBytes.initialBytes).getValue()
+                val rest = DataUnitBytes(userDataBytes.bytes).getValue()
+
+                editValueInitial.setText(initial.value.toString(), TextView.BufferType.EDITABLE)
+                spinnerDataUnitInitial.setSelection(initial.dataUnit.ordinal)
+
+                editValueRest.setText(rest.value.toString(), TextView.BufferType.EDITABLE)
+                spinnerDataUnitRest.setSelection(rest.dataUnit.ordinal)
+
+                textDate.text = getExpiredTime(userDataBytes.expiredTime)
+            }
+        }
+    }
+
+
+    private fun getExpiredTime(time: Long): String {
+        return if (time > 0){
+            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(time))
+        }else {
+            "Desconocido"
+        }
+    }
+
 
     companion object {
         fun newInstance(
             simID: String,
             isEdit: Boolean,
             dataType: DataBytes.DataType?
-        ): EditUserDataBytesFragment =
-            EditUserDataBytesFragment().apply {
+        ): EditAddUserDataBytesFragment =
+            EditAddUserDataBytesFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_SIM_ID, simID)
                     putBoolean(ARG_IS_EDIT, isEdit)

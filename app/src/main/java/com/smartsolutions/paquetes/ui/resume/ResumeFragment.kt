@@ -123,6 +123,14 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             showFilterOptions()
         }
 
+        binding.buttonAdd.setOnClickListener {
+            EditAddUserDataBytesFragment.newInstance(
+                installedSims[binding.pager.currentItem].id,
+                false,
+                null
+            ).show(childFragmentManager, null)
+        }
+
         binding.buttonChart.setOnClickListener {
             showChartUsageGeneral()
         }

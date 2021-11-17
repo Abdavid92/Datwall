@@ -86,7 +86,7 @@ class ResumeHolderFragment : Fragment() {
     }
 
     fun showEditFragment(dataType: DataBytes.DataType?) {
-        EditUserDataBytesFragment.newInstance(
+        EditAddUserDataBytesFragment.newInstance(
             simID,
             dataType != null,
             dataType
