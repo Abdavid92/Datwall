@@ -72,11 +72,6 @@ class SimDelegate @Inject constructor(
                 )
             }
         }catch (e: Exception){
-            runBlocking {
-                context.internalDataStore.edit {
-                    it[PreferencesKeys.IS_DUAL_SIM_BROKEN] = true
-                }
-            }
             null
         }
     }
