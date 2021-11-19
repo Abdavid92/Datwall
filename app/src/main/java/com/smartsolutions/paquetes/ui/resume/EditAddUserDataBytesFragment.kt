@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentEditAddUserDataBytesBinding
-import com.smartsolutions.paquetes.databinding.FragmentEditUserDataBytesBinding
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.getDataTypeName
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -33,6 +33,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
 
     private var simID: String? = null
     private var isEdit: Boolean? = null
+    private var isLaunched = false
     private var dataType: DataBytes.DataType? = null
 
     private var expireDate: Long? = null
@@ -64,6 +65,12 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.getUserDataBytes(simID!!).observe(viewLifecycleOwner) {
+
+            if (isLaunched){
+                return@observe
+            }
+
+            isLaunched = true
 
             val list = if (isEdit == true) {
                 binding.title.text = getString(
@@ -114,7 +121,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
                             cal.set(Calendar.YEAR, year)
                             cal.set(Calendar.MONTH, month)
                             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                            expireDate = cal.timeInMillis
+                            expireDate = DateCalendarUtils.getLastHour(Date(cal.timeInMillis)).time
                             binding.textDate.text = getExpiredTime(expireDate!!)
                             cal.clear()
                         },
@@ -148,11 +155,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
                     dismiss()
                 }
             }
-
-
         }
-
-
     }
 
 
@@ -187,7 +190,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
 
     private fun getExpiredTime(time: Long): String {
         return if (time > 0){
-            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(time))
+            SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.getDefault()).format(Date(time))
         }else {
             "Desconocido"
         }
