@@ -7,6 +7,8 @@ import android.os.Looper
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.work.WorkManager
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.SimDelegate

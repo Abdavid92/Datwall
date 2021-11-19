@@ -221,6 +221,11 @@ object PreferencesKeys {
     val IS_THROWED = booleanPreferencesKey("is_throwed")
 
     /**
+     * Indica que se debe forzar el modo de una sola linea.
+     * */
+    val FORCE_MODE_SINGLE_SIM = booleanPreferencesKey("force_mode_single_sim")
+
+    /**
      * Busca una clave de preferencia por el nombre.
      *
      * @param key
