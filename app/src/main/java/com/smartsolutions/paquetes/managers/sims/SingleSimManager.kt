@@ -39,8 +39,6 @@ internal class SingleSimManager constructor(
         if (sim == null) {
 
             sim = Sim(id, 0L, Networks.NETWORK_NONE).apply {
-                defaultData = true
-                defaultVoice = true
 
                 if (subscriptionInfo.number != null && subscriptionInfo.number.isNotBlank())
                     phone = subscriptionInfo.number

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import com.smartsolutions.paquetes.repositories.models.*
 import kotlinx.coroutines.runBlocking
 
-const val DATABASE_VERSION = 2
+const val DATABASE_VERSION = 1
 
 /**
  * Conexión de la base de datos de las aplicaciones y los paquetes.
@@ -59,15 +59,6 @@ abstract class DbContext : RoomDatabase() {
 
     abstract fun getTrafficDao(): ITrafficDao
 
-    /*abstract fun getEventDao(): IEventDao*/
-
-    internal class Migration_1_2 : Migration(1, 2) {
-
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("DROP TABLE IF EXISTS events")
-        }
-    }
-
     companion object {
 
         @Volatile
@@ -86,7 +77,6 @@ abstract class DbContext : RoomDatabase() {
                         context,
                         DbContext::class.java,
                         "data.db")
-                        .addMigrations(Migration_1_2())
                         .build()
 
                     INSTANCE = instance

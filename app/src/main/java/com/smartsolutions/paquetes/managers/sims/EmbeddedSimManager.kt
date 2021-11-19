@@ -33,8 +33,6 @@ internal class EmbeddedSimManager constructor(
         if (sim == null) {
 
             sim = Sim(EMBEDDED_SIM_ID, 0L, Networks.NETWORK_NONE).apply {
-                defaultData = true
-                defaultVoice = true
                 this.slotIndex = 0
             }
 
