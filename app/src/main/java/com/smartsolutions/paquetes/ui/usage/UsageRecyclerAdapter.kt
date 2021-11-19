@@ -1,15 +1,12 @@
 package com.smartsolutions.paquetes.ui.usage
 
-import android.app.usage.NetworkStats
-import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUsageBinding
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -17,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 class UsageRecyclerAdapter constructor(
     private val fragment: Fragment,
     private var apps: List<UsageApp>,
-    private val iconManager: IIconManager2
+    private val iconManager: IIconManager
 ): RecyclerView.Adapter<UsageRecyclerAdapter.UsageViewHolder>(), CoroutineScope {
 
     private var appsShow = apps.toMutableList()

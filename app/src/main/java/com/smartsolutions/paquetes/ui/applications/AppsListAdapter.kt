@@ -14,7 +14,7 @@ import com.smartsolutions.paquetes.databinding.ItemAppGroupBinding
 import com.smartsolutions.paquetes.databinding.ItemAppBinding
 import com.smartsolutions.paquetes.databinding.ItemHeaderBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
@@ -28,7 +28,7 @@ private const val HEADER_HOLDER_TYPE = 2
 class AppsListAdapter constructor(
     private val fragment: Fragment,
     private val launcher: ActivityResultLauncher<App>,
-    private val iconManager: IIconManager2,
+    private val iconManager: IIconManager,
     private var appsFilter: AppsFilter,
     private var list: List<IApp>
 ) : RecyclerView.Adapter<AppsListAdapter.AbstractViewHolder>(), CoroutineScope {

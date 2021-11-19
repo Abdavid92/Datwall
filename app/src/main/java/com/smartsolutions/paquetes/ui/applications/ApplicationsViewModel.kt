@@ -6,7 +6,7 @@ import androidx.lifecycle.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.settingsDataStore
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -22,7 +22,7 @@ import javax.inject.Inject
 class ApplicationsViewModel @Inject constructor(
     application: Application,
     private val appRepository: IAppRepository,
-    val iconManager: IIconManager2
+    val iconManager: IIconManager
 ) : AndroidViewModel(application) {
 
     private var currentFilter: AppsFilter = AppsFilter.InternetAccess

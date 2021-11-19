@@ -8,7 +8,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -25,7 +25,7 @@ class DbSynchronizationWorker @AssistedInject constructor(
     params: WorkerParameters,
     private val appRepository: IAppRepository,
     private val legacyConfiguration: LegacyConfigurationHelper,
-    private val iconManager: IIconManager2
+    private val iconManager: IIconManager
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {

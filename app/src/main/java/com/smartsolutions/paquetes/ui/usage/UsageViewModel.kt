@@ -1,41 +1,33 @@
 package com.smartsolutions.paquetes.ui.usage
 
 import android.app.Application
-import android.content.Context
 import android.graphics.Color
 import android.view.View
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.*
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.Period
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.uiDataStore
-import dagger.hilt.android.internal.lifecycle.HiltViewModelMap
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ActivityContext
-import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 import java.util.*
 import javax.inject.Inject
 
@@ -46,7 +38,7 @@ class UsageViewModel @Inject constructor(
     private val simManager: ISimManager,
     private val appRepository: IAppRepository,
     private val dateCalendarUtils: DateCalendarUtils,
-    val iconManager: IIconManager2
+    val iconManager: IIconManager
 ) : AndroidViewModel(application) {
 
     private val liveData = MutableLiveData<Pair<Long, List<UsageApp>>>()

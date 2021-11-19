@@ -22,7 +22,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageAppDetailsBinding
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.models.App
@@ -38,7 +38,7 @@ const val ARG_APP = "app"
 class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
     @Inject
-    lateinit var iconManager: IIconManager2
+    lateinit var iconManager: IIconManager
 
     private lateinit var uiHelper: UIHelper
 

@@ -31,10 +31,10 @@ interface IAppDao {
     @Query("SELECT * FROM apps WHERE uid IN (:uid)")
     suspend fun get(uid: IntArray): List<App>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun create(app: App)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun create(apps: List<App>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

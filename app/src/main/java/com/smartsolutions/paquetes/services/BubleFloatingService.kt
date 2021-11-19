@@ -11,7 +11,6 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
-import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
@@ -25,7 +24,7 @@ import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -35,7 +34,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
-import java.text.FieldPosition
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -54,7 +52,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     lateinit var appRepository: IAppRepository
 
     @Inject
-    lateinit var iconManager: IIconManager2
+    lateinit var iconManager: IIconManager
 
     @Inject
     lateinit var networkUsageManager: NetworkUsageManager

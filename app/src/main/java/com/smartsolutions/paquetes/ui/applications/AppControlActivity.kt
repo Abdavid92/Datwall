@@ -1,25 +1,19 @@
 package com.smartsolutions.paquetes.ui.applications
 
-import android.app.PendingIntent
-import android.content.DialogInterface
 import android.content.Intent
-import android.content.IntentSender
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.transition.Transition
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.Toast
-import androidx.activity.result.IntentSenderRequest
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityAppControlBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.managers.contracts.IIconManager2
+import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.TransparentActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -56,7 +50,7 @@ class AppControlActivity : TransparentActivity() {
     private var wasChanges = false
 
     @Inject
-    lateinit var iconManager: IIconManager2
+    lateinit var iconManager: IIconManager
 
     private var uiHelper = UIHelper(this)
 
