@@ -6,6 +6,7 @@ import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TrafficRepository @Inject constructor(private val dao: ITrafficDao) : ITrafficRepository {
@@ -57,4 +58,9 @@ class TrafficRepository @Inject constructor(private val dao: ITrafficDao) : ITra
 
     override fun getFlowByTime(simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>> =
         dao.getFlowByTime(simId, startTime, endTime)
+
+
+    suspend fun consolidateTraffic(simId: String, time: Int, timeUnit: TimeUnit) {
+
+    }
 }
