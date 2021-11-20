@@ -73,6 +73,11 @@ data class Sim(
         packages = parcel.createTypedArrayList(DataPackage.CREATOR) ?: throw NullPointerException()
     }
 
+
+    fun name(): String {
+        return "Sim $slotIndex + 1"
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeLong(setupDate)

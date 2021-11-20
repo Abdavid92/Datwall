@@ -268,8 +268,8 @@
     <string name="sim_default_data">Datos</string>
     <string name="sim_default_voice">Voz</string>
     <string name="not_execute_action">No se puede realizar la acción</string>
-    <string name="no_sim_default_data">La sim seleccionada no es la predeterminada para Datos Móviles</string>
-    <string name="no_sim_default_voice">La sim seleccionada no es la predeterminada para llamadas</string>
+    <string name="no_sim_default_data">La %s no es la Sim predeterminada para Datos Móviles</string>
+    <string name="no_sim_default_voice">La %s no es la Sim predeterminada para Llamadas</string>
     <string name="set_default_sim">Establecer Sim Predeterminada</string>
     <string name="is_default_voice">Predeterminada Voz</string>
     <string name="is_default_data">Predeterminada Datos</string>
@@ -430,4 +430,8 @@
     <string name="rest_bytes">Megas Restantes</string>
     <string name="btn_change">Cambiar</string>
     <string name="date_bytes">Fecha de Expiración</string>
+    <string name="is_default_sim_data">¿Es la %s la Sim seleccionada la predeterminada para Datos Móviles?</string>
+    <string name="is_default_sim_voice">¿Es la %s la Sim seleccionada la predeterminada para Llamadas?</string>
+    <string name="is_default_sim_summary">Mis Datos no puede determinar si la Sim seleccionada es la predeterminada o no. Debe asegurarse de que la Sim sea la predeterminada en los Ajustes del Sistema antes de continuar o se producirán inexactitudes en la información. Seleccione Sí para realizar la operación si está seguro de que la Sim seleccionada es la predeterminada</string>
+    <string name="no_sim_default_summary">No se puede realizar la acción porque la Sim seleccionada no es la predeterminada. Debe cambiar en los Ajustes del Sistema la Sim predeterminada y volver a intentarlo</string>
 </resources>

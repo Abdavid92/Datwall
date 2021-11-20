@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -22,6 +23,7 @@ import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
 import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
+import com.smartsolutions.paquetes.ui.settings.sim.SimsDefaultDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
@@ -116,6 +118,14 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
+            SimsDefaultDialogFragment.newInstance(
+                installedSims[binding.tabs.selectedTabPosition],
+                SimDelegate.SimType.VOICE
+            ) {
+                Toast.makeText(requireContext(), "HEcho", Toast.LENGTH_SHORT).show()
+            }.show(parentFragmentManager, null)
+
             return@setOnLongClickListener true
         }
 
