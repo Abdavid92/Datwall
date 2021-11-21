@@ -37,7 +37,7 @@ interface ITrafficDao {
     @Query("SELECT * FROM traffic WHERE uid = :uid AND sim_id = :simID AND start_time >= :startTime AND end_time <= :endTime")
     fun getFlowByUid(uid: Int, simID: String, startTime: Long, endTime: Long): Flow<List<Traffic>>
 
-    @Query("SELECT * FROM traffic WHERE sim_id = :simID AND start_time >= :startTime AND end_time <= :endTime")
+    @Query("SELECT * FROM traffic WHERE sim_id = :simID AND start_time >= :startTime AND end_time <= :endTime ORDER BY :startTime")
     suspend fun getByTime(simID: String, startTime: Long, endTime: Long): List<Traffic>
 
     @Query("SELECT * FROM traffic WHERE sim_id = :simID AND start_time >= :startTime AND end_time <= :endTime")

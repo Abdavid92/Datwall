@@ -231,7 +231,7 @@ class TrafficRegistration @Inject constructor(
         lastTraffics.addAll(traffics)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            trafficRepository.create(toRegister)
+            trafficRepository.create(toRegister.filter { it.totalBytes.bytes > 0 })
         }
 
         return toRegister
