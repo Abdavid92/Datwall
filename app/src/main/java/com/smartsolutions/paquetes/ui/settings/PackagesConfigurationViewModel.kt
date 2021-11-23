@@ -12,7 +12,7 @@ import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
@@ -20,13 +20,14 @@ import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragm
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class PackagesConfigurationViewModel @Inject constructor(
     application: Application,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val dataPackageManager: IDataPackageManager,
     permissionsManager: IPermissionsManager
 ) : AndroidViewModel(application) {
@@ -52,7 +53,9 @@ class PackagesConfigurationViewModel @Inject constructor(
     /**
      * Indica si hay varias sims instaladas.
      * */
-    fun isSeveralSimsInstalled() = simManager.isSeveralSimsInstalled()
+    fun isSeveralSimsInstalled() = runBlocking {
+        return@runBlocking simManager.getInstalledSims().size > 1
+    }
 
     fun getSims(
         fragment: AbstractSettingsFragment,
@@ -69,7 +72,8 @@ class PackagesConfigurationViewModel @Inject constructor(
             try {
                 dataPackageManager.configureDataPackages()
 
-                simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+                simManager.getDefaultSim(SimDelegate.SimType.VOICE).getOrNull()?.let { defaultSim ->
+                    //TODO SIm Default
                     lastNetworkResult = defaultSim.network
 
                     _configurationResult.postValue(Result.Success(defaultSim))
@@ -90,7 +94,8 @@ class PackagesConfigurationViewModel @Inject constructor(
         viewModelScope.launch {
             dataPackageManager.setDataPackagesManualConfiguration(network)
 
-            simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+            simManager.getDefaultSim(SimDelegate.SimType.VOICE).getOrNull()?.let { defaultSim ->
+                //TODO SIm Default
                 lastNetworkResult = defaultSim.network
 
                 _configurationResult.postValue(Result.Success(defaultSim))

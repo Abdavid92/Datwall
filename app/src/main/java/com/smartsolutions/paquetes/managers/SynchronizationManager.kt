@@ -31,7 +31,7 @@ class SynchronizationManager @Inject constructor(
     private val context: Context,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val simRepository: ISimRepository
 ) : ISynchronizationManager, CoroutineScope {
 
@@ -109,7 +109,8 @@ class SynchronizationManager @Inject constructor(
                 data.addAll(obtainDataBytesPackages(bytesPackages))
                 data.addAll(obtainDataByteBonus(bonusPackages))
 
-                simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let {
+                simManager.getDefaultSim(SimDelegate.SimType.VOICE).getOrNull()?.let {
+                    //TODO Agregar Sim Default para Sincronizar
                     userDataBytesManager.synchronizeUserDataBytes(
                         fillMissingDataBytes(data),
                         it.id

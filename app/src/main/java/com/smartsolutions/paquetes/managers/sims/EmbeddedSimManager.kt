@@ -16,6 +16,10 @@ internal class EmbeddedSimManager constructor(
         return Result.Success(embeddedSim(relations))
     }
 
+    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean {
+        return true
+    }
+
     override suspend fun getInstalledSims(relations: Boolean): List<Sim> {
         return listOf(embeddedSim(relations))
     }

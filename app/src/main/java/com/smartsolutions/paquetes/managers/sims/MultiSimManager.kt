@@ -33,6 +33,16 @@ internal class MultiSimManager constructor(
         return Result.Failure(UnsupportedOperationException())
     }
 
+    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            simDelegate.getActiveSim(type)?.let { info ->
+               return sim.id == simDelegate.getSimId(info)
+            }
+        }
+
+        return null
+    }
+
     override suspend fun getInstalledSims(relations: Boolean): List<Sim> {
         val sims = mutableListOf<Sim>()
         subscriptionInfoList.forEach {

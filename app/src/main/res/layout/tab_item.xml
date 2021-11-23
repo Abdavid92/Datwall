@@ -28,15 +28,6 @@
             android:textSize="13sp"
             android:textStyle="bold"/>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:visibility="visible"
-            android:id="@+id/subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Voz y Datos"
-            android:textSize="11sp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -1,17 +1,14 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.app.Application
-import android.os.Build
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -20,7 +17,7 @@ import javax.inject.Inject
 class SimsConfigurationViewModel @Inject constructor(
     application: Application,
     permissionsManager: IPermissionsManager,
-    private val simManager: ISimManager
+    private val simManager: ISimManager2
 ): AndroidViewModel(application) {
 
     private val delegate = SimsDelegate(
@@ -39,8 +36,6 @@ class SimsConfigurationViewModel @Inject constructor(
 
     fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim, onComplete: () -> Unit) {
         viewModelScope.launch {
-            simManager.setDefaultSim(SimDelegate.SimType.DATA, defaultDataSim)
-            simManager.setDefaultSim(SimDelegate.SimType.VOICE, defaultVoiceSim)
             withContext(Dispatchers.Main){
                 onComplete()
             }

@@ -21,8 +21,6 @@ import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.KB
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.Companion.MB
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
-import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 
 /**
  * Contruye el código ussd para comprar un
@@ -179,23 +177,11 @@ fun setTabLayoutMediatorSims(context: Context, tabLayout: TabLayout, pager2: Vie
                 tabBind.icon.setImageBitmap(it)
             }
 
-            tabBind.title.text = "Sim ${sim.slotIndex + 1}"
-            tabBind.subtitle.text = if (sim.defaultVoice && sim.defaultData) {
-               context.getString(R.string.sim_default_all)
-            } else if (sim.defaultData) {
-               context.getString(R.string.sim_default_data)
-            } else if (sim.defaultVoice) {
-                context.getString(R.string.sim_default_voice)
-            } else {
-                tabBind.subtitle.visibility = View.GONE
-                ""
-            }
+            tabBind.title.text = sim.name()
 
             tab.customView = tabBind.root
 
             tab.view.setOnLongClickListener {
-                val fragment = DefaultSimsDialogFragment.newInstance(null)
-                fragment.show(fragmentManager, "DefaultSims")
                 true
             }
         }.attach()

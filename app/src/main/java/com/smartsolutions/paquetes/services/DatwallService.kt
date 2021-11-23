@@ -14,7 +14,7 @@ import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -85,7 +85,7 @@ class DatwallService : Service(), CoroutineScope {
     lateinit var userDataBytesRepository: IUserDataBytesRepository
 
     @Inject
-    lateinit var simManager: ISimManager
+    lateinit var simManager: ISimManager2
 
     @Inject
     lateinit var watcher: RxWatcher
@@ -191,7 +191,7 @@ class DatwallService : Service(), CoroutineScope {
     }
 
     private suspend fun fillNotification() {
-        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+        simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
             val userData = userDataBytesRepository
                 .bySimId(it)
                 .filter { it.exists() }
@@ -223,7 +223,8 @@ class DatwallService : Service(), CoroutineScope {
                         NotificationHelper.MAIN_CHANNEL_ID
                     )
 
-                    simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+                    simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
+                        //TODO SimDefault
                         val userData = userDataBytesRepository
                             .bySimId(it)
                             .filter { it.exists() }
@@ -285,7 +286,8 @@ class DatwallService : Service(), CoroutineScope {
         userDataByteJob = launch {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
-                    val defaultDataSim = sims.first { it.defaultData }
+                    //TODO SimDefault
+                    val defaultDataSim = sims.first { simManager.isSimDefault(SimDelegate.SimType.DATA, it) == true }
 
                     return@combine userDataBytes
                         .filter { it.simId == defaultDataSim.id }

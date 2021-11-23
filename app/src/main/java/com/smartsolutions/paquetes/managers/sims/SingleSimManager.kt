@@ -20,6 +20,14 @@ internal class SingleSimManager constructor(
         return Result.Success(singleSim(relations))
     }
 
+    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean? {
+        val result = getDefaultSim(type, false)
+        if (result.isSuccess){
+            return (result as Result.Success).value.id == sim.id
+        }
+        return null
+    }
+
     override suspend fun getInstalledSims(relations: Boolean): List<Sim> {
         return listOf(singleSim(relations))
     }

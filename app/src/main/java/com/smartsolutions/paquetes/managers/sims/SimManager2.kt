@@ -39,6 +39,15 @@ class SimManager2 @Inject constructor(
         return Result.Failure(NoSuchElementException())
     }
 
+
+    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean? {
+        getSimManager()?.let {
+            return it.isSimDefault(type, sim)
+        }
+        return null
+    }
+
+
     override suspend fun getInstalledSims(relations: Boolean): List<Sim> {
         getSimManager()?.let {
             return it.getInstalledSims(relations)
@@ -87,7 +96,7 @@ class SimManager2 @Inject constructor(
                         simDelegate,
                         simRepository
                     )
-                }else {
+                } else {
                     EmbeddedSimManager(simRepository)
                 }
             }

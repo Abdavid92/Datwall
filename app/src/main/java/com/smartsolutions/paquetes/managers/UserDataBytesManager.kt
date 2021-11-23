@@ -3,7 +3,7 @@ package com.smartsolutions.paquetes.managers
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -20,7 +20,7 @@ import org.apache.commons.lang.time.DateUtils
 
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val usageGeneralRepository: IUsageGeneralRepository
 ) : IUserDataBytesManager {
 
@@ -110,7 +110,8 @@ class UserDataBytesManager @Inject constructor(
         isLte: Boolean
     ) {
 
-        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
+        simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.let { sim ->
+            //TODO Hay que averiguar la manera de registar el trafico si no se sabe la Sim Default
             var total = rxBytes + txBytes
             var national = nationalBytes
 

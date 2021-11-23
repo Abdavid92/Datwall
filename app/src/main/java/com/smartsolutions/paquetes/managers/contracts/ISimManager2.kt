@@ -10,6 +10,8 @@ interface ISimManager2 {
 
     suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean = false): Result<Sim>
 
+    suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean?
+
     suspend fun getInstalledSims(relations: Boolean = false): List<Sim>
     fun flowInstalledSims(relations: Boolean = false): Flow<List<Sim>>
 

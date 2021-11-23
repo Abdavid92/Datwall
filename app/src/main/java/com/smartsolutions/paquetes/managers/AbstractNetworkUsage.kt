@@ -6,7 +6,7 @@ import android.app.usage.NetworkStatsManager
 import android.net.ConnectivityManager
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
 
@@ -15,7 +15,7 @@ import java.util.*
 abstract class AbstractNetworkUsage(
     private val networkStatsManager: NetworkStatsManager,
     telephonyManager: TelephonyManager,
-    simManager: ISimManager
+    simManager: ISimManager2
 ) : NetworkUsageManager(simManager) {
 
     private val subscriberId by lazy {

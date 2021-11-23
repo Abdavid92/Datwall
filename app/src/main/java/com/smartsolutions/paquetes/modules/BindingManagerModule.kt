@@ -22,10 +22,6 @@ interface BindingManagerModule {
     fun bindIPurchasedPackagesManager(impl: PurchasedPackagesManager): IPurchasedPackagesManager
 
     @Binds
-    fun bindISimManagerNew(impl: SimManager): ISimManager
-
-
-    @Binds
     fun bindISimManager(impl: SimManager2): ISimManager2
 
 

@@ -1,9 +1,7 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 

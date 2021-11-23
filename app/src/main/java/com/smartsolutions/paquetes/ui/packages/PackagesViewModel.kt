@@ -9,7 +9,7 @@ import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PackagesViewModel @Inject constructor(
     application: Application,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val dataPackageManager: IDataPackageManager,
     private val simRepository: ISimRepository,
     private val ussdHelper: USSDHelper

@@ -12,7 +12,6 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -103,7 +102,8 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
             ) {
 
                 simSelected?.let {
-                    if(!it.defaultVoice){
+                    //TODO Sim Default
+                    if(true){
                         binding.radioGroupMode.check(R.id.automatic_mode)
                         Toast.makeText(requireContext(), getString(R.string.no_sim_default_voice), Toast.LENGTH_SHORT).show()
                         return
@@ -140,10 +140,8 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
 
             if (checkedId == R.id.manual_mode) {
                 simSelected?.let {
-                    if (!it.defaultVoice){
-                        DefaultSimsDialogFragment
-                            .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
-                            .show(childFragmentManager, null)
+                    if (true){
+                        //TODO DEfulr Sim
                         binding.radioGroupMode.check(R.id.automatic_mode)
                     }
                 }
@@ -235,17 +233,15 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                     }
 
 
-                    sims.setSelection(simIndex ?: simsList.indexOf(simsList.find { sim -> sim.defaultVoice }))
+                    sims.setSelection(simIndex ?: 0)//TODO Sim Default
 
                     btnStartConfiguration.setOnClickListener {
 
                         val selection = sims.selectedItemPosition
 
-                        if (!simsList[selection].defaultVoice) {
+                        //TODO Sim Default
+                        if (true) {
 
-                            DefaultSimsDialogFragment
-                                .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
-                                .show(childFragmentManager, null)
                         } else {
 
                             viewModel.configureDataPackages(

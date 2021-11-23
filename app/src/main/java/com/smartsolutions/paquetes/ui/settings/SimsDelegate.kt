@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import kotlinx.coroutines.CoroutineScope
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class SimsDelegate(
     private val context: Context,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val permissionsManager: IPermissionsManager,
     private val scope: CoroutineScope
 ) {
