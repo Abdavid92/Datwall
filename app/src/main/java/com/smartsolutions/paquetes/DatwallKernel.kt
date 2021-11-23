@@ -24,6 +24,7 @@ import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.*
 import com.smartsolutions.paquetes.workers.DropLogsWorker
+import com.smartsolutions.paquetes.workers.TrafficDbOptimizerLollipop
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -340,6 +341,8 @@ class DatwallKernel @Inject constructor(
         ).build()
 
         workManager.enqueue(request)
+
+        TrafficDbOptimizerLollipop.registerWorkerIfNeeded(context, 24)
     }
 
     /**

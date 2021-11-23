@@ -194,6 +194,22 @@ class DateCalendarUtils @Inject constructor(
             return date in start..finish
         }
 
+        fun getStartAndFinishHour(date: Long): Pair<Long, Long>{
+            var hour = DateUtils.setMinutes(Date(date), 0)
+            hour = DateUtils.setSeconds(hour, 0)
+            hour = DateUtils.setMilliseconds(hour, 0)
+
+            val start = hour.time
+
+            hour = DateUtils.setMinutes(hour, 59)
+            hour = DateUtils.setSeconds(hour, 59)
+            hour = DateUtils.setMilliseconds(hour, 999)
+
+            val finish = hour.time
+
+            return start to finish
+        }
+
         fun isSameDay(date: Long, dayLong: Long): Boolean {
             val day = Date(dayLong)
             val start = getZeroHour(day).time
