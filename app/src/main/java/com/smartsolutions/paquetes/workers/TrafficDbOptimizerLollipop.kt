@@ -12,7 +12,7 @@ import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import dagger.assisted.Assisted
-import org.apache.commons.lang.time.DateUtils
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -22,31 +22,55 @@ class TrafficDbOptimizerLollipop(
     @Assisted
     parameters: WorkerParameters,
     private val trafficRepository: ITrafficRepository,
-    private val simManager: ISimManager
-): CoroutineWorker(context, parameters) {
+    private val simManager: ISimManager,
+    private val dateCalendarUtils: DateCalendarUtils
+) : CoroutineWorker(context, parameters) {
 
 
     override suspend fun doWork(): Result {
 
         val traffics = mutableListOf<Traffic>()
 
+        val limitTime = dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_YESTERDAY).first
+
         simManager.getInstalledSims().forEach { sim ->
-            var traffic: Traffic? = null
-            var hour = DateCalendarUtils.getStartAndFinishHour(System.currentTimeMillis())
+            val trafficsToAdd = mutableListOf<Traffic>()
+            var period = 0L to 1L
 
             val oldTraffics = trafficRepository.getAll(sim.id).onEach { trafficDb ->
+                val traff = trafficsToAdd.firstOrNull { it.uid == trafficDb.uid }
+
                 when {
-                    traffic == null -> {
-                        traffic = trafficDb
-                        hour = DateCalendarUtils.getStartAndFinishHour(trafficDb.startTime)
+                    traff == null -> {
+                        trafficsToAdd.add(trafficDb)
+                        period = if (trafficDb.startTime >= limitTime) {
+                            DateCalendarUtils.getStartAndFinishHour(trafficDb.startTime)
+                        } else {
+                            val day = Date(trafficDb.startTime)
+                            DateCalendarUtils.getZeroHour(
+                                day
+                            ).time to DateCalendarUtils.getLastHour(
+                                day
+                            ).time
+                        }
                     }
-                    trafficDb.startTime in hour.first..hour.second -> {
-                        traffic!! += trafficDb
+                    trafficDb.startTime in period.first..period.second -> {
+                        trafficsToAdd[trafficsToAdd.indexOf(traff)] += trafficDb
                     }
                     else -> {
-                        traffics.add(traffic!!)
-                        traffic = trafficDb
-                        hour = DateCalendarUtils.getStartAndFinishHour(trafficDb.startTime)
+                        traffics.addAll(trafficsToAdd)
+                        trafficsToAdd.clear()
+                        trafficsToAdd.add(trafficDb)
+                        period = if (trafficDb.startTime >= limitTime) {
+                            DateCalendarUtils.getStartAndFinishHour(trafficDb.startTime)
+                        } else {
+                            val day = Date(trafficDb.startTime)
+                            DateCalendarUtils.getZeroHour(
+                                day
+                            ).time to DateCalendarUtils.getLastHour(
+                                day
+                            ).time
+                        }
                     }
                 }
             }
@@ -66,8 +90,8 @@ class TrafficDbOptimizerLollipop(
 
         private const val TAG_OPTIMIZER_WORKER = "tag_optimizer_worker"
 
-        fun registerWorkerIfNeeded(context: Context, hoursInterval: Long){
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+        fun registerWorkerIfNeeded(context: Context, hoursInterval: Long) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 val request = PeriodicWorkRequestBuilder<TrafficDbOptimizerLollipop>(
                     hoursInterval,
                     TimeUnit.HOURS
