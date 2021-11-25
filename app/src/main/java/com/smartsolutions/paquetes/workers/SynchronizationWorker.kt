@@ -42,7 +42,7 @@ class SynchronizationWorker @AssistedInject constructor(
             canExecute = try {
                 //TODO Sim Default
                 userDataBytesRepository.get(
-                    simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()!!.id,
+                    simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()!!.id,
                     DataBytes.DataType.International
                 ).exists()
             } catch (e: Exception) {
@@ -68,7 +68,7 @@ class SynchronizationWorker @AssistedInject constructor(
             notifyUpdate()
             try {
                 //TODO Sim default
-                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE).getOrThrow())
+                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrThrow())
             } catch (e: Exception) {
             }
             cancelNotification()

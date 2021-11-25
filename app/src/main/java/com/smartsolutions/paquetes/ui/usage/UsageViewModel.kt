@@ -161,7 +161,7 @@ class UsageViewModel @Inject constructor(
             }
         }
 
-        val simId = simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()
+        val simId = simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()
             ?.id ?: "unknown"
 
         apps.forEach { app ->

@@ -3,12 +3,9 @@ package com.smartsolutions.paquetes.helpers
 import androidx.fragment.app.FragmentManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.repositories.models.Sim
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 
 class SimsHelper @Inject constructor(

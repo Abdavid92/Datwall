@@ -72,7 +72,7 @@ class PackagesConfigurationViewModel @Inject constructor(
             try {
                 dataPackageManager.configureDataPackages()
 
-                simManager.getDefaultSim(SimDelegate.SimType.VOICE).getOrNull()?.let { defaultSim ->
+                simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()?.let { defaultSim ->
                     //TODO SIm Default
                     lastNetworkResult = defaultSim.network
 
@@ -94,7 +94,7 @@ class PackagesConfigurationViewModel @Inject constructor(
         viewModelScope.launch {
             dataPackageManager.setDataPackagesManualConfiguration(network)
 
-            simManager.getDefaultSim(SimDelegate.SimType.VOICE).getOrNull()?.let { defaultSim ->
+            simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()?.let { defaultSim ->
                 //TODO SIm Default
                 lastNetworkResult = defaultSim.network
 

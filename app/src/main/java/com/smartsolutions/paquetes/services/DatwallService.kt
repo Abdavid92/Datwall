@@ -191,7 +191,7 @@ class DatwallService : Service(), CoroutineScope {
     }
 
     private suspend fun fillNotification() {
-        simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
+        simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
             val userData = userDataBytesRepository
                 .bySimId(it)
                 .filter { it.exists() }
@@ -223,7 +223,7 @@ class DatwallService : Service(), CoroutineScope {
                         NotificationHelper.MAIN_CHANNEL_ID
                     )
 
-                    simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
+                    simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
                         //TODO SimDefault
                         val userData = userDataBytesRepository
                             .bySimId(it)
@@ -287,7 +287,7 @@ class DatwallService : Service(), CoroutineScope {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
                     //TODO SimDefault
-                    val defaultDataSim = sims.first { simManager.isSimDefault(SimDelegate.SimType.DATA, it) == true }
+                    val defaultDataSim = sims.first { simManager.isSimDefaultSystem(SimDelegate.SimType.DATA, it) == true }
 
                     return@combine userDataBytes
                         .filter { it.simId == defaultDataSim.id }

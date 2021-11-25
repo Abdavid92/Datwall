@@ -50,7 +50,7 @@ class StatisticsManager @Inject constructor(
     }
 
     override suspend fun getRemainder(timeUnit: TimeUnit): DataUnitBytes {
-        simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.let { sim ->
+        simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.let { sim ->
             //TODO SimDefault
             return getRemainder(timeUnit, userDataBytesRepository.bySimId(sim.id))
         }

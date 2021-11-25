@@ -25,7 +25,7 @@ class SimsDefaultDialogViewModel @Inject constructor(
 
     fun getDefaultSim(type: SimDelegate.SimType): LiveData<Result<Sim>>{
         viewModelScope.launch {
-            liveData.postValue(simManager.getDefaultSim(type))
+            liveData.postValue(simManager.getDefaultSimSystem(type))
         }
         return liveData
     }

@@ -140,7 +140,7 @@ class PurchasedPackagesManager @Inject constructor(
                                     )
                                 }
                             } else {
-                                simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
+                                simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
                                     packages.add(
                                         PurchasedPackage(
                                             System.currentTimeMillis(),

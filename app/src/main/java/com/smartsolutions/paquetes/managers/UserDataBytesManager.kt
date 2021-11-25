@@ -110,7 +110,7 @@ class UserDataBytesManager @Inject constructor(
         isLte: Boolean
     ) {
 
-        simManager.getDefaultSim(SimDelegate.SimType.DATA).getOrNull()?.let { sim ->
+        simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.let { sim ->
             //TODO Hay que averiguar la manera de registar el trafico si no se sabe la Sim Default
             var total = rxBytes + txBytes
             var national = nationalBytes
