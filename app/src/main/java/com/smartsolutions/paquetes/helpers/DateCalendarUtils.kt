@@ -84,7 +84,7 @@ class DateCalendarUtils @Inject constructor(
             }
             PERIOD_PACKAGE -> {
                 runBlocking(Dispatchers.Default) {
-                    simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id?.let { id ->
+                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let { id ->
                         purchasedPackagesManager.getHistory().firstOrNull()?.filter {
                             it.simId == id
                         }?.maxByOrNull { it.date }?.let {

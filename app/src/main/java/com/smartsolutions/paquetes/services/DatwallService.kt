@@ -184,14 +184,14 @@ class DatwallService : Service(), CoroutineScope {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        
+
         launch {
             fillNotification()
         }
     }
 
     private suspend fun fillNotification() {
-        simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
+        simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
             val userData = userDataBytesRepository
                 .bySimId(it)
                 .filter { it.exists() }
@@ -213,8 +213,8 @@ class DatwallService : Service(), CoroutineScope {
         dataStoreJob = launch(Dispatchers.IO) {
             settingsDataStore.data.collect { preferences ->
 
-                val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS] ?:
-                NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
+                val notificationClass = preferences[PreferencesKeys.NOTIFICATION_CLASS]
+                    ?: NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
 
                 if (mNotificationBuilder.javaClass.name != notificationClass) {
                     mNotificationBuilder = NotificationBuilder.newInstance(
@@ -223,8 +223,7 @@ class DatwallService : Service(), CoroutineScope {
                         NotificationHelper.MAIN_CHANNEL_ID
                     )
 
-                    simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
-                        //TODO SimDefault
+                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
                         val userData = userDataBytesRepository
                             .bySimId(it)
                             .filter { it.exists() }
@@ -233,22 +232,21 @@ class DatwallService : Service(), CoroutineScope {
                     }
                 }
 
-                percents[0] = preferences[PreferencesKeys.INTERNATIONAL_NOTIFICATION] ?:
-                defaultPercent
+                percents[0] =
+                    preferences[PreferencesKeys.INTERNATIONAL_NOTIFICATION] ?: defaultPercent
 
-                percents[1] = preferences[PreferencesKeys.INTERNATIONAL_LTE_NOTIFICATION] ?:
-                defaultPercent
+                percents[1] =
+                    preferences[PreferencesKeys.INTERNATIONAL_LTE_NOTIFICATION] ?: defaultPercent
 
-                percents[2] = preferences[PreferencesKeys.PROMO_BONUS_NOTIFICATION] ?:
-                defaultPercent
+                percents[2] =
+                    preferences[PreferencesKeys.PROMO_BONUS_NOTIFICATION] ?: defaultPercent
 
-                percents[3] = preferences[PreferencesKeys.NATIONAL_NOTIFICATION] ?:
-                defaultPercent
+                percents[3] = preferences[PreferencesKeys.NATIONAL_NOTIFICATION] ?: defaultPercent
 
-                percents[4] = preferences[PreferencesKeys.DAILY_BAG_NOTIFICATION] ?:
-                defaultPercent
+                percents[4] = preferences[PreferencesKeys.DAILY_BAG_NOTIFICATION] ?: defaultPercent
 
-                showSecondaryNotifications = preferences[PreferencesKeys.SHOW_SECONDARY_NOTIFICATIONS] ?: true
+                showSecondaryNotifications =
+                    preferences[PreferencesKeys.SHOW_SECONDARY_NOTIFICATIONS] ?: true
             }
         }
     }
@@ -286,8 +284,8 @@ class DatwallService : Service(), CoroutineScope {
         userDataByteJob = launch {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
-                    //TODO SimDefault
-                    val defaultDataSim = sims.first { simManager.isSimDefaultSystem(SimDelegate.SimType.DATA, it) == true }
+
+                    val defaultDataSim = sims.first { simManager.isSimDefaultBoth(SimDelegate.SimType.DATA, it) == true }
 
                     return@combine userDataBytes
                         .filter { it.simId == defaultDataSim.id }

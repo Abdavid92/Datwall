@@ -94,7 +94,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         configureAnimationFAB()
 
         binding.floatingActionButton.setOnClickListener {
-            viewModel.invokeOnDefault(
+            viewModel.invokeOnDefaultSim(
                 installedSims[binding.pager.currentItem],
                 SimDelegate.SimType.VOICE,
                 parentFragmentManager

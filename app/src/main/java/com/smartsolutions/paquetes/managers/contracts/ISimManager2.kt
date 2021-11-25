@@ -14,9 +14,14 @@ interface ISimManager2 {
 
     suspend fun setDefaultSimManual(type: SimDelegate.SimType, slot: Int)
 
+    suspend fun getDefaultSimBoth(type: SimDelegate.SimType, relations: Boolean = false): Sim?
+
     suspend fun isSimDefaultSystem(type: SimDelegate.SimType, sim: Sim): Boolean?
 
+    suspend fun isSimDefaultBoth(type: SimDelegate.SimType, sim: Sim): Boolean?
+
     suspend fun getInstalledSims(relations: Boolean = false): List<Sim>
+
     fun flowInstalledSims(relations: Boolean = false): Flow<List<Sim>>
 
     enum class SimsState {

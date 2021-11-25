@@ -75,7 +75,7 @@ data class Sim(
 
 
     fun name(): String {
-        return "Sim $slotIndex + 1"
+        return "Sim ${slotIndex + 1}"
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

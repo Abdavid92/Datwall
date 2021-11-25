@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.managers.contracts
 
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
@@ -50,7 +51,7 @@ interface IDataPackageManager {
      *
      * @param network - Tipo de red a asignar a la linea.
      * */
-    suspend fun setDataPackagesManualConfiguration(network: String)
+    suspend fun setDataPackagesManualConfiguration(@Networks network: String, sim: Sim)
 
     /**
      * Indica si los paquetes de datos están configurados para la linea predeterminada

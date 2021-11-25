@@ -173,7 +173,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager2) {
 
 
     suspend fun updateSimID() {
-        simId = simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id
+        simId = simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id
     }
 
     companion object {

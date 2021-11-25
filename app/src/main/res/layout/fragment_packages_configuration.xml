@@ -181,8 +181,7 @@
                             android:text="@string/configure_packages"
                             android:layout_marginTop="10dp"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginBottom="10dp"
-                            android:enabled="@{automatic}"/>
+                            android:layout_marginBottom="10dp" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -196,7 +195,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/card_mode_selection"
                     app:cardUseCompatPadding="true"
-                    android:visibility="@{automatic ? View.GONE : View.VISIBLE}">
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -217,19 +217,22 @@
                             app:layout_constraintTop_toTopOf="parent"/>
 
 
-                        <androidx.appcompat.widget.AppCompatSpinner
-                            android:id="@+id/spinner_packages"
-                            style="@style/Widget.AppCompat.Spinner"
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/packages_available"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="6dp"
-                            android:minHeight="48dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textSize="16sp"
+                            android:textAlignment="center"
+                            android:text="@string/pkgs_not_configured"
                             app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/title_card_manual_option"
-                            android:enabled="@{!automatic}"
-                            android:entries="@array/sim_networks" />
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginBottom="15dp"
+                            android:padding="6dp"/>
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>

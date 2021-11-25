@@ -90,7 +90,7 @@ class DataPackageManager @Inject constructor(
         var enabledLte = false
 
         //Linea predeterminada para llamadas
-        simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()?.let { defaultSim ->
+        simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let { defaultSim ->
 
             plainsResultText?.let {
                 val text = it.string()
@@ -122,8 +122,8 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override suspend fun setDataPackagesManualConfiguration(network: String) {
-        val defaultSim = simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()?.apply {
+    override suspend fun setDataPackagesManualConfiguration(network: String, sim: Sim) {
+        sim.apply {
             this.network = network
 
             //Fecha en la que se configuró esta linea.
@@ -131,15 +131,13 @@ class DataPackageManager @Inject constructor(
         }
 
         withContext(Dispatchers.IO) {
-            defaultSim?.let {
-                simRepository.update(it)
-            }
+           simRepository.update(sim)
         }
     }
 
     override suspend fun isConfiguredDataPackages(): Boolean {
         return try {
-            simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()
+            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
                 ?.network ?: Networks.NETWORK_NONE != Networks.NETWORK_NONE
         } catch (e: IllegalStateException) {
             false
@@ -172,10 +170,10 @@ class DataPackageManager @Inject constructor(
     override suspend fun registerDataPackage(smsBody: String, simIndex: Int) {
 
         val defaultSim = if (simIndex == -1)
-            simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()
+            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
         else
             simManager.getInstalledSims().firstOrNull { it.slotIndex == simIndex } ?:
-            simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()
+            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
 
         if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
             val bytes = getBytesFromText("Bonos: ", smsBody)

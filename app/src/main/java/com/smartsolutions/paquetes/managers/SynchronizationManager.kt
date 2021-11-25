@@ -109,8 +109,7 @@ class SynchronizationManager @Inject constructor(
                 data.addAll(obtainDataBytesPackages(bytesPackages))
                 data.addAll(obtainDataByteBonus(bonusPackages))
 
-                simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()?.let {
-                    //TODO Agregar Sim Default para Sincronizar
+                simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let {
                     userDataBytesManager.synchronizeUserDataBytes(
                         fillMissingDataBytes(data),
                         it.id

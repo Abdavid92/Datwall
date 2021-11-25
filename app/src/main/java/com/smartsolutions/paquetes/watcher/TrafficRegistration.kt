@@ -198,8 +198,7 @@ class TrafficRegistration @Inject constructor(
             networkUsageManager.getAppsUsage(startTime, System.currentTimeMillis())
         } else {
             val traffics = mutableListOf<Traffic>()
-            simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.let { sim ->
-                //TODO SIm Default
+            simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.let { sim ->
                 apps.forEach { app ->
                     traffics.add(Traffic(
                         app.uid,
@@ -254,8 +253,7 @@ class TrafficRegistration @Inject constructor(
      */
     private suspend fun registerLollipopTraffic(rx: Long, tx: Long, currentTime: Long) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && rx > 0 && tx > 0) {
-            simManager.getDefaultSimSystem(SimDelegate.SimType.DATA).getOrNull()?.id?.let {
-                //TODO Sim Default
+            simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
                 val traffic = Traffic(
                     NetworkUsageManager.GENERAL_TRAFFIC_UID,
                     rx,

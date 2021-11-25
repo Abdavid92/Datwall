@@ -96,7 +96,7 @@ class ResumeViewModel @Inject constructor(
     }
 
 
-    fun invokeOnDefault(
+    fun invokeOnDefaultSim(
         sim: Sim,
         simType: SimDelegate.SimType,
         fragmentManager: FragmentManager,
@@ -135,8 +135,7 @@ class ResumeViewModel @Inject constructor(
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {
         viewModelScope.launch {
             try {
-                simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE).getOrNull()?.let {
-                    //TODO Sim Default
+                simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let {
                     synchronizationManager.synchronizeUserDataBytes(it)
                 }
                 withContext(Dispatchers.Main) {
