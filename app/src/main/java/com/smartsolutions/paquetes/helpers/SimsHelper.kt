@@ -22,7 +22,7 @@ class SimsHelper @Inject constructor(
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
     ) {
-        val result = simManager.isSimDefault(simType, sim)
+        val result = simManager.isSimDefaultSystem(simType, sim)
         when {
             result == null -> {
                 //TODO No se pudo saber.Preguntar
