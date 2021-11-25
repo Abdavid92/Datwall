@@ -32,7 +32,10 @@ class SimManager2 @Inject constructor(
     }
 
 
-    override suspend fun getDefaultSimSystem(type: SimDelegate.SimType, relations: Boolean): Result<Sim> {
+    override suspend fun getDefaultSimSystem(
+        type: SimDelegate.SimType,
+        relations: Boolean
+    ): Result<Sim> {
         getSimManager()?.let {
             return it.getDefaultSim(type, relations)
         }
@@ -42,14 +45,16 @@ class SimManager2 @Inject constructor(
 
     override suspend fun getDefaultSimManual(type: SimDelegate.SimType, relations: Boolean): Sim? {
         getSimManager()?.getInstalledSims(relations)?.let { sims ->
-            when (type){
+            when (type) {
                 SimDelegate.SimType.VOICE -> {
-                    context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.DEFAULT_VOICE_SLOT)?.let { slot ->
+                    context.internalDataStore.data.firstOrNull()
+                        ?.get(PreferencesKeys.DEFAULT_VOICE_SLOT)?.let { slot ->
                         return sims.firstOrNull { it.slotIndex == slot }
                     }
                 }
                 SimDelegate.SimType.DATA -> {
-                    context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.DEFAULT_DATA_SLOT)?.let { slot ->
+                    context.internalDataStore.data.firstOrNull()
+                        ?.get(PreferencesKeys.DEFAULT_DATA_SLOT)?.let { slot ->
                         return sims.firstOrNull { it.slotIndex == slot }
                     }
                 }
@@ -59,7 +64,19 @@ class SimManager2 @Inject constructor(
     }
 
 
-    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean? {
+    override suspend fun setDefaultSimManual(type: SimDelegate.SimType, slot: Int) {
+        context.internalDataStore.edit {
+            it[
+                    when (type) {
+                        SimDelegate.SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
+                        SimDelegate.SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
+                    }
+            ] = slot
+        }
+    }
+
+
+    override suspend fun isSimDefaultSystem(type: SimDelegate.SimType, sim: Sim): Boolean? {
         getSimManager()?.let {
             return it.isSimDefault(type, sim)
         }
@@ -83,7 +100,6 @@ class SimManager2 @Inject constructor(
             return@map emptyList<Sim>()
         }
     }
-
 
 
     private suspend fun getSimManager(): InternalSimManager? {
