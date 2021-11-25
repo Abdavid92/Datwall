@@ -229,6 +229,11 @@ object PreferencesKeys {
     val DEFAULT_DATA_SLOT = intPreferencesKey("default_data_slot")
 
     /**
+     * Indica si se utilizará el modo moderno para obtener la app en primer plano o el antiguo
+     */
+    val IS_FOREGROUND_APP_MODERN = booleanPreferencesKey("is_foreground_app_modern")
+
+    /**
      * Busca una clave de preferencia por el nombre.
      *
      * @param key

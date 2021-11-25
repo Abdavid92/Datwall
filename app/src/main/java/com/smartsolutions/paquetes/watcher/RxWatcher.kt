@@ -110,25 +110,23 @@ class RxWatcher @Inject constructor(
         txBytes = tx
     }
 
-    private fun provideCurrentApp() {
+    private suspend fun provideCurrentApp() {
         watcherUtils.getLastApp()?.let { packageName ->
             if (currentPackageName != packageName) {
 
-                launch {
-                    appRepository.get(packageName)?.let { app ->
+                appRepository.get(packageName)?.let { app ->
 
-                        Log.i(TAG, "The application in foreground is ${app.packageName}")
+                    Log.i(TAG, "The application in foreground is ${app.packageName}")
 
-                        val pair = app to if (currentPackageName != null)
-                            appRepository.get(currentPackageName!!)
-                        else
-                            null
+                    val pair = app to if (currentPackageName != null)
+                        appRepository.get(currentPackageName!!)
+                    else
+                        null
 
-                        (currentAppFlow as MutableSharedFlow<Pair<App, App?>>)
-                            .emit(pair)
+                    (currentAppFlow as MutableSharedFlow<Pair<App, App?>>)
+                        .emit(pair)
 
-                        currentPackageName = packageName
-                    }
+                    currentPackageName = packageName
                 }
             }
         }
