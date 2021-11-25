@@ -149,36 +149,26 @@ class ApplicationsViewModel @Inject constructor(
             AppsFilter.TrafficType -> {
                 val finalList = mutableListOf<IApp>()
 
-                val freeApps = getAppsByTrafficType(apps, TrafficType.Free)
-                val nationalApps = getAppsByTrafficType(apps, TrafficType.National)
-                val internationalApps = getAppsByTrafficType(apps, TrafficType.International)
+                TrafficType.values().forEach {
+                    val list = getAppsByTrafficType(apps, it)
 
-                if (freeApps.isNotEmpty()) {
-                    finalList.add(HeaderApp.newInstance(
-                        getApplication<Application>()
-                            .getString(R.string.free_apps, freeApps.size))
-                    )
+                    if (list.isNotEmpty()){
+                        finalList.add(HeaderApp.newInstance(
+                            getApplication<Application>()
+                                .getString(
+                                    when (it){
+                                        TrafficType.Free -> R.string.free_apps
+                                        TrafficType.National -> R.string.national_apps
+                                        TrafficType.International -> R.string.international_apps
+                                        TrafficType.Messaging -> R.string.messaging_apps
+                                    },
+                                    list.size
+                                ))
+                        )
+
+                        finalList.addAll(list.sortedBy { it.name })
+                    }
                 }
-
-                finalList.addAll(freeApps.sortedBy { it.name })
-
-                if (nationalApps.isNotEmpty()) {
-                    finalList.add(HeaderApp.newInstance(
-                        getApplication<Application>()
-                            .getString(R.string.national_apps, nationalApps.size)
-                    ))
-                }
-
-                finalList.addAll(nationalApps.sortedBy { it.name })
-
-                if (internationalApps.isNotEmpty()) {
-                    finalList.add(HeaderApp.newInstance(
-                        getApplication<Application>()
-                            .getString(R.string.international_apps, internationalApps.size)
-                    ))
-                }
-
-                finalList.addAll(internationalApps.sortedBy { it.name })
 
                 finalList
             }

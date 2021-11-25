@@ -434,4 +434,5 @@
     <string name="is_default_sim_voice">¿Es la %s la Sim seleccionada la predeterminada para Llamadas?</string>
     <string name="is_default_sim_summary">Mis Datos no puede determinar si la Sim seleccionada es la predeterminada o no. Debe asegurarse de que la Sim sea la predeterminada en los Ajustes del Sistema antes de continuar o se producirán inexactitudes en la información. Seleccione Sí para realizar la operación si está seguro de que la Sim seleccionada es la predeterminada</string>
     <string name="no_sim_default_summary">No se puede realizar la acción porque la Sim seleccionada no es la predeterminada. Debe cambiar en los Ajustes del Sistema la Sim predeterminada y volver a intentarlo</string>
+    <string name="messaging_apps">Aplicaciones de consumo de mensajería (%d)</string>
 </resources>
