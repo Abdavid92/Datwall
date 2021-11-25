@@ -209,7 +209,7 @@ object PreferencesKeys {
     /**
      * Indica si ya fueron sembrados los paquetes comprados anteriormente
      */
-    val IS_SEED_OLD_PURCHASED_PACKAGES = booleanPreferencesKey("is_seed_old_purchased_packages")
+    val IS_SEED_OLD_PURCHASED_PACKAGES = booleanPreferencesKey("is_seeded_old_purchased_packages")
 
     /**
      * Indica si la app se cerro previamente debido a una excepcion y por lo tanto el Kernel no debe iniciar sus servicios
