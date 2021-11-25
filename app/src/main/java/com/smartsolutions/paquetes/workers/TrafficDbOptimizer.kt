@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
@@ -16,11 +17,12 @@ import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
 import com.smartsolutions.paquetes.repositories.models.UsageGeneral
 import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
-class TrafficDbOptimizer(
+class TrafficDbOptimizer @AssistedInject constructor(
     @Assisted
     context: Context,
     @Assisted
@@ -43,6 +45,8 @@ class TrafficDbOptimizer(
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
                 compactTrafficsLollipop(limitTime, oldLimit)
+
+            Log.i("Optimized DB", "DataBase optimized successfully")
         }
 
 
