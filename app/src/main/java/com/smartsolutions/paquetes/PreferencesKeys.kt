@@ -222,6 +222,13 @@ object PreferencesKeys {
     val FORCE_MODE_SINGLE_SIM = booleanPreferencesKey("force_mode_single_sim")
 
     /**
+     * Slots que se considerarán predeterminados para llamadas y datos
+     */
+    val DEFAULT_VOICE_SLOT = intPreferencesKey("default_voice_slot")
+
+    val DEFAULT_DATA_SLOT = intPreferencesKey("default_data_slot")
+
+    /**
      * Busca una clave de preferencia por el nombre.
      *
      * @param key

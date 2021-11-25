@@ -32,11 +32,30 @@ class SimManager2 @Inject constructor(
     }
 
 
-    override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Result<Sim> {
+    override suspend fun getDefaultSimSystem(type: SimDelegate.SimType, relations: Boolean): Result<Sim> {
         getSimManager()?.let {
             return it.getDefaultSim(type, relations)
         }
         return Result.Failure(NoSuchElementException())
+    }
+
+
+    override suspend fun getDefaultSimManual(type: SimDelegate.SimType, relations: Boolean): Sim? {
+        getSimManager()?.getInstalledSims(relations)?.let { sims ->
+            when (type){
+                SimDelegate.SimType.VOICE -> {
+                    context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.DEFAULT_VOICE_SLOT)?.let { slot ->
+                        return sims.firstOrNull { it.slotIndex == slot }
+                    }
+                }
+                SimDelegate.SimType.DATA -> {
+                    context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.DEFAULT_DATA_SLOT)?.let { slot ->
+                        return sims.firstOrNull { it.slotIndex == slot }
+                    }
+                }
+            }
+        }
+        return null
     }
 
 
@@ -55,6 +74,7 @@ class SimManager2 @Inject constructor(
         return emptyList()
     }
 
+
     override fun flowInstalledSims(relations: Boolean): Flow<List<Sim>> {
         return simRepository.flow(relations).map {
             getSimManager()?.let {
@@ -63,6 +83,7 @@ class SimManager2 @Inject constructor(
             return@map emptyList<Sim>()
         }
     }
+
 
 
     private suspend fun getSimManager(): InternalSimManager? {

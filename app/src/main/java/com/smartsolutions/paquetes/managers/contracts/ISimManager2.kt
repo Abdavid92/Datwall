@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.Flow
 interface ISimManager2 {
     suspend fun forceModeSingleSim(force: Boolean)
 
-    suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean = false): Result<Sim>
+    suspend fun getDefaultSimSystem(type: SimDelegate.SimType, relations: Boolean = false): Result<Sim>
+
+    suspend fun getDefaultSimManual(type: SimDelegate.SimType, relations: Boolean = false): Sim?
 
     suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean?
 
