@@ -15,7 +15,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
-import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
@@ -24,13 +23,12 @@ import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
 import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.watcher.*
 import com.smartsolutions.paquetes.workers.DropLogsWorker
-import com.smartsolutions.paquetes.workers.TrafficDbOptimizerLollipop
+import com.smartsolutions.paquetes.workers.TrafficDbOptimizer
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
-import java.time.Duration
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -342,7 +340,7 @@ class DatwallKernel @Inject constructor(
 
         workManager.enqueue(request)
 
-        TrafficDbOptimizerLollipop.registerWorkerIfNeeded(context, 24)
+        TrafficDbOptimizer.registerWorkerIfNeeded(context, 48)
     }
 
     /**
