@@ -79,7 +79,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
         viewModel.getSimAndPackages(simId).observe(viewLifecycleOwner) {
             sim = it.first
 
-            if (it.first.packages.isNotEmpty()) {
+            if (it.second.isNotEmpty()) {
                 binding.apply {
                     linSimNotConfigured.visibility = View.GONE
                     recycler.visibility = View.VISIBLE
