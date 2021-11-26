@@ -53,7 +53,8 @@ class WatcherUtils @Inject constructor(
 
     private suspend fun getLollipopMr1LastApp(): String? {
 
-        val isModern = context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_FOREGROUND_APP_MODERN) ?: true
+        val isModern = context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_FOREGROUND_APP_MODERN)
+            ?: (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
 
         return if (isModern){
             lastAppModeModern()

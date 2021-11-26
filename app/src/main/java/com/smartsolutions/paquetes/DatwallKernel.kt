@@ -213,6 +213,7 @@ class DatwallKernel @Inject constructor(
             if (!legacyConfiguration.isConfigurationRestored()) {
                 legacyConfiguration.setFirewallLegacyConfiguration()
                 legacyConfiguration.setBubbleFloatingLegacyConfiguration()
+                legacyConfiguration.setConfigurationRestored()
             }
         }
     }

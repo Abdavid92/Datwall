@@ -179,55 +179,7 @@ class LegacyConfigurationHelper @Inject constructor(
         )
     }
 
-    /**
-     * Obtiene todas los nombres de paquetes de las aplicaciones permitidas de la
-     * versión anterior.
-     *
-     * @return [List] con los nombres de paquetes de las aplicaciones
-     * permitidas por el cortafuegos.
-     * */
-    suspend fun getLegacyRules(): List<String> {
 
-        val db = withContext(Dispatchers.IO) {
-            context.openOrCreateDatabase("rules.db", Context.MODE_PRIVATE, null)
-        }
-
-        val result = mutableListOf<String>()
-
-        try {
-            withContext(Dispatchers.IO) {
-                val cursor = db.query(
-                    "apps",
-                    arrayOf("package_name"),
-                    "data_access = ?",
-                    arrayOf("1"),
-                    null,
-                    null,
-                    null
-                )
-
-                if (cursor.moveToFirst()) {
-                    var packageName = cursor.getString(cursor.getColumnIndex("package_name"))
-
-                    result.add(packageName)
-
-                    while (cursor.moveToNext()) {
-                        packageName = cursor.getString(cursor.getColumnIndex("package_name"))
-
-                        result.add(packageName)
-                    }
-                }
-                cursor.close()
-
-                context.deleteDatabase("rules.db")
-            }
-
-        } catch (e: Exception) {
-
-        }
-
-        return result
-    }
 
     /**
      * Establece en el SharedPreferences que la configuración
@@ -287,6 +239,6 @@ class LegacyConfigurationHelper @Inject constructor(
     }
 
     companion object {
-        const val DB_CONFIGURATION_RESTORED = "db_configuration_restored_1"
+        const val DB_CONFIGURATION_RESTORED = "db_configuration_restored"
     }
 }

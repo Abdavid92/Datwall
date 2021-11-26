@@ -157,11 +157,20 @@ class PurchasedPackagesManager @Inject constructor(
                         }
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: Exception) { }
+
+            val purchased = purchasedPackageRepository.getAll().first()
+
+            val packagesToAdd = mutableListOf<PurchasedPackage>()
+
+            packages.forEach { smsPackages ->
+                if (purchased.firstOrNull { it.date == smsPackages.date } == null){
+                    packagesToAdd.add(smsPackages)
+                }
             }
 
             withContext(Dispatchers.IO) {
-                purchasedPackageRepository.create(packages)
+                purchasedPackageRepository.create(packagesToAdd)
             }
         }
     }

@@ -14,6 +14,8 @@ import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val TAG = "DbSynchronizationWorker"
 
@@ -116,25 +118,8 @@ class DbSynchronizationWorker @AssistedInject constructor(
      * Restaura las configuraciones de la versión anterior de la aplicación.
      * */
     private suspend fun restoreOldConfiguration() {
-        if (!legacyConfiguration.isConfigurationRestored()) {
-
-            val apps = appRepository.all()
-                .filter { !it.access }
-
-            val updateApps = mutableListOf<App>()
-
-            legacyConfiguration.getLegacyRules().forEach { packageName ->
-                apps.firstOrNull { it.packageName == packageName }?.let {
-                    updateApps.add(it.apply {
-                        access = true
-                    })
-                }
-            }
-
-            if (updateApps.isNotEmpty())
-                appRepository.update(updateApps)
-
-            legacyConfiguration.setConfigurationRestored()
+        withContext(Dispatchers.IO) {
+            legacyConfiguration.restoreOldRules()
         }
     }
 
