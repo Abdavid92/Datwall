@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -464,6 +465,25 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
             findPreference<ListPreference>(key)
                 ?.setValueIndex(defaultValue.ordinal)
+        }
+    }
+
+    @Keep
+    class OthersFragment : AbstractPreferenceFragmentCompat() {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            super.onCreatePreferences(savedInstanceState, rootKey)
+            setPreferencesFromResource(R.xml.others_preferences, rootKey)
+
+            val key = PreferencesKeys.IS_FOREGROUND_APP_MODERN.name
+
+            findPreference<SwitchPreferenceCompat>(key)?.let { preference ->
+
+                val value = preferenceManager.preferenceDataStore
+                    ?.getBoolean(key, Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
+                    ?: (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
+
+                preference.isChecked = value
+            }
         }
     }
 

@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
         app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$ThemesFragment"
@@ -28,6 +29,12 @@
         app:icon="@drawable/ic_money"
         app:key="activation_key"
         app:title="@string/activation_header" />
+
+    <Preference
+        app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$OthersFragment"
+        app:key="others_key"
+        app:icon="@drawable/ic_bug_report"
+        app:title="@string/others_header" />
 
     <Preference
         app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$AboutFragment"

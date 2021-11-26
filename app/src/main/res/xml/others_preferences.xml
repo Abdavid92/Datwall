@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="is_foreground_app_modern"
+        app:title="@string/is_foreground_app_modern"
+        app:summaryOn="@string/is_foreground_app_modern_on"
+        app:summaryOff="@string/is_foreground_app_modern_off" />
+
+</PreferenceScreen>

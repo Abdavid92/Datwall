@@ -441,4 +441,8 @@
     <string name="select_packages_available">Seleccione los Paquetes Disponibles para %s</string>
     <string name="not_configured_yet">No se ha completado la configuración</string>
     <string name="sims_default">Sim Predeterminadas</string>
+    <string name="is_foreground_app_modern">Detección en modo moderno</string>
+    <string name="is_foreground_app_modern_on">Se usará un nuevo mecanismo de detección de las aplicaciones en primer plano.</string>
+    <string name="is_foreground_app_modern_off">Se usará el mecanismo antíguo de detección de aplicaciones en primer plano. Use este modo si el modo moderno presenta problemas para detectar la aplicación en primer plano. (Ej: la burbuja se demora en cambiar de estado).</string>
+    <string name="others_header">Otros ajustes</string>
 </resources>

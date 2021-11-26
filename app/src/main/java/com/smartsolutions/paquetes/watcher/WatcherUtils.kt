@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
+import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,14 +12,21 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.internalDataStore
+import com.smartsolutions.paquetes.settingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class WatcherUtils @Inject constructor(
     @ApplicationContext
     private val context: Context
 ) {
+
+    private var isModern = Build.VERSION.SDK_INT > Build.VERSION_CODES.O
 
     private val usageStatsManager = ContextCompat
         .getSystemService(context, UsageStatsManager::class.java)
@@ -30,7 +38,17 @@ class WatcherUtils @Inject constructor(
 
     private val packageManager = context.packageManager
 
-    suspend fun getLastApp(): String? {
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    init {
+        scope.launch {
+            context.settingsDataStore.data.collect {
+                isModern = it[PreferencesKeys.IS_FOREGROUND_APP_MODERN] ?: isModern
+            }
+        }
+    }
+
+    fun getLastApp(): String? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
             getLollipopMr1LastApp()
         else
@@ -51,10 +69,7 @@ class WatcherUtils @Inject constructor(
         return null
     }
 
-    private suspend fun getLollipopMr1LastApp(): String? {
-
-        val isModern = context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.IS_FOREGROUND_APP_MODERN)
-            ?: (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
+    private fun getLollipopMr1LastApp(): String? {
 
         return if (isModern){
             lastAppModeModern()
