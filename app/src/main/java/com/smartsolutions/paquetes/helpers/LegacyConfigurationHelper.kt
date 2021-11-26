@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.repositories.models.TrafficType
 import com.smartsolutions.paquetes.settingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -160,7 +161,21 @@ class LegacyConfigurationHelper @Inject constructor(
 
     private fun fillApp(cursor: Cursor): App {
         return App(
-            //TODO
+            cursor.getString(cursor.getColumnIndex("package_name")),
+            cursor.getInt(cursor.getColumnIndex("uid")),
+            cursor.getString(cursor.getColumnIndex("name")),
+            cursor.getLong(cursor.getColumnIndex("version")),
+            cursor.getInt(cursor.getColumnIndex("access")) == 1,
+            cursor.getInt(cursor.getColumnIndex("foreground_access")) == 1,
+            cursor.getInt(cursor.getColumnIndex("temp_access")) == 1,
+            cursor.getInt(cursor.getColumnIndex("internet")) == 1,
+            cursor.getInt(cursor.getColumnIndex("executable")) == 1,
+            cursor.getInt(cursor.getColumnIndex("system")) == 1,
+            cursor.getInt(cursor.getColumnIndex("ask")) == 1,
+            TrafficType.valueOf(cursor.getString(cursor.getColumnIndex("traffic_type"))),
+            cursor.getString(cursor.getColumnIndex("allow_annotations")),
+            cursor.getString(cursor.getColumnIndex("blocked_annotations")),
+            null
         )
     }
 
