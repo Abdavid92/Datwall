@@ -197,17 +197,21 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
     override fun complete() {
         if (configurationRequired) {
             kotlin.runCatching {
-                installedSims.forEach {
-                    if (it.network != Networks.NETWORK_NONE) {
-                        super.complete()
-                        return@runCatching
-                    }
+                val simDefault =
+                    installedSims.first { viewModel.isDefaultSim(it, SimDelegate.SimType.VOICE)!! }
+                if (simDefault.network != Networks.NETWORK_NONE) {
+                    super.complete()
+                    return@runCatching
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Es necesario configurar la ${simDefault.name()} porque es la Predeterminada de Llamadas",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@runCatching
                 }
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.not_configured_yet),
-                    Toast.LENGTH_SHORT
-                ).show()
+            }.onFailure {
+                throw IllegalStateException("No existe Sim Default")
             }
         } else {
             super.complete()

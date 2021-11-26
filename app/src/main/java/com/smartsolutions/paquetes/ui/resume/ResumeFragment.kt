@@ -21,7 +21,6 @@ import com.smartsolutions.paquetes.ui.AbstractFragment
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
-import com.smartsolutions.paquetes.ui.settings.sim.SimsDefaultDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
@@ -116,13 +115,6 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
                     Toast.LENGTH_SHORT
                 ).show()
             }
-
-            SimsDefaultDialogFragment.newInstance(
-                installedSims[binding.tabs.selectedTabPosition],
-                SimDelegate.SimType.VOICE
-            ) {
-                Toast.makeText(requireContext(), "HEcho", Toast.LENGTH_SHORT).show()
-            }.show(parentFragmentManager, null)
 
             return@setOnLongClickListener true
         }
