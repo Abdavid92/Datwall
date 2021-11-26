@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import android.content.Context
 import android.os.Build
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
@@ -38,13 +39,14 @@ class PackagesConfigurationViewModel @Inject constructor(
     }
 
     fun invokeOnDefaultSim(
+        context: Context,
         sim: Sim,
         simType: SimDelegate.SimType,
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
     ) {
         viewModelScope.launch {
-            simsHelper.invokeOnDefault(sim, simType, fragmentManager, onDefault)
+            simsHelper.invokeOnDefault(context, sim, simType, fragmentManager, onDefault)
         }
     }
 

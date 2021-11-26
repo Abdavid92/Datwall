@@ -89,6 +89,7 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                 when (radioGroupMode.checkedRadioButtonId) {
                     R.id.automatic_mode -> {
                         viewModel.invokeOnDefaultSim(
+                            requireContext(),
                             installedSims[sims.selectedItemPosition],
                             SimDelegate.SimType.VOICE,
                             parentFragmentManager

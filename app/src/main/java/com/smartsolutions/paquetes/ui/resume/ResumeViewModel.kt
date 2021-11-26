@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui.resume
 
 import android.app.Application
+import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
@@ -97,13 +98,14 @@ class ResumeViewModel @Inject constructor(
 
 
     fun invokeOnDefaultSim(
+        context: Context,
         sim: Sim,
         simType: SimDelegate.SimType,
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
     ){
         viewModelScope.launch {
-            simsHelper.invokeOnDefault(sim, simType, fragmentManager, onDefault)
+            simsHelper.invokeOnDefault(context, sim, simType, fragmentManager, onDefault)
         }
     }
 

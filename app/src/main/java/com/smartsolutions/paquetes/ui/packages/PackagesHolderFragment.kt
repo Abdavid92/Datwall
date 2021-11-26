@@ -113,6 +113,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
                 .setMessage(dataPackage.description)
                 .setPositiveButton(getString(R.string.purchase)){_, _ ->
                     viewModel.invokeOnDefaultSim(
+                        requireContext(),
                         it,
                         SimDelegate.SimType.VOICE,
                         parentFragmentManager

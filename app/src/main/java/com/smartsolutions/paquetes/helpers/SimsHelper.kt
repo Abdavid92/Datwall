@@ -17,14 +17,13 @@ import javax.inject.Inject
 
 
 class SimsHelper @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
     private val simManager: ISimManager2
 ) {
 
     private var dialog: AlertBottomDialog? = null
 
     suspend fun invokeOnDefault(
+        context: Context,
         sim: Sim,
         simType: SimDelegate.SimType,
         fragmentManager: FragmentManager,
@@ -35,7 +34,7 @@ class SimsHelper @Inject constructor(
             //No se cual es la default y pregunto para confirmar
             result == null -> {
                 dialog = AlertBottomDialog.Builder(context)
-                    .setView(inflateView(true, simType, sim, onDefault))
+                    .setView(inflateView(context,true, simType, sim, onDefault))
                     .show(fragmentManager)
             }
             result -> {
@@ -46,13 +45,13 @@ class SimsHelper @Inject constructor(
             //No es la default. Informo que no se puede realizar la acción
             else -> {
                 dialog = AlertBottomDialog.Builder(context)
-                    .setView(inflateView(false, simType, sim, onDefault))
+                    .setView(inflateView(context,false, simType, sim, onDefault))
                     .show(fragmentManager)
             }
         }
     }
 
-    private fun inflateView(ask: Boolean, type: SimDelegate.SimType, sim: Sim, onDefault: () -> Unit): View {
+    private fun inflateView(context: Context, ask: Boolean, type: SimDelegate.SimType, sim: Sim, onDefault: () -> Unit): View {
         val binding =
             FragmentSimsDefaultDialogBinding.inflate(LayoutInflater.from(context))
 
