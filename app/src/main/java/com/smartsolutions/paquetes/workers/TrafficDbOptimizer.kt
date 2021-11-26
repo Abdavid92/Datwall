@@ -9,9 +9,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
-import com.smartsolutions.paquetes.repositories.SimRepository
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository

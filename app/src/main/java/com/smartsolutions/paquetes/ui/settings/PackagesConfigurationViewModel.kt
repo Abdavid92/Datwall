@@ -21,6 +21,7 @@ import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlin.Exception
 
@@ -142,6 +143,12 @@ class PackagesConfigurationViewModel @Inject constructor(
             ).setAction(R.string.btn_retry) {
                 configureAutomaticPackages(fragment, fragmentManager)
             }.show()
+        }
+    }
+
+    fun isDefaultSim(sim: Sim, type: SimDelegate.SimType): Boolean? {
+        return runBlocking {
+            return@runBlocking simManager.isSimDefaultBoth(type, sim)
         }
     }
 
