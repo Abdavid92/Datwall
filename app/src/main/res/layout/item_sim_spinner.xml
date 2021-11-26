@@ -9,7 +9,8 @@
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/sim_icon"
         android:layout_width="32dp"
-        android:layout_height="32dp" />
+        android:layout_height="32dp"
+        tools:src="@drawable/ic_sim_card_24"/>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/sim_name"

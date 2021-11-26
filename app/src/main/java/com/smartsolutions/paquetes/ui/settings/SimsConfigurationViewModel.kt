@@ -28,15 +28,18 @@ class SimsConfigurationViewModel @Inject constructor(
     )
 
     fun getSims(
-        fragment: AbstractSettingsFragment,
-        fragmentManager: FragmentManager
+        fragment: AbstractSettingsFragment
     ): LiveData<List<Sim>> {
-        return delegate.getSims(fragment, fragmentManager)
+        return delegate.getSims(fragment)
     }
 
     fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim, onComplete: () -> Unit) {
         viewModelScope.launch {
-            withContext(Dispatchers.Main){
+
+            simManager.setDefaultSimManual(SimDelegate.SimType.DATA, defaultDataSim.slotIndex)
+            simManager.setDefaultSimManual(SimDelegate.SimType.VOICE, defaultVoiceSim.slotIndex)
+
+            withContext(Dispatchers.Main) {
                 onComplete()
             }
         }

@@ -61,7 +61,7 @@ data class Sim(
     var packages = emptyList<DataPackage>()
 
     @Ignore
-    var slotIndex: Int = 1
+    var slotIndex: Int = -1
 
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: throw NullPointerException(),

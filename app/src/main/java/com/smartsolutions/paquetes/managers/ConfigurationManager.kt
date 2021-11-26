@@ -1,7 +1,5 @@
 package com.smartsolutions.paquetes.managers
 
-import android.content.Context
-import android.os.Build
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
@@ -11,12 +9,9 @@ import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class ConfigurationManager @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
     private val simManager: ISimManager2,
     private val dataPackageManager: IDataPackageManager,
     private val activationManager: IActivationManager
@@ -53,6 +48,18 @@ class ConfigurationManager @Inject constructor(
                 }
             )
         }
+
+        list.add(
+            Configuration(
+                true,
+                SimsConfigurationFragment::class.java
+            ) {
+                val defaultSimData = simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)
+                val defaultSimVoice = simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
+
+                return@Configuration defaultSimData != null && defaultSimVoice != null
+            }
+        )
 
         list.add(
             Configuration(

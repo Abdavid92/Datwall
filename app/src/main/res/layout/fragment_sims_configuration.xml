@@ -40,7 +40,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/data_sim_label"
@@ -49,60 +49,46 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/summary"
             android:text="Linea predeterminada para datos"
+            android:textAppearance="@style/TextAppearance.AppCompat"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:layout_marginStart="8dp"/>
+            android:layout_marginStart="8dp" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_data_sim"
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/data_sim"
+            android:padding="4dp"
+            tools:entries="@array/sim_networks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/data_sim_label"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp">
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/data_sim"
-                android:padding="4dp"
-                android:theme="@style/Theme.Datwall.AppBarOverlay"
-                tools:entries="@array/sim_networks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </androidx.cardview.widget.CardView>
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/voice_sim_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_data_sim"
+            app:layout_constraintTop_toBottomOf="@id/data_sim"
             android:text="Linea predeterminada para llamadas"
+            android:textAppearance="@style/TextAppearance.AppCompat"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_marginStart="8dp"/>
 
-        <androidx.cardview.widget.CardView
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/voice_sim"
+            android:padding="4dp"
+            tools:entries="@array/sim_networks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/voice_sim_label"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp">
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/voice_sim"
-                android:padding="4dp"
-                tools:entries="@array/sim_networks"
-                android:theme="@style/Theme.Datwall.AppBarOverlay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </androidx.cardview.widget.CardView>
-
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_save"

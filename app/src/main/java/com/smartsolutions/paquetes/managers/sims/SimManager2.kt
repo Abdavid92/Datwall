@@ -58,6 +58,7 @@ class SimManager2 @Inject constructor(
 
 
     override suspend fun setDefaultSimManual(type: SimDelegate.SimType, slot: Int) {
+
         context.internalDataStore.edit {
             it[
                     when (type) {

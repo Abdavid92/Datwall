@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,12 +28,7 @@ class SimsAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
-        if (convertView != null)
-            return convertView
-
-        val layoutInflater = LayoutInflater.from(parent.context)
-
-        val view = convertView ?: layoutInflater
+        val view = convertView ?: LayoutInflater.from(parent.context)
             .inflate(R.layout.item_sim_spinner, parent, false)
 
         bindView(view, position)
@@ -40,6 +36,7 @@ class SimsAdapter(
         return view
     }
 
+    @SuppressLint("SetTextI18n")
     private fun bindView(view: View, position: Int) {
         val icon = view.findViewById<ImageView>(R.id.sim_icon)
         val name = view.findViewById<TextView>(R.id.sim_name)
