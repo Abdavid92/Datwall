@@ -76,7 +76,7 @@ abstract class DbContext : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context,
                         DbContext::class.java,
-                        "data.db")
+                        "data_1.db")
                         .build()
 
                     INSTANCE = instance
