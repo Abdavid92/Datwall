@@ -479,7 +479,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             findPreference<SwitchPreferenceCompat>(key)?.let { preference ->
 
                 val value = preferenceManager.preferenceDataStore
-                    ?.getBoolean(key, Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
+                    ?.getBoolean(key, (Build.VERSION.SDK_INT > Build.VERSION_CODES.O))
                     ?: (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
 
                 preference.isChecked = value

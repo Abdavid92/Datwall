@@ -54,7 +54,7 @@ class SimsHelper @Inject constructor(
 
     private fun inflateView(ask: Boolean, type: SimDelegate.SimType, sim: Sim, onDefault: () -> Unit): View {
         val binding =
-            FragmentSimsDefaultDialogBinding.inflate(LayoutInflater.from(context), null, false)
+            FragmentSimsDefaultDialogBinding.inflate(LayoutInflater.from(context))
 
         binding.apply {
 
