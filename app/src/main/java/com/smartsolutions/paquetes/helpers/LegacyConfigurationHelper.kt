@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.database.Cursor
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -116,7 +117,51 @@ class LegacyConfigurationHelper @Inject constructor(
 
         val db = context.openOrCreateDatabase("data.db", Context.MODE_PRIVATE, null)
 
+        val result = mutableListOf<App>()
 
+        kotlin.runCatching {
+            val cursor = db.query(
+                "apps",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+
+            if (cursor.moveToFirst()) {
+
+                result.add(fillApp(cursor))
+
+                while (cursor.moveToNext()) {
+                    result.add(fillApp(cursor))
+                }
+            }
+
+            cursor.close()
+
+            context.deleteDatabase("data.db")
+        }
+
+        val apps = appRepository.all()
+        val appsUpdate = mutableListOf<App>()
+
+        result.forEach { appResult ->
+            apps.firstOrNull { it == appResult }?.let {
+                appsUpdate.add(appResult)
+            }
+        }
+
+        if (appsUpdate.isNotEmpty())
+            appRepository.update(appsUpdate)
+    }
+
+
+    private fun fillApp(cursor: Cursor): App {
+        return App(
+            //TODO
+        )
     }
 
     /**
