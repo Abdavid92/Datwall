@@ -1,11 +1,14 @@
 package com.smartsolutions.paquetes.services
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -19,6 +22,10 @@ import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.serverApis.models.Result
+import com.smartsolutions.paquetes.ui.AbstractFragment
+import com.smartsolutions.paquetes.ui.FragmentContainerActivity
+import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import com.smartsolutions.paquetes.watcher.TrafficRegistration
 import dagger.hilt.android.AndroidEntryPoint
@@ -149,6 +156,8 @@ class DatwallService : Service(), CoroutineScope {
 
         Log.i(TAG, "registering traffic registration")
         trafficRegistration.register()
+
+        registerSimSlotDefaultCollector()
 
         return START_STICKY
     }
@@ -285,7 +294,12 @@ class DatwallService : Service(), CoroutineScope {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
 
-                    val defaultDataSim = sims.first { simManager.isSimDefaultBoth(SimDelegate.SimType.DATA, it) == true }
+                    val defaultDataSim = sims.first {
+                        simManager.isSimDefaultBoth(
+                            SimDelegate.SimType.DATA,
+                            it
+                        ) == true
+                    }
 
                     return@combine userDataBytes
                         .filter { it.simId == defaultDataSim.id }
@@ -394,6 +408,91 @@ class DatwallService : Service(), CoroutineScope {
             mNotificationBuilder.setSmallIcon(getIcon(rxBytes + txBytes))
                 .build()
         )
+    }
+
+
+    private fun registerSimSlotDefaultCollector() {
+        launch {
+            val resultVoice = simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE)
+            val resultData = simManager.getDefaultSimSystem(SimDelegate.SimType.DATA)
+
+            var canShow = false
+
+            if (resultVoice.isFailure && (resultVoice as Result.Failure).throwable == UnsupportedOperationException()){
+                canShow = true
+            }
+
+            if (resultData.isFailure && (resultData as Result.Failure).throwable == UnsupportedOperationException()){
+                canShow = true
+            }
+
+            if (!canShow){
+                return@launch
+            }
+
+            applicationContext.internalDataStore.data.collect {
+
+                val simData = simManager.getDefaultSimManual(SimDelegate.SimType.DATA)
+                val simVoice = simManager.getDefaultSimManual(SimDelegate.SimType.VOICE)
+
+                if (simData != null && simVoice != null) {
+
+                    val remoteView = RemoteViews(
+                        applicationContext.packageName,
+                        R.layout.notification_default_sim_slot
+                    )
+
+                    simVoice.icon?.let {
+                        remoteView.setImageViewBitmap(R.id.icon_slot_call, it)
+                    }
+
+                    simData.icon?.let {
+                        remoteView.setImageViewBitmap(R.id.icon_slot_data, it)
+                    }
+
+                    remoteView.setTextViewText(R.id.name_slot_call, simVoice.name())
+                    remoteView.setTextViewText(R.id.name_slot_data, simData.name())
+
+                    val color = uiHelper.getTextColorByTheme()
+
+                    remoteView.setTextColor(R.id.header_sim, color)
+                    remoteView.setTextColor(R.id.header_call, color)
+                    remoteView.setTextColor(R.id.header_data, color)
+                    remoteView.setTextColor(R.id.name_slot_call, color)
+                    remoteView.setTextColor(R.id.name_slot_data, color)
+
+                    val notification = NotificationCompat.Builder(
+                        applicationContext,
+                        NotificationHelper.MAIN_CHANNEL_ID
+                    )
+                        .setSmallIcon(R.drawable.ic_sim_notification)
+                        .setCustomContentView(remoteView)
+                        .setOngoing(true)
+                        .setContentIntent(
+                            PendingIntent.getActivity(
+                                applicationContext,
+                                123,
+                                Intent(
+                                    applicationContext,
+                                    FragmentContainerActivity::class.java
+                                ).apply {
+                                    putExtra(
+                                        FragmentContainerActivity.EXTRA_FRAGMENT,
+                                        SimsConfigurationFragment::class.java.name
+                                    )
+                                },
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                                } else {
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                                }
+                            )
+                        ).build()
+
+                    mNotificationManager.notify(NotificationHelper.SIM_NOTIFICATION_ID, notification)
+                }
+            }
+        }
     }
 
     /**

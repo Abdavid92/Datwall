@@ -145,6 +145,7 @@ class NotificationHelper @Inject constructor(
         const val ALERT_NOTIFICATION_ID = 2
         const val WORKERS_NOTIFICATION_ID = 3
         const val FIREWALL_NOTIFICATION_ID = 4
+        const val SIM_NOTIFICATION_ID = 5
 
         //Canal principal
         const val MAIN_CHANNEL_ID = "main_channel"

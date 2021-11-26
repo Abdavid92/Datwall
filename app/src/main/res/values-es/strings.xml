@@ -440,4 +440,5 @@
     <string name="plan_avalaible">Solo los Planes Combinados</string>
     <string name="select_packages_available">Seleccione los Paquetes Disponibles para %s</string>
     <string name="not_configured_yet">No se ha completado la configuración</string>
+    <string name="sims_default">Sim Predeterminadas</string>
 </resources>
