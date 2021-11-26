@@ -40,15 +40,18 @@ class FragmentContainerActivity : AbstractActivity(R.layout.activity_fragment_co
         finish()
     }
 
-    companion object {
-
-        const val EXTRA_FRAGMENT = "com.smartsolutions.paquetes.extra.FRAGMENT"
-    }
-
     override fun replace(fragment: AbstractSettingsFragment) {
         supportFragmentManager.commitNow {
             setReorderingAllowed(true)
             replace(R.id.container_view, fragment)
         }
+    }
+
+    companion object {
+
+        /**
+         * Nombre de la clase del fragmento a instanciar.
+         * */
+        const val EXTRA_FRAGMENT = "com.smartsolutions.paquetes.extra.FRAGMENT"
     }
 }

@@ -30,10 +30,6 @@ val Context.workersDataStore by preferencesDataStore(name = "workers_settings")
  * Contiene las claves de las preferencias.
  * */
 object PreferencesKeys {
-    /**
-     * Indica si no se pueden obtener las lineas predeterminadas del sistema y por ende se necesita configuración manual
-     */
-    val IS_DUAL_SIM_BROKEN = booleanPreferencesKey("is_dual_sim_broken")
 
     /**
      * Indica la hora en que se empezó a esperar la confirmación de la compra
@@ -213,12 +209,29 @@ object PreferencesKeys {
     /**
      * Indica si ya fueron sembrados los paquetes comprados anteriormente
      */
-    val IS_SEED_OLD_PURCHASED_PACKAGES = booleanPreferencesKey("is_seed_old_purchased_packages")
+    val IS_SEED_OLD_PURCHASED_PACKAGES = booleanPreferencesKey("is_seeded_old_purchased_packages")
 
     /**
      * Indica si la app se cerro previamente debido a una excepcion y por lo tanto el Kernel no debe iniciar sus servicios
      */
     val IS_THROWED = booleanPreferencesKey("is_throwed")
+
+    /**
+     * Indica que se debe forzar el modo de una sola linea.
+     * */
+    val FORCE_MODE_SINGLE_SIM = booleanPreferencesKey("force_mode_single_sim")
+
+    /**
+     * Slots que se considerarán predeterminados para llamadas y datos
+     */
+    val DEFAULT_VOICE_SLOT = intPreferencesKey("default_voice_slot")
+
+    val DEFAULT_DATA_SLOT = intPreferencesKey("default_data_slot")
+
+    /**
+     * Indica si se utilizará el modo moderno para obtener la app en primer plano o el antiguo
+     */
+    val IS_FOREGROUND_APP_MODERN = booleanPreferencesKey("is_foreground_app_modern")
 
     /**
      * Busca una clave de preferencia por el nombre.

@@ -1,15 +1,18 @@
 package com.smartsolutions.paquetes.ui.packages
 
 import android.app.Application
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.helpers.SimsHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
@@ -23,10 +26,11 @@ import javax.inject.Inject
 @HiltViewModel
 class PackagesViewModel @Inject constructor(
     application: Application,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val dataPackageManager: IDataPackageManager,
     private val simRepository: ISimRepository,
-    private val ussdHelper: USSDHelper
+    private val ussdHelper: USSDHelper,
+    private val simsHelper: SimsHelper
 ) : AndroidViewModel(application) {
 
     private var liveSimPackageInfo = MutableLiveData<Pair<Sim, List<IDataPackage>>>()
@@ -35,10 +39,20 @@ class PackagesViewModel @Inject constructor(
         return simManager.flowInstalledSims().asLiveData(Dispatchers.IO)
     }
 
+    fun invokeOnDefaultSim(
+        sim: Sim,
+        simType: SimDelegate.SimType,
+        fragmentManager: FragmentManager,
+        onDefault: () -> Unit
+    ){
+        viewModelScope.launch {
+            simsHelper.invokeOnDefault(sim, simType, fragmentManager, onDefault)
+        }
+    }
 
     fun getSimAndPackages(simID: String): LiveData<Pair<Sim, List<IDataPackage>>>{
         viewModelScope.launch(Dispatchers.IO) {
-            simRepository.get(simID, true)?.let {
+            simRepository.get(simID)?.let {
                 liveSimPackageInfo.postValue(it to prepareListPackages(it))
             }
         }

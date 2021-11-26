@@ -23,9 +23,13 @@ class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sim
         val dataSim = view.findViewById<AppCompatSpinner>(R.id.data_sim)
         val voiceSim = view.findViewById<AppCompatSpinner>(R.id.voice_sim)
 
-        viewModel.getSims(this, childFragmentManager).observe(viewLifecycleOwner) {
-            dataSim.adapter = SimsAdapter(it)
-            voiceSim.adapter = SimsAdapter(it)
+        viewModel.getSims(this).observe(viewLifecycleOwner) {
+
+            if (dataSim.adapter == null)
+                dataSim.adapter = SimsAdapter(it)
+
+            if (voiceSim.adapter == null)
+                voiceSim.adapter = SimsAdapter(it)
         }
 
         view.findViewById<Button>(R.id.btn_save)
@@ -33,7 +37,7 @@ class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sim
                 viewModel.saveChanges(
                     dataSim.selectedItem as Sim,
                     voiceSim.selectedItem as Sim
-                ){
+                ) {
                     complete()
                 }
             }

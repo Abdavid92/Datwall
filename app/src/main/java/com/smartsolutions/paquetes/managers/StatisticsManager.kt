@@ -3,10 +3,9 @@ package com.smartsolutions.paquetes.managers
 import android.content.Context
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -26,7 +25,7 @@ class StatisticsManager @Inject constructor(
     private val context: Context,
     private val networkUsageManager: NetworkUsageManager,
     private val userDataBytesRepository: IUserDataBytesRepository,
-    private val simManager: ISimManager
+    private val simManager: ISimManager2
 ) : IStatisticsManager {
 
     override suspend fun getAverage(start: Long, finish: Long, timeUnit: TimeUnit): DataUnitBytes {
@@ -51,7 +50,7 @@ class StatisticsManager @Inject constructor(
     }
 
     override suspend fun getRemainder(timeUnit: TimeUnit): DataUnitBytes {
-        simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
+        simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.let { sim ->
             return getRemainder(timeUnit, userDataBytesRepository.bySimId(sim.id))
         }
 

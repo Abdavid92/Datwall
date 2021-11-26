@@ -13,7 +13,7 @@ import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -36,7 +36,7 @@ class TrafficRegistration @Inject constructor(
     private val appRepository: IAppRepository,
     private val userDataBytesManager: IUserDataBytesManager,
     private val networkUtils: NetworkUtils,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val trafficRepository: ITrafficRepository,
     private val watcher: RxWatcher
 ) : CoroutineScope {
@@ -198,7 +198,7 @@ class TrafficRegistration @Inject constructor(
             networkUsageManager.getAppsUsage(startTime, System.currentTimeMillis())
         } else {
             val traffics = mutableListOf<Traffic>()
-            simManager.getDefaultSim(SimDelegate.SimType.DATA)?.let { sim ->
+            simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.let { sim ->
                 apps.forEach { app ->
                     traffics.add(Traffic(
                         app.uid,
@@ -253,7 +253,7 @@ class TrafficRegistration @Inject constructor(
      */
     private suspend fun registerLollipopTraffic(rx: Long, tx: Long, currentTime: Long) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && rx > 0 && tx > 0) {
-            simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+            simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
                 val traffic = Traffic(
                     NetworkUsageManager.GENERAL_TRAFFIC_UID,
                     rx,

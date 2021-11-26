@@ -5,13 +5,12 @@ import android.os.Build
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.SmsInboxReaderHelper
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,7 +28,7 @@ class PurchasedPackagesManager @Inject constructor(
     private val purchasedPackageRepository: IPurchasedPackageRepository,
     private val smsReader: SmsInboxReaderHelper,
     private val simDelegate: SimDelegate,
-    private val simManager: ISimManager
+    private val simManager: ISimManager2
 ) : IPurchasedPackagesManager {
 
     private val dataStore = context.internalDataStore
@@ -141,7 +140,7 @@ class PurchasedPackagesManager @Inject constructor(
                                     )
                                 }
                             } else {
-                                simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let {
+                                simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
                                     packages.add(
                                         PurchasedPackage(
                                             System.currentTimeMillis(),

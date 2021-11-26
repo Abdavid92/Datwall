@@ -2,14 +2,15 @@ package com.smartsolutions.paquetes.ui.resume
 
 import android.app.Application
 import androidx.datastore.preferences.core.edit
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.helpers.SimsHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.managers.StatisticsManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
@@ -31,10 +32,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ResumeViewModel @Inject constructor(
     application: Application,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager,
-    private val statisticsManager: IStatisticsManager
+    private val statisticsManager: IStatisticsManager,
+    private val simsHelper: SimsHelper
 ) : AndroidViewModel(application) {
 
     private var filter = FilterUserDataBytes.NORMAL
@@ -94,6 +96,17 @@ class ResumeViewModel @Inject constructor(
     }
 
 
+    fun invokeOnDefaultSim(
+        sim: Sim,
+        simType: SimDelegate.SimType,
+        fragmentManager: FragmentManager,
+        onDefault: () -> Unit
+    ){
+        viewModelScope.launch {
+            simsHelper.invokeOnDefault(sim, simType, fragmentManager, onDefault)
+        }
+    }
+
 
     private fun calculateTotals(list: List<UserDataBytes>): Triple<Int, DataValue, DataValue> {
         var usage = 0L
@@ -122,7 +135,7 @@ class ResumeViewModel @Inject constructor(
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {
         viewModelScope.launch {
             try {
-                simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let {
+                simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let {
                     synchronizationManager.synchronizeUserDataBytes(it)
                 }
                 withContext(Dispatchers.Main) {

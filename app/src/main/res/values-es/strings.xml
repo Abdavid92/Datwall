@@ -106,8 +106,8 @@
     <string name="open_settings">Abrir ajustes</string>
     <string name="packages_configuration_summary">Vamos a configurar los paquetes disponibles para la línea actual.</string>
     <string name="start_packages_configuration">Iniciar configuración</string>
-    <string name="automatic_mode">Automático (Recomendado)</string>
-    <string name="manual_mode">Manual (Use esta opción solo si está seguro de lo que hace.)</string>
+    <string name="automatic_mode">Automático</string>
+    <string name="manual_mode">Manual</string>
     <string name="invalid_network_option">Por favor, seleccione una opción válida</string>
     <string name="missing_permmissions_title_notification">Faltan permisos</string>
     <string name="missing_permmissions_description_notification">Toque aquí para poder conceder los permisos que faltan.</string>
@@ -268,8 +268,8 @@
     <string name="sim_default_data">Datos</string>
     <string name="sim_default_voice">Voz</string>
     <string name="not_execute_action">No se puede realizar la acción</string>
-    <string name="no_sim_default_data">La sim seleccionada no es la predeterminada para Datos Móviles</string>
-    <string name="no_sim_default_voice">La sim seleccionada no es la predeterminada para llamadas</string>
+    <string name="no_sim_default_data">La %s no es la Sim predeterminada para Datos Móviles</string>
+    <string name="no_sim_default_voice">La %s no es la Sim predeterminada para Llamadas</string>
     <string name="set_default_sim">Establecer Sim Predeterminada</string>
     <string name="is_default_voice">Predeterminada Voz</string>
     <string name="is_default_data">Predeterminada Datos</string>
@@ -430,4 +430,15 @@
     <string name="rest_bytes">Megas Restantes</string>
     <string name="btn_change">Cambiar</string>
     <string name="date_bytes">Fecha de Expiración</string>
+    <string name="is_default_sim_data">¿Es la %s la Sim seleccionada la predeterminada para Datos Móviles?</string>
+    <string name="is_default_sim_voice">¿Es la %s la Sim seleccionada la predeterminada para Llamadas?</string>
+    <string name="is_default_sim_summary">Mis Datos no puede determinar si la Sim seleccionada es la predeterminada o no. Debe asegurarse de que la Sim sea la predeterminada en los Ajustes del Sistema antes de continuar o se producirán inexactitudes en la información. Seleccione Sí para realizar la operación si está seguro de que la Sim seleccionada es la predeterminada</string>
+    <string name="no_sim_default_summary">No se puede realizar la acción porque la Sim seleccionada no es la predeterminada. Debe cambiar en los Ajustes del Sistema la Sim predeterminada y volver a intentarlo</string>
+    <string name="messaging_apps">Aplicaciones de consumo de mensajería (%d)</string>
+    <string name="all_packages_plan_available">Todos los Planes y Paquetes LTE</string>
+    <string name="packages_avaible">Solo Paquetes LTE</string>
+    <string name="plan_avalaible">Solo los Planes Combinados</string>
+    <string name="select_packages_available">Seleccione los Paquetes Disponibles para %s</string>
+    <string name="not_configured_yet">No se ha completado la configuración</string>
+    <string name="sims_default">Sim Predeterminadas</string>
 </resources>

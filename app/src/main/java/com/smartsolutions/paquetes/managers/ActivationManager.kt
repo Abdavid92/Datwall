@@ -23,7 +23,7 @@ import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
@@ -33,7 +33,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,7 +50,7 @@ class ActivationManager @Inject constructor(
     private val gson: Gson,
     private val client: IActivationClient,
     private val ussdHelper: USSDHelper,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val notificationHelper: NotificationHelper,
     private val legacyConfigurationHelper: LegacyConfigurationHelper
 ) : IActivationManager, CoroutineScope {
@@ -278,7 +277,7 @@ class ActivationManager @Inject constructor(
 
     private suspend fun fillPhone(simIndex: Int, license: License) {
         try {
-            license.phone = simManager.getSimBySlotIndex(simIndex)?.phone
+            license.phone = simManager.getInstalledSims().firstOrNull { it.slotIndex == simIndex }?.phone
         } catch (e: Exception) {
 
         }

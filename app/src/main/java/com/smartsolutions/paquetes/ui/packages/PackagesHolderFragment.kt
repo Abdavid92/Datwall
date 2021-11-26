@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPackagesHolderBinding
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
@@ -78,7 +79,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
         viewModel.getSimAndPackages(simId).observe(viewLifecycleOwner) {
             sim = it.first
 
-            if (it.first.packages.isNotEmpty()) {
+            if (it.second.isNotEmpty()) {
                 binding.apply {
                     linSimNotConfigured.visibility = View.GONE
                     recycler.visibility = View.VISIBLE
@@ -111,7 +112,13 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
             builder.setTitle("Comprar ${dataPackage.name}")
                 .setMessage(dataPackage.description)
                 .setPositiveButton(getString(R.string.purchase)){_, _ ->
-                    viewModel.purchasePackage(it, dataPackage, this)
+                    viewModel.invokeOnDefaultSim(
+                        it,
+                        SimDelegate.SimType.VOICE,
+                        parentFragmentManager
+                    ) {
+                        viewModel.purchasePackage(it, dataPackage, this)
+                    }
                 }
                 .setNegativeButton(getString(R.string.btn_cancel), null)
                 .show()

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="sim_networks">
-        <item>Seleccione una opción…</item>
         <item>Todos los Planes Combinados y Paquetes LTE</item>
         <item>Solo los Planes Combinados</item>
         <item>Solo los Paquetes LTE</item>

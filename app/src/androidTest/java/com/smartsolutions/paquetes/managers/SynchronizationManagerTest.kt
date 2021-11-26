@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

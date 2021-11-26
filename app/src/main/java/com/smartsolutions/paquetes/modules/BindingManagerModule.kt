@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.modules
 
 import com.smartsolutions.paquetes.managers.*
 import com.smartsolutions.paquetes.managers.contracts.*
+import com.smartsolutions.paquetes.managers.sims.SimManager2
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,7 +22,8 @@ interface BindingManagerModule {
     fun bindIPurchasedPackagesManager(impl: PurchasedPackagesManager): IPurchasedPackagesManager
 
     @Binds
-    fun bindISimManagerNew(impl: SimManager): ISimManager
+    fun bindISimManager(impl: SimManager2): ISimManager2
+
 
     @Binds
     fun bindIStatisticsManager(impl: StatisticsManager): IStatisticsManager

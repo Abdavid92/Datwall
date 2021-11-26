@@ -20,7 +20,7 @@
         <item name="alertDialogTheme">@style/Theme.Datwall.AlertDialogStyle</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialogStyle</item>
         <item name="extendedFloatingActionButtonStyle">@style/ExtendedFabButton</item>
-        <item name="spinnerStyle">@style/SpinnerStyle</item>
+        <!--<item name="spinnerStyle">@style/SpinnerStyle</item>-->
     </style>
 
     <style name="Theme.Datwall.Fullscreen">

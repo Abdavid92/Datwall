@@ -45,6 +45,7 @@
                         android:id="@+id/spinner_usage_options"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/SpinnerStyle"
                         android:entries="@array/usage_options"
                         android:minHeight="35dp"
                         tools:ignore="TouchTargetSizeCheck" />

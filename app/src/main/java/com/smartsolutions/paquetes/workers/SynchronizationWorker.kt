@@ -10,7 +10,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
@@ -30,7 +30,7 @@ class SynchronizationWorker @AssistedInject constructor(
     params: WorkerParameters,
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(context, params) {
 
@@ -41,7 +41,7 @@ class SynchronizationWorker @AssistedInject constructor(
         if(context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.ENABLED_LTE) == true) {
             canExecute = try {
                 userDataBytesRepository.get(
-                    simManager.getDefaultSim(SimDelegate.SimType.DATA)!!.id,
+                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)!!.id,
                     DataBytes.DataType.International
                 ).exists()
             } catch (e: Exception) {
@@ -66,7 +66,7 @@ class SynchronizationWorker @AssistedInject constructor(
         if (canExecute) {
             notifyUpdate()
             try {
-                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSim(SimDelegate.SimType.VOICE)!!)
+                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)!!)
             } catch (e: Exception) {
             }
             cancelNotification()

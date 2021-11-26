@@ -6,7 +6,6 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
-import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
@@ -35,7 +34,7 @@ class DataPackageManager @Inject constructor(
     private val purchasedPackagesManager: IPurchasedPackagesManager,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simManager: ISimManager,
+    private val simManager: ISimManager2,
     private val simRepository: ISimRepository
 ): IDataPackageManager, CoroutineScope {
 
@@ -91,7 +90,8 @@ class DataPackageManager @Inject constructor(
         var enabledLte = false
 
         //Linea predeterminada para llamadas
-        simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+        simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+
             plainsResultText?.let {
                 val text = it.string()
 
@@ -122,8 +122,8 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override suspend fun setDataPackagesManualConfiguration(network: String) {
-        val defaultSim = simManager.getDefaultSim(SimDelegate.SimType.VOICE)?.apply {
+    override suspend fun setDataPackagesManualConfiguration(network: String, sim: Sim) {
+        sim.apply {
             this.network = network
 
             //Fecha en la que se configuró esta linea.
@@ -131,15 +131,13 @@ class DataPackageManager @Inject constructor(
         }
 
         withContext(Dispatchers.IO) {
-            defaultSim?.let {
-                simRepository.update(it)
-            }
+           simRepository.update(sim)
         }
     }
 
     override suspend fun isConfiguredDataPackages(): Boolean {
         return try {
-            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
+            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
                 ?.network ?: Networks.NETWORK_NONE != Networks.NETWORK_NONE
         } catch (e: IllegalStateException) {
             false
@@ -172,10 +170,10 @@ class DataPackageManager @Inject constructor(
     override suspend fun registerDataPackage(smsBody: String, simIndex: Int) {
 
         val defaultSim = if (simIndex == -1)
-            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
+            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
         else
-            simManager.getSimBySlotIndex(simIndex) ?:
-            simManager.getDefaultSim(SimDelegate.SimType.VOICE)
+            simManager.getInstalledSims().firstOrNull { it.slotIndex == simIndex } ?:
+            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
 
         if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
             val bytes = getBytesFromText("Bonos: ", smsBody)

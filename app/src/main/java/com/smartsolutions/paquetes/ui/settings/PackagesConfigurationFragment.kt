@@ -5,16 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.core.view.ViewCompat
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
+import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.ui.settings.sim.DefaultSimsDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class PackagesConfigurationFragment : AbstractSettingsFragment() {
@@ -24,7 +24,9 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
     private var _binding: FragmentPackagesConfigurationBinding? = null
     private val binding get() = _binding!!
 
-    private var simSelected: Sim? = null
+    private lateinit var installedSims: List<Sim>
+
+    private var simID: String? = null
 
     /**
      * Indica si es obligatorio configurar los paquetes. De ser así el fragmento no
@@ -32,278 +34,198 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
      * Esta variable se guarda en el fragmento y no en el viewModel porque su valor se recoje de
      * la propiedad [getArguments] que sobrevive al ciclo de vida del fragmento.
      * */
-    private var configurationRequired: Boolean = DEFAULT_CONFIGURATION_REQUIRED
-
-    private var defaultSimId: String? = null
+    private var configurationRequired: Boolean =
+        DEFAULT_CONFIGURATION_REQUIRED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        configurationRequired = arguments?.getBoolean(EXTRA_CONFIGURATION_REQUIRED) ?: configurationRequired
-        defaultSimId = arguments?.getString(EXTRA_DEFAULT_SIM_ID)
+        configurationRequired =
+            arguments?.getBoolean(EXTRA_CONFIGURATION_REQUIRED) ?: configurationRequired
+        simID = arguments?.getString(EXTRA_DEFAULT_SIM_ID)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentPackagesConfigurationBinding.inflate(
-            inflater,
-            container,
-            false
-        ).apply {
-            /*Esta propiedad es el eje central del modo de configuración de los paquetes.*/
-            automatic = true
-            network = viewModel.lastNetworkResult
-        }
-
+        _binding = FragmentPackagesConfigurationBinding.inflate(inflater, container, false)
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        prepareSimSelection()
-        preparePackagesConfigurations()
-        prepareManualPackageConfigurations()
+        viewModel.geInstalledSims().observe(viewLifecycleOwner) {
+            installedSims = it
+            binding.cardSimSelection.visibility = if (it.size > 1) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+            setAdapterSpinner(it)
 
-        binding.btnContinue.setOnClickListener {
+            showPackagesAvailable(installedSims[binding.sims.selectedItemPosition].network)
+        }
 
-            it.isClickable = false
+        binding.apply {
 
-            complete()
+            sims.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    kotlin.runCatching {
+                        showPackagesAvailable(installedSims[position].network)
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+
+            btnStartConfiguration.setOnClickListener {
+                when (radioGroupMode.checkedRadioButtonId) {
+                    R.id.automatic_mode -> {
+                        viewModel.invokeOnDefaultSim(
+                            installedSims[sims.selectedItemPosition],
+                            SimDelegate.SimType.VOICE,
+                            parentFragmentManager
+                        ) {
+                            viewModel.configureAutomaticPackages(
+                                this@PackagesConfigurationFragment,
+                                parentFragmentManager
+                            )
+                        }
+                    }
+                    R.id.manual_mode -> {
+                        showDialogManualMode()
+                    }
+                    else -> {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.must_have_select),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+
+            btnContinue.setOnClickListener {
+                complete()
+            }
         }
     }
 
+
+    private fun setAdapterSpinner(list: List<Sim>) {
+        val simsNames = mutableListOf<String>()
+
+        list.forEach {
+            simsNames.add(it.name())
+        }
+
+        binding.apply {
+            val position = if (simID != null) {
+                list.firstOrNull { it.id == simID }?.let {
+                    return@let list.indexOf(it)
+                } ?: sims.selectedItemPosition
+            } else {
+                sims.selectedItemPosition
+            }
+            simID = null
+            sims.adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, simsNames)
+            if (position in simsNames.indices) {
+                sims.setSelection(position)
+            }
+        }
+    }
+
+    private fun showDialogManualMode() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(
+                getString(
+                    R.string.select_packages_available,
+                    installedSims[binding.sims.selectedItemPosition].name()
+                )
+            )
+            .setItems(
+                R.array.sim_networks
+            ) { _, pos ->
+                viewModel.configureManualPackages(
+                    when (pos) {
+                        0 -> Networks.NETWORK_3G_4G
+                        1 -> Networks.NETWORK_3G
+                        2 -> Networks.NETWORK_4G
+                        else -> Networks.NETWORK_NONE
+                    },
+                    installedSims[binding.sims.selectedItemPosition]
+                )
+            }.show()
+    }
+
+    private fun showPackagesAvailable(@Networks network: String) {
+        binding.apply {
+            cardManualOptions.visibility = if (network != Networks.NETWORK_NONE) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            packagesAvailable.text = getString(
+                when (network) {
+                    Networks.NETWORK_3G_4G -> {
+                        R.string.all_packages_plan_available
+                    }
+                    Networks.NETWORK_4G -> {
+                        R.string.packages_avaible
+                    }
+                    Networks.NETWORK_3G -> {
+                        R.string.plan_avalaible
+                    }
+                    else -> {
+                        R.string.pkgs_not_configured
+                    }
+                }
+            )
+        }
+    }
+
+
     override fun complete() {
-
         if (configurationRequired) {
-
-            if (viewModel.lastNetworkResult != Networks.NETWORK_NONE)
-                super.complete()
-            else
+            kotlin.runCatching {
+                installedSims.forEach {
+                    if (it.network != Networks.NETWORK_NONE) {
+                        super.complete()
+                        return@runCatching
+                    }
+                }
                 Toast.makeText(
                     requireContext(),
-                    R.string.package_configuration_required,
-                    Toast.LENGTH_SHORT)
-                    .show()
+                    getString(R.string.not_configured_yet),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         } else {
             super.complete()
         }
     }
 
-    private fun prepareManualPackageConfigurations() {
-
-        binding.spinnerPackages.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-
-                simSelected?.let {
-                    if(!it.defaultVoice){
-                        binding.radioGroupMode.check(R.id.automatic_mode)
-                        Toast.makeText(requireContext(), getString(R.string.no_sim_default_voice), Toast.LENGTH_SHORT).show()
-                        return
-                    }
-                }
-
-                if (binding.automatic == false) {
-
-                    val network = when (position) {
-                        1 -> Networks.NETWORK_3G_4G
-                        2 -> Networks.NETWORK_3G
-                        3 -> Networks.NETWORK_4G
-                        else -> Networks.NETWORK_NONE
-                    }
-
-                    if (network != Networks.NETWORK_NONE) {
-                        viewModel.setManualConfiguration(network)
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            R.string.invalid_network_option,
-                            Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-        }
-
-        binding.radioGroupMode.setOnCheckedChangeListener { _, checkedId ->
-
-            if (checkedId == R.id.manual_mode) {
-                simSelected?.let {
-                    if (!it.defaultVoice){
-                        DefaultSimsDialogFragment
-                            .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
-                            .show(childFragmentManager, null)
-                        binding.radioGroupMode.check(R.id.automatic_mode)
-                    }
-                }
-                binding.nestedScroll.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
-            }
-        }
-    }
-
-    private fun preparePackagesConfigurations() {
-
-        viewModel.configurationResult.observe(viewLifecycleOwner) {
-
-            val message = if (it.isSuccess) {
-
-                val network = it.getOrThrow().network
-
-                if (network != Networks.NETWORK_NONE)
-                    binding.network = network
-
-                val none = "No se pudo encontrar ningún plan ni paquete para esta linea. " +
-                        "Si cree que esto fue un error inténtelo de nuevo."
-
-                val spinnerPackagesIndex: Int
-
-                val resultText = when (network) {
-                    Networks.NETWORK_3G -> {
-                        spinnerPackagesIndex = 2
-                        "Solo los planes combinados disponibles para esta linea"
-                    }
-                    Networks.NETWORK_4G -> {
-                        spinnerPackagesIndex = 3
-                        "Solo los paquetes de la 4G disponibles para esta linea"
-                    }
-                    Networks.NETWORK_3G_4G -> {
-                        spinnerPackagesIndex = 1
-                        "Todos los planes y paquetes disponibles para esta linea"
-                    }
-                    else -> {
-                        spinnerPackagesIndex = 0
-                        none
-                    }
-                }
-
-                if (binding.automatic == true) {
-                    binding.cardManualOptions.visibility = View.VISIBLE
-                    binding.spinnerPackages.setSelection(spinnerPackagesIndex, true)
-                }
-
-                resultText
-            } else {
-                it.getThrowableOrNull()?.message
-            }
-
-            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun prepareSimSelection() {
-
-        /*Si hay varias sims preparo el spinner de selección de sims*/
-        if (viewModel.isSeveralSimsInstalled()) {
-
-            viewModel.getSims(this, childFragmentManager).observe(viewLifecycleOwner) { simsList ->
-
-                binding.apply {
-                    sims.adapter = SimsAdapter(simsList)
-
-                    sims.onItemSelectedListener = null
-
-                    var simIndex: Int? = null
-
-                    simsList.firstOrNull { sim -> sim.id == defaultSimId }?.let { sim ->
-                        simIndex = simsList.indexOf(sim)
-                    }
-
-                    sims.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(
-                            parent: AdapterView<*>?,
-                            view: View?,
-                            position: Int,
-                            id: Long
-                        ) {
-                            simSelected = simsList[position]
-                        }
-
-                        override fun onNothingSelected(parent: AdapterView<*>?) {
-
-                        }
-                    }
-
-
-                    sims.setSelection(simIndex ?: simsList.indexOf(simsList.find { sim -> sim.defaultVoice }))
-
-                    btnStartConfiguration.setOnClickListener {
-
-                        val selection = sims.selectedItemPosition
-
-                        if (!simsList[selection].defaultVoice) {
-
-                            DefaultSimsDialogFragment
-                                .newInstance(DefaultSimsDialogFragment.FailDefault.DEFAULT_VOICE)
-                                .show(childFragmentManager, null)
-                        } else {
-
-                            viewModel.configureDataPackages(
-                                this@PackagesConfigurationFragment,
-                                childFragmentManager
-                            )
-                        }
-                    }
-                }
-            }
-        } else {
-
-            binding.apply {
-
-                //Sino oculto la tarjeta de selección de sims
-                cardSimSelection.visibility = View.GONE
-
-                btnStartConfiguration.setOnClickListener {
-
-                    viewModel.configureDataPackages(
-                        this@PackagesConfigurationFragment,
-                        childFragmentManager
-                    )
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
-
     companion object {
 
-        const val EXTRA_CONFIGURATION_REQUIRED = "com.smartsolutions.paquetes.extra.CONFIGURATION_REQUIRED"
-
-        const val EXTRA_DEFAULT_SIM_ID = "com.smartsolutions.paquetes.extra.DEFAUL_SIM_ID"
-
         private const val DEFAULT_CONFIGURATION_REQUIRED = true
+        const val EXTRA_CONFIGURATION_REQUIRED =
+            "com.smartsolutions.paquetes.extra.CONFIGURATION_REQUIRED"
+        const val EXTRA_DEFAULT_SIM_ID = "default_sim_id"
 
-        /**
-         * Crea una nueva instancia de [PackagesConfigurationFragment].
-         *
-         * @param configurationRequired - Indica si es obligatorio la configuración
-         * de los paquetes. De ser así el fragmento no notificará la finalización hasta que
-         * no se configuren correctamente los paquetes.
-         * */
         fun newInstance(
             configurationRequired: Boolean = DEFAULT_CONFIGURATION_REQUIRED
-        ): PackagesConfigurationFragment {
-
-            val args = Bundle().apply {
+        ) = PackagesConfigurationFragment().apply {
+            arguments?.apply {
                 putBoolean(EXTRA_CONFIGURATION_REQUIRED, configurationRequired)
-            }
-
-            return PackagesConfigurationFragment().apply {
-                arguments = args
             }
         }
     }

@@ -2,8 +2,7 @@ package com.smartsolutions.paquetes.helpers
 
 import androidx.annotation.IntDef
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
@@ -18,7 +17,7 @@ import kotlin.IllegalArgumentException
  * */
 class DateCalendarUtils @Inject constructor(
    private val purchasedPackagesManager: IPurchasedPackagesManager,
-    private val simManager: ISimManager
+    private val simManager: ISimManager2
 ) {
 
 
@@ -85,7 +84,7 @@ class DateCalendarUtils @Inject constructor(
             }
             PERIOD_PACKAGE -> {
                 runBlocking(Dispatchers.Default) {
-                    simManager.getDefaultSim(SimDelegate.SimType.DATA)?.id?.let { id ->
+                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let { id ->
                         purchasedPackagesManager.getHistory().firstOrNull()?.filter {
                             it.simId == id
                         }?.maxByOrNull { it.date }?.let {

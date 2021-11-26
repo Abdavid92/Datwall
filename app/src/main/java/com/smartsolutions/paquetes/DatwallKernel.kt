@@ -48,7 +48,6 @@ class DatwallKernel @Inject constructor(
     private val packageMonitor: PackageMonitor,
     private val networkUtils: NetworkUtils,
     private val legacyConfiguration: LegacyConfigurationHelper,
-    private val simManager: ISimManager,
     private val firewallHelper: FirewallHelper,
     private val bubbleServiceHelper: BubbleServiceHelper,
     private val synchronizationManager: ISynchronizationManager
@@ -281,9 +280,6 @@ class DatwallKernel @Inject constructor(
      * */
     @Suppress("DEPRECATION")
     private fun registerBroadcastsAndCallbacks() {
-
-        //Detecta los cambios de las Sim
-        simManager.registerSubscriptionChangedListener()
 
         //En apis 22 o menor se registra un receiver para escuchar los cambios de redes.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
