@@ -445,4 +445,5 @@
     <string name="is_foreground_app_modern_on">Se usará un nuevo mecanismo de detección de las aplicaciones en primer plano.</string>
     <string name="is_foreground_app_modern_off">Se usará el mecanismo antíguo de detección de aplicaciones en primer plano. Use este modo si el modo moderno presenta problemas para detectar la aplicación en primer plano. (Ej: la burbuja se demora en cambiar de estado).</string>
     <string name="others_header">Otros ajustes</string>
+    <string name="app_name_beta">Mis Datos Beta</string>
 </resources>

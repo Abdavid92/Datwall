@@ -77,6 +77,23 @@ android {
             buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
     }
+
+    flavorDimensions "oficial"
+    productFlavors {
+
+        oficial {
+            dimension "oficial"
+        }
+
+        beta {
+            dimension "oficial"
+            applicationIdSuffix ".beta"
+            versionCode 1
+            versionName "Beta 1"
+        }
+
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
