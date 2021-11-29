@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationStatusBinding
@@ -19,11 +18,9 @@ import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.ui.IReplaceFragments
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
-import com.smartsolutions.paquetes.ui.setup.SetupActivity
 import com.smartsolutions.paquetes.ui.update.Update2Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
@@ -108,6 +105,13 @@ class ApplicationStatusFragment : AbstractSettingsFragment(),
             getString(R.string.btn_close)
         ) {
             activity?.finishAffinity()
+        }
+
+        binding.apply {
+            btnCopyToClipboard.visibility = View.VISIBLE
+            btnCopyToClipboard.setOnClickListener {
+                viewModel.copyClipboardIdentifierDevice()
+            }
         }
     }
 

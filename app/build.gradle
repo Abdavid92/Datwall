@@ -90,6 +90,7 @@ android {
             applicationIdSuffix ".beta"
             versionCode 1
             versionName "Beta 1"
+            archivesBaseName = "Mis Datos Beta-$versionName"
         }
 
     }

@@ -144,6 +144,18 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_copy_to_clipboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/btn_purchase_nown"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@string/btn_copy_clipboard"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_purchase_nown"
@@ -155,7 +167,8 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
             style="@style/BaseButton.SecondaryButton"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_action"

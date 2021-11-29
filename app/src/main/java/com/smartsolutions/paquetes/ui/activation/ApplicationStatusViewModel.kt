@@ -1,16 +1,23 @@
 package com.smartsolutions.paquetes.ui.activation
 
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,6 +62,32 @@ class ApplicationStatusViewModel @Inject constructor(
         ) ?: throw NullPointerException()
 
         wifiManager.isWifiEnabled = true
+    }
+
+    fun copyClipboardIdentifierDevice() {
+        viewModelScope.launch {
+            activationManager.getLocalLicense()?.let {
+                val clipboardManager = ContextCompat.getSystemService(
+                    getApplication(),
+                    ClipboardManager::class.java
+                ) ?: throw NullPointerException()
+
+                val clipData = ClipData.newPlainText(
+                    "Identificador Mis Datos",
+                    it.deviceId
+                )
+
+                clipboardManager.setPrimaryClip(clipData)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        getApplication(),
+                        "Identificador del dispositivo copiado al portapapeles",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     }
 
 }
