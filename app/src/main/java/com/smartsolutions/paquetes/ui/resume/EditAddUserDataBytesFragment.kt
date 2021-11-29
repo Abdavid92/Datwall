@@ -135,13 +135,24 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
                 buttonAction.setOnClickListener {
                     viewModel.updateUserDataBytes(
                         list[binding.spinnerDataType.selectedItemPosition].apply {
+
+                            var restBytes = binding.editValueRest.text?.toString()
+
+                            if (restBytes.isNullOrEmpty())
+                                restBytes = "0"
+
                             bytes = DataUnitBytes.DataValue(
-                                binding.editValueRest.text?.toString()?.toDouble() ?: 0.0,
+                                restBytes.toDouble(),
                                 DataUnitBytes.DataUnit.values()[binding.spinnerDataUnitRest.selectedItemPosition]
                             ).toBytes()
 
+                            var originBytes = binding.editValueInitial.text?.toString()
+
+                            if (originBytes.isNullOrEmpty())
+                                originBytes = "0"
+
                             initialBytes = DataUnitBytes.DataValue(
-                                binding.editValueInitial.text?.toString()?.toDouble() ?: 0.0,
+                                originBytes.toDouble(),
                                 DataUnitBytes.DataUnit.values()[binding.spinnerDataUnitInitial.selectedItemPosition]
                             ).toBytes()
 

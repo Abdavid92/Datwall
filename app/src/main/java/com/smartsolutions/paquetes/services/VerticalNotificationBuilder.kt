@@ -3,7 +3,6 @@ package com.smartsolutions.paquetes.services
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
@@ -108,7 +107,6 @@ class VerticalNotificationBuilder constructor(
             mContext.getString(R.string.vertical_notification_summary)
         )
     }
-
 
     @SuppressLint("RestrictedApi")
     private fun addRemoteViewsContent(

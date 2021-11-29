@@ -92,6 +92,7 @@ class LegacyConfigurationHelper @Inject constructor(
                 }
             }
             cursor.close()
+            db.close()
 
             context.deleteDatabase("rules.db")
         }
@@ -141,6 +142,7 @@ class LegacyConfigurationHelper @Inject constructor(
             }
 
             cursor.close()
+            db.close()
 
             context.deleteDatabase("data.db")
         }

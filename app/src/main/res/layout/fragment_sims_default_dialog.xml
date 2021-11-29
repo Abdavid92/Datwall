@@ -27,7 +27,8 @@
         app:layout_constraintEnd_toStartOf="@id/image_action"
         app:layout_constraintTop_toBottomOf="@id/title"
         android:layout_marginTop="6dp"
-        android:src="@drawable/ic_call_24" />
+        android:src="@drawable/ic_call_24"
+        android:tint="?attr/colorPrimary"/>
 
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -38,7 +39,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/image_type"
         app:layout_constraintBottom_toBottomOf="@id/image_type"
-        android:src="@drawable/ic_question_mark_24" />
+        android:src="@drawable/ic_question_mark_24"
+        android:tint="?attr/colorPrimary"/>
 
 
     <androidx.appcompat.widget.AppCompatImageView

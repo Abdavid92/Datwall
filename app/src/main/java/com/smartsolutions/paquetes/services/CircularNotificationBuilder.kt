@@ -1,14 +1,10 @@
 package com.smartsolutions.paquetes.services
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewParent
 import android.widget.RemoteViews
 import androidx.annotation.Keep
 import androidx.core.app.NotificationCompat

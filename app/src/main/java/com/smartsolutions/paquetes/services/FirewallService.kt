@@ -367,7 +367,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         job.cancel()
 
         //Detengo el servicio en primer plano
-        stopForeground(false)
+        stopForeground(true)
         stopSelf()
     }
 

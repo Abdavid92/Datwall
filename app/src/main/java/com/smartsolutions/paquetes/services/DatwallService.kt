@@ -341,7 +341,7 @@ class DatwallService : Service(), CoroutineScope {
                             val notification = NotificationCompat.Builder(
                                 this,
                                 NotificationHelper.ALERT_CHANNEL_ID
-                            ).setSmallIcon(R.drawable.splash_screen)
+                            ).setSmallIcon(R.drawable.ic_main_notification)
                                 .setContentTitle(getString(R.string.low_data_notification))
                                 .setContentIntent(
                                     NotificationBuilder.getSplashActivityPendingIntent(
@@ -405,7 +405,8 @@ class DatwallService : Service(), CoroutineScope {
     private fun updateBandWith(rxBytes: Long, txBytes: Long) {
         mNotificationManager.notify(
             NotificationHelper.MAIN_NOTIFICATION_ID,
-            mNotificationBuilder.setSmallIcon(getIcon(rxBytes + txBytes))
+            mNotificationBuilder
+                .setSmallIcon(getIcon(rxBytes + txBytes))
                 .build()
         )
     }
