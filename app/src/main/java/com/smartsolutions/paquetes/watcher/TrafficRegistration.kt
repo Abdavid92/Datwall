@@ -124,11 +124,6 @@ class TrafficRegistration @Inject constructor(
                         registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
                         registerTraffic(start)
 
-                        com.abdavid92.persistentlog.Log.i(
-                            "Traffic Registration",
-                            "Traffic registered: rx = $rxBytesLatest tx = $txBytesLatest"
-                        )
-
                         rxBytesLatest = 0
                         txBytesLatest = 0
                     } else {
