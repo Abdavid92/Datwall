@@ -68,7 +68,7 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
         }
         super.onCreate()
 
-        if (!exceptionsController.isRegistered) {
+        if (exceptionsController.isRegistered) {
             exceptionsController.register()
         }
 

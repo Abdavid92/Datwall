@@ -9,7 +9,10 @@ import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_NONE
 
 object DataPackages {
 
-    const val PACKAGES_VERSION = 2
+    /**
+     * v3  Cambiado el precio de el Plan Basico a 110
+     **/
+    const val PACKAGES_VERSION = 3
 
     const val PROMO_BONUS_KEY = "Su cuenta ha sido recargada en promocion"
 
@@ -38,7 +41,7 @@ object DataPackages {
             "Proporciona 600MB disponibles para todas las redes y 800MB solo para LTE. " +
                     "Ademas contará con 15min para llamadas y 20sms. La vigencia es de 30 dias " +
                     "a partir del primer uso de cualquiera de los tres recursos.",
-            125f,
+            110f,
             DataValue(600.0, DataUnit.MB).toBytes(),
             DataValue(800.0, DataUnit.MB).toBytes(),
             DataValue(300.0, DataUnit.MB).toBytes(),

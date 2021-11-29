@@ -54,7 +54,7 @@ class PackagesViewModel @Inject constructor(
 
     fun getSimAndPackages(simID: String): LiveData<Pair<Sim, List<IDataPackage>>>{
         viewModelScope.launch(Dispatchers.IO) {
-            simRepository.get(simID)?.let {
+            simRepository.get(simID, true)?.let {
                 liveSimPackageInfo.postValue(it to prepareListPackages(it))
             }
         }
