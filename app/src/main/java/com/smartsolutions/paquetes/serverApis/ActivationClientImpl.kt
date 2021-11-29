@@ -19,7 +19,7 @@ class ActivationClientImpl @Inject constructor(
 
     override suspend fun getLicense(deviceId: String): Result<License> {
         try {
-            val license = api.getLicense(deviceId)
+            val license = api.getLicense(context.packageName, deviceId)
 
             return Result.Success(license)
         } catch (e: Exception) {
