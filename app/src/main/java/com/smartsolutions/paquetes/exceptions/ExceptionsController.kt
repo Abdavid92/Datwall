@@ -107,6 +107,7 @@ class ExceptionsController @Inject constructor(
         val stacktrace = StringWriter()
         exception.printStackTrace(PrintWriter(stacktrace))
 
+        errorReport += "PackageName: ${context.packageName}\n"
         errorReport += "Version App: ${BuildConfig.VERSION_CODE}\n"
         errorReport += "Fecha: ${
             SimpleDateFormat(

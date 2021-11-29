@@ -17,6 +17,8 @@ class LocalFileHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
+    val AUTHORITY_PROVIDER = "${context.packageName}.provider"
+
     /**
      * Lee el archivo proporcionado por el URI como una cadena de texto. Debe tener permisos de URI
      * de lectura.
@@ -164,7 +166,6 @@ class LocalFileHelper @Inject constructor(
 
 
     companion object {
-        const val AUTHORITY_PROVIDER = "com.smartsolutions.paquetes.provider"
         const val TYPE_DIR_UPDATES = "Updates"
         const val TYPE_DIR_EXCEPTIONS = "Exceptions"
     }
