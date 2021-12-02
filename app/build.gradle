@@ -36,7 +36,7 @@ android {
         targetSdkVersion 30
         versionCode 32
         versionName "4.1.1"
-        archivesBaseName = "Mis Datos-$versionName"
+        archivesBaseName = "$applicationId-v$versionCode"
 
         //testInstrumentationRunner "androidx.test.runner.Andr
         // oidJUnitRunner"

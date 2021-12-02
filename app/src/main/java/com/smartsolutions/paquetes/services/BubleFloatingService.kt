@@ -4,8 +4,10 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.os.Build
@@ -16,6 +18,7 @@ import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
@@ -28,6 +31,7 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.uiDataStore
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,9 +69,6 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     @Inject
     lateinit var firewallHelper: FirewallHelper
-
-    @Inject
-    lateinit var bubbleServiceHelper: BubbleServiceHelper
 
     lateinit var uiHelper: UIHelper
 
@@ -172,6 +173,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
 
         registerFlows()
+
+        registerBroadcast()
 
         return START_STICKY
     }
@@ -501,20 +504,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
             watcher.currentAppFlow.collect {
 
                 withContext(Dispatchers.Main) {
-                    val appCurrent = it.first
-
-                    app = appCurrent
-                    setTraffic(appCurrent)
-
-                    setThemeBubble()
-
-                    iconManager.getIcon(
-                        appCurrent.packageName,
-                        appCurrent.version
-                    ) {
-                        bitmapIcon = it
-                        bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
-                    }
+                   processAppCurrent(it.first)
                 }
             }
         }
@@ -545,6 +535,36 @@ class BubbleFloatingService : Service(), CoroutineScope {
                     }
                 }
             }
+        }
+    }
+
+    private fun registerBroadcast() {
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(object : BroadcastReceiver(){
+            override fun onReceive(context: Context?, intent: Intent?) {
+                launch {
+                    appRepository.get(packageName)?.let { app ->
+                        withContext(Dispatchers.Main){
+                            processAppCurrent(app)
+                        }
+                    }
+                }
+            }
+        }, IntentFilter(MainActivity.MAIN_IS_OPEN))
+    }
+
+
+    private fun processAppCurrent(appCurrent: App){
+        app = appCurrent
+        setTraffic(appCurrent)
+
+        setThemeBubble()
+
+        iconManager.getIcon(
+            appCurrent.packageName,
+            appCurrent.version
+        ) {
+            bitmapIcon = it
+            bubbleBinding.appIcon.setImageBitmap(bitmapIcon)
         }
     }
 

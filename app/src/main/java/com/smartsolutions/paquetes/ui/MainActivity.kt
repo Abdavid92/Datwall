@@ -8,6 +8,7 @@ import android.view.MenuItem
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GravityCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -95,12 +96,22 @@ class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListene
         return true
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+            Intent(MAIN_IS_OPEN)
+        )
+
+    }
+
     override fun onDestroy() {
         _binding = null
         super.onDestroy()
     }
 
     companion object {
+        const val MAIN_IS_OPEN = "main_is_open"
         const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
         const val EXTRA_FRAGMENT = "extra_fragment"
         const val FRAGMENT_UPDATE_DIALOG = "fragment_update_dialog"

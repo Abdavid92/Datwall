@@ -71,9 +71,9 @@ class WatcherUtils @Inject constructor(
 
     private fun getLollipopMr1LastApp(): String? {
 
-        return if (isModern){
+        return if (isModern) {
             lastAppModeModern()
-        }else {
+        } else {
             lastAppModeAncient()
         }
     }
@@ -97,7 +97,8 @@ class WatcherUtils @Inject constructor(
                         }
                     }
                 }
-                return stats.packageName
+                if (stats.packageName != context.packageName)
+                    return stats.packageName
             }
         }
         return null
