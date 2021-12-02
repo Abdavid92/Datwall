@@ -1,8 +1,12 @@
 package com.smartsolutions.paquetes.ui.applications
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import androidx.datastore.preferences.core.edit
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
+import androidx.recyclerview.widget.DiffUtil
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.settingsDataStore
@@ -36,6 +40,8 @@ class ApplicationsViewModel @Inject constructor(
      * Lista de aplicaciones pendientes a actualizar.
      * */
     private val appsToUpdate = mutableListOf<IApp>()
+
+    private var searchJob: Job? = null
 
     fun addAppToUpdate(app: IApp) {
         val index = appsToUpdate.indexOf(app)
@@ -106,6 +112,35 @@ class ApplicationsViewModel @Inject constructor(
                     }
                 }
             }.asLiveData(Dispatchers.IO)
+    }
+
+    fun scheduleSearchQuery(query: String?, adapter: AppsListAdapter) {
+
+        searchJob?.cancel()
+
+        searchJob = viewModelScope.launch(Dispatchers.Default) {
+
+            delay(200)
+
+            if (this.isActive) {
+
+                val newList = if (query != null && query.isNotBlank()) {
+                    adapter.list.where { it.name.contains(query, true) }
+                } else {
+                    adapter.list
+                }.toMutableList()
+
+                val result = DiffUtil.calculateDiff(DiffCallback(
+                    adapter.list,
+                    newList,
+                    false)
+                )
+
+                withContext(Dispatchers.Main) {
+                    adapter.updateList(result, newList)
+                }
+            }
+        }
     }
 
     private fun orderAppsByFilter(apps: List<IApp>, filter: AppsFilter): List<IApp> {
@@ -190,6 +225,45 @@ class ApplicationsViewModel @Inject constructor(
 
         return finalList
     }
+
+    private class DiffCallback(
+        private val oldList: List<IApp>,
+        private val newList: List<IApp>,
+        private val changeFilter: Boolean
+    ) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition] && !changeFilter
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].accessHashToken() ==
+                    newList[newItemPosition].accessHashToken()
+        }
+
+    }
+}
+
+inline fun List<IApp>.where(predicate: (IApp) -> Boolean): List<IApp> {
+    val result = mutableListOf<IApp>()
+
+    forEach {
+        if (it is AppGroup) {
+            result.addAll(it.filter(predicate))
+        } else {
+            if (predicate(it))
+                result.add(it)
+        }
+    }
+    return result
 }
 
 /**

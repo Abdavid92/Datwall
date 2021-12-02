@@ -230,10 +230,11 @@ class ActivationManager @Inject constructor(
         if (result.isSuccess) {
             val licence = result.getOrThrow()
 
-            if (licence.isPurchased)
+            if (licence.isPurchased && !licence.isRestored) {
                 licence.isRestored = true
+                scheduleWorker()
 
-            if (!licence.isPurchased && legacyConfigurationHelper.isPurchased()) {
+            } else if (!licence.isPurchased && legacyConfigurationHelper.isPurchased()) {
                 licence.isPurchased = true
                 scheduleWorker()
             }

@@ -158,7 +158,10 @@ class PlaceHolderFragment : AbstractFragment(),
      * Se invoca cuando se está buscando una app.
      * */
     override fun onQueryApp(query: String?) {
-        adapter?.search(query)
+        //adapter?.search(query)
+
+        if (query != null && query.isNotBlank() && adapter != null)
+            viewModel.scheduleSearchQuery(query, adapter!!)
     }
 
     override fun onDestroyView() {

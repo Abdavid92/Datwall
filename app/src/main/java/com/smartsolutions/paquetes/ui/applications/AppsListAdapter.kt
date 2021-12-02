@@ -30,8 +30,9 @@ class AppsListAdapter constructor(
     private val launcher: ActivityResultLauncher<App>,
     private val iconManager: IIconManager,
     private var appsFilter: AppsFilter,
-    private var list: List<IApp>
-) : RecyclerView.Adapter<AppsListAdapter.AbstractViewHolder>(), CoroutineScope {
+    var list: List<IApp>
+) : RecyclerView.Adapter<AppsListAdapter.AbstractViewHolder>(),
+    CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
@@ -41,7 +42,8 @@ class AppsListAdapter constructor(
     /**
      * Lista filtrada.
      * */
-    private var finalList: MutableList<IApp> = list.toMutableList()
+    var finalList: MutableList<IApp> = list.toMutableList()
+        private set
 
     /**
      * Tamaño de los íconos de las aplicaciones.
@@ -147,6 +149,13 @@ class AppsListAdapter constructor(
         }
     }
 
+    fun updateList(result: DiffUtil.DiffResult, newList: List<IApp>) {
+        finalList = newList.toMutableList()
+        expandedList.clear()
+
+        result.dispatchUpdatesTo(this)
+    }
+
     /**
      * Actualiza la lista de aplicaciones y refresca el RecyclerView.
      *
@@ -211,7 +220,7 @@ class AppsListAdapter constructor(
     /**
      * Método de extensión para buscar instancias de [IApp] en una lista mixta.
      * */
-    private inline fun List<IApp>.where(predicate: (IApp) -> Boolean): List<IApp> {
+    inline fun List<IApp>.where(predicate: (IApp) -> Boolean): List<IApp> {
         val result = mutableListOf<IApp>()
 
         forEach {
