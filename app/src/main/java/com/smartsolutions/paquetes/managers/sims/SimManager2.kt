@@ -173,8 +173,7 @@ class SimManager2 @Inject constructor(
 
             val infos = simDelegate.getActiveSimsInfo()
             val status = when (infos.size) {
-                0 -> ISimManager2.SimsState.None
-                1 -> ISimManager2.SimsState.Single
+                0, 1 -> ISimManager2.SimsState.Single
                 else -> ISimManager2.SimsState.Multiple
             }
 

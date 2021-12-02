@@ -41,5 +41,5 @@ interface ITrafficDao {
     suspend fun getByTime(simID: String): List<Traffic>
 
     @Query("SELECT * FROM traffic WHERE sim_id = :simID")
-    fun getFlowByTime(simID: String, startTime: Long, endTime: Long): Flow<List<Traffic>>
+    fun getFlowByTime(simID: String): Flow<List<Traffic>>
 }
