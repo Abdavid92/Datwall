@@ -5,6 +5,8 @@ import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -45,22 +47,23 @@ class TrafficRepository @Inject constructor(private val dao: ITrafficDao) : ITra
 
     override suspend fun getByUid(uid: Int, simId: String, startTime: Long, endTime: Long) =
         withContext(dispatcher){
-            dao.getByUid(uid, simId, startTime, endTime)
+            dao.getByUid(uid, simId).filter { it.startTime >= startTime && it.endTime <= endTime }
         }
 
-    override fun getFlowByUid(uid: Int, simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>> =
-        dao.getFlowByUid(uid, simId, startTime, endTime)
+    override fun getFlowByUid(uid: Int, simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>>{
+        return dao.getFlowByUid(uid, simId).map { list ->
+            return@map list.filter { it.startTime >= startTime && it.endTime <= endTime }
+        }
+    }
 
     override suspend fun getByTime(simId: String, startTime: Long, endTime: Long) =
         withContext(dispatcher){
-            dao.getByTime(simId, startTime, endTime)
+            dao.getByTime(simId).filter { it.startTime >= startTime && it.endTime <= endTime }
         }
 
     override fun getFlowByTime(simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>> =
-        dao.getFlowByTime(simId, startTime, endTime)
+        dao.getFlowByTime(simId, startTime, endTime).map { list ->
+            return@map list.filter { it.startTime >= startTime && it.endTime <= endTime }
+        }
 
-
-    suspend fun consolidateTraffic(simId: String, time: Int, timeUnit: TimeUnit) {
-
-    }
 }

@@ -38,37 +38,39 @@ class SynchronizationWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         var canExecute = true
 
-        if(context.internalDataStore.data.firstOrNull()?.get(PreferencesKeys.ENABLED_LTE) == true) {
-            canExecute = try {
-                userDataBytesRepository.get(
-                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)!!.id,
-                    DataBytes.DataType.International
-                ).exists()
-            } catch (e: Exception) {
-                false
-            }
+        canExecute = try {
+            userDataBytesRepository.get(
+                simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)!!.id,
+                DataBytes.DataType.International
+            ).exists()
+        } catch (e: Exception) {
+            false
+        }
 
-            if (canExecute) {
-                canExecute =
-                    (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (2 * 1000) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
+        if (canExecute) {
+            canExecute =
+                (RxWatcher.lastRxBytes + RxWatcher.lastTxBytes) <= (2 * 1000) && RxWatcher.lastRxBytes >= 0 && RxWatcher.lastTxBytes >= 0
 
-            }
+        }
 
-            if (canExecute){
-                val wasTraffic = DataUnitBytes(RxWatcher.lastBytes).getValue(DataUnitBytes.DataUnit.MB).value > 50
-                canExecute = wasTraffic
-                if (wasTraffic){
-                    RxWatcher.lastBytes = 0L
-                }
+        if (canExecute) {
+            val wasTraffic =
+                DataUnitBytes(RxWatcher.lastBytes).getValue(DataUnitBytes.DataUnit.MB).value > 50
+            canExecute = wasTraffic
+            if (wasTraffic) {
+                RxWatcher.lastBytes = 0L
             }
         }
 
         if (canExecute) {
             notifyUpdate()
             try {
-                synchronizationManager.synchronizeUserDataBytes(simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)!!)
-            } catch (e: Exception) {
-            }
+                synchronizationManager.synchronizeUserDataBytes(
+                    simManager.getDefaultSimBoth(
+                        SimDelegate.SimType.VOICE
+                    )!!
+                )
+            } catch (e: Exception) { }
             cancelNotification()
         }
 
