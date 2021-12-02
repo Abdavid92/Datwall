@@ -10,7 +10,7 @@ import com.smartsolutions.paquetes.helpers.SmsInboxReaderHelper
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -28,7 +28,7 @@ class PurchasedPackagesManager @Inject constructor(
     private val purchasedPackageRepository: IPurchasedPackageRepository,
     private val smsReader: SmsInboxReaderHelper,
     private val simDelegate: SimDelegate,
-    private val simManager: ISimManager2
+    private val simManager: ISimManager
 ) : IPurchasedPackagesManager {
 
     private val dataStore = context.internalDataStore

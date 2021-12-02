@@ -1,11 +1,10 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.app.Application
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +16,7 @@ import javax.inject.Inject
 class SimsConfigurationViewModel @Inject constructor(
     application: Application,
     permissionsManager: IPermissionsManager,
-    private val simManager: ISimManager2
+    private val simManager: ISimManager
 ): AndroidViewModel(application) {
 
     private val delegate = SimsDelegate(

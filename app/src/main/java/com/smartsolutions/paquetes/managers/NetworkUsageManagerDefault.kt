@@ -6,7 +6,7 @@ import android.os.Build
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class NetworkUsageManagerDefault @Inject constructor(
     @ApplicationContext
     context: Context,
-    simManager : ISimManager2
+    simManager : ISimManager
 ): AbstractNetworkUsage(
     ContextCompat.getSystemService(context, NetworkStatsManager::class.java) ?: throw NullPointerException(),
     ContextCompat.getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException(),

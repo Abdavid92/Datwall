@@ -16,7 +16,7 @@ import com.smartsolutions.paquetes.helpers.SimsHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
@@ -28,7 +28,7 @@ import kotlin.Exception
 
 @HiltViewModel
 class PackagesConfigurationViewModel @Inject constructor(
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val simsHelper: SimsHelper,
     private val dataPackageManager: IDataPackageManager
 ) : ViewModel() {

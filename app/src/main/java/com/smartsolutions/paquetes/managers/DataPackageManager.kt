@@ -34,7 +34,7 @@ class DataPackageManager @Inject constructor(
     private val purchasedPackagesManager: IPurchasedPackagesManager,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val simRepository: ISimRepository
 ): IDataPackageManager, CoroutineScope {
 

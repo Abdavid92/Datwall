@@ -217,11 +217,6 @@ object PreferencesKeys {
     val IS_THROWED = booleanPreferencesKey("is_throwed")
 
     /**
-     * Indica que se debe forzar el modo de una sola linea.
-     * */
-    val FORCE_MODE_SINGLE_SIM = booleanPreferencesKey("force_mode_single_sim")
-
-    /**
      * Slots que se considerarán predeterminados para llamadas y datos
      */
     val DEFAULT_VOICE_SLOT = intPreferencesKey("default_voice_slot")

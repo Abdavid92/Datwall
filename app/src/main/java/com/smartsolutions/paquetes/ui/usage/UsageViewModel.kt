@@ -16,7 +16,7 @@ import com.smartsolutions.paquetes.helpers.Period
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -35,7 +35,7 @@ import javax.inject.Inject
 class UsageViewModel @Inject constructor(
     application: Application,
     private val networkUsageManager: NetworkUsageManager,
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val appRepository: IAppRepository,
     private val dateCalendarUtils: DateCalendarUtils,
     val iconManager: IIconManager

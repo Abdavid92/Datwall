@@ -17,13 +17,12 @@ import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.serverApis.models.Result
-import com.smartsolutions.paquetes.ui.AbstractFragment
 import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import com.smartsolutions.paquetes.watcher.RxWatcher
@@ -92,7 +91,7 @@ class DatwallService : Service(), CoroutineScope {
     lateinit var userDataBytesRepository: IUserDataBytesRepository
 
     @Inject
-    lateinit var simManager: ISimManager2
+    lateinit var simManager: ISimManager
 
     @Inject
     lateinit var watcher: RxWatcher

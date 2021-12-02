@@ -3,21 +3,19 @@ package com.smartsolutions.paquetes.helpers
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import com.abdavid92.alertbottomdialog.AlertBottomDialog
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentSimsDefaultDialogBinding
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.models.Sim
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
 class SimsHelper @Inject constructor(
-    private val simManager: ISimManager2
+    private val simManager: ISimManager
 ) {
 
     private var dialog: AlertBottomDialog? = null

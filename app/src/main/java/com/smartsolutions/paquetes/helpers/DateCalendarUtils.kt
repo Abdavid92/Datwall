@@ -2,7 +2,7 @@ package com.smartsolutions.paquetes.helpers
 
 import androidx.annotation.IntDef
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
@@ -17,7 +17,7 @@ import kotlin.IllegalArgumentException
  * */
 class DateCalendarUtils @Inject constructor(
    private val purchasedPackagesManager: IPurchasedPackagesManager,
-    private val simManager: ISimManager2
+    private val simManager: ISimManager
 ) {
 
 

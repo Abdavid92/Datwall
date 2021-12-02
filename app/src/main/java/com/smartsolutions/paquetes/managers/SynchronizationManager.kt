@@ -31,7 +31,7 @@ class SynchronizationManager @Inject constructor(
     private val context: Context,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val simRepository: ISimRepository
 ) : ISynchronizationManager, CoroutineScope {
 

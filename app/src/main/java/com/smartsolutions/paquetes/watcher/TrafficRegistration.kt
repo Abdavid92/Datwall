@@ -13,7 +13,7 @@ import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
@@ -36,7 +36,7 @@ class TrafficRegistration @Inject constructor(
     private val appRepository: IAppRepository,
     private val userDataBytesManager: IUserDataBytesManager,
     private val networkUtils: NetworkUtils,
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val trafficRepository: ITrafficRepository,
     private val watcher: RxWatcher
 ) : CoroutineScope {

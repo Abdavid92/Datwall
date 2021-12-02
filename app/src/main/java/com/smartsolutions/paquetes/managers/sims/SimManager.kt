@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.serverApis.models.Result
@@ -17,33 +17,23 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class SimManager2 @Inject constructor(
+class SimManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val simDelegate: SimDelegate,
     private val simRepository: ISimRepository
-) : ISimManager2 {
-
-    override suspend fun forceModeSingleSim(force: Boolean) {
-        context.internalDataStore.edit {
-            it[PreferencesKeys.FORCE_MODE_SINGLE_SIM] = force
-        }
-    }
-
+) : ISimManager {
 
     override suspend fun getDefaultSimSystem(
         type: SimDelegate.SimType,
         relations: Boolean
     ): Result<Sim> {
-        getSimManager()?.let {
-            return it.getDefaultSim(type, relations)
-        }
-        return Result.Failure(NoSuchElementException())
+        return getSimManager().getDefaultSim(type, relations)
     }
 
 
     override suspend fun getDefaultSimManual(type: SimDelegate.SimType, relations: Boolean): Sim? {
-        getSimManager()?.getInstalledSims(relations)?.let { sims ->
+        getSimManager().getInstalledSims(relations).let { sims ->
             context.internalDataStore.data.firstOrNull()?.get(
                 when(type){
                     SimDelegate.SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
@@ -83,18 +73,11 @@ class SimManager2 @Inject constructor(
 
 
     override suspend fun isSimDefaultSystem(type: SimDelegate.SimType, sim: Sim): Boolean? {
-        getSimManager()?.let {
-            return it.isSimDefault(type, sim)
-        }
-        return null
+        return getSimManager().isSimDefault(type, sim)
     }
 
     override suspend fun isSimDefaultBoth(type: SimDelegate.SimType, sim: Sim): Boolean? {
-        var default: Boolean? = null
-
-        getSimManager()?.let {
-            default = it.isSimDefault(type, sim)
-        }
+        var default = getSimManager().isSimDefault(type, sim)
 
         if (default == null){
             context.internalDataStore.data.firstOrNull()?.get(
@@ -112,36 +95,25 @@ class SimManager2 @Inject constructor(
 
 
     override suspend fun getInstalledSims(relations: Boolean): List<Sim> {
-        getSimManager()?.let {
-            return it.getInstalledSims(relations)
-        }
-        return emptyList()
+        return getSimManager().getInstalledSims(relations)
     }
 
 
     override fun flowInstalledSims(relations: Boolean): Flow<List<Sim>> {
         return simRepository.flow(relations).map {
-            getSimManager()?.let {
-                return@map it.getInstalledSims(relations)
-            }
-            return@map emptyList<Sim>()
+            return@map getSimManager().getInstalledSims(relations)
         }
     }
 
 
-    private suspend fun getSimManager(): InternalSimManager? {
+    private fun getSimManager(): InternalSimManager {
         val status = getSimsState()
+
         return when (status.first) {
-            ISimManager2.SimsState.None -> {
-                if (context.internalDataStore.data.firstOrNull()
-                        ?.get(PreferencesKeys.FORCE_MODE_SINGLE_SIM) == true
-                ) {
-                    EmbeddedSimManager(simRepository)
-                } else {
-                    null
-                }
+            SimsState.Embedded -> {
+                EmbeddedSimManager(simRepository)
             }
-            ISimManager2.SimsState.Single -> {
+            SimsState.Single -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && status.second.isNotEmpty()) {
                     SingleSimManager(
                         status.second[0],
@@ -152,7 +124,7 @@ class SimManager2 @Inject constructor(
                     EmbeddedSimManager(simRepository)
                 }
             }
-            ISimManager2.SimsState.Multiple -> {
+            SimsState.Multiple -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                     MultiSimManager(
                         context,
@@ -167,21 +139,28 @@ class SimManager2 @Inject constructor(
         }
     }
 
-    private fun getSimsState(): Pair<ISimManager2.SimsState, List<SubscriptionInfo>> {
+    private fun getSimsState(): Pair<SimsState, List<SubscriptionInfo>> {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
 
             val infos = simDelegate.getActiveSimsInfo()
+
             val status = when (infos.size) {
-                0, 1 -> ISimManager2.SimsState.Single
-                else -> ISimManager2.SimsState.Multiple
+                0 -> SimsState.Embedded
+                1 -> SimsState.Single
+                else -> SimsState.Multiple
             }
 
             return status to infos
         }
 
-        return ISimManager2.SimsState.Single to emptyList()
+        return SimsState.Embedded to emptyList()
     }
 
 
+    enum class SimsState {
+        Embedded,
+        Single,
+        Multiple
+    }
 }

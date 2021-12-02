@@ -4,7 +4,7 @@ import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
@@ -12,7 +12,7 @@ import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import javax.inject.Inject
 
 class ConfigurationManager @Inject constructor(
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val dataPackageManager: IDataPackageManager,
     private val activationManager: IActivationManager
 ) : IConfigurationManager {

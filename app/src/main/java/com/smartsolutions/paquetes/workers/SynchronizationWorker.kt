@@ -5,12 +5,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.abdavid92.persistentlog.Log
-import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.internalDataStore
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
@@ -18,7 +16,6 @@ import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.firstOrNull
 
 private const val NOTIFICATION_ID = 88
 
@@ -30,7 +27,7 @@ class SynchronizationWorker @AssistedInject constructor(
     params: WorkerParameters,
     private val userDataBytesRepository: IUserDataBytesRepository,
     private val synchronizationManager: ISynchronizationManager,
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(context, params) {
 

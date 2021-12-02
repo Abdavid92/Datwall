@@ -8,7 +8,7 @@ import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils.Companion.isSameMonth
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.models.IPurchasedPackage
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val simManager: ISimManager2,
+    private val simManager: ISimManager,
     private val purchasePackageManager: IPurchasedPackagesManager
 ) : ViewModel() {
 

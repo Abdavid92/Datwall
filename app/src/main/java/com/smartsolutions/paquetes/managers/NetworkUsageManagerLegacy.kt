@@ -1,6 +1,6 @@
 package com.smartsolutions.paquetes.managers
 
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.TrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class NetworkUsageManagerLegacy @Inject constructor(
     private val trafficRepository: TrafficRepository,
-    simManager: ISimManager2
+    simManager: ISimManager
 ) : NetworkUsageManager(simManager) {
 
     override suspend fun getAppUsage(

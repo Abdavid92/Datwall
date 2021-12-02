@@ -2,7 +2,7 @@ package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
@@ -13,7 +13,7 @@ import java.util.*
  * Administrador de estadísticas de tráfico de datos de la aplicaciones.
  * Se encarga de recopilar y obtener el uso de datos de las aplicaciones.
  * */
-abstract class NetworkUsageManager(private val simManager: ISimManager2) {
+abstract class NetworkUsageManager(private val simManager: ISimManager) {
 
     protected var simId: String? = null
 

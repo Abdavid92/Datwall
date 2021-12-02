@@ -5,7 +5,7 @@ import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
@@ -25,7 +25,7 @@ class StatisticsManager @Inject constructor(
     private val context: Context,
     private val networkUsageManager: NetworkUsageManager,
     private val userDataBytesRepository: IUserDataBytesRepository,
-    private val simManager: ISimManager2
+    private val simManager: ISimManager
 ) : IStatisticsManager {
 
     override suspend fun getAverage(start: Long, finish: Long, timeUnit: TimeUnit): DataUnitBytes {
