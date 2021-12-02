@@ -62,7 +62,7 @@ class TrafficRepository @Inject constructor(private val dao: ITrafficDao) : ITra
         }
 
     override fun getFlowByTime(simId: String, startTime: Long, endTime: Long): Flow<List<Traffic>> =
-        dao.getFlowByTime(simId, startTime, endTime).map { list ->
+        dao.getFlowByTime(simId).map { list ->
             return@map list.filter { it.startTime >= startTime && it.endTime <= endTime }
         }
 
