@@ -233,7 +233,7 @@ class ActivationManager @Inject constructor(
             if (licence.isPurchased)
                 licence.isRestored = true
 
-            if (legacyConfigurationHelper.isPurchased() && !licence.isPurchased) {
+            if (!licence.isPurchased && legacyConfigurationHelper.isPurchased()) {
                 licence.isPurchased = true
                 scheduleWorker()
             }
@@ -241,8 +241,6 @@ class ActivationManager @Inject constructor(
             dataStore.edit {
                 it[PreferencesKeys.LICENSE] = encrypt(gson.toJson(licence))
             }
-
-            license = result.getOrThrow()
         }
 
         return result
