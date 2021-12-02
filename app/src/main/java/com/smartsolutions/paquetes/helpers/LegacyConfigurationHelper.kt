@@ -29,19 +29,13 @@ class LegacyConfigurationHelper @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    private lateinit var preferences: SharedPreferences
+    private val preferences = context
+        .getSharedPreferences("data_mis_datos", Context.MODE_PRIVATE)
 
     private val dbList = mapOf<String, suspend () -> Unit>(
         "rules.db" to ::restoreRulesDb,
         "data.db" to ::restoreDataDb
     )
-
-    init {
-        launch {
-            preferences = context
-                .getSharedPreferences("data_mis_datos", Context.MODE_PRIVATE)
-        }
-    }
 
     /**
      * Indica si ya la versión anterior de la aplicación ha sido comprada.
