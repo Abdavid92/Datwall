@@ -20,14 +20,10 @@ import com.google.gson.Gson
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.annotations.ApplicationStatus
 import com.smartsolutions.paquetes.helpers.LegacyConfigurationHelper
-import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IActivationManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager2
 import com.smartsolutions.paquetes.serverApis.contracts.IActivationClient
 import com.smartsolutions.paquetes.serverApis.models.License
 import com.smartsolutions.paquetes.serverApis.models.Result
-import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.workers.ActivationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -36,9 +32,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.apache.commons.lang.time.DateUtils
 import java.net.NetworkInterface
-import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
