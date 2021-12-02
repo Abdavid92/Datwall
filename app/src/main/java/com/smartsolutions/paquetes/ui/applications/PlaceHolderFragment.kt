@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsPlaceholderBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.repositories.models.App
@@ -26,7 +25,7 @@ private const val ARG_KEY = "arg_key"
 @AndroidEntryPoint
 class PlaceHolderFragment : AbstractFragment(),
     AppsListAdapter.OnAppChangeListener,
-    ApplicationsFragment.OnQueryAppListener
+    ApplicationsFragment.ApplicationsFragmentListener
 {
 
     /**
@@ -93,16 +92,11 @@ class PlaceHolderFragment : AbstractFragment(),
         )
 
         //Helper de la ui con métodos de utilidades
-        val uiHelper = UIHelper(requireContext())
+        val uiHelper = UIHelper(requireActivity())
 
         //Aplico los colores del tema al SwipeRefreshLayout
         binding.refresh.apply {
-            uiHelper.getColorTheme(R.attr.colorOnPrimary)?.let {
-                setProgressBackgroundColorSchemeColor(it)
-            }
-            uiHelper.getColorTheme(R.attr.colorAccent)?.let {
-                setColorSchemeColors(it)
-            }
+            uiHelper.applySwipeRefreshTheme(this)
             isRefreshing = true
         }
 
@@ -162,6 +156,12 @@ class PlaceHolderFragment : AbstractFragment(),
 
         if (query != null && query.isNotBlank() && adapter != null)
             viewModel.scheduleSearchQuery(query, adapter!!)
+    }
+
+    override fun onUpList() {
+        runCatching {
+            binding.appsList.smoothScrollToPosition(0)
+        }
     }
 
     override fun onDestroyView() {
