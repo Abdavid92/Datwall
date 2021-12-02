@@ -72,8 +72,6 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             exceptionsController.register()
         }
 
-        dropDatabase()
-
         val themeMode: Int
 
         runBlocking(Dispatchers.IO) {
@@ -143,17 +141,4 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             .setWorkerFactory(workerFactory)
             .build()
 
-    private fun dropDatabase() {
-
-        val key = "database_dropped"
-
-        val sharedPreferences = getSharedPreferences("old_changes", MODE_PRIVATE)
-
-        if (!sharedPreferences.getBoolean(key, false)) {
-            this.deleteDatabase("data.db")
-            sharedPreferences.edit()
-                .putBoolean(key, true)
-                .apply()
-        }
-    }
 }
