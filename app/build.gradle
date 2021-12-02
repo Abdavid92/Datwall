@@ -36,7 +36,7 @@ android {
         targetSdkVersion 30
         versionCode 33
         versionName "4.2.0"
-        archivesBaseName = "$applicationId-v$versionCode"
+        archivesBaseName = "Mis Datos-$versionName-v$versionCode"
 
         //testInstrumentationRunner "androidx.test.runner.Andr
         // oidJUnitRunner"
@@ -83,7 +83,8 @@ android {
 
         oficial {
             dimension "oficial"
-            archivesBaseName = "$applicationId-v$versionCode"
+            versionCode 33
+            versionName "4.2.0"
         }
 
         beta {
@@ -91,7 +92,6 @@ android {
             applicationIdSuffix ".beta"
             versionCode 1
             versionName "Beta 1"
-            archivesBaseName = "Mis Datos Beta-$versionName"
         }
 
     }
