@@ -42,4 +42,17 @@
         android:paddingTop="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_gravity="bottom|center"
+        app:fabSize="mini"
+        android:src="@drawable/ic_first_page"
+        android:rotation="90"
+        android:contentDescription="up"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        tools:ignore="HardcodedText" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

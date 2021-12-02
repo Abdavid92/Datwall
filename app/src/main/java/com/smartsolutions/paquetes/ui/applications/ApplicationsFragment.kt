@@ -5,10 +5,7 @@ import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DiffUtil
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsBinding
@@ -60,6 +57,13 @@ class ApplicationsFragment : AbstractFragment() {
         TabLayoutMediator(binding.tabs, binding.viewPager) { tab, position ->
             tab.text = sectionsAdapter.pages[position].second
         }.attach()
+
+        binding.fabUp.setOnClickListener {
+            childFragmentManager.fragments.forEach {
+                if (it is ApplicationsFragmentListener)
+                    it.onUpList()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -86,9 +90,9 @@ class ApplicationsFragment : AbstractFragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                childFragmentManager.fragments.filter { it is OnQueryAppListener }
+                childFragmentManager.fragments.filter { it is ApplicationsFragmentListener }
                     .forEach { fragment ->
-                        fragment as OnQueryAppListener
+                        fragment as ApplicationsFragmentListener
                         fragment.onQueryApp(newText)
                     }
                 return true
@@ -116,7 +120,9 @@ class ApplicationsFragment : AbstractFragment() {
         super.onDestroyView()
     }
 
-    interface OnQueryAppListener {
+    interface ApplicationsFragmentListener {
         fun onQueryApp(query: String?)
+
+        fun onUpList()
     }
 }

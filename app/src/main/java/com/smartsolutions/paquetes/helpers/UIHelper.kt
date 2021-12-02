@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.ThemeWrapper
 import com.smartsolutions.paquetes.repositories.models.IApp
@@ -72,6 +73,24 @@ class UIHelper(
         }
     }
 
+    /**
+     * Aplica el tema de la aplicación al [SwipeRefreshLayout] dado.
+     * */
+    fun applySwipeRefreshTheme(refreshLayout: SwipeRefreshLayout) {
+
+        getColorTheme(R.attr.colorAccent)?.let {
+            refreshLayout.setColorSchemeColors(it)
+        }
+
+        val background = if (isAppUIDarkTheme())
+            getColorTheme(R.attr.colorOnSecondary)
+        else
+            getColorTheme(R.attr.colorOnPrimary)
+
+        background?.let {
+            refreshLayout.setProgressBackgroundColorSchemeColor(it)
+        }
+    }
 
     /**
      * Devuelve el recurso encontrado segun el tema del sistema. Es necesario que se guarde el

@@ -52,7 +52,13 @@ class UsageHolderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.swipeRefresh.isRefreshing = true
+        binding.swipeRefresh.apply {
+            val uiHelper = UIHelper(requireActivity())
+
+            uiHelper.applySwipeRefreshTheme(this)
+
+            isRefreshing = true
+        }
 
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.refreshData()
