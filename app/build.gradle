@@ -34,8 +34,8 @@ android {
         applicationId "com.smartsolutions.paquetes"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 32
-        versionName "4.1.1"
+        versionCode 33
+        versionName "4.2.0"
         archivesBaseName = "$applicationId-v$versionCode"
 
         //testInstrumentationRunner "androidx.test.runner.Andr
