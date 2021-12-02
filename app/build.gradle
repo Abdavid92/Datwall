@@ -83,6 +83,7 @@ android {
 
         oficial {
             dimension "oficial"
+            archivesBaseName = "$applicationId-v$versionCode"
         }
 
         beta {
