@@ -14,10 +14,17 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.Keep
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.ui.SplashActivity
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.components.SingletonComponent
 import kotlin.random.Random
 
 @Keep
@@ -25,6 +32,15 @@ class LinearNotificationBuilder(
     context: Context,
     channelId: String
 ) : NotificationBuilder(context, channelId) {
+
+    private val statisticsManager by lazy {
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            LinearNotificationEntryPoint::class.java
+        )
+
+        return@lazy entryPoint.getStatisticsManager()
+    }
 
     init {
         setSmallIcon(R.drawable.ic_main_notification)
@@ -51,8 +67,10 @@ class LinearNotificationBuilder(
             var initialTotal = 0L
             var restTotal = 0L
 
-            dataBytes.filter { it.type != DataBytes.DataType.National }
-                .forEach {
+            dataBytes.filter {
+                it.type != DataBytes.DataType.National &&
+                        it.type != DataBytes.DataType.MessagingBag
+            }.forEach {
                     initialTotal += it.initialBytes
                     restTotal += it.bytes
                 }
@@ -74,6 +92,13 @@ class LinearNotificationBuilder(
             remoteViews.setTextViewText(
                 R.id.rest_date,
                 mContext.getString(R.string.rest_text, restUnitBytes.toString())
+            )
+
+            val usageUnitBytes = DataUnitBytes(initialTotal - restTotal)
+
+            remoteViews.setTextViewText(
+                R.id.usage_date,
+                mContext.getString(R.string.usage_text, usageUnitBytes.toString())
             )
 
             getFirstExpiredDate(dataBytes)?.let {
@@ -131,5 +156,12 @@ class LinearNotificationBuilder(
             mContext.getString(R.string.lineal_notification),
             mContext.getString(R.string.lineal_notification_summary)
         )
+    }
+
+    @EntryPoint
+    @InstallIn(ServiceComponent::class, ActivityComponent::class)
+    interface LinearNotificationEntryPoint {
+
+        fun getStatisticsManager(): IStatisticsManager
     }
 }

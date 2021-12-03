@@ -448,4 +448,5 @@
     <string name="app_name_beta">Mis Datos Beta</string>
     <string name="btn_copy_clipboard">Copiar Identificador</string>
     <string name="daily">Diario:</string>
+    <string name="usage_text">Gastado: %s</string>
 </resources>
