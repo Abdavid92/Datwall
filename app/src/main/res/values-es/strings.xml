@@ -449,4 +449,7 @@
     <string name="btn_copy_clipboard">Copiar Identificador</string>
     <string name="daily">Diario:</string>
     <string name="usage_text">Gastado: %s</string>
+    <string name="date_remainder">Quedan %d días</string>
+    <string name="usage_today">Hoy: %s</string>
+    <string name="rest_today">Rest: %s</string>
 </resources>

@@ -14,6 +14,7 @@ import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.apache.commons.lang.time.DateUtils
 import java.util.*
@@ -57,14 +58,14 @@ class StatisticsManager @Inject constructor(
         return DataUnitBytes(0L)
     }
 
-    override suspend fun getRemainder(
+    override fun getRemainder(
         timeUnit: TimeUnit,
         userData: List<UserDataBytes>
     ): DataUnitBytes {
         if (timeUnit.ordinal < TimeUnit.HOURS.ordinal)
             throw IllegalArgumentException()
 
-        val enabledLte = withContext(Dispatchers.IO) {
+        val enabledLte = runBlocking(Dispatchers.IO) {
             context.internalDataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.ENABLED_LTE) ?: false
         }

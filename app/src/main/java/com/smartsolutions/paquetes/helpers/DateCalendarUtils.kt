@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.helpers
 import androidx.annotation.IntDef
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
@@ -16,8 +17,8 @@ import kotlin.IllegalArgumentException
  * Métodos de utilidad para NetworkUsageManager.
  * */
 class DateCalendarUtils @Inject constructor(
-   private val purchasedPackagesManager: IPurchasedPackagesManager,
-    private val simManager: ISimManager
+   private val purchasedPackagesManager: Lazy<IPurchasedPackagesManager>,
+    private val simManager: Lazy<ISimManager>
 ) {
 
 
@@ -84,8 +85,8 @@ class DateCalendarUtils @Inject constructor(
             }
             PERIOD_PACKAGE -> {
                 runBlocking(Dispatchers.Default) {
-                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let { id ->
-                        purchasedPackagesManager.getHistory().firstOrNull()?.filter {
+                    simManager.get().getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let { id ->
+                        purchasedPackagesManager.get().getHistory().firstOrNull()?.filter {
                             it.simId == id
                         }?.maxByOrNull { it.date }?.let {
                             return@runBlocking it.date to System.currentTimeMillis()

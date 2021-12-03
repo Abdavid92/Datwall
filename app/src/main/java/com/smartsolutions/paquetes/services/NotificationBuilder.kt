@@ -20,6 +20,7 @@ import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.ui.SplashActivity
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
+import org.apache.commons.lang.time.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,8 +53,15 @@ abstract class NotificationBuilder(
      * */
     abstract fun getSummary(): Array<String>
 
+    /**
+     * Procesa y busca el dataByte con la fecha de expiración más grande.
+     *
+     * @return [Pair] El primer valor es un texto con el nombre del userDataBytes y
+     * su fecha de expiración. El segundo valor es la cantidad de días restantes.
+     * */
     @SuppressLint("RestrictedApi")
-    protected fun getFirstExpiredDate(dataBytes: List<UserDataBytes>): String? {
+    protected fun getFirstExpiredDate(dataBytes: List<UserDataBytes>): Pair<String, String>? {
+
         if (dataBytes.isEmpty())
             return null
 
@@ -68,6 +76,8 @@ abstract class NotificationBuilder(
 
         val date = Date(data.expiredTime)
 
+        val days = (date.time - System.currentTimeMillis()) / DateUtils.MILLIS_PER_DAY
+
         val dateFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
 
         val dataTitle = getDataTitle(data.type)
@@ -76,6 +86,9 @@ abstract class NotificationBuilder(
             R.string.date_exp,
             dataTitle,
             dateFormat.format(date)
+        ) to mContext.getString(
+            R.string.date_remainder,
+            days
         )
     }
 
