@@ -102,11 +102,12 @@
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage.xml" value="0.25416666666666665" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_usage_details.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/item_user_data_bytes.xml" value="0.4" />
-        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/linear_notification.xml" value="0.16666666666666666" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/linear_notification.xml" value="0.4" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/popup_menu_tab.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/secondary_toolbar.xml" value="0.16666666666666666" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/tab_item.xml" value="0.4" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/usage_fragment.xml" value="0.25416666666666665" />
+        <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/layout/widget_controls.xml" value="0.264" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/applications_menu.xml" value="0.16944444444444445" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/bottom_nav_menu.xml" value="0.2" />
         <entry key="..\:/Programacion/App Projects/Datwall/app/src/main/res/menu/main_menu.xml" value="0.25416666666666665" />
@@ -180,7 +181,6 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_sim_default.xml" value="0.5203488372093024" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_theme.xml" value="0.35319767441860467" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_usage_details.xml" value="0.35319767441860467" />
-        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/linear_notification.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/purchase_function_layout.xml" value="0.1453804347826087" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/applications_menu.xml" value="0.12894736842105264" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/menu/bottom_nav_menu.xml" value="0.1814814814814815" />

@@ -52,5 +52,7 @@
     <color name="magent_dark">#04B3B3</color>
     <color name="dark_medium">#777777</color>
     <color name="dark_dark">#000000</color>
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
 
 </resources>
