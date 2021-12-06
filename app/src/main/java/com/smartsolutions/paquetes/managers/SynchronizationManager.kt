@@ -196,6 +196,17 @@ class SynchronizationManager @Inject constructor(
             )
         }
 
+        value = getBytesFromText(LTE, response)
+        if (value >= 0) {
+            data.add(
+                DataBytes(
+                    DataBytes.DataType.PromoBonusLte,
+                    value,
+                    getExpireDateBonus(LTE, response)
+                )
+            )
+        }
+
         value = getBytesFromText(NATIONAL, response)
         if (value >= 0) {
             data.add(

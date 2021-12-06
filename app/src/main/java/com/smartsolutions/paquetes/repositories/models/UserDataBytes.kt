@@ -69,9 +69,10 @@ class UserDataBytes(
         get() = when (type) {
             DataType.National, DataType.MessagingBag -> 0 //Prioridad nula
             DataType.DailyBag -> 1
-            DataType.PromoBonus -> 2
-            DataType.InternationalLte -> 3
-            DataType.International -> 4
+            DataType.PromoBonusLte -> 2
+            DataType.PromoBonus -> 3
+            DataType.InternationalLte -> 4
+            DataType.International -> 5
         }
 
     constructor(parcel: Parcel) : this(

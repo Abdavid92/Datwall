@@ -447,4 +447,5 @@
     <string name="others_header">Otros ajustes</string>
     <string name="app_name_beta">Mis Datos Beta</string>
     <string name="btn_copy_clipboard">Copiar Identificador</string>
+    <string name="data_type_promo_bonus_lte">Bono Promoción (LTE)</string>
 </resources>

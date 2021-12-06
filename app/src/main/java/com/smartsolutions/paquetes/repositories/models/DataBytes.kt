@@ -14,6 +14,7 @@ open class DataBytes(
     enum class DataType {
         International,
         InternationalLte,
+        PromoBonusLte,
         PromoBonus,
         National,
         DailyBag,

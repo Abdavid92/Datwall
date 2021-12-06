@@ -137,6 +137,7 @@ abstract class NotificationBuilder(
                 DataBytes.DataType.International -> "3G/LTE"
                 DataBytes.DataType.InternationalLte -> "LTE"
                 DataBytes.DataType.PromoBonus -> "Promo"
+                DataBytes.DataType.PromoBonusLte -> "Promo LTE"
                 DataBytes.DataType.National -> ".CU"
                 DataBytes.DataType.DailyBag -> "Bolsa"
             }
