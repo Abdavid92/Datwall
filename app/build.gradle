@@ -83,8 +83,8 @@ android {
 
         oficial {
             dimension "oficial"
-            versionCode 33
-            versionName "4.2.0"
+            versionCode 34
+            versionName "4.2.1"
         }
 
         beta {
