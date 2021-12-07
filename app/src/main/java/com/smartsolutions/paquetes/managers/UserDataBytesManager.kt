@@ -80,6 +80,12 @@ class UserDataBytesManager @Inject constructor(
                 it.initialBytes = it.bytes
                 it.startTime = System.currentTimeMillis()
             }
+
+            if (it.type == DataType.PromoBonusLte) {
+                it.bytes += bytesLte
+                it.initialBytes = it.bytes
+                it.startTime = System.currentTimeMillis()
+            }
             //Le ampliamos la fecha de expiración a todos UserDataBytes.
             it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
         }
