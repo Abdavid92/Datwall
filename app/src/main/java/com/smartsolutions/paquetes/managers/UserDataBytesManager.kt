@@ -70,7 +70,7 @@ class UserDataBytesManager @Inject constructor(
         }
     }
 
-    override suspend fun addPromoBonus(simId: String, bytes: Long) {
+    override suspend fun addPromoBonus(simId: String, bytes: Long, bytesLte: Long) {
         val userDataBytes = withContext(Dispatchers.IO) {
             userDataBytesRepository.bySimId(simId)
         }.filter { it.type != DataType.DailyBag }.onEach {

@@ -7,7 +7,7 @@ interface IUserDataBytesManager {
 
     suspend fun addDataBytes(dataPackage: DataPackage, simId: String)
 
-    suspend fun addPromoBonus(simId: String, bytes: Long)
+    suspend fun addPromoBonus(simId: String, bytes: Long, bytesLte: Long)
 
     suspend fun addMessagingBag(simId: String, dataPackage: DataPackage)
 

@@ -177,10 +177,11 @@ class DataPackageManager @Inject constructor(
 
         if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
             val bytes = getBytesFromText("Bonos: ", smsBody)
+            val bytesLte = getBytesFromText(" y ", smsBody)
 
             if (bytes != -1L) {
                 defaultSim?.id?.let {
-                    userDataBytesManager.addPromoBonus(it, bytes)
+                    userDataBytesManager.addPromoBonus(it, bytes, bytesLte)
                 }
             }
             return
