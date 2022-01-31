@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/controls_widget_description"
-    android:initialKeyguardLayout="@layout/widget_controls"
-    android:initialLayout="@layout/widget_controls"
+    android:initialKeyguardLayout="@layout/widget_controls_dark"
+    android:initialLayout="@layout/widget_controls_dark"
     android:minWidth="110dp"
     android:minHeight="40dp"
     android:previewImage="@drawable/example_appwidget_preview"

@@ -12,7 +12,6 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.BubbleServiceHelper
 import com.smartsolutions.paquetes.helpers.FirewallHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.ui.MainActivity
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
@@ -88,7 +87,13 @@ class ControlsWidget : AppWidgetProvider() {
     }
 
     private fun getRemotesViews(context: Context): RemoteViews {
-        val views = RemoteViews(context.packageName, R.layout.widget_controls)
+        val uiHelper = UIHelper(context)
+
+        val views = if (uiHelper.isAppUIDarkTheme()) {
+            RemoteViews(context.packageName, R.layout.widget_controls_dark)
+        } else {
+            RemoteViews(context.packageName, R.layout.widget_controls_light)
+        }
 
         val isBubble = runBlocking {
             bubbleHelper.get().bubbleEnabled()
@@ -101,18 +106,18 @@ class ControlsWidget : AppWidgetProvider() {
         views.setImageViewResource(
             R.id.icon_firewall,
             if (isFirewall) {
-                R.drawable.ic_firewall
+                R.drawable.firewall_on
             } else {
-                R.drawable.ic_firewall_off_24
+                R.drawable.firewall_off
             }
         )
 
         views.setImageViewResource(
             R.id.icon_bubble,
             if (isBubble) {
-                R.drawable.ic_bubble
+                R.drawable.bubble_on
             } else {
-                R.drawable.ic_bubble_off_24
+                R.drawable.bubble_off
             }
         )
 
@@ -139,10 +144,6 @@ class ControlsWidget : AppWidgetProvider() {
                 }
             )
         )
-
-        val uiHelper = UIHelper(context)
-
-        //TODO Set Colors and Backgrounds according to theme
 
         return views
     }
