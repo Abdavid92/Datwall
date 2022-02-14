@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/lin_background_bubble"
-    android:visibility="gone"
+    style="@style/BubbleFloatingStyle"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:baselineAligned="false"
     android:gravity="center"
-    style="@style/BubbleFloatingStyle"
     android:orientation="horizontal"
-    android:baselineAligned="false">
+    android:visibility="gone"
+    tools:visibility="visible">
 
     <include
         android:id="@+id/menu_left"

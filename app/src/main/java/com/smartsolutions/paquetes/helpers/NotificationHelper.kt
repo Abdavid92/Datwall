@@ -45,7 +45,7 @@ class NotificationHelper @Inject constructor(
     fun notifyUpdate(title: String, text: String) {
         notify(
             ALERT_NOTIFICATION_ID,
-            buildNotification(NotificationHelper.ALERT_CHANNEL_ID)
+            buildNotification(ALERT_CHANNEL_ID)
                 .apply {
                     setSmallIcon(R.drawable.ic_update_notification)
                     setContentTitle(title)
@@ -142,11 +142,11 @@ class NotificationHelper @Inject constructor(
      * */
    companion object NotificationChannels {
 
-        const val MAIN_NOTIFICATION_ID = 1
-        const val ALERT_NOTIFICATION_ID = 2
-        const val WORKERS_NOTIFICATION_ID = 3
-        const val FIREWALL_NOTIFICATION_ID = 4
-        const val SIM_NOTIFICATION_ID = 5
+        const val MAIN_NOTIFICATION_ID = 15
+        const val ALERT_NOTIFICATION_ID = 28
+        const val WORKERS_NOTIFICATION_ID = 34
+        const val FIREWALL_NOTIFICATION_ID = 42
+        const val SIM_NOTIFICATION_ID = 59
 
         //Canal principal
         const val MAIN_CHANNEL_ID = "main_channel"

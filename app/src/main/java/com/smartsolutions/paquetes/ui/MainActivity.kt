@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -16,13 +17,19 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationBarView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityMainBinding
+import com.smartsolutions.paquetes.helpers.BubbleServiceHelper
+import com.smartsolutions.paquetes.helpers.FirewallHelper
 import com.smartsolutions.paquetes.ui.update.Update2Fragment
+import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListener {
 
     private lateinit var navController: NavController
+
 
     private var _binding: ActivityMainBinding? = null
     private val binding: ActivityMainBinding
@@ -49,12 +56,12 @@ class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListene
 
 
     private fun handleIntent(intent: Intent?){
-        intent?.action?.let { action ->
-            if (action == ACTION_OPEN_FRAGMENT) {
+        when (intent?.action){
+            ACTION_OPEN_FRAGMENT -> {
                 intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
                     when(extra) {
                         FRAGMENT_UPDATE_DIALOG -> {
-                           Update2Fragment.newInstance().show(supportFragmentManager, null)
+                            Update2Fragment.newInstance().show(supportFragmentManager, null)
                         }
                         else -> {
 

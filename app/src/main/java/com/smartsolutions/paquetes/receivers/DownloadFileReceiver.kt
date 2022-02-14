@@ -21,14 +21,19 @@ class DownloadFileReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         runBlocking {
+
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            if (id == updateManager.getSavedDownloadId()){
+
+            if (id == updateManager.getSavedDownloadId()) {
+
                 if (updateManager.isDownloaded(id)) {
+
                     notificationHelper.notifyUpdate(
                         "Actualización Descargada",
                         "Toque aquí para instalar la actualización"
                     )
-                }else {
+                } else {
+
                     notificationHelper.notifyUpdate(
                         "Actualización Interrumpida",
                         "Toque aquí para ver el estado de la actualización"

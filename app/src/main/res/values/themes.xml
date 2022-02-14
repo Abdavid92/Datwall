@@ -53,8 +53,10 @@
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition</item>
-        <item name="android:windowSharedElementExitTransition">@transition/app_control_transition</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/app_control_transition
+        </item>
+        <item name="android:windowSharedElementExitTransition">@transition/app_control_transition
+        </item>
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
     </style>
@@ -175,6 +177,13 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
     </style>
 
+    <style name="Theme.Datwall.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+        <item name="appWidgetRadius">8dp</item>
+        <item name="appWidgetPadding">4dp</item>
+        <item name="appWidgetInnerRadius">4dp</item>
+    </style>
+
+    <style name="Theme.Datwall.AppWidgetContainer" parent="Theme.Datwall.AppWidgetContainerParent" />
 
 
 </resources>

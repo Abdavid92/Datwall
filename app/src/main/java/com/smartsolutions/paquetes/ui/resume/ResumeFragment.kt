@@ -207,13 +207,18 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
 
 
     private fun animateFAB(animate: Boolean) {
-        if (animate) {
-            binding.floatingActionButton.apply {
-                shrink()
-            }
-        } else {
-            binding.floatingActionButton.apply {
-                extend()
+        runCatching {
+
+            if (animate) {
+
+                binding.floatingActionButton.apply {
+                    shrink()
+                }
+            } else {
+
+                binding.floatingActionButton.apply {
+                    extend()
+                }
             }
         }
     }

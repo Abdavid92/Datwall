@@ -10,5 +10,5 @@ interface IStatisticsManager {
 
     suspend fun getRemainder(timeUnit: TimeUnit): DataUnitBytes
 
-    suspend fun getRemainder(timeUnit: TimeUnit, userData: List<UserDataBytes>): DataUnitBytes
+    fun getRemainder(timeUnit: TimeUnit, userData: List<UserDataBytes>): DataUnitBytes
 }

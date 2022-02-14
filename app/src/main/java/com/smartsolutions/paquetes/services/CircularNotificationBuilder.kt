@@ -273,7 +273,7 @@ class CircularNotificationBuilder(
         getFirstExpiredDate(userData)?.let {
             expandedRemoteViews.setTextViewText(
                 R.id.date_exp,
-                it
+                it.first
             )
 
             expandedRemoteViews.setInt(

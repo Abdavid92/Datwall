@@ -117,6 +117,7 @@ class ApplicationsViewModel @Inject constructor(
     fun scheduleSearchQuery(query: String?, adapter: AppsListAdapter) {
 
         searchJob?.cancel()
+        searchJob = null
 
         searchJob = viewModelScope.launch(Dispatchers.Default) {
 
