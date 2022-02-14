@@ -76,7 +76,11 @@ abstract class NotificationBuilder(
 
         val date = Date(data.expiredTime)
 
-        val days = (date.time - System.currentTimeMillis()) / DateUtils.MILLIS_PER_DAY
+        var days = (date.time - System.currentTimeMillis()) / DateUtils.MILLIS_PER_DAY
+
+        if (days < 0) {
+            days = 0
+        }
 
         val dateFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
 
@@ -86,10 +90,10 @@ abstract class NotificationBuilder(
             R.string.date_exp,
             dataTitle,
             dateFormat.format(date)
-        ) to mContext.getString(
+        ) to if(days > 0) mContext.getString(
             R.string.date_remainder,
             days
-        )
+        ) else "Sincronice"
     }
 
     @SuppressLint("RestrictedApi")

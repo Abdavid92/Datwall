@@ -89,7 +89,7 @@ class ControlsWidget : AppWidgetProvider() {
     private fun getRemotesViews(context: Context): RemoteViews {
         val uiHelper = UIHelper(context)
 
-        val views = if (uiHelper.isAppUIDarkTheme()) {
+        val views = if (uiHelper.isUIDarkTheme()) {
             RemoteViews(context.packageName, R.layout.widget_controls_dark)
         } else {
             RemoteViews(context.packageName, R.layout.widget_controls_light)

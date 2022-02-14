@@ -180,6 +180,12 @@ class LinearNotificationBuilder(
         view.findViewById<TextView>(R.id.date_exp)
             .text = "Internacional expira el 29/11"
 
+        view.findViewById<TextView>(R.id.usage_today)
+            .text = "Hoy: 125 mb"
+
+        view.findViewById<TextView>(R.id.rest_today)
+            .text = "Rest: 345 mb"
+
         return view
     }
 

@@ -50,6 +50,7 @@ class LocalFileHelper @Inject constructor(
      */
     fun saveToFileTemporal(json: String, fileName: String, typeDir: String): Uri? {
         try {
+
             val file = File(context.getExternalFilesDir(typeDir), fileName)
 
             if (!file.exists()) {
@@ -61,11 +62,10 @@ class LocalFileHelper @Inject constructor(
                 it.close()
             }
 
-            return FileProvider.getUriForFile(
-                context,
-                AUTHORITY_PROVIDER, file
-            )
-        }catch (e: Exception){
+            return FileProvider.getUriForFile(context, AUTHORITY_PROVIDER, file)
+
+        } catch (e: Exception) {
+
             return null
         }
     }

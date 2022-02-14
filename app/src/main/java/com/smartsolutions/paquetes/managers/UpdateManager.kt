@@ -286,14 +286,18 @@ class UpdateManager @Inject constructor(
 
 
     override fun getSavedDownloadId(): Long? {
+
         var id: Long?
+
         runBlocking {
             id = context.internalDataStore.data.firstOrNull()
                 ?.get(PreferencesKeys.DOWNLOAD_UPDATE_ID)
         }
+
         if (id == -1L) {
             id = null
         }
+
         return id
     }
 

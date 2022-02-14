@@ -18,8 +18,8 @@
 
         <ImageView
             android:id="@+id/icon_firewall"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/firewall_off" />
 
         <TextView
@@ -56,8 +56,8 @@
 
         <ImageView
             android:id="@+id/icon_bubble"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/bubble_off" />
 
         <TextView
