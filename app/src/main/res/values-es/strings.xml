@@ -457,5 +457,4 @@
     <string name="controls_widget_description">Controle los servicios de la app fácilmente</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
-    <string name="app_widget_description">This is an app widget description</string>
 </resources>
