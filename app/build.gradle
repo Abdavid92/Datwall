@@ -38,8 +38,6 @@ android {
         versionName "4.3.1"
         archivesBaseName = "Mis Datos-$versionName-v$versionCode"
 
-        //testInstrumentationRunner "androidx.test.runner.Andr
-        // oidJUnitRunner"
         testInstrumentationRunner "com.smartsolutions.paquetes.HiltTestRunner"
 
         resConfigs "es", "en"
@@ -83,8 +81,8 @@ android {
 
         oficial {
             dimension "oficial"
-            versionCode 34
-            versionName "4.2.1"
+            versionCode 35
+            versionName "4.3.1"
         }
 
         beta {
