@@ -26,6 +26,16 @@ def s = "$name;$audience;$applicationKey"
 def enc = Base64.encoder.encode(s.getBytes())
 def content0 = "\"${new String(enc)}\""
 
+/**
+ * Número de la versión oficial. Cambie la versión aquí.
+ */
+def officialVersionCode = 35
+
+/**
+ * Nombre de la versión oficial.
+ */
+def officialVersionName = "4.3.1"
+
 android {
     compileSdkVersion 30
     buildToolsVersion "31.0.0"
@@ -34,8 +44,8 @@ android {
         applicationId "com.smartsolutions.paquetes"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 35
-        versionName "4.3.1"
+        versionCode officialVersionCode
+        versionName officialVersionName
         archivesBaseName = "Mis Datos-$versionName-v$versionCode"
 
         //testInstrumentationRunner "androidx.test.runner.Andr
@@ -83,8 +93,8 @@ android {
 
         oficial {
             dimension "oficial"
-            versionCode 33
-            versionName "4.2.0"
+            versionCode officialVersionCode
+            versionName officialVersionName
         }
 
         beta {
