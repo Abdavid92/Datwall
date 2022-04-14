@@ -7,10 +7,8 @@ import android.content.Intent
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.IconCompat
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.UIHelper
@@ -153,6 +151,7 @@ abstract class NotificationBuilder(
                 DataBytes.DataType.MessagingBag -> "Mensaj."
                 DataBytes.DataType.International -> "3G/LTE"
                 DataBytes.DataType.InternationalLte -> "LTE"
+                DataBytes.DataType.PromoBonusLte -> "Promo(LTE)"
                 DataBytes.DataType.PromoBonus -> "Promo"
                 DataBytes.DataType.National -> ".CU"
                 DataBytes.DataType.DailyBag -> "Bolsa"

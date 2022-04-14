@@ -50,16 +50,27 @@ class UserDataBytesRecyclerAdapter constructor(
 
     inner class ViewHolder(var binding: ItemUserDataBytesBinding?): RecyclerView.ViewHolder(binding!!.root){
 
-        fun bind(userDataBytes: UserDataBytes){
+        fun bind(userDataBytes: UserDataBytes) {
+
             binding?.apply {
-                val usage = DataUnitBytes(userDataBytes.initialBytes - userDataBytes.bytes).getValue()
+
+                val usage = DataUnitBytes(
+                    userDataBytes.initialBytes - userDataBytes.bytes
+                ).getValue()
+
                 val rest = DataUnitBytes(userDataBytes.bytes).getValue()
-                val percent = DateCalendarUtils.calculatePercent(userDataBytes.initialBytes.toDouble(), userDataBytes.bytes.toDouble())
-                val expire = if (userDataBytes.expiredTime == 0L){
+
+                val percent = DateCalendarUtils.calculatePercent(
+                    userDataBytes.initialBytes.toDouble(),
+                    userDataBytes.bytes.toDouble()
+                )
+
+                val expire = if (userDataBytes.expiredTime == 0L) {
                     "Desconocido"
-                }else {
+                } else {
                     SimpleDateFormat("dd MMMM", Locale.getDefault()).format(Date(userDataBytes.expiredTime))
                 }
+
                 val restDate = DateCalendarUtils.calculateDiffDate(System.currentTimeMillis(), userDataBytes.expiredTime)
 
                 progressBar.apply {
@@ -77,9 +88,10 @@ class UserDataBytesRecyclerAdapter constructor(
                 textUsageValue.text = usage.value.toString()
                 textUsageUnit.text = usage.dataUnit.name
                 expireDate.text = expire
-                this.restDate.text = if (restDate.first > 0){
+
+                this.restDate.text = if (restDate.first > 0) {
                     "${restDate.first} ${restDate.second.nameLegible().lowercase()}"
-                }else {
+                } else {
                     "-"
                 }
 

@@ -2,12 +2,9 @@ package com.smartsolutions.paquetes.helpers
 
 import android.app.Activity
 import android.content.Context
-import android.text.Spannable
-import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.IdRes
-import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
@@ -196,6 +193,7 @@ fun getDataTypeName(type: DataBytes.DataType, context: Context): String {
         DataBytes.DataType.International -> context.getString(R.string.data_type_international)
         DataBytes.DataType.InternationalLte -> context.getString(R.string.data_type_international_lte)
         DataBytes.DataType.National -> context.getString(R.string.data_type_national)
+        DataBytes.DataType.PromoBonusLte -> context.getString(R.string.data_type_promo_bonus_lte)
         DataBytes.DataType.PromoBonus -> context.getString(R.string.data_type_promo_bonus)
         DataBytes.DataType.DailyBag -> context.getString(R.string.data_type_daily_bag)
     }

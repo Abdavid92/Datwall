@@ -187,12 +187,17 @@ class UserDataBytesManager @Inject constructor(
         }
     }
 
+    /**
+     * Registra el tráfico en la red lte
+     */
     private suspend fun registerLteTraffic(bytes: Long, simId: String) {
         var consumed = bytes
 
         withContext(Dispatchers.IO) {
             return@withContext userDataBytesRepository.bySimId(simId)
-        }.filter { it.type != DataType.National && it.type != DataType.MessagingBag }
+        }.filter { /*it.type != DataType.National && it.type != DataType.MessagingBag*/
+            DataType.getDataTypeOfLte().contains(it.type)
+        }
             .sortedBy { it.priority }
             .forEach {
                 if (consumed > 0)
@@ -200,15 +205,18 @@ class UserDataBytesManager @Inject constructor(
             }
     }
 
-
+    /**
+     * Registra el tráfico en las redes restantes
+     */
     private suspend fun registerTraffic(bytes: Long, simId: String) {
         var consumed = bytes
 
         withContext(Dispatchers.IO) {
             return@withContext userDataBytesRepository.bySimId(simId)
         }.filter {
-            it.type == DataType.PromoBonus ||
-                    it.type == DataType.International
+            /*it.type == DataType.PromoBonus ||
+                    it.type == DataType.International*/
+            DataType.getDataTypeOfInternationalNetworks().contains(it.type)
         }
             .sortedBy { it.priority }
             .forEach {
@@ -218,6 +226,7 @@ class UserDataBytesManager @Inject constructor(
     }
 
     private suspend fun processUserDataBytes(userDataBytes: UserDataBytes, consumed: Long): Long {
+
         var consumed1 = consumed
 
         if (userDataBytes.exists() && !userDataBytes.isExpired()) {
