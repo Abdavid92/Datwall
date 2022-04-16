@@ -39,21 +39,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Datwall"
         tools:targetApi="n">
-        <receiver
-            android:name=".ui.widgets.ControlsWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
 
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/controls_widget_info" />
-        </receiver>
-
+        <!-- Activities -->
         <activity
             android:name=".ui.FragmentContainerActivity"
-            android:exported="true" /> <!-- Activities -->
+            android:exported="true" />
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -90,7 +80,9 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
-            tools:replace="screenOrientation" /> <!-- Services -->
+            tools:replace="screenOrientation" />
+
+        <!-- Services -->
         <service
             android:name=".services.DatwallService"
             android:description="@string/main_service_description"
@@ -119,7 +111,20 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.net.VpnService" />
             </intent-filter>
-        </service> <!-- Receivers -->
+        </service>
+
+        <!-- Receivers -->
+        <receiver
+            android:name=".ui.widgets.ControlsWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/controls_widget_info" />
+        </receiver>
         <receiver
             android:name=".receivers.BootCompletedReceiver"
             android:enabled="true"
@@ -164,7 +169,9 @@
             <intent-filter android:priority="9999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
-        </receiver> <!-- Providers -->
+        </receiver>
+
+        <!-- Providers -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.smartsolutions.paquetes.provider"

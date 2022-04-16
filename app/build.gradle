@@ -29,12 +29,12 @@ def content0 = "\"${new String(enc)}\""
 /**
  * Número de la versión oficial. Cambie la versión aquí.
  */
-def officialVersionCode = 35
+def officialVersionCode = 36
 
 /**
  * Nombre de la versión oficial.
  */
-def officialVersionName = "4.3.1"
+def officialVersionName = "4.3.2"
 
 android {
     compileSdkVersion 30
