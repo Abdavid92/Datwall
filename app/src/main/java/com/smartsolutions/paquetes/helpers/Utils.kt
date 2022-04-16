@@ -195,7 +195,6 @@ fun getDataTypeName(type: DataBytes.DataType, context: Context): String {
         DataBytes.DataType.National -> context.getString(R.string.data_type_national)
         DataBytes.DataType.PromoBonusLte -> context.getString(R.string.data_type_promo_bonus_lte)
         DataBytes.DataType.PromoBonus -> context.getString(R.string.data_type_promo_bonus)
-        DataBytes.DataType.PromoBonusLte -> context.getString(R.string.data_type_promo_bonus_lte)
         DataBytes.DataType.DailyBag -> context.getString(R.string.data_type_daily_bag)
     }
 }
