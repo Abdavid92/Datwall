@@ -163,7 +163,7 @@ fun <T : View> Fragment.findView(@IdRes resId: Int) = lazy {
     view?.findViewById<T>(resId)
 }
 
-fun setTabLayoutMediatorSims(context: Context, tabLayout: TabLayout, pager2: ViewPager2, sims: List<Sim>, fragmentManager: FragmentManager) {
+fun setTabLayoutMediatorSims(context: Context, tabLayout: TabLayout, pager2: ViewPager2, sims: List<Sim>) {
     try {
         TabLayoutMediator(tabLayout, pager2) { tab, pos ->
             val tabBind =

@@ -79,8 +79,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
                 requireContext(),
                 binding.tabs,
                 binding.pager,
-                it,
-                childFragmentManager
+                it
             )
 
             if (it.size <= 1) {
