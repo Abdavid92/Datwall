@@ -96,7 +96,7 @@ class PackagesFragment : AbstractFragment() {
 
         viewModel.getInstalledSims().observe(viewLifecycleOwner) {
             setAdapter(it)
-            setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it, childFragmentManager)
+            setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it)
 
             if (it.size <= 1){
                 binding.tabs.visibility = View.GONE
