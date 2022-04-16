@@ -10,7 +10,7 @@ import com.smartsolutions.paquetes.annotations.Networks.Companion.NETWORK_NONE
 object DataPackages {
 
     /**
-     * v3  Cambiado el precio de el Plan Basico a 110
+     * v3  Cambiado el precio del Plan Basico a 110
      **/
     const val PACKAGES_VERSION = 3
 

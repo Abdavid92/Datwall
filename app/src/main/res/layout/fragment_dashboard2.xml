@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorPrimary"
+    tools:context=".ui.dashboard.DashboardFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.Datwall.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="@string/title_dashboard"
+            app:titleTextColor="@color/white"
+            app:popupTheme="@style/Theme.Datwall.PopupOverlay"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="@style/BackgroundStyle"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <!--Controles del cortafuegos-->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/firewall_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/firewall_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:paddingTop="8dp"
+                        android:text="@string/title_firewall"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textColor="?attr/colorPrimaryVariant"
+                        android:drawableStart="@drawable/ic_vpn"
+                        app:drawableTint="?attr/colorPrimaryVariant" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/firewall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/firewall_summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/firewall"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:text="@string/firewall_summary"/>
+
+                    <View
+                        android:id="@+id/divider1"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintTop_toBottomOf="@id/firewall_summary"
+                        android:background="?android:attr/listDivider"/>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/text_info_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="8dp"
+                        android:paddingEnd="4dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/divider2"
+                        app:layout_constraintTop_toBottomOf="@id/divider1"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        tools:ignore="RtlSymmetry">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/allowed_apps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/allowed_apps" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/allowed_apps_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/allowed_apps"
+                            tools:text="2" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/blocked_apps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/allowed_apps"
+                            android:text="@string/blocked_apps" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/blocked_apps_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/allowed_apps_value"
+                            tools:text="384" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/all_apps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/blocked_apps"
+                            android:text="@string/all_apps" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/all_apps_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/blocked_apps_value"
+                            tools:text="386" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <View
+                        android:id="@+id/divider2"
+                        android:layout_width="1dp"
+                        android:layout_height="0dp"
+                        android:background="?android:attr/listDivider"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/divider1"
+                        app:layout_constraintBottom_toBottomOf="@id/radio_group"
+                        android:layout_marginTop="8dp"/>
+
+                    <RadioGroup
+                        android:id="@+id/radio_group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toEndOf="@id/divider2"
+                        app:layout_constraintTop_toBottomOf="@id/divider1"
+                        android:layout_marginTop="8dp">
+
+                        <androidx.appcompat.widget.AppCompatRadioButton
+                            android:id="@+id/dynamic_mode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dynamic_mode" />
+
+                        <androidx.appcompat.widget.AppCompatRadioButton
+                            android:id="@+id/static_mode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/static_mode" />
+
+                    </RadioGroup>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!--Controles de la burbuja-->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/bubble_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/firewall_controls"
+                android:layout_marginTop="@dimen/fab_margin">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:paddingTop="8dp"
+                        android:text="@string/title_bubble"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textColor="?attr/colorPrimaryVariant"
+                        android:drawableStart="@drawable/ic_bubble"
+                        app:drawableTint="?attr/colorPrimaryVariant"/>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/bubble"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/bubble_summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/bubble"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:text="@string/bubble_summary"/>
+
+                    <View
+                        android:id="@+id/divider3"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintTop_toBottomOf="@id/bubble_summary"
+                        android:background="?android:attr/listDivider"/>
+
+                    <View
+                        android:id="@+id/divider4"
+                        android:layout_width="1dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintTop_toBottomOf="@id/divider3"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginTop="8dp"
+                        android:background="?android:attr/listDivider"/>
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/divider4"
+                        app:layout_constraintTop_toTopOf="@id/divider3"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/title_transparency"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginTop="8dp"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/transparency" />
+
+                        <com.warkiz.widget.IndicatorSeekBar
+                            android:id="@+id/bubble_transparency"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:isb_max="10"
+                            app:isb_seek_smoothly="true"
+                            app:isb_thumb_color="?attr/colorSecondary"
+                            app:isb_track_progress_color="?attr/colorSecondary"
+                            app:isb_indicator_content_layout="@layout/bubble_floating_layout"
+                            app:isb_indicator_color="?attr/colorSecondary"
+                            app:isb_show_indicator="custom"
+                            tools:isb_progress="5"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/title_size"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/size" />
+
+                        <com.warkiz.widget.IndicatorSeekBar
+                            android:id="@+id/bubble_size"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:isb_max="2"
+                            app:isb_ticks_count="3"
+                            app:isb_show_tick_marks_type="oval"
+                            app:isb_tick_marks_color="?attr/colorSecondary"
+                            app:isb_seek_smoothly="true"
+                            app:isb_thumb_color="?attr/colorSecondary"
+                            app:isb_track_progress_color="?attr/colorSecondary"
+                            app:isb_indicator_content_layout="@layout/bubble_floating_layout"
+                            app:isb_indicator_color="?attr/colorSecondary"
+                            app:isb_show_indicator="custom"
+                            tools:isb_progress="1" />
+
+
+
+                        <!--<androidx.appcompat.widget.AppCompatSeekBar
+                            android:id="@+id/bubble_size"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="@id/divider4"
+                            app:layout_constraintTop_toBottomOf="@id/title_size" />-->
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/title_bubble_visibility"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="@id/divider4"
+                        app:layout_constraintTop_toBottomOf="@id/divider3"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visibility" />
+
+                    <RadioGroup
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="@id/divider4"
+                        app:layout_constraintTop_toBottomOf="@id/title_bubble_visibility">
+
+                        <androidx.appcompat.widget.AppCompatRadioButton
+                            android:id="@+id/all_way"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/all_way" />
+
+                        <androidx.appcompat.widget.AppCompatRadioButton
+                            android:id="@+id/only_consume"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/only_consume" />
+                    </RadioGroup>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!--Botones de acción-->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/query_credit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/query_credit"
+        app:icon="@drawable/ic_money"
+        android:visibility="invisible"
+        tools:visibility="invisible"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/query_bonus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/query_bonus"
+        app:icon="@drawable/ic_money"
+        android:visibility="invisible"
+        tools:visibility="invisible"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/query_mb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/query_mb"
+        app:icon="@drawable/ic_money"
+        android:visibility="invisible"
+        tools:visibility="invisible"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_query"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="@string/query"
+        app:icon="@drawable/ic_perm_phone_msg"
+        tools:visibility="visible"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

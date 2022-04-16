@@ -181,11 +181,14 @@ class SynchronizationManager @Inject constructor(
     }
 
     private fun obtainDataByteBonus(bonusPackages: Array<CharSequence>): Collection<DataBytes> {
+
         val response = joinString(bonusPackages)
 
         val data = mutableListOf<DataBytes>()
 
+        //Bono de promoción
         var value = getBytesFromText(PROMO_BONO, response)
+
         if (value >= 0) {
             data.add(
                 DataBytes(
@@ -196,18 +199,9 @@ class SynchronizationManager @Inject constructor(
             )
         }
 
-        value = getBytesFromText(LTE, response)
-        if (value >= 0) {
-            data.add(
-                DataBytes(
-                    DataBytes.DataType.PromoBonusLte,
-                    value,
-                    getExpireDateBonus(LTE, response)
-                )
-            )
-        }
-
+        //Datos nacionales
         value = getBytesFromText(NATIONAL, response)
+
         if (value >= 0) {
             data.add(
                 DataBytes(
@@ -216,6 +210,23 @@ class SynchronizationManager @Inject constructor(
                     getExpireDateBonus(NATIONAL, response)
                 )
             )
+        }
+
+        //Bono de promoción Lte
+        if (response.contains(PLUS_SYMBOL) && response.contains(LTE)) {
+
+            value = getBytesFromText(PLUS_SYMBOL, response)
+
+            if (value >= 0) {
+
+                data.add(
+                    DataBytes(
+                        DataBytes.DataType.PromoBonusLte,
+                        value,
+                        getExpireDateBonus(PROMO_BONO, response)
+                    )
+                )
+            }
         }
 
         return data
@@ -293,6 +304,7 @@ class SynchronizationManager @Inject constructor(
                 date = DateUtils.setHours(date, 23)
                 date = DateUtils.setMinutes(date, 59)
                 date = DateUtils.setSeconds(date, 59)
+                date = DateUtils.setMilliseconds(date, 0)
                 date.time
             }
         } catch (e: Exception) {
@@ -304,7 +316,7 @@ class SynchronizationManager @Inject constructor(
         if (!text.contains(find)) {
             return 0L
         }
-        val start = text.indexOf("->", text.indexOf(find)) + 2
+        val start = text.indexOf("vence", text.indexOf(find)) + 5
         val finish = text.indexOf(".", start)
 
         return try {
@@ -339,7 +351,7 @@ class SynchronizationManager @Inject constructor(
         const val MENSAJERIA = "Mensajeria:"
         const val DIARIA = "Diaria:"
         const val PAQUETES = "Paquetes:"
-        const val PROMO_BONO = "Datos"
+        const val PROMO_BONO = "Datos:"
         const val NATIONAL = "Datos.cu"
         const val PLUS_SYMBOL = "+"
         const val LTE = "LTE"
