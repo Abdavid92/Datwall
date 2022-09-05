@@ -53,11 +53,6 @@ object PreferencesKeys {
     val NOTIFICATION_STYLE_THEME_MODE_APP = booleanPreferencesKey("notification_style_theme_mode_app")
 
     /**
-     * Indica si se deben descargar automáticamente las actualizaciones.
-     * */
-    val AUTO_DOWNLOAD_UPDATE = booleanPreferencesKey("auto_download_update")
-
-    /**
      * Indica si se debe notificar cuando haya una actualización disponible.
      * */
     val ENABLED_NOTIFICATION_UPDATE = booleanPreferencesKey("enabled_notification_update")
@@ -88,31 +83,6 @@ object PreferencesKeys {
      * Indica si el dispositotivo se puede conectar a la red LTE
      * */
     val ENABLED_LTE = booleanPreferencesKey("enabled_lte")
-
-    /**
-     * Identificador del dispositivo
-     * */
-    val DEVICE_ID = stringPreferencesKey("device_id")
-
-    /**
-     * DeviceApp obtenido del servidor.
-     * */
-    val DEVICE_APP = stringPreferencesKey("device_app")
-
-    /**
-     * ID único de la descarga que proporciona el DownloadManager.
-     */
-    val DOWNLOAD_UPDATE_ID = longPreferencesKey("download_update_id")
-
-    /**
-     * Determina si se descarga automaticamente las actualizaciones.
-     */
-    val AUTO_UPDATE = booleanPreferencesKey("auto_update")
-
-    /**
-     * Indica el modo de Actualización, si por Apklis o por nuestro servidor
-     */
-    val UPDATE_MODE = stringPreferencesKey("update_mode")
 
     /**
      * Intervalo en el cual se verificará el estado de la app.

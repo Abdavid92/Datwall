@@ -30,26 +30,20 @@ class ApplicationsFragment : AbstractFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if (canWork()) {
-            _binding = FragmentApplicationsBinding.inflate(
-                inflater,
-                container,
-                false
-            )
+        _binding = FragmentApplicationsBinding.inflate(
+            inflater,
+            container,
+            false
+        )
 
-            (requireActivity() as AppCompatActivity)
-                .setSupportActionBar(binding.toolbar)
-            return binding.root
-        }
+        (requireActivity() as AppCompatActivity)
+            .setSupportActionBar(binding.toolbar)
 
-        return inflatePurchasedFunctionLayout(inflater, container)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (!canWork())
-            return
 
         val sectionsAdapter = SectionsPagerAdapter(this)
         binding.viewPager.adapter = sectionsAdapter

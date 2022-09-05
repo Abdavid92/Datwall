@@ -11,6 +11,7 @@ import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.*
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IDataPackageRepository
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -90,7 +91,7 @@ class DataPackageManager @Inject constructor(
         var enabledLte = false
 
         //Linea predeterminada para llamadas
-        simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let { defaultSim ->
+        simManager.getDefaultSimBoth(SimType.VOICE)?.let { defaultSim ->
 
             plainsResultText?.let {
                 val text = it.string()
@@ -137,8 +138,8 @@ class DataPackageManager @Inject constructor(
 
     override suspend fun isConfiguredDataPackages(): Boolean {
         return try {
-            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
-                ?.network ?: Networks.NETWORK_NONE != Networks.NETWORK_NONE
+            (simManager.getDefaultSimBoth(SimType.VOICE)
+                ?.network ?: Networks.NETWORK_NONE) != Networks.NETWORK_NONE
         } catch (e: IllegalStateException) {
             false
         }
@@ -170,10 +171,10 @@ class DataPackageManager @Inject constructor(
     override suspend fun registerDataPackage(smsBody: String, simIndex: Int) {
 
         val defaultSim = if (simIndex == -1)
-            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
+            simManager.getDefaultSimBoth(SimType.VOICE)
         else
             simManager.getInstalledSims().firstOrNull { it.slotIndex == simIndex } ?:
-            simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
+            simManager.getDefaultSimBoth(SimType.VOICE)
 
         if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
             val bytes = getBytesFromText("Bonos: ", smsBody)

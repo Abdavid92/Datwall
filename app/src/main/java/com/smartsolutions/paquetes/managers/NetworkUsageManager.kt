@@ -4,6 +4,7 @@ import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
 import org.apache.commons.lang.time.DateUtils
@@ -173,7 +174,7 @@ abstract class NetworkUsageManager(private val simManager: ISimManager) {
 
 
     suspend fun updateSimID() {
-        simId = simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id
+        simId = simManager.getDefaultSimBoth(SimType.DATA)?.id
     }
 
     companion object {

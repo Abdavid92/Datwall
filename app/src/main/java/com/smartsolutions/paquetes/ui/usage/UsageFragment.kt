@@ -32,22 +32,14 @@ class UsageFragment : AbstractFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        if (canWork()) {
-            _binding = FragmentUsageBinding.inflate(inflater, container, false)
-            (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
-            return binding.root
-        }
-
-        return inflatePurchasedFunctionLayout(inflater, container)
+        _binding = FragmentUsageBinding.inflate(inflater, container, false)
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (!canWork())
-            return
 
         binding.spinnerUsageOptions.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 

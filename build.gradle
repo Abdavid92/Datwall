@@ -1,22 +1,36 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     //Libraries versions
-    ext.kotlin_version = "1.5.31"
+    ext.kotlin_version = "1.7.10"
     ext.retrofit_version = "2.9.0"
     ext.dagger_version = "2.28"
-    ext.room_version = "2.3.0"
-    ext.hilt_version = '2.37'
-    ext.lifecycle_version = "2.3.1"
+    ext.room_version = "2.4.3"
+    ext.hilt_version = '2.43.2'
+    ext.lifecycle_version = "2.5.1"
 
     repositories {
         google()
         mavenCentral()
-        maven {url "https://maven.aliyun.com/repository/google"}
-        maven {url "https://maven.aliyun.com/repository/jcenter"}
-        maven {url "https://maven.aliyun.com/repository/central"}
+        //maven {url "https://maven.aliyun.com/repository/google"}
+        //maven {url "https://maven.aliyun.com/repository/jcenter"}
+        //maven {url "https://maven.aliyun.com/repository/central"}
+
+        /*maven {
+            url 'http://nexus.prod.uci.cu/repository/maven-all/'
+            allowInsecureProtocol = true
+        }
+        maven {
+            url 'http://nexus.prod.uci.cu/repository/maven-central/'
+            allowInsecureProtocol = true
+        }
+        maven {
+            url 'http://nexus.prod.uci.cu/repository/jcenter/'
+            allowInsecureProtocol = true
+        }*/
+        maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0'
+        classpath 'com.android.tools.build:gradle:7.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
 
@@ -32,6 +46,20 @@ allprojects {
         maven {url "https://maven.aliyun.com/repository/google"}
         maven {url "https://maven.aliyun.com/repository/jcenter"}
         maven {url "https://maven.aliyun.com/repository/central"}
+
+        maven {
+            url 'http://nexus.prod.uci.cu/repository/maven-all/'
+            allowInsecureProtocol = true
+        }
+        maven {
+            url 'http://nexus.prod.uci.cu/repository/maven-central/'
+            allowInsecureProtocol = true
+        }
+        maven {
+            url 'http://nexus.prod.uci.cu/repository/jcenter/'
+            allowInsecureProtocol = true
+        }
+        maven { url "https://jitpack.io" }
     }
 }
 

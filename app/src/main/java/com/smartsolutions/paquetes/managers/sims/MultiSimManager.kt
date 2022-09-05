@@ -19,7 +19,7 @@ internal class MultiSimManager constructor(
     private val simRepository: ISimRepository
 ) : InternalSimManager {
 
-    override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Result<Sim> {
+    override suspend fun getDefaultSim(type: SimType, relations: Boolean): Result<Sim> {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             simDelegate.getActiveSim(type)?.let { info ->
@@ -33,7 +33,7 @@ internal class MultiSimManager constructor(
         return Result.Failure(UnsupportedOperationException())
     }
 
-    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean? {
+    override suspend fun isSimDefault(type: SimType, sim: Sim): Boolean? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             simDelegate.getActiveSim(type)?.let { info ->
                return sim.id == simDelegate.getSimId(info)

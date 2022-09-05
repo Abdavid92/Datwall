@@ -25,19 +25,19 @@ class SimManager @Inject constructor(
 ) : ISimManager {
 
     override suspend fun getDefaultSimSystem(
-        type: SimDelegate.SimType,
+        type: SimType,
         relations: Boolean
     ): Result<Sim> {
         return getSimManager().getDefaultSim(type, relations)
     }
 
 
-    override suspend fun getDefaultSimManual(type: SimDelegate.SimType, relations: Boolean): Sim? {
+    override suspend fun getDefaultSimManual(type: SimType, relations: Boolean): Sim? {
         getSimManager().getInstalledSims(relations).let { sims ->
             context.internalDataStore.data.firstOrNull()?.get(
                 when(type){
-                    SimDelegate.SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
-                    SimDelegate.SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
+                    SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
+                    SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
                 }
             )?.let { slot ->
                 return sims.firstOrNull { it.slotIndex == slot }
@@ -47,20 +47,20 @@ class SimManager @Inject constructor(
     }
 
 
-    override suspend fun setDefaultSimManual(type: SimDelegate.SimType, slot: Int) {
+    override suspend fun setDefaultSimManual(type: SimType, slot: Int) {
 
         context.internalDataStore.edit {
             it[
                     when (type) {
-                        SimDelegate.SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
-                        SimDelegate.SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
+                        SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
+                        SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
                     }
             ] = slot
         }
     }
 
 
-    override suspend fun getDefaultSimBoth(type: SimDelegate.SimType, relations: Boolean): Sim? {
+    override suspend fun getDefaultSimBoth(type: SimType, relations: Boolean): Sim? {
 
         var sim = getDefaultSimSystem(type, relations).getOrNull()
 
@@ -72,18 +72,18 @@ class SimManager @Inject constructor(
     }
 
 
-    override suspend fun isSimDefaultSystem(type: SimDelegate.SimType, sim: Sim): Boolean? {
+    override suspend fun isSimDefaultSystem(type: SimType, sim: Sim): Boolean? {
         return getSimManager().isSimDefault(type, sim)
     }
 
-    override suspend fun isSimDefaultBoth(type: SimDelegate.SimType, sim: Sim): Boolean? {
+    override suspend fun isSimDefaultBoth(type: SimType, sim: Sim): Boolean? {
         var default = getSimManager().isSimDefault(type, sim)
 
         if (default == null){
             context.internalDataStore.data.firstOrNull()?.get(
                 when(type){
-                    SimDelegate.SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
-                    SimDelegate.SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
+                    SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
+                    SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
                 }
             )?.let { slot ->
                 default = sim.slotIndex == slot

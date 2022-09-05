@@ -11,6 +11,7 @@ import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.watcher.RxWatcher
@@ -33,11 +34,10 @@ class SynchronizationWorker @AssistedInject constructor(
 
 
     override suspend fun doWork(): Result {
-        var canExecute = true
 
-        canExecute = try {
+        var canExecute = try {
             userDataBytesRepository.get(
-                simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)!!.id,
+                simManager.getDefaultSimBoth(SimType.DATA)!!.id,
                 DataBytes.DataType.International
             ).exists()
         } catch (e: Exception) {
@@ -64,7 +64,7 @@ class SynchronizationWorker @AssistedInject constructor(
             try {
                 synchronizationManager.synchronizeUserDataBytes(
                     simManager.getDefaultSimBoth(
-                        SimDelegate.SimType.VOICE
+                        SimType.VOICE
                     )!!
                 )
             } catch (e: Exception) { }

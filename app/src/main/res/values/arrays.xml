@@ -67,16 +67,6 @@
         <item>default_system</item>
     </string-array>
 
-    <string-array name="update_modes">
-        <item>Tienda Apklis</item>
-        <item>Servidor de Mis Datos (consume megas internacionales)</item>
-    </string-array>
-
-    <string-array name="update_modes_values">
-        <item>APKLIS_SERVER</item>
-        <item>DATWALL_SERVER</item>
-    </string-array>
-
     <string-array name="data_unit_types">
         <item>B</item>
         <item>KB</item>

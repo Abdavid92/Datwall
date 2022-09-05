@@ -16,6 +16,7 @@ import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes.DataValue
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -100,7 +101,7 @@ class ResumeViewModel @Inject constructor(
     fun invokeOnDefaultSim(
         context: Context,
         sim: Sim,
-        simType: SimDelegate.SimType,
+        simType: SimType,
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
     ){
@@ -137,7 +138,7 @@ class ResumeViewModel @Inject constructor(
     fun synchronizeUserDataBytes(callback: SynchronizationResult) {
         viewModelScope.launch {
             try {
-                simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let {
+                simManager.getDefaultSimBoth(SimType.VOICE)?.let {
                     synchronizationManager.synchronizeUserDataBytes(it)
                 }
                 withContext(Dispatchers.Main) {

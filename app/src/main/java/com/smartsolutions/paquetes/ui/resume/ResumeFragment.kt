@@ -16,6 +16,7 @@ import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.AbstractFragment
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
@@ -56,19 +57,12 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if (canWork()) {
-            _binding = FragmentResumeBinding.inflate(inflater, container, false)
-            return binding.root
-        }
-
-        return inflatePurchasedFunctionLayout(inflater, container)
+        _binding = FragmentResumeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (!canWork())
-            return
 
         viewModel.getInstalledSims().observe(viewLifecycleOwner) {
             installedSims = it
@@ -95,7 +89,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             viewModel.invokeOnDefaultSim(
                 requireContext(),
                 installedSims[binding.pager.currentItem],
-                SimDelegate.SimType.VOICE,
+                SimType.VOICE,
                 parentFragmentManager
             ){
                 animateFAB(true)

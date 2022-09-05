@@ -32,27 +32,19 @@ class DashboardFragment2 : AbstractFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        _binding = FragmentDashboard2Binding.inflate(
+            inflater,
+            container,
+            false
+        )
 
-        if (canWork()) {
-            _binding = FragmentDashboard2Binding.inflate(
-                inflater,
-                container,
-                false
-            )
+        setFabSettings()
 
-            setFabSettings()
-
-            return binding.root
-        }
-
-        return inflatePurchasedFunctionLayout(inflater, container)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (!canWork())
-            return
 
         setUssdButtonsSettings()
         setFirewallSettings()

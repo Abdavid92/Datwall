@@ -57,7 +57,7 @@ class PlaceHolderFragment : AbstractFragment(),
     private val appControlLauncher = registerForActivityResult(
         object : ActivityResultContract<App, App?>() {
 
-            override fun createIntent(context: Context, input: App?): Intent {
+            override fun createIntent(context: Context, input: App): Intent {
                 return Intent(context, AppControlActivity::class.java)
                     .putExtra(AppControlActivity.EXTRA_APP, input)
             }

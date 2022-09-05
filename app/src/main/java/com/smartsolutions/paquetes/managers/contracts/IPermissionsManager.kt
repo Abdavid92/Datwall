@@ -3,9 +3,7 @@ package com.smartsolutions.paquetes.managers.contracts
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
-import android.os.Build
 import android.provider.Settings
-import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.managers.models.Permission
 
 interface IPermissionsManager {

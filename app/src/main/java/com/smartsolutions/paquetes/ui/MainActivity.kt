@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui
 
 import android.annotation.SuppressLint
-import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -17,13 +16,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationBarView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityMainBinding
-import com.smartsolutions.paquetes.helpers.BubbleServiceHelper
-import com.smartsolutions.paquetes.helpers.FirewallHelper
-import com.smartsolutions.paquetes.ui.update.Update2Fragment
-import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListener {
@@ -36,7 +29,7 @@ class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListene
         get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
-       super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState)
 
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -45,31 +38,6 @@ class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListene
 
         binding.navView.setupWithNavController(navController)
         binding.navView.setOnItemSelectedListener(this)
-    }
-
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-
-        handleIntent(intent)
-    }
-
-
-    private fun handleIntent(intent: Intent?){
-        when (intent?.action){
-            ACTION_OPEN_FRAGMENT -> {
-                intent.getStringExtra(EXTRA_FRAGMENT)?.let { extra ->
-                    when(extra) {
-                        FRAGMENT_UPDATE_DIALOG -> {
-                            Update2Fragment.newInstance().show(supportFragmentManager, null)
-                        }
-                        else -> {
-
-                        }
-                    }
-                }
-            }
-        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -129,5 +97,6 @@ class MainActivity : AbstractActivity(), NavigationBarView.OnItemSelectedListene
 fun Menu.showIcons(show: Boolean) {
     try {
         (this as MenuBuilder).setOptionalIconsVisible(show)
-    } catch (e: Exception) { }
+    } catch (e: Exception) {
+    }
 }

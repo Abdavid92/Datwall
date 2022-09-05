@@ -11,6 +11,7 @@ import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import com.smartsolutions.paquetes.repositories.models.PurchasedPackage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -140,7 +141,7 @@ class PurchasedPackagesManager @Inject constructor(
                                     )
                                 }
                             } else {
-                                simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
+                                simManager.getDefaultSimBoth(SimType.DATA)?.id?.let {
                                     packages.add(
                                         PurchasedPackage(
                                             System.currentTimeMillis(),

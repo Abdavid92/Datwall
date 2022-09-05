@@ -2,7 +2,6 @@ package com.smartsolutions.paquetes.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.contracts.IPurchasedPackageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,8 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val purchasedPackageRepository: IPurchasedPackageRepository,
-    private val iconManager: IIconManager,
-    private val activationManager: IActivationManager
+    private val iconManager: IIconManager
 ) : ViewModel() {
 
     fun clearHistory() {
@@ -36,12 +34,6 @@ class SettingsViewModel @Inject constructor(
     fun clearIconCache() {
         viewModelScope.launch {
             iconManager.deleteAll()
-        }
-    }
-
-    fun getIdentifierDevice(callback: (identifier: String?) -> Unit) {
-        viewModelScope.launch {
-            callback(activationManager.getLocalLicense()?.deviceId)
         }
     }
 }

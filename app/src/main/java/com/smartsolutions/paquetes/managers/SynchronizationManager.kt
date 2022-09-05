@@ -11,6 +11,7 @@ import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.helpers.getBytesFromText
 import com.smartsolutions.paquetes.managers.contracts.*
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -109,7 +110,7 @@ class SynchronizationManager @Inject constructor(
                 data.addAll(obtainDataBytesPackages(bytesPackages))
                 data.addAll(obtainDataByteBonus(bonusPackages))
 
-                simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)?.let {
+                simManager.getDefaultSimBoth(SimType.VOICE)?.let {
                     userDataBytesManager.synchronizeUserDataBytes(
                         fillMissingDataBytes(data),
                         it.id

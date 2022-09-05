@@ -1,7 +1,13 @@
 package com.smartsolutions.paquetes.workers
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -23,66 +29,36 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
     context: Context,
     @Assisted
     params: WorkerParameters,
-    private val updateManager: IUpdateManager,
-    private val notificationHelper: NotificationHelper
+    private val updateManager: IUpdateManager
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
 
         runCatching {
 
-            updateManager.findUpdate()?.let { androidApp ->
-                val isAutoUpdate = withContext(Dispatchers.IO) {
-                    applicationContext.settingsDataStore.data
-                        .firstOrNull()
-                        ?.get(PreferencesKeys.AUTO_UPDATE) ?: false
-                }
+            updateManager.findUpdate()?.let {
 
-                if (isAutoUpdate) {
+                val nm = NotificationManagerCompat.from(applicationContext)
 
-                    val mode = IUpdateManager.UpdateMode.valueOf(
-                        applicationContext.settingsDataStore.data.firstOrNull()
-                            ?.get(PreferencesKeys.UPDATE_MODE)
-                            ?: IUpdateManager.UpdateMode.APKLIS_SERVER.name
-                    )
+                val intent = PendingIntent.getActivity(
+                    applicationContext,
+                    0,
+                    Intent(Intent.ACTION_VIEW, it.uri),
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    else
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                )
 
-                    val url = when (mode) {
-                        IUpdateManager.UpdateMode.APKLIS_SERVER -> {
-                            Uri.parse(
-                                updateManager.buildDynamicUrl(
-                                    updateManager.BASE_URL_APKLIS,
-                                    androidApp
-                                )
-                            )
-                        }
-                        else -> {
-                            Uri.parse(
-                                updateManager.buildDynamicUrl(
-                                    updateManager.BASE_URL_HOSTINGER,
-                                    androidApp
-                                )
-                            )
-                        }
-                    }
+                val notification = NotificationCompat.Builder(
+                    applicationContext,
+                    NotificationHelper.ALERT_CHANNEL_ID
+                ).setContentTitle("Nueva actualización disponible")
+                    .setContentText("Versión: ${it.version}. Toque aquí para actualizar.")
+                    .setContentIntent(intent)
+                    .build()
 
-                    if (updateManager.foundIfDownloaded(url) == null) {
-                        updateManager.downloadUpdate(url)
-                        notificationHelper.notifyUpdate(
-                            "Descargando Actualización",
-                            "Presione aquí para ver el progreso de la actualización"
-                        )
-                    } else {
-                        notificationHelper.notifyUpdate(
-                            "Actualización Lista",
-                            "Presione aquí para ir a instalar la actualización"
-                        )
-                    }
-                } else {
-                    notificationHelper.notifyUpdate(
-                        "Actualización Disponible",
-                        "Presione aquí para descargar la actualización"
-                    )
-                }
+                nm.notify(NotificationHelper.ALERT_NOTIFICATION_ID, notification)
             }
 
             Log.i("Update Worker", "Launched")

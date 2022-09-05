@@ -16,11 +16,11 @@ internal class SingleSimManager constructor(
     private val simRepository: ISimRepository
 ) : InternalSimManager {
 
-    override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Result<Sim> {
+    override suspend fun getDefaultSim(type: SimType, relations: Boolean): Result<Sim> {
         return Result.Success(singleSim(relations))
     }
 
-    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean? {
+    override suspend fun isSimDefault(type: SimType, sim: Sim): Boolean? {
         val result = getDefaultSim(type, false)
         if (result.isSuccess){
             return (result as Result.Success).value.id == sim.id

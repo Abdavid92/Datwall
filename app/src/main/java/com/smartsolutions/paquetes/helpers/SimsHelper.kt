@@ -8,6 +8,7 @@ import com.abdavid92.alertbottomdialog.AlertBottomDialog
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentSimsDefaultDialogBinding
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,7 +24,7 @@ class SimsHelper @Inject constructor(
     suspend fun invokeOnDefault(
         context: Context,
         sim: Sim,
-        simType: SimDelegate.SimType,
+        simType: SimType,
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
     ) {
@@ -49,7 +50,7 @@ class SimsHelper @Inject constructor(
         }
     }
 
-    private fun inflateView(context: Context, ask: Boolean, type: SimDelegate.SimType, sim: Sim, onDefault: () -> Unit): View {
+    private fun inflateView(context: Context, ask: Boolean, type: SimType, sim: Sim, onDefault: () -> Unit): View {
         val binding =
             FragmentSimsDefaultDialogBinding.inflate(LayoutInflater.from(context))
 
@@ -62,11 +63,11 @@ class SimsHelper @Inject constructor(
             if (!ask){
 
                 when (type) {
-                    SimDelegate.SimType.VOICE -> {
+                    SimType.VOICE -> {
                         title.text = context.getString(R.string.no_sim_default_voice, sim.name())
                         imageType.setImageResource(R.drawable.ic_call_24)
                     }
-                    SimDelegate.SimType.DATA -> {
+                    SimType.DATA -> {
                         title.text = context.getString(R.string.no_sim_default_data, sim.name())
                         imageType.setImageResource(R.drawable.ic_data_24)
                     }
@@ -85,12 +86,12 @@ class SimsHelper @Inject constructor(
             }else {
 
                 when (type) {
-                    SimDelegate.SimType.VOICE -> {
+                    SimType.VOICE -> {
                         title.text =
                             context.getString(R.string.is_default_sim_voice, sim.name())
                         imageType.setImageResource(R.drawable.ic_call_24)
                     }
-                    SimDelegate.SimType.DATA -> {
+                    SimType.DATA -> {
                         title.text =
                             context.getString(R.string.is_default_sim_data, sim.name())
                         imageType.setImageResource(R.drawable.ic_data_24)

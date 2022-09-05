@@ -7,7 +7,7 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../Programas/Framework y librerías/Android Sdk/gradle-7.1.1" />
+        <option name="gradleHome" value="$PROJECT_DIR$/../../../Programas/Framework y librerías/Android Sdk/gradle-7.5.1" />
         <option name="gradleJvm" value="Android Studio default JDK" />
         <option name="modules">
           <set>
@@ -16,7 +16,6 @@
             <option value="$PROJECT_DIR$/vpncore" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

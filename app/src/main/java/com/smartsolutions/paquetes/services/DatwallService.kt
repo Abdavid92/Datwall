@@ -16,9 +16,9 @@ import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -83,9 +83,6 @@ class DatwallService : Service(), CoroutineScope {
     private var showSecondaryNotifications = true
 
     private val notificationMetadata = mutableMapOf<DataBytes.DataType, Boolean>()
-
-    @Inject
-    lateinit var activationManager: IActivationManager
 
     @Inject
     lateinit var userDataBytesRepository: IUserDataBytesRepository
@@ -199,7 +196,7 @@ class DatwallService : Service(), CoroutineScope {
     }
 
     private suspend fun fillNotification() {
-        simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
+        simManager.getDefaultSimBoth(SimType.DATA)?.id?.let {
             val userData = userDataBytesRepository
                 .bySimId(it)
                 .filter { it.exists() }
@@ -231,7 +228,7 @@ class DatwallService : Service(), CoroutineScope {
                         NotificationHelper.MAIN_CHANNEL_ID
                     )
 
-                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
+                    simManager.getDefaultSimBoth(SimType.DATA)?.id?.let {
                         val userData = userDataBytesRepository
                             .bySimId(it)
                             .filter { it.exists() }
@@ -269,14 +266,7 @@ class DatwallService : Service(), CoroutineScope {
         bandWidthJob = launch(Dispatchers.IO) {
 
             watcher.bandWithFlow.collect {
-
-                val canWork = activationManager.canWork()
-
-                if (canWork.first)
-                    updateBandWith(it.first, it.second)
-                else if (canWork.second == IActivationManager.ApplicationStatuses.TrialPeriod) {
-                    launchExpiredNotification()
-                }
+                updateBandWith(it.first, it.second)
             }
         }
     }
@@ -295,7 +285,7 @@ class DatwallService : Service(), CoroutineScope {
 
                     val defaultDataSim = sims.first {
                         simManager.isSimDefaultBoth(
-                            SimDelegate.SimType.DATA,
+                            SimType.DATA,
                             it
                         ) == true
                     }
@@ -413,8 +403,8 @@ class DatwallService : Service(), CoroutineScope {
 
     private fun registerSimSlotDefaultCollector() {
         launch {
-            val resultVoice = simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE)
-            val resultData = simManager.getDefaultSimSystem(SimDelegate.SimType.DATA)
+            val resultVoice = simManager.getDefaultSimSystem(SimType.VOICE)
+            val resultData = simManager.getDefaultSimSystem(SimType.DATA)
 
             var canShow = false
 
@@ -432,8 +422,8 @@ class DatwallService : Service(), CoroutineScope {
 
             applicationContext.internalDataStore.data.collect {
 
-                val simData = simManager.getDefaultSimManual(SimDelegate.SimType.DATA)
-                val simVoice = simManager.getDefaultSimManual(SimDelegate.SimType.VOICE)
+                val simData = simManager.getDefaultSimManual(SimType.DATA)
+                val simVoice = simManager.getDefaultSimManual(SimType.VOICE)
 
                 if (simData != null && simVoice != null) {
 
@@ -570,10 +560,7 @@ class DatwallService : Service(), CoroutineScope {
 
         fun startTrafficRegistration() {
             launch {
-
-                if (service.activationManager.canWork().first) {
-                    service.trafficRegistration.start()
-                }
+                service.trafficRegistration.start()
             }
         }
 

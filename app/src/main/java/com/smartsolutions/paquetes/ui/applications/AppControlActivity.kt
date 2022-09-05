@@ -93,6 +93,7 @@ class AppControlActivity : TransparentActivity() {
             TrafficType.National -> binding.included.trafficNational.isChecked = true
             TrafficType.Free -> binding.included.trafficFree.isChecked = true
             TrafficType.Messaging -> binding.included.trafficMessaging.isChecked = true
+            else -> {}
         }
 
         binding.included.trafficTypeGroup.setOnCheckedChangeListener { _, checkedId ->

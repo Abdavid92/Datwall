@@ -8,6 +8,7 @@ import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -50,7 +51,7 @@ class StatisticsManager @Inject constructor(
     }
 
     override suspend fun getRemainder(timeUnit: TimeUnit): DataUnitBytes {
-        simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.let { sim ->
+        simManager.getDefaultSimBoth(SimType.DATA)?.let { sim ->
             return getRemainder(timeUnit, userDataBytesRepository.bySimId(sim.id))
         }
 
