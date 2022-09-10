@@ -7,7 +7,6 @@ import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.serverApis.models.Result
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
 internal class SingleSimManager constructor(
@@ -17,13 +16,13 @@ internal class SingleSimManager constructor(
 ) : InternalSimManager {
 
     override suspend fun getDefaultSim(type: SimType, relations: Boolean): Result<Sim> {
-        return Result.Success(singleSim(relations))
+        return Result.success(singleSim(relations))
     }
 
     override suspend fun isSimDefault(type: SimType, sim: Sim): Boolean? {
         val result = getDefaultSim(type, false)
-        if (result.isSuccess){
-            return (result as Result.Success).value.id == sim.id
+        if (result.isSuccess) {
+            return result.getOrThrow().id == sim.id
         }
         return null
     }

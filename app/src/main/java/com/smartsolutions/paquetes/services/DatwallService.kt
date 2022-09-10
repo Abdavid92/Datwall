@@ -14,7 +14,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
@@ -22,14 +21,12 @@ import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import com.smartsolutions.paquetes.watcher.TrafficRegistration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.util.*
@@ -408,15 +405,15 @@ class DatwallService : Service(), CoroutineScope {
 
             var canShow = false
 
-            if (resultVoice.isFailure && (resultVoice as Result.Failure).throwable == UnsupportedOperationException()){
+            if (resultVoice.isFailure && resultVoice.exceptionOrNull() == UnsupportedOperationException()) {
                 canShow = true
             }
 
-            if (resultData.isFailure && (resultData as Result.Failure).throwable == UnsupportedOperationException()){
+            if (resultData.isFailure && resultData.exceptionOrNull() == UnsupportedOperationException()) {
                 canShow = true
             }
 
-            if (!canShow){
+            if (!canShow) {
                 return@launch
             }
 
@@ -479,7 +476,10 @@ class DatwallService : Service(), CoroutineScope {
                             )
                         ).build()
 
-                    mNotificationManager.notify(NotificationHelper.SIM_NOTIFICATION_ID, notification)
+                    mNotificationManager.notify(
+                        NotificationHelper.SIM_NOTIFICATION_ID,
+                        notification
+                    )
                 }
             }
         }

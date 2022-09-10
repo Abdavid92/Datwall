@@ -160,6 +160,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_item_user_data_byte.xml" value="0.125" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/datwall_service_notification_normal.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/firewall_controls.xml" value="0.182518115942029" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_about.xml" value="0.25" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_application_status.xml" value="0.21" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_application_status2.xml" value="0.1743659420289855" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/fragment_applications.xml" value="0.21" />
@@ -195,6 +196,7 @@
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_datwall_service.xml" value="0.18" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_datwall_service_separator.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_notification_sample.xml" value="0.1" />
+        <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_package2.xml" value="0.1" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_packages.xml" value="0.5203488372093024" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_permission.xml" value="0.12894736842105264" />
         <entry key="..\:/Projects/Android projects/Datwall/app/src/main/res/layout/item_plan.xml" value="0.67" />

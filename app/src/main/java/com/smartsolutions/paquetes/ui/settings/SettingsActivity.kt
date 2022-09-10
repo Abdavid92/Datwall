@@ -502,13 +502,6 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 startActivity(intent)
             }
 
-            binding.telegramChannel.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
-                    .setData(Uri.parse(BuildConfig.TELEGRAM_CHANNEL))
-
-                startActivity(intent)
-            }
-
             binding.apklisStore.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                     .setData(Uri.parse(BuildConfig.APKLIS_URL))

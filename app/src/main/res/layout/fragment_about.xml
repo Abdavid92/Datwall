@@ -120,21 +120,6 @@
             android:layout_marginEnd="16dp"/>
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/telegram_channel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/AboutItemStyle"
-            android:drawableStart="@drawable/ic_telegram"
-            android:text="@string/telegram_channel" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/apklis_store"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

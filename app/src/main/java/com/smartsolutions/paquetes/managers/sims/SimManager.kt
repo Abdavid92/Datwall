@@ -10,7 +10,6 @@ import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.serverApis.models.Result
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -35,7 +34,7 @@ class SimManager @Inject constructor(
     override suspend fun getDefaultSimManual(type: SimType, relations: Boolean): Sim? {
         getSimManager().getInstalledSims(relations).let { sims ->
             context.internalDataStore.data.firstOrNull()?.get(
-                when(type){
+                when (type) {
                     SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
                     SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
                 }
@@ -64,7 +63,7 @@ class SimManager @Inject constructor(
 
         var sim = getDefaultSimSystem(type, relations).getOrNull()
 
-        if (sim == null){
+        if (sim == null) {
             sim = getDefaultSimManual(type, relations)
         }
 
@@ -79,9 +78,9 @@ class SimManager @Inject constructor(
     override suspend fun isSimDefaultBoth(type: SimType, sim: Sim): Boolean? {
         var default = getSimManager().isSimDefault(type, sim)
 
-        if (default == null){
+        if (default == null) {
             context.internalDataStore.data.firstOrNull()?.get(
-                when(type){
+                when (type) {
                     SimType.VOICE -> PreferencesKeys.DEFAULT_VOICE_SLOT
                     SimType.DATA -> PreferencesKeys.DEFAULT_DATA_SLOT
                 }

@@ -2,7 +2,6 @@ package com.smartsolutions.paquetes.managers.contracts
 
 import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.serverApis.models.Result
 import kotlinx.coroutines.flow.Flow
 
 interface ISimManager {

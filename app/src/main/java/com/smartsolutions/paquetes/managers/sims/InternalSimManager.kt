@@ -1,8 +1,6 @@
 package com.smartsolutions.paquetes.managers.sims
 
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.serverApis.models.Result
 
 internal interface InternalSimManager {
 

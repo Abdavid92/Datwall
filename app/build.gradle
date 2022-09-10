@@ -6,26 +6,6 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
-//Duración de los json web tokens
-def tokenDuration = "5"
-//Clave secreta con encriptación que se usa para firmar los tokens
-def encKey = Base64.encoder.encode(("f9n94nDMI8YB9df93nFOwmvn75bLE93mJ89n322nMIFO32Mfn3ofj4Nf74Nfcr3M").getBytes())
-def secretKey = "\"${new String(encKey)}\""
-
-/*Nombre de la aplicación.*/
-def name = "Mis Datos"
-/*Clave de la aplicación.*/
-def applicationKey = "htUlDdfGBjszGLxVc2p82I3zPQbn8qtfguCrlcd0TddiCkJkrKDf4uUZO73btMYrGAi0tuWkc9Gaipvw"
-/*Audiencia.*/
-def audience = "https://licenses.apps-smartsolutions.com"
-
-/*Contenido encriptado que contiene
-* el nombre, la audiencia y la clave
-* de la aplicación.*/
-def s = "$name;$audience;$applicationKey"
-def enc = Base64.encoder.encode(s.getBytes())
-def content0 = "\"${new String(enc)}\""
-
 /**
  * Número de la versión oficial. Cambie la versión aquí.
  */
@@ -63,25 +43,14 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "SECRET_KEY", secretKey
-            buildConfigField "int", "TOKEN_DURATION", tokenDuration
-            buildConfigField "String", "CONTENT_0", content0
-            buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://licenses.apps-smartsolutions.com/api/\""
             buildConfigField "String", "APKLIS_URL", "\"https://apklis.cu/application/com.smartsolutions.paquetes\""
-            buildConfigField "String", "TELEGRAM_CHANNEL", "\"https://t.me/joinchat/EVsmSbeOo8diYmJh\""
             buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
         debug {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "SECRET_KEY", secretKey
-            buildConfigField "int", "TOKEN_DURATION", tokenDuration
-            buildConfigField "String", "CONTENT_0", content0
-            //buildConfigField "String", "REGISTRATION_SERVER_URL", "\"http://192.168.251.134/SmartsolutionsApps/api/\""
-            buildConfigField "String", "REGISTRATION_SERVER_URL", "\"https://licenses.apps-smartsolutions.com/api/\""
             buildConfigField "String", "APKLIS_URL", "\"https://apklis.cu/application/com.smartsolutions.paquetes\""
-            buildConfigField "String", "TELEGRAM_CHANNEL", "\"https://t.me/joinchat/EVsmSbeOo8diYmJh\""
             buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
     }
