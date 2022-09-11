@@ -48,8 +48,8 @@ android {
             buildConfigField "String", "DEVELOPERS_EMAIL", "\"apps.smartsolutions.cuba@gmail.com\""
         }
         debug {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "GITHUB_URL", "\"https://github.com/Abdavid92/Datwall\""
             buildConfigField "String", "APKLIS_URL", "\"https://apklis.cu/application/com.smartsolutions.paquetes\""
