@@ -502,6 +502,14 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 startActivity(intent)
             }
 
+            binding.github.setOnClickListener {
+
+                val intent = Intent(Intent.ACTION_VIEW)
+                    .setData(Uri.parse(BuildConfig.GITHUB_URL))
+
+                startActivity(intent)
+            }
+
             binding.apklisStore.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                     .setData(Uri.parse(BuildConfig.APKLIS_URL))

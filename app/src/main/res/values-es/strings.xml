@@ -423,4 +423,5 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="data_type_promo_bonus_lte">Bono de promoción (LTE)</string>
+    <string name="github">GitHub</string>
 </resources>

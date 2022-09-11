@@ -120,6 +120,21 @@
             android:layout_marginEnd="16dp"/>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/github"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/AboutItemStyle"
+            android:drawableStart="@drawable/ic_github"
+            android:text="@string/github" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/apklis_store"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

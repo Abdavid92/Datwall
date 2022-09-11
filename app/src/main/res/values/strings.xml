@@ -423,4 +423,5 @@
     <string name="usage_today">Hoy: %s</string>
     <string name="rest_today">Rest: %s</string>
     <string name="data_type_promo_bonus_lte">Bono de promoción (LTE)</string>
+    <string name="github">GitHub</string>
 </resources>
