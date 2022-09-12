@@ -34,20 +34,13 @@ class HistoryFragment : AbstractFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if (canWork()) {
-            _binding = FragmentHistoryBinding.inflate(inflater, container, false)
-            return binding.root
-        }
-
-        return inflatePurchasedFunctionLayout(inflater, container)
+        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (!canWork())
-            return
 
         viewModel.seedOldPurchasedPackages()
 

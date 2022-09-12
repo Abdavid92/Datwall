@@ -186,9 +186,11 @@ fun setTabLayoutMediatorSims(context: Context, tabLayout: TabLayout, pager2: Vie
     }
 }
 
-
+/**
+ * Obtiene el nombre legible de los [DataBytes.DataType]
+ */
 fun getDataTypeName(type: DataBytes.DataType, context: Context): String {
-    return when (type){
+    return when (type) {
         DataBytes.DataType.MessagingBag -> context.getString(R.string.data_type_messaging_bag)
         DataBytes.DataType.International -> context.getString(R.string.data_type_international)
         DataBytes.DataType.InternationalLte -> context.getString(R.string.data_type_international_lte)

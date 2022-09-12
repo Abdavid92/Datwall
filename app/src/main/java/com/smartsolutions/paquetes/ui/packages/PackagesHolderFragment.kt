@@ -14,6 +14,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPackagesHolderBinding
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -115,7 +116,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
                     viewModel.invokeOnDefaultSim(
                         requireContext(),
                         it,
-                        SimDelegate.SimType.VOICE,
+                        SimType.VOICE,
                         parentFragmentManager
                     ) {
                         viewModel.purchasePackage(it, dataPackage, this)

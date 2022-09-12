@@ -5,6 +5,7 @@ import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
@@ -116,7 +117,7 @@ class UserDataBytesManager @Inject constructor(
         isLte: Boolean
     ) {
 
-        simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.let { sim ->
+        simManager.getDefaultSimBoth(SimType.DATA)?.let { sim ->
             var total = rxBytes + txBytes
             var national = nationalBytes
 

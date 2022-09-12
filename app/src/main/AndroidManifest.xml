@@ -134,22 +134,6 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".receivers.DownloadFileReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".receivers.DownloadClickedReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
-            </intent-filter>
-        </receiver>
-        <receiver
             android:name=".receivers.PackageMonitorReceiver"
             android:enabled="true"
             android:exported="true">
@@ -182,9 +166,11 @@
                 android:resource="@xml/provider_paths" />
         </provider>
         <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
-            tools:node="remove" />
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="remove">
+        </provider>
     </application>
 
 </manifest>

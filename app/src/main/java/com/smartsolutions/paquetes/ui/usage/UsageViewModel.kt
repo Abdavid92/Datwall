@@ -18,6 +18,7 @@ import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
@@ -161,7 +162,7 @@ class UsageViewModel @Inject constructor(
             }
         }
 
-        val simId = simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)
+        val simId = simManager.getDefaultSimBoth(SimType.DATA)
             ?.id ?: "unknown"
 
         apps.forEach { app ->

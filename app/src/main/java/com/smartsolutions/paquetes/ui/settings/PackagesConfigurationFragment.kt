@@ -13,6 +13,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
 import com.smartsolutions.paquetes.helpers.SimDelegate
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -91,7 +92,7 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                         viewModel.invokeOnDefaultSim(
                             requireContext(),
                             installedSims[sims.selectedItemPosition],
-                            SimDelegate.SimType.VOICE,
+                            SimType.VOICE,
                             parentFragmentManager
                         ) {
                             viewModel.configureAutomaticPackages(
@@ -199,7 +200,7 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
         if (configurationRequired) {
             kotlin.runCatching {
                 val simDefault =
-                    installedSims.first { viewModel.isDefaultSim(it, SimDelegate.SimType.VOICE)!! }
+                    installedSims.first { viewModel.isDefaultSim(it, SimType.VOICE)!! }
                 if (simDefault.network != Networks.NETWORK_NONE) {
                     super.complete()
                     return@runCatching

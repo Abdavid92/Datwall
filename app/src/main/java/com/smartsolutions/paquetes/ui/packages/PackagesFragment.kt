@@ -5,11 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
@@ -44,15 +41,15 @@ class PackagesFragment : AbstractFragment() {
 
         scannerActivity = registerForActivityResult(
             object : ActivityResultContract<Unit, String?>() {
-                override fun createIntent(p0: Context, p1: Unit?): Intent {
+                override fun createIntent(context: Context, input: Unit): Intent {
                     return IntentIntegrator(requireActivity())
                         .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                         .setPrompt(getString(R.string.qr_prompt))
                         .createScanIntent()
                 }
 
-                override fun parseResult(resultCode: Int, data: Intent?): String? {
-                    IntentIntegrator.parseActivityResult(resultCode, data)?.let {
+                override fun parseResult(resultCode: Int, intent: Intent?): String? {
+                    IntentIntegrator.parseActivityResult(resultCode, intent)?.let {
                         return it.contents
                     }
 

@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.helpers
 import androidx.annotation.IntDef
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -85,7 +86,7 @@ class DateCalendarUtils @Inject constructor(
             }
             PERIOD_PACKAGE -> {
                 runBlocking(Dispatchers.Default) {
-                    simManager.get().getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let { id ->
+                    simManager.get().getDefaultSimBoth(SimType.DATA)?.id?.let { id ->
                         purchasedPackagesManager.get().getHistory().firstOrNull()?.filter {
                             it.simId == id
                         }?.maxByOrNull { it.date }?.let {

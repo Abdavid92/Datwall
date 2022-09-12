@@ -4,29 +4,16 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
-import android.telephony.TelephonyManager
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.ExecutorCompat
-import androidx.datastore.preferences.core.edit
-import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
-import com.smartsolutions.paquetes.internalDataStore
+import com.smartsolutions.paquetes.managers.sims.SimType
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.util.concurrent.Executors
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
-import kotlin.jvm.Throws
 
 /**
  * Ayudante para obtener datos de las lineas instaladas en el dispositivo.
@@ -41,8 +28,9 @@ class SimDelegate @Inject constructor(
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            subscriptionManager = ContextCompat.getSystemService(context, SubscriptionManager::class.java)
-                ?: throw NullPointerException()
+            subscriptionManager =
+                ContextCompat.getSystemService(context, SubscriptionManager::class.java)
+                    ?: throw NullPointerException()
     }
 
     /**
@@ -57,7 +45,8 @@ class SimDelegate @Inject constructor(
     fun getActiveSim(type: SimType): SubscriptionInfo? {
         if (ActivityCompat.checkSelfPermission(
                 context,
-                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
         }
@@ -71,7 +60,7 @@ class SimDelegate @Inject constructor(
                     SubscriptionManager.getDefaultVoiceSubscriptionId()
                 )
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             null
         }
     }
@@ -83,7 +72,8 @@ class SimDelegate @Inject constructor(
     fun getActiveSimsInfo(): List<SubscriptionInfo> {
         if (ActivityCompat.checkSelfPermission(
                 context,
-                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
         }
@@ -137,10 +127,5 @@ class SimDelegate @Inject constructor(
             return null
         }
         return subscriptionManager.getActiveSubscriptionInfo(subscriptionId)
-    }
-
-    enum class SimType {
-        VOICE,
-        DATA
     }
 }

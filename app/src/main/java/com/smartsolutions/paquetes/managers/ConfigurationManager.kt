@@ -1,20 +1,18 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Configuration
-import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import javax.inject.Inject
 
 class ConfigurationManager @Inject constructor(
     private val simManager: ISimManager,
-    private val dataPackageManager: IDataPackageManager,
-    private val activationManager: IActivationManager
+    private val dataPackageManager: IDataPackageManager
 ) : IConfigurationManager {
 
     private var configurations: Array<Configuration>? = null
@@ -38,24 +36,13 @@ class ConfigurationManager @Inject constructor(
     private suspend fun fillConfigurations(): Array<Configuration> {
         val list = mutableListOf<Configuration>()
 
-        if (!isRegisteredAndValid()) {
-            list.add(
-                Configuration(
-                    true,
-                    ApplicationStatusFragment::class.java
-                ) {
-                    activationManager.canWork().first
-                }
-            )
-        }
-
         list.add(
             Configuration(
                 true,
                 SimsConfigurationFragment::class.java
             ) {
-                val defaultSimData = simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)
-                val defaultSimVoice = simManager.getDefaultSimBoth(SimDelegate.SimType.VOICE)
+                val defaultSimData = simManager.getDefaultSimBoth(SimType.DATA)
+                val defaultSimVoice = simManager.getDefaultSimBoth(SimType.VOICE)
 
                 return@Configuration defaultSimData != null && defaultSimVoice != null
             }
@@ -71,19 +58,5 @@ class ConfigurationManager @Inject constructor(
         )
 
         return list.toTypedArray()
-    }
-
-
-    /**
-     * Indica si la aplicación ya está registrada en el servidor y
-     * no está obsoleta o descontinuada.
-     * */
-    private suspend fun isRegisteredAndValid(): Boolean {
-        val status = activationManager.canWork().second
-
-        return status != IActivationManager.ApplicationStatuses.Discontinued &&
-                status != IActivationManager.ApplicationStatuses.Unknown &&
-                status != IActivationManager.ApplicationStatuses.Deprecated &&
-                status != IActivationManager.ApplicationStatuses.TooMuchOld
     }
 }

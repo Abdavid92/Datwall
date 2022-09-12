@@ -9,7 +9,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.DatwallKernel
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
@@ -27,7 +26,6 @@ import javax.inject.Inject
 class FirewallHelper @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val activationManager: IActivationManager,
     private val permissionManager: IPermissionsManager
 ) {
 
@@ -53,10 +51,8 @@ class FirewallHelper @Inject constructor(
     }
 
     /**
-     * Si los datos móviles están encendidos y [IActivationManager]
-     * concede el permiso de trabajo, enciende el vpn. Si
-     * [IActivationManager] no concedió el permiso de trabajo el
-     * cortafuegos no encenderá. Si no se concedió el permiso necesario
+     * Si los datos móviles están encendidos enciende el vpn.
+     * Si no se concedió el permiso necesario
      * el cortafuegos no encenderá, se apagará en el dataStore y se
      * enviará una notificación informando.
      *
@@ -70,19 +66,14 @@ class FirewallHelper @Inject constructor(
         if (DatwallKernel.DATA_MOBILE_ON) {
             Log.i(TAG, "startVpn: Data mobile is on. Starting the firewall.")
 
-            if (activationManager.canWork().first) {
-                if (!startFirewallService()) {
-                    Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
-                    establishFirewallEnabled(false)
-
-                    notify(
-                        R.string.stoped_missing_vpn_permissions_title_notification,
-                        R.string.stoped_missing_vpn_permissions_description_notification
-                    )
-                }
-
-            } else {
+            if (!startFirewallService()) {
                 Log.i(TAG, "startVpn: Can not have permission for start the firewall.")
+                establishFirewallEnabled(false)
+
+                notify(
+                    R.string.stoped_missing_vpn_permissions_title_notification,
+                    R.string.stoped_missing_vpn_permissions_description_notification
+                )
             }
         } else {
             Log.i(TAG, "startVpn: Data mobile is off. For now the firewall is off.")

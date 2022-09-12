@@ -17,6 +17,7 @@ import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
@@ -41,7 +42,7 @@ class PackagesConfigurationViewModel @Inject constructor(
     fun invokeOnDefaultSim(
         context: Context,
         sim: Sim,
-        simType: SimDelegate.SimType,
+        simType: SimType,
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
     ) {
@@ -148,7 +149,7 @@ class PackagesConfigurationViewModel @Inject constructor(
         }
     }
 
-    fun isDefaultSim(sim: Sim, type: SimDelegate.SimType): Boolean? {
+    fun isDefaultSim(sim: Sim, type: SimType): Boolean? {
         return runBlocking {
             return@runBlocking simManager.isSimDefaultBoth(type, sim)
         }

@@ -1,22 +1,20 @@
 package com.smartsolutions.paquetes.managers.sims
 
 import com.smartsolutions.paquetes.annotations.Networks
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.serverApis.models.Result
 
 private const val EMBEDDED_SIM_ID = "embedded_sim"
 
 internal class EmbeddedSimManager constructor(
     private val simRepository: ISimRepository
-): InternalSimManager {
+) : InternalSimManager {
 
-    override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Result<Sim> {
-        return Result.Success(embeddedSim(relations))
+    override suspend fun getDefaultSim(type: SimType, relations: Boolean): Result<Sim> {
+        return Result.success(embeddedSim(relations))
     }
 
-    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean {
+    override suspend fun isSimDefault(type: SimType, sim: Sim): Boolean {
         return true
     }
 

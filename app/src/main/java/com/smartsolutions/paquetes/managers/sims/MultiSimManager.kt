@@ -8,8 +8,6 @@ import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.serverApis.models.Result
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
 internal class MultiSimManager constructor(
@@ -19,24 +17,25 @@ internal class MultiSimManager constructor(
     private val simRepository: ISimRepository
 ) : InternalSimManager {
 
-    override suspend fun getDefaultSim(type: SimDelegate.SimType, relations: Boolean): Result<Sim> {
+    override suspend fun getDefaultSim(type: SimType, relations: Boolean): Result<Sim> {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             simDelegate.getActiveSim(type)?.let { info ->
                 getInstalledSims(relations).firstOrNull { it.id == simDelegate.getSimId(info) }
                     ?.let { sim ->
-                        return Result.Success(sim)
+
+                        return Result.success(sim)
                     }
             }
         }
 
-        return Result.Failure(UnsupportedOperationException())
+        return Result.failure(UnsupportedOperationException())
     }
 
-    override suspend fun isSimDefault(type: SimDelegate.SimType, sim: Sim): Boolean? {
+    override suspend fun isSimDefault(type: SimType, sim: Sim): Boolean? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             simDelegate.getActiveSim(type)?.let { info ->
-               return sim.id == simDelegate.getSimId(info)
+                return sim.id == simDelegate.getSimId(info)
             }
         }
 

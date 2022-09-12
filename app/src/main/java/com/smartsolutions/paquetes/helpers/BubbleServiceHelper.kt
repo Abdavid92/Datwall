@@ -6,7 +6,6 @@ import android.os.Build
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.DatwallKernel
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,7 +19,6 @@ import javax.inject.Inject
 class BubbleServiceHelper @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val activationManager: IActivationManager,
     private val permissionsManager: IPermissionsManager,
     private val notificationHelper: NotificationHelper
 ) {
@@ -31,7 +29,7 @@ class BubbleServiceHelper @Inject constructor(
         if (turnOn)
             writeChangesDataStore(true)
 
-        if (DatwallKernel.DATA_MOBILE_ON && activationManager.canWork().first) {
+        if (DatwallKernel.DATA_MOBILE_ON) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val permission =
                     permissionsManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)

@@ -14,6 +14,7 @@ import com.smartsolutions.paquetes.helpers.SimsHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
@@ -43,7 +44,7 @@ class PackagesViewModel @Inject constructor(
     fun invokeOnDefaultSim(
         context: Context,
         sim: Sim,
-        simType: SimDelegate.SimType,
+        simType: SimType,
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
     ){

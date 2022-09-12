@@ -58,44 +58,11 @@
     <string name="page_2_description">Obtenga en tiempo real lo restante de tus megas y lo que han consumido las apps.</string>
     <string name="page_3_title">Controla tus gastos</string>
     <string name="page_3_description">No dejes que se escape ni un mega más con nuestro cortafuegos dinámico.</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="initial_application_status_summary">Vamos a revisar el estado de la aplicación. Por favor conectese a internet y presione continuar.</string>
     <string name="update_notification_title">Descargando actualización</string>
 
-    <string name="terms_and_conditions_title">
-        Términos y condiciones
-    </string>
-    <string name="terms_and_conditions">
-        Estos son los términos y condiciones para usar la aplicación.
-        Por favor, lea detenidamente este documento antes de realizar la compra.\n\n
-
-        ▪ <b>¿Cúanto cuesta la licencia?</b>\nLa licencia ahora cuesta 30.00 MN.\n\n
-        ▪ <b>¿Cómo se compra la Licencia?</b>\nLa licencia de Mis Datos se puede comprar mediante transferencia de saldo o transferencia bancaria usando solamente Transfermóvil. Por el momento no se soporta Enzona\n\n
-        ▪ <b>¿Puedo realizar la transferencia desde cualquier otra app o marcando código USSD?</b>\nDebe hacer la transferencia usando el menú de Mis Datos para que pueda detectar la compra\n\n
-        ▪ <b>¿Qué me otorga la licencia?</b>\nLa compra de la licencia no añade ninguna funcionalidad a la aplicación. Solo permitirá usarla completamente sin límite de tiempo\n\n
-        ▪ <b>¿Es obligatorio comprar la licencia para usar la app?</b>\nUna vez se acabe el tiempo de prueba puede seguir utilizando Mis Datos para la compra de nuevos paquetes y algunas otras funciones, pero no estarán disponibles la mayoría de ellas hasta que no compre la licencia\n\n
-        ▪ <b>¿Cuánto dura la licencia?</b>\nLa licencia es de por vida para su dispositivo, aún si actualiza la app o incluso restaura de fábrica su dispositivo, exceptuando los dispositivos con Android 11 en adelante. De Android 11 en adelante la licencia siempre es válida mientras no restaure de fábrica\n\n
-        ▪ <b>¿Mi licencia sirve para otro teléfono?</b>\nNo. La licencia solo es válida para este dispositivo. Si cambia de teléfono deberá comprar una licencia nueva\n\n
-        ▪ <b>¿Cómo obtengo la licencia?</b>\nPara obtener la licencia debe utilizar la opción que aparece en esta página para Transferir y Activar Mis Datos y seguir las instrucciones que se le darán\n\n
-        ▪ <b>¿Cómo Mis Datos detecta la transferencia?</b>\nMis Datos detecta la transferencia mediante el sms de confirmación recibido. No debe quitarle el permiso de lectura de sms durante el proceso de activación\n\n
-        ▪ <b>¿Qué puedo hacer si recibo el mensaje Problema de conexión o código MMI incorrecto al hacer la transferencia?</b>\nEste error casi siempre se produce cuando hay mala cobertura. Le recomendamos que busque un lugar con buena cobertura o intente poner modo avión por unos segundos y luego desactivarlo.\n
-    </string>
-    <string name="transfermovil_instruccions">
-        Por favor, vaya al Transfermovil y realize una transferencia de %s al siguiente número de tarjeta.
-        Una vez realizada la transferencia con éxito, la aplicación se activará automáticamente.
-        No suspenda ni fuerze la detención de la misma. No debe realizar la transferencia por otra vía que no sea la indicada.
-    </string>
-    <string name="debit_card_number">Número de tarjeta: <br />%s</string>
     <string name="btn_back">Atras</string>
     <string name="copy_to_clipboard">Copiar al portapapeles</string>
 
-    <string name="ussd_instructions">
-        Por favor ingrese la clave de transferencia.
-        A continuación, escriba \'1\' en el diálogo que aparecerá y presione \'aceptar\'.
-        La aplicación se activará automáticamente una vez realizada la transferencia con éxito.
-        No suspenda ni fuerze la detención de la misma. No realice la transferencia por otro medio que no sea el indicado.
-    </string>
-    <string name="begin_activation_summary">Iniciando activación. Por favor, espere…</string>
     <string name="btn_close">Cerrar</string>
     <string name="btn_retry">Reintentar</string>
     <string name="begin_activation_title">Iniciando activación</string>
@@ -253,7 +220,6 @@
     <string name="info">Información</string>
     <string name="send_email">Enviar comentario</string>
     <string name="contacts">Contactos</string>
-    <string name="telegram_channel">Síguenos en telegram</string>
     <string name="apklis">Apklis</string>
     <string name="purchase">Comprar</string>
     <string name="plan_title">Planes Combinados</string>
@@ -457,4 +423,5 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="data_type_promo_bonus_lte">Bono de promoción (LTE)</string>
+    <string name="github">GitHub</string>
 </resources>

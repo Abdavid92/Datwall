@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,8 +36,8 @@ class SimsConfigurationViewModel @Inject constructor(
     fun saveChanges(defaultDataSim: Sim, defaultVoiceSim: Sim, onComplete: () -> Unit) {
         viewModelScope.launch {
 
-            simManager.setDefaultSimManual(SimDelegate.SimType.DATA, defaultDataSim.slotIndex)
-            simManager.setDefaultSimManual(SimDelegate.SimType.VOICE, defaultVoiceSim.slotIndex)
+            simManager.setDefaultSimManual(SimType.DATA, defaultDataSim.slotIndex)
+            simManager.setDefaultSimManual(SimType.VOICE, defaultVoiceSim.slotIndex)
 
             withContext(Dispatchers.Main) {
                 onComplete()

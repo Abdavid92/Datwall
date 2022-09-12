@@ -1,7 +1,5 @@
 package com.smartsolutions.paquetes.helpers
 
-import android.content.Context
-
 /**
  * Interfaz de ayuda para cambiar el estado de la aplicación en dependencia
  * del cambio de red.

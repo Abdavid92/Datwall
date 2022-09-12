@@ -27,14 +27,11 @@ import com.smartsolutions.paquetes.databinding.FragmentNotificationStyleBinding
 import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
 import com.smartsolutions.paquetes.databinding.ItemNotificationSampleBinding
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.helpers.findView
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
 import com.smartsolutions.paquetes.services.NotificationBuilder
 import com.smartsolutions.paquetes.ui.AbstractActivity
-import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
-import com.smartsolutions.paquetes.ui.activation.ApplicationStatusFragment
 import com.smartsolutions.paquetes.ui.events.EventsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -102,7 +99,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         }
         val fragment = supportFragmentManager.fragmentFactory.instantiate(
             classLoader,
-            pref.fragment
+            pref.fragment!!
         ).apply {
             arguments = args
         }
@@ -118,24 +115,6 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     class HeaderFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.header_preferences, rootKey)
-
-            findPreference<Preference>("activation_key")
-                ?.let {
-                    it.setOnPreferenceClickListener {
-
-                        startActivity(
-                            Intent(
-                                requireContext(),
-                                FragmentContainerActivity::class.java
-                            ).putExtra(
-                                FragmentContainerActivity.EXTRA_FRAGMENT,
-                                ApplicationStatusFragment::class.java.name
-                            )
-                        )
-
-                        return@setOnPreferenceClickListener true
-                    }
-                }
         }
     }
 
@@ -455,16 +434,6 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             super.onCreatePreferences(savedInstanceState, rootKey)
             setPreferencesFromResource(R.xml.updates_preferences, rootKey)
-
-            val key = "update_mode"
-
-            val defaultString = preferenceManager.preferenceDataStore
-                ?.getString(key, "APKLIS_SERVER") ?: "APKLIS_SERVER"
-
-            val defaultValue = IUpdateManager.UpdateMode.valueOf(defaultString)
-
-            findPreference<ListPreference>(key)
-                ?.setValueIndex(defaultValue.ordinal)
         }
     }
 
@@ -521,31 +490,6 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
-            binding.appIcon.setOnLongClickListener {
-                viewModel.getIdentifierDevice {
-                    it?.let {
-                        val clipboardManager = ContextCompat.getSystemService(
-                            requireContext(),
-                            ClipboardManager::class.java
-                        ) ?: throw NullPointerException()
-
-                        val clipData = ClipData.newPlainText(
-                            "Identificador Mis Datos",
-                            it
-                        )
-
-                        clipboardManager.setPrimaryClip(clipData)
-
-                        Toast.makeText(
-                            requireContext(),
-                            "Identificador del dispositivo copiado al portapapeles",
-                            Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                return@setOnLongClickListener true
-            }
-
             binding.appVersion.text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
 
             binding.sendEmail.setOnClickListener {
@@ -558,9 +502,10 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 startActivity(intent)
             }
 
-            binding.telegramChannel.setOnClickListener {
+            binding.github.setOnClickListener {
+
                 val intent = Intent(Intent.ACTION_VIEW)
-                    .setData(Uri.parse(BuildConfig.TELEGRAM_CHANNEL))
+                    .setData(Uri.parse(BuildConfig.GITHUB_URL))
 
                 startActivity(intent)
             }

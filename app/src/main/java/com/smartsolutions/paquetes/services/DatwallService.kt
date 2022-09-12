@@ -14,22 +14,19 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.uiHelper
-import com.smartsolutions.paquetes.managers.contracts.IActivationManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.serverApis.models.Result
 import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import com.smartsolutions.paquetes.watcher.TrafficRegistration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.util.*
@@ -83,9 +80,6 @@ class DatwallService : Service(), CoroutineScope {
     private var showSecondaryNotifications = true
 
     private val notificationMetadata = mutableMapOf<DataBytes.DataType, Boolean>()
-
-    @Inject
-    lateinit var activationManager: IActivationManager
 
     @Inject
     lateinit var userDataBytesRepository: IUserDataBytesRepository
@@ -199,7 +193,7 @@ class DatwallService : Service(), CoroutineScope {
     }
 
     private suspend fun fillNotification() {
-        simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
+        simManager.getDefaultSimBoth(SimType.DATA)?.id?.let {
             val userData = userDataBytesRepository
                 .bySimId(it)
                 .filter { it.exists() }
@@ -231,7 +225,7 @@ class DatwallService : Service(), CoroutineScope {
                         NotificationHelper.MAIN_CHANNEL_ID
                     )
 
-                    simManager.getDefaultSimBoth(SimDelegate.SimType.DATA)?.id?.let {
+                    simManager.getDefaultSimBoth(SimType.DATA)?.id?.let {
                         val userData = userDataBytesRepository
                             .bySimId(it)
                             .filter { it.exists() }
@@ -269,14 +263,7 @@ class DatwallService : Service(), CoroutineScope {
         bandWidthJob = launch(Dispatchers.IO) {
 
             watcher.bandWithFlow.collect {
-
-                val canWork = activationManager.canWork()
-
-                if (canWork.first)
-                    updateBandWith(it.first, it.second)
-                else if (canWork.second == IActivationManager.ApplicationStatuses.TrialPeriod) {
-                    launchExpiredNotification()
-                }
+                updateBandWith(it.first, it.second)
             }
         }
     }
@@ -295,7 +282,7 @@ class DatwallService : Service(), CoroutineScope {
 
                     val defaultDataSim = sims.first {
                         simManager.isSimDefaultBoth(
-                            SimDelegate.SimType.DATA,
+                            SimType.DATA,
                             it
                         ) == true
                     }
@@ -413,27 +400,27 @@ class DatwallService : Service(), CoroutineScope {
 
     private fun registerSimSlotDefaultCollector() {
         launch {
-            val resultVoice = simManager.getDefaultSimSystem(SimDelegate.SimType.VOICE)
-            val resultData = simManager.getDefaultSimSystem(SimDelegate.SimType.DATA)
+            val resultVoice = simManager.getDefaultSimSystem(SimType.VOICE)
+            val resultData = simManager.getDefaultSimSystem(SimType.DATA)
 
             var canShow = false
 
-            if (resultVoice.isFailure && (resultVoice as Result.Failure).throwable == UnsupportedOperationException()){
+            if (resultVoice.isFailure && resultVoice.exceptionOrNull() == UnsupportedOperationException()) {
                 canShow = true
             }
 
-            if (resultData.isFailure && (resultData as Result.Failure).throwable == UnsupportedOperationException()){
+            if (resultData.isFailure && resultData.exceptionOrNull() == UnsupportedOperationException()) {
                 canShow = true
             }
 
-            if (!canShow){
+            if (!canShow) {
                 return@launch
             }
 
             applicationContext.internalDataStore.data.collect {
 
-                val simData = simManager.getDefaultSimManual(SimDelegate.SimType.DATA)
-                val simVoice = simManager.getDefaultSimManual(SimDelegate.SimType.VOICE)
+                val simData = simManager.getDefaultSimManual(SimType.DATA)
+                val simVoice = simManager.getDefaultSimManual(SimType.VOICE)
 
                 if (simData != null && simVoice != null) {
 
@@ -489,7 +476,10 @@ class DatwallService : Service(), CoroutineScope {
                             )
                         ).build()
 
-                    mNotificationManager.notify(NotificationHelper.SIM_NOTIFICATION_ID, notification)
+                    mNotificationManager.notify(
+                        NotificationHelper.SIM_NOTIFICATION_ID,
+                        notification
+                    )
                 }
             }
         }
@@ -570,10 +560,7 @@ class DatwallService : Service(), CoroutineScope {
 
         fun startTrafficRegistration() {
             launch {
-
-                if (service.activationManager.canWork().first) {
-                    service.trafficRegistration.start()
-                }
+                service.trafficRegistration.start()
             }
         }
 
