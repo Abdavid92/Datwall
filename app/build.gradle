@@ -9,12 +9,12 @@ plugins {
 /**
  * Número de la versión oficial. Cambie la versión aquí.
  */
-def officialVersionCode = 36
+def officialVersionCode = 38
 
 /**
  * Nombre de la versión oficial.
  */
-def officialVersionName = "4.3.2"
+def officialVersionName = "4.4.0"
 
 android {
     compileSdkVersion 32
