@@ -73,6 +73,7 @@ android {
             option("-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true")
         }
     }
+    namespace 'com.smartsolutions.paquetes'
 }
 
 dependencies {
@@ -95,10 +96,10 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     //Three party libraries
-    implementation 'moe.feng.common:material-stepper-view:0.2.5'
-    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
+    implementation 'moe.feng:MaterialStepperView:0.2.5'
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.15.0'
     implementation 'com.stephentuso:welcome:1.4.1'
-    implementation 'org.apache:commons-lang:2.4'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
     implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
     implementation 'com.github.Z17-CU:apklisupdate:v1.4'
@@ -123,7 +124,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.8.1'
 
     //html
-    implementation 'org.sufficientlysecure:html-textview:3.9'
+    implementation 'org.sufficientlysecure:html-textview:4.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     //Room database

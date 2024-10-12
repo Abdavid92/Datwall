@@ -21,6 +21,7 @@ class ApplicationsFragment : AbstractFragment() {
 
     private val viewModel by viewModels<ApplicationsViewModel>()
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -60,6 +61,7 @@ class ApplicationsFragment : AbstractFragment() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.applications_menu, menu)
 
@@ -68,6 +70,8 @@ class ApplicationsFragment : AbstractFragment() {
         setSearchViewQueryListener(search)
     }
 
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_filter -> {
@@ -98,7 +102,7 @@ class ApplicationsFragment : AbstractFragment() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_filter_title)
             .setItems(R.array.filter_options) { _, which ->
-                viewModel.setFilter(AppsFilter.values()[which])
+                viewModel.setFilter(AppsFilter.entries[which])
             }.show()
     }
 

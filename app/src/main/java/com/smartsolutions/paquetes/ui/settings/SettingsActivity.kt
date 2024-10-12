@@ -221,12 +221,16 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             }
         }
 
+        @Deprecated("Deprecated in Java")
+        @Suppress("DEPRECATION")
         override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
             super.onCreateOptionsMenu(menu, inflater)
 
             inflater.inflate(R.menu.themes_menu, menu)
         }
 
+        @Deprecated("Deprecated in Java")
+        @Suppress("DEPRECATION")
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
             when (item.itemId) {

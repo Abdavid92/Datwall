@@ -1,3 +1,0 @@
-include ':vpncore'
-include ':app'
-rootProject.name = "Datwall"

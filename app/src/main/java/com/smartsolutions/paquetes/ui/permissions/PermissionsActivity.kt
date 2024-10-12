@@ -53,6 +53,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

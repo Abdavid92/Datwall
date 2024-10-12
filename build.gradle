@@ -8,61 +8,69 @@ buildscript {
     ext.hilt_version = '2.43.2'
     ext.lifecycle_version = "2.5.1"
 
-    repositories {
-        google()
-        mavenCentral()
-        //maven {url "https://maven.aliyun.com/repository/google"}
-        //maven {url "https://maven.aliyun.com/repository/jcenter"}
-        //maven {url "https://maven.aliyun.com/repository/central"}
-
-        /*maven {
-            url 'http://nexus.prod.uci.cu/repository/maven-all/'
-            allowInsecureProtocol = true
-        }
-        maven {
-            url 'http://nexus.prod.uci.cu/repository/maven-central/'
-            allowInsecureProtocol = true
-        }
-        maven {
-            url 'http://nexus.prod.uci.cu/repository/jcenter/'
-            allowInsecureProtocol = true
-        }*/
-        maven { url "https://jitpack.io" }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+//    repositories {
+//        google()
+//        mavenCentral()
+//        jcenter()
+//        maven {url "https://maven.aliyun.com/repository/google"}
+//        maven {url "https://maven.aliyun.com/repository/jcenter"}
+//        maven {url "https://maven.aliyun.com/repository/central"}
+//
+//        maven {
+//            url 'http://nexus.prod.uci.cu/repository/maven-all/'
+//            allowInsecureProtocol = true
+//        }
+//        maven {
+//            url 'http://nexus.prod.uci.cu/repository/maven-central/'
+//            allowInsecureProtocol = true
+//        }
+//        maven {
+//            url 'http://nexus.prod.uci.cu/repository/jcenter/'
+//            allowInsecureProtocol = true
+//        }
+//        maven { url "https://jitpack.io" }
+//    }
+//    dependencies {
+//        classpath 'com.android.tools.build:gradle:8.5.0'
+//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//        classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
+//
+//        // NOTE: Do not place your application dependencies here; they belong
+//        // in the individual module build.gradle files
+//    }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven {url "https://maven.aliyun.com/repository/google"}
-        maven {url "https://maven.aliyun.com/repository/jcenter"}
-        maven {url "https://maven.aliyun.com/repository/central"}
-
-        maven {
-            url 'http://nexus.prod.uci.cu/repository/maven-all/'
-            allowInsecureProtocol = true
-        }
-        maven {
-            url 'http://nexus.prod.uci.cu/repository/maven-central/'
-            allowInsecureProtocol = true
-        }
-        maven {
-            url 'http://nexus.prod.uci.cu/repository/jcenter/'
-            allowInsecureProtocol = true
-        }
-        maven { url "https://jitpack.io" }
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+    alias(libs.plugins.google.devtools.ksp) apply false
+    alias(libs.plugins.google.dagger.hilt.android) apply false
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
+//allprojects {
+//    repositories {
+//        google()
+//        mavenCentral()
+//        maven {url "https://maven.aliyun.com/repository/google"}
+//        maven {url "https://maven.aliyun.com/repository/jcenter"}
+//        maven {url "https://maven.aliyun.com/repository/central"}
+//
+//        maven {
+//            url 'http://nexus.prod.uci.cu/repository/maven-all/'
+//            allowInsecureProtocol = true
+//        }
+//        maven {
+//            url 'http://nexus.prod.uci.cu/repository/maven-central/'
+//            allowInsecureProtocol = true
+//        }
+//        maven {
+//            url 'http://nexus.prod.uci.cu/repository/jcenter/'
+//            allowInsecureProtocol = true
+//        }
+//        maven { url "https://jitpack.io" }
+//    }
+//}
+//
+//task clean(type: Delete) {
+//    delete rootProject.buildDir
+//}
