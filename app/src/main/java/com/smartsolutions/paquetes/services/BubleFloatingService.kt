@@ -14,17 +14,26 @@ import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
+import android.view.WindowMetrics
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.BubbleCloseFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleFloatingLayoutBinding
 import com.smartsolutions.paquetes.databinding.BubbleMenuFloatingLayoutBinding
-import com.smartsolutions.paquetes.helpers.*
+import com.smartsolutions.paquetes.helpers.DateCalendarUtils
+import com.smartsolutions.paquetes.helpers.FirewallHelper
+import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
@@ -35,9 +44,13 @@ import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.uiDataStore
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -139,7 +152,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
             ?: throw NullPointerException()
 
         params = getParams(WindowManager.LayoutParams.WRAP_CONTENT, true)
-        paramsClose = getParams(android.view.WindowManager.LayoutParams.MATCH_PARENT)
+        paramsClose = getParams(WindowManager.LayoutParams.MATCH_PARENT)
 
         uiHelper = UIHelper(this)
 
@@ -257,7 +270,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun hideBubble() {
         isShowBubble = false
         bubbleBinding.root.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 bubbleBinding.root.animate().setListener(null)
                 bubbleBinding.root.visibility = View.GONE
             }
@@ -333,6 +346,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setTraffic(app: App) {
         val period = dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
         runBlocking(Dispatchers.Default) {
@@ -378,12 +392,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
                         try {
                             windowManager.removeView(closeBinding.root)
                         } catch (e: Exception) {
-
+                            //Nothing to do.
                         }
                     }
                 })
         } catch (e: Exception) {
-
+            //Nothing to do.
         }
     }
 
@@ -424,7 +438,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun hideMenu(menu: BubbleMenuFloatingLayoutBinding) {
         isShowMenu = false
         menu.root.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 menu.root.animate().setListener(null)
                 menu.root.visibility = View.GONE
                 animationMenu(false)
@@ -451,6 +465,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setValuesMenu(menu: BubbleMenuFloatingLayoutBinding) {
 
         menu.imageAppIcon.setImageBitmap(bitmapIcon)
@@ -504,7 +519,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
             watcher.currentAppFlow.collect {
 
                 withContext(Dispatchers.Main) {
-                   processAppCurrent(it.first)
+                    processAppCurrent(it.first)
                 }
             }
         }
@@ -539,21 +554,22 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
     private fun registerBroadcast() {
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(object : BroadcastReceiver(){
-            override fun onReceive(context: Context?, intent: Intent?) {
-                launch {
-                    appRepository.get(packageName)?.let { app ->
-                        withContext(Dispatchers.Main){
-                            processAppCurrent(app)
+        LocalBroadcastManager.getInstance(applicationContext)
+            .registerReceiver(object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    launch {
+                        appRepository.get(packageName)?.let { app ->
+                            withContext(Dispatchers.Main) {
+                                processAppCurrent(app)
+                            }
                         }
                     }
                 }
-            }
-        }, IntentFilter(MainActivity.MAIN_IS_OPEN))
+            }, IntentFilter(MainActivity.MAIN_IS_OPEN))
     }
 
 
-    private fun processAppCurrent(appCurrent: App){
+    private fun processAppCurrent(appCurrent: App) {
         app = appCurrent
         setTraffic(appCurrent)
 
@@ -577,7 +593,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
-
+    @Suppress("DEPRECATION")
     private fun getParams(hw: Int, withLastPosition: Boolean = false): WindowManager.LayoutParams {
         return WindowManager.LayoutParams(
             hw,
@@ -612,24 +628,26 @@ class BubbleFloatingService : Service(), CoroutineScope {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun getScreenWidth(): Int {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics: WindowMetrics = windowManager.getCurrentWindowMetrics()
+            val windowMetrics: WindowMetrics = windowManager.currentWindowMetrics
             windowMetrics.bounds.width()
         } else {
             val displayMetrics = DisplayMetrics()
-            windowManager.getDefaultDisplay().getMetrics(displayMetrics)
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
             displayMetrics.widthPixels
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun getScreenHeight(): Int {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics: WindowMetrics = windowManager.getCurrentWindowMetrics()
+            val windowMetrics: WindowMetrics = windowManager.currentWindowMetrics
             windowMetrics.bounds.height()
         } else {
             val displayMetrics = DisplayMetrics()
-            windowManager.getDefaultDisplay().getMetrics(displayMetrics)
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
             displayMetrics.heightPixels
         }
     }
@@ -648,7 +666,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
         try {
             windowManager.updateViewLayout(bubbleBinding.root, params)
         } catch (e: Exception) {
-
+            //Nothing to do.
         }
     }
 
@@ -658,12 +676,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         try {
             windowManager.removeView(bubbleBinding.root)
         } catch (e: Exception) {
-
+            //Nothing to do.
         }
         try {
             windowManager.removeView(closeBinding.root)
         } catch (e: Exception) {
-
+            //Nothing to do.
         }
         _closeBinding = null
         _bubbleBinding = null

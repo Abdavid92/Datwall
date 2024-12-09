@@ -12,24 +12,30 @@ import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.smartsolutions.paquetes.*
+import androidx.core.app.ServiceCompat
+import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.uiHelper
+import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import com.smartsolutions.paquetes.watcher.TrafficRegistration
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import java.util.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
@@ -67,7 +73,7 @@ class DatwallService : Service(), CoroutineScope {
      * 3 - National
      * 4 - Daily bag
      * */
-    private val percents = DataBytes.DataType.values()
+    private val percents = DataBytes.DataType.entries
         .map {
             it.ordinal
         }.toMutableList()
@@ -114,7 +120,10 @@ class DatwallService : Service(), CoroutineScope {
                 }.build()
             )
 
-            stopForeground(true)
+            ServiceCompat.stopForeground(
+                this,
+                ServiceCompat.STOP_FOREGROUND_REMOVE
+            )
             stopSelf()
 
             return START_NOT_STICKY
@@ -200,12 +209,6 @@ class DatwallService : Service(), CoroutineScope {
 
             updateNotification(userData)
         }
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-
-        Log.i(TAG, "Me estoy quedando sin memoria")
     }
 
     private fun dataStoreCollector() {
@@ -497,12 +500,14 @@ class DatwallService : Service(), CoroutineScope {
             DataUnitBytes.DataUnit.B -> {
                 return R.drawable.traficc_0_kb
             }
+
             DataUnitBytes.DataUnit.KB -> {
                 if (traffic.value > 999) {
                     return R.drawable.traficc_1_quot_0_mb
                 }
                 "traficc_${traffic.value.roundToLong()}_kb"
             }
+
             DataUnitBytes.DataUnit.MB -> {
                 if (traffic.value > 10.0) {
                     return R.drawable.traficc_10_more_mb
@@ -513,26 +518,13 @@ class DatwallService : Service(), CoroutineScope {
                     "traficc_${absolute}_quot_${remainder}_mb"
                 }
             }
+
             DataUnitBytes.DataUnit.GB -> {
                 return R.drawable.traficc_10_more_mb
             }
         }
 
         return uiHelper.getResource(name) ?: R.drawable.ic_main_notification
-    }
-
-    private fun launchExpiredNotification() {
-        val notification = NotificationCompat.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_main_notification)
-            .setContentTitle(getString(R.string.expired_try_period))
-            .setContentText(getString(R.string.expired_try_period_summary))
-            .setContentIntent(NotificationBuilder.getSplashActivityPendingIntent(this))
-
-        NotificationManagerCompat.from(this)
-            .notify(
-                NotificationHelper.MAIN_NOTIFICATION_ID,
-                notification.build()
-            )
     }
 
     override fun onDestroy() {

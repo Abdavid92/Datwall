@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import javax.inject.Inject
 
 class PurchasedPackagesManager @Inject constructor(
@@ -158,7 +158,9 @@ class PurchasedPackagesManager @Inject constructor(
                         }
                     }
                 }
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+                //Nothing to do.
+            }
 
             val purchased = purchasedPackageRepository.getAll().first()
 

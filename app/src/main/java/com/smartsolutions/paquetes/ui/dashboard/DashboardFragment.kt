@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.smartsolutions.paquetes.R
@@ -32,9 +31,9 @@ class DashboardFragment : AbstractFragment() {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDashboardBinding.inflate(
             inflater,
@@ -67,7 +66,7 @@ class DashboardFragment : AbstractFragment() {
                 requireContext(),
                 android.R.interpolator.decelerate_quint
             )
-            
+
             if (fab.isExtended) {
                 fab.shrink(object : ExtendedFloatingActionButton.OnChangedCallback() {
 
@@ -99,7 +98,7 @@ class DashboardFragment : AbstractFragment() {
                             .setStartDelay(200)
                             .setListener(object : AnimatorListenerAdapter() {
 
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
 
                                     binding.queryCredit.extend()
                                     binding.queryBonus.extend()
@@ -134,7 +133,7 @@ class DashboardFragment : AbstractFragment() {
                             .setInterpolator(interpolator)
                             .setListener(object : AnimatorListenerAdapter() {
 
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
                                     binding.queryCredit.visibility = View.INVISIBLE
                                     binding.queryBonus.visibility = View.INVISIBLE
                                     binding.queryMb.visibility = View.INVISIBLE

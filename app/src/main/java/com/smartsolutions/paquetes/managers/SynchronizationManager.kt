@@ -3,26 +3,32 @@ package com.smartsolutions.paquetes.managers
 import android.content.Context
 import android.os.Build
 import androidx.datastore.preferences.core.edit
-import androidx.work.*
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
-import com.smartsolutions.paquetes.settingsDataStore
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.helpers.getBytesFromText
-import com.smartsolutions.paquetes.managers.contracts.*
+import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
+import com.smartsolutions.paquetes.managers.contracts.ISimManager
+import com.smartsolutions.paquetes.managers.contracts.ISynchronizationManager
+import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.sims.SimType
-import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.Sim
+import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.workers.SynchronizationWorker
 import com.smartsolutions.paquetes.workersDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import org.apache.commons.lang.time.DateUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.apache.commons.lang3.time.DateUtils
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -167,7 +173,7 @@ class SynchronizationManager @Inject constructor(
             )
         }
 
-        value  = getBytesFromText(MENSAJERIA, response)
+        value = getBytesFromText(MENSAJERIA, response)
         if (value > 0) {
             data.add(
                 DataBytes(
@@ -236,7 +242,7 @@ class SynchronizationManager @Inject constructor(
     private fun fillMissingDataBytes(data: List<DataBytes>): List<DataBytes> {
         val list = data.toMutableList()
 
-        DataBytes.DataType.values().forEach { type ->
+        DataBytes.DataType.entries.forEach { type ->
             if (list.firstOrNull { it.type == type } == null) {
                 list.add(DataBytes(type, 0, 0))
             }
@@ -283,9 +289,9 @@ class SynchronizationManager @Inject constructor(
 
         val start = text.indexOf("validos", text.indexOf(key)) + 7
 
-        if (key == MENSAJERIA){
+        if (key == MENSAJERIA) {
             val packagesIndex = text.indexOf(PAQUETES)
-            if (packagesIndex in 1 until start){
+            if (packagesIndex in 1 until start) {
                 return 0L
             }
         }

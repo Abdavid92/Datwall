@@ -4,11 +4,14 @@ import android.app.Application
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.SimsHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
@@ -24,10 +27,9 @@ import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -93,7 +95,7 @@ class ResumeViewModel @Inject constructor(
         return liveUserDataBytes
     }
 
-    fun getAverages(): LiveData<Pair<DataUnitBytes, DataUnitBytes>>{
+    fun getAverages(): LiveData<Pair<DataUnitBytes, DataUnitBytes>> {
         return liveAverages
     }
 
@@ -104,7 +106,7 @@ class ResumeViewModel @Inject constructor(
         simType: SimType,
         fragmentManager: FragmentManager,
         onDefault: () -> Unit
-    ){
+    ) {
         viewModelScope.launch {
             simsHelper.invokeOnDefault(context, sim, simType, fragmentManager, onDefault)
         }
@@ -116,11 +118,12 @@ class ResumeViewModel @Inject constructor(
         var rest = 0L
 
         var total = 0L
-        list.filter { it.type != DataBytes.DataType.National && it.type != DataBytes.DataType.MessagingBag }.forEach {
-            total += it.initialBytes
-            usage += (it.initialBytes - it.bytes)
-            rest += it.bytes
-        }
+        list.filter { it.type != DataBytes.DataType.National && it.type != DataBytes.DataType.MessagingBag }
+            .forEach {
+                total += it.initialBytes
+                usage += (it.initialBytes - it.bytes)
+                rest += it.bytes
+            }
 
         val percent = DateCalendarUtils.calculatePercent(total.toDouble(), rest.toDouble())
 
@@ -128,9 +131,13 @@ class ResumeViewModel @Inject constructor(
     }
 
 
-    private suspend fun obtainAverages(userData: List<UserDataBytes>){
+    private suspend fun obtainAverages(userData: List<UserDataBytes>) {
         val rest = statisticsManager.getRemainder(TimeUnit.DAYS, userData)
-        val usage = statisticsManager.getAverage(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY * 7, System.currentTimeMillis(), TimeUnit.DAYS)
+        val usage = statisticsManager.getAverage(
+            System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY * 7,
+            System.currentTimeMillis(),
+            TimeUnit.DAYS
+        )
 
         liveAverages.postValue(usage to rest)
     }
@@ -152,11 +159,13 @@ class ResumeViewModel @Inject constructor(
                                 callback.onAccessibilityServiceDisabled()
                             }
                         }
+
                         USSDHelper.DENIED_CALL_PERMISSION -> {
                             withContext(Dispatchers.Main) {
                                 callback.onCallPermissionsDenied()
                             }
                         }
+
                         else -> {
                             withContext(Dispatchers.Main) {
                                 callback.onUSSDFail(
@@ -180,15 +189,19 @@ class ResumeViewModel @Inject constructor(
             FilterUserDataBytes.SIZE_ASC -> {
                 userData.sortedBy { it.bytes }
             }
+
             FilterUserDataBytes.SIZE_DESC -> {
                 userData.sortedByDescending { it.bytes }
             }
+
             FilterUserDataBytes.EXPIRE_ASC -> {
                 userData.sortedBy { it.expiredTime }
             }
+
             FilterUserDataBytes.EXPIRE_DESC -> {
                 userData.sortedByDescending { it.expiredTime }
             }
+
             else -> userData
         }.filter { it.exists() && !it.isExpired() }
     }

@@ -1,14 +1,13 @@
 package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
-import org.apache.commons.lang.time.DateUtils
-import java.util.*
+import org.apache.commons.lang3.time.DateUtils
+import java.util.Date
 
 /**
  * Administrador de estadísticas de tráfico de datos de la aplicaciones.

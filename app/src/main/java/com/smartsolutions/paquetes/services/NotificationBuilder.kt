@@ -18,7 +18,7 @@ import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.ui.SplashActivity
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -153,7 +153,6 @@ abstract class NotificationBuilder(
                 DataBytes.DataType.InternationalLte -> "LTE"
                 DataBytes.DataType.PromoBonusLte -> "Promo(LTE)"
                 DataBytes.DataType.PromoBonus -> "Promo"
-                DataBytes.DataType.PromoBonusLte -> "Promo LTE"
                 DataBytes.DataType.National -> ".CU"
                 DataBytes.DataType.DailyBag -> "Bolsa"
             }

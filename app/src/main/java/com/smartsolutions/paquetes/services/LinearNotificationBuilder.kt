@@ -1,11 +1,8 @@
 package com.smartsolutions.paquetes.services
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,18 +17,12 @@ import com.smartsolutions.paquetes.managers.contracts.IStatisticsManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.ui.SplashActivity
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.apache.commons.lang.time.DateUtils
-import java.text.SimpleDateFormat
-import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -87,9 +78,9 @@ class LinearNotificationBuilder(
                 it.type != DataBytes.DataType.National &&
                         it.type != DataBytes.DataType.MessagingBag
             }.forEach {
-                    initialTotal += it.initialBytes
-                    restTotal += it.bytes
-                }
+                initialTotal += it.initialBytes
+                restTotal += it.bytes
+            }
 
             val percent = if (initialTotal != 0L)
                 (100 * restTotal / initialTotal).toInt()

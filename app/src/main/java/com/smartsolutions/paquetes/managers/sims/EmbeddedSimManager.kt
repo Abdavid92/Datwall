@@ -6,7 +6,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 
 private const val EMBEDDED_SIM_ID = "embedded_sim"
 
-internal class EmbeddedSimManager constructor(
+internal class EmbeddedSimManager(
     private val simRepository: ISimRepository
 ) : InternalSimManager {
 

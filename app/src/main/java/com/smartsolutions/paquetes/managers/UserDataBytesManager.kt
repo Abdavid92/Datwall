@@ -2,22 +2,21 @@ package com.smartsolutions.paquetes.managers
 
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
-import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
-import com.smartsolutions.paquetes.repositories.models.DataPackage
-import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import javax.inject.Inject
-import kotlin.math.abs
+import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes.DataType
+import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.UsageGeneral
+import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
+import javax.inject.Inject
+import kotlin.math.abs
 
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,

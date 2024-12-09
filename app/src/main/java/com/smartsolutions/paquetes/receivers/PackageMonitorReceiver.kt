@@ -16,7 +16,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Receiver que se encarga de monitorear los cambios en las
  * aplicaciones instaladas. Este receiver funciona de api 24 para abajo.
- * En las demas apis se usa un bucle infinito.
+ * En las demás apis se usa un bucle infinito.
  * */
 @AndroidEntryPoint
 class PackageMonitorReceiver : BroadcastReceiver(), CoroutineScope {

@@ -13,7 +13,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.sims.SimType
@@ -24,7 +23,8 @@ import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult {
@@ -91,7 +91,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
                 installedSims[binding.pager.currentItem],
                 SimType.VOICE,
                 parentFragmentManager
-            ){
+            ) {
                 animateFAB(true)
                 viewModel.synchronizeUserDataBytes(this)
             }
@@ -139,7 +139,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_filter_title)
             .setItems(R.array.filter_resume) { _, pos ->
-                viewModel.setFilter(ResumeViewModel.FilterUserDataBytes.values()[pos])
+                viewModel.setFilter(ResumeViewModel.FilterUserDataBytes.entries[pos])
             }.show()
     }
 
@@ -155,16 +155,16 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             addOnExtendAnimationListener(object :
                 Animator.AnimatorListener {
 
-                override fun onAnimationStart(anim: Animator?) {
+                override fun onAnimationStart(anim: Animator) {
                     binding.floatingActionButton.apply {
                         animation?.cancel()
                         animation?.reset()
                     }
                 }
 
-                override fun onAnimationEnd(anim: Animator?) {}
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(anim: Animator) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
 
             })
 
@@ -172,17 +172,17 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             addOnShrinkAnimationListener(object :
                 Animator.AnimatorListener {
 
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator) {}
 
-                override fun onAnimationEnd(anim: Animator?) {
+                override fun onAnimationEnd(anim: Animator) {
                     binding.floatingActionButton.apply {
                         animation = rotateAnimation
                         animation?.start()
                     }
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
 
             })
         }

@@ -66,7 +66,7 @@ class UIScannerService : AccessibilityService() {
                     .uppercase(Locale.ROOT)
             )
 
-        if (nodes == null || nodes.isEmpty())
+        if (nodes.isNullOrEmpty())
             nodes = event.source
                 ?.findAccessibilityNodeInfosByText(getString(android.R.string.cancel))
 

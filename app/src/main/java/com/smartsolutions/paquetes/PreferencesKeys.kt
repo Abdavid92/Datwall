@@ -1,10 +1,13 @@
 package com.smartsolutions.paquetes
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.smartsolutions.paquetes.workers.SynchronizationWorker
 
 /**
  * Contiene los ajustes de la aplicación.
@@ -32,16 +35,6 @@ val Context.workersDataStore by preferencesDataStore(name = "workers_settings")
 object PreferencesKeys {
 
     /**
-     * Indica la hora en que se empezó a esperar la confirmación de la compra
-     */
-    val WAITING_PUCHASE = longPreferencesKey("waiting_purchase")
-
-    /**
-     * Licencia de la aplicación.
-     * */
-    val LICENSE = stringPreferencesKey("license")
-
-    /**
      * Implementación de la notificación principal.
      * */
     val NOTIFICATION_CLASS = stringPreferencesKey("notification_class")
@@ -50,7 +43,8 @@ object PreferencesKeys {
      * Indica si el tema de la notificación principal se debe guiar por
      * el tema de la aplicación o del sistema.
      * */
-    val NOTIFICATION_STYLE_THEME_MODE_APP = booleanPreferencesKey("notification_style_theme_mode_app")
+    val NOTIFICATION_STYLE_THEME_MODE_APP =
+        booleanPreferencesKey("notification_style_theme_mode_app")
 
     /**
      * Indica si se debe notificar cuando haya una actualización disponible.

@@ -104,8 +104,8 @@ abstract class AbstractAppRepository(
             isNational(info.packageName) -> TrafficType.National
             else -> TrafficType.International
         }
-        app.name = info.applicationInfo.loadLabel(packageManager).toString()
-        app.uid = info.applicationInfo.uid
+        app.name = info.applicationInfo?.loadLabel(packageManager).toString()
+        app.uid = info.applicationInfo?.uid ?: throw RuntimeException("Not application info found")
 
         getSpecialApp(info.packageName)?.let {
             app.access = it.access
@@ -117,8 +117,8 @@ abstract class AbstractAppRepository(
     @Suppress("DEPRECATION")
     override fun fillApp(app: App, info: PackageInfo) {
         app.version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
-        app.name = info.applicationInfo.loadLabel(packageManager).toString()
-        app.uid = info.applicationInfo.uid
+        app.name = info.applicationInfo?.loadLabel(packageManager).toString()
+        app.uid = info.applicationInfo?.uid ?: throw RuntimeException("Not application info found")
         app.internet = hasInternet(app.packageName)
         app.system = isSystem(info)
         getSpecialApp(app.packageName)?.let {
@@ -145,7 +145,8 @@ abstract class AbstractAppRepository(
     }
 
     private fun isSystem(packageInfo: PackageInfo): Boolean {
-        return packageInfo.applicationInfo.flags and (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+        return (packageInfo.applicationInfo?.flags ?: throw RuntimeException("Not application info found")) and
+                (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
     }
 
     private fun hasInternet(packageName: String): Boolean {
