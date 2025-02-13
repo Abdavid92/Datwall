@@ -365,10 +365,9 @@ class DatwallKernel @Inject constructor(
      * Inicia el servicio principal.
      * */
     private fun startMainService() {
+
         val datwallServiceIntent = Intent(context, DatwallService::class.java)
-
         ContextCompat.startForegroundService(context, datwallServiceIntent)
-
         context.bindService(datwallServiceIntent, mainServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
@@ -444,22 +443,20 @@ class DatwallKernel @Inject constructor(
     }
 
     suspend fun canContinue(reset: Boolean): Boolean {
+
         //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
-        if (withContext(Dispatchers.IO) {
-                val isThrowed = context.internalDataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.IS_THROWED) == true
+        return !withContext(Dispatchers.IO) {
+            val isThrowed = context.internalDataStore.data.firstOrNull()
+                ?.get(PreferencesKeys.IS_THROWED) == true
 
-                if (reset) {
-                    context.internalDataStore.edit {
-                        it[PreferencesKeys.IS_THROWED] = false
-                    }
+            if (reset) {
+                context.internalDataStore.edit {
+                    it[PreferencesKeys.IS_THROWED] = false
                 }
+            }
 
-                return@withContext isThrowed
-            })
-            return false
-
-        return true
+            return@withContext isThrowed
+        }
     }
 
     companion object {

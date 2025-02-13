@@ -81,7 +81,7 @@
     <string name="generic_needed_action_title_notification">Acciones Necesarias</string>
     <string name="generic_needed_action_description_notification">Toque aquí para resolver los problemas.</string>
     <string name="missing_configuration_title_notification">Configuraciones Pendientes</string>
-    <string name="missing_configuration_description_notification">Toque quí para realizar las configuraciones faltantes.</string>
+    <string name="missing_configuration_description_notification">Toque aquí para realizar las configuraciones faltantes.</string>
     <string name="generic_error_title_notification">Error Desconocido</string>
     <string name="generic_error_description_notification">Toque aquí para ver el error</string>
     <string name="stoped_missing_overlay_permissions_title_notification">Se denegó Permiso de Sobreponerse</string>
