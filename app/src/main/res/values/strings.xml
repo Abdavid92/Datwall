@@ -42,6 +42,8 @@
     <string name="usage_access_permission_description">Este permiso permite obtener del sistema la cantidad de megas consumidos por cada app en diferentes períodos de tiempo</string>
     <string name="draw_overlays_permission">Permiso para sobreponerse a otras apps</string>
     <string name="draw_overlays_permission_description">Se necesita para que se pueda mostrar la Burbuja Flotante o el Cortafuegos sobre otras apps</string>
+    <string name="notifications_permission">Permiso para mostrar notificaciones</string>
+    <string name="notifications_permission_description">Se necesita para mostrar la notificación persistente con el consumo y las alertas de datos. Sin él la app funciona, pero no verás esas notificaciones</string>
     <string name="vpn_permission">Permiso para crear vpn</string>
     <string name="vpn_permission_description">Es necesario para crear una VPN que se utilizará como un cortafuegos para ahorrar sus megas</string>
     <string name="btn_continue">Continuar</string>

@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
@@ -137,6 +138,22 @@ open class PermissionsManager @Inject constructor(
                  fragment.startActivityForResult(intent, requestCode)
              }
          ),
+        Permission(
+            context.getString(R.string.notifications_permission),
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            context.getString(R.string.notifications_permission_description),
+            Permission.Category.Optional,
+            IPermissionsManager.NOTIFICATIONS_CODE,
+            Build.VERSION_CODES.TIRAMISU,
+            checkPermission = { context ->
+                val granted = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+
+                !isNotificationPermissionRequired(Build.VERSION.SDK_INT, granted)
+            }
+        ),
         Permission(
             context.getString(R.string.vpn_permission),
             emptyArray(),
