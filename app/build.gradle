@@ -26,7 +26,7 @@ android {
     defaultConfig {
         applicationId "com.smartsolutions.paquetes"
         minSdkVersion 23
-        targetSdkVersion 32
+        targetSdkVersion 36
         versionCode officialVersionCode
         versionName officialVersionName
 
@@ -64,10 +64,6 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    lint {
-        // La app se distribuye por Apklis, no por Google Play
-        disable 'ExpiredTargetSdkVersion'
-    }
 }
 
 configurations.configureEach {

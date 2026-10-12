@@ -67,8 +67,8 @@ Al terminar la fase la app compila con `targetSdk 32` y se comporta igual.
 - [X] T019 [P] Eliminar `compactTrafficsLollipop` y su rama en B/workers/TrafficDbOptimizer.kt (≈ línea 44) y las ramas para API < 23 de B/watcher/TrafficRegistration.kt (≈ líneas 88, 193–217, 229, 251). No borrar tablas ni columnas de Room (data-model.md)
 - [X] T020 Eliminar el resto de comprobaciones `Build.VERSION.SDK_INT` contra `KITKAT`, `LOLLIPOP`, `LOLLIPOP_MR1` o `M` (dejar solo la rama que se ejecuta con API ≥ 23) y las anotaciones `@RequiresApi` de esos niveles en app y vpncore; localizarlas con `grep -rnE "VERSION_CODES\.(KITKAT|LOLLIPOP|LOLLIPOP_MR1|M)\b" app/src/main vpncore/src/main`. Incluye las entradas con `minSdk` 21/23 de B/managers/PermissionsManager.kt y las ramas `else` de los `PendingIntent`
 - [X] T021 Compilar y pasar las pruebas; commit: "Eliminar código para Android 5"
-- [ ] T022 Subir `targetSdkVersion` a 36 en app/build.gradle y eliminar el bloque `lint { disable 'ExpiredTargetSdkVersion' }`
-- [ ] T023 Commit: "Subir targetSdk a 36" (a partir de aquí las historias corrigen el comportamiento)
+- [X] T022 Subir `targetSdkVersion` a 36 en app/build.gradle y eliminar el bloque `lint { disable 'ExpiredTargetSdkVersion' }`
+- [X] T023 Commit: "Subir targetSdk a 36" (a partir de aquí las historias corrigen el comportamiento)
 
 **Checkpoint**: bibliotecas al día, `targetSdk 36`; las historias pueden empezar.
 
