@@ -207,3 +207,32 @@ Task: "T039 [US4] Quitar statusBarColor de los temas"
 4. US2 → notificaciones y burbuja.
 5. US4 → pantalla completa y botón atrás.
 6. Polish → lint, README y verificación completa antes del PR.
+
+---
+
+## Verificación en dispositivo (2026-10-12)
+
+Solo se pudo verificar en el emulador de Android 7 (API 24): el de Android 16 es demasiado lento en el
+equipo de desarrollo. Esto cubre regresiones, no los cambios de comportamiento de Android 14–16, así
+que T027, T032, T036, T040, T046, T049 y la parte de emulador de T050 siguen pendientes en un
+dispositivo con Android 14+.
+
+Resultados en Android 7:
+
+- Actualización encima de la 4.4.0: reglas del cortafuegos y demás tablas idénticas; mismo hash de
+  esquema de Room (SC-006).
+- Cortafuegos: bloquea una app bloqueada y deja de bloquear al apagarlo; se reactiva solo tras
+  reiniciar el emulador junto con DatwallService.
+- DatwallService, FirewallService y BubbleFloatingService en primer plano; la burbuja se muestra.
+- Pantallas Resumen, Controles, Aplicaciones, Consumo, Ajustes, Paquetes y AppControlActivity sin
+  contenido tapado; el botón atrás cierra AppControlActivity y guarda el cambio.
+- USSDHelperReceiverTest pasa (ejecutado con `am instrument`; `connectedDebugAndroidTest` desinstala
+  la app y borraría los datos del emulador).
+- Sin cierres inesperados.
+
+Fallos encontrados que ya existían (fuera del alcance de esta fase):
+
+- En la lista de aplicaciones el interruptor de una app puede mostrar un estado viejo tras cambiarla
+  desde AppControlActivity.
+- ApplicationsViewModel.commitUpdateApps lanza el guardado en una corrutina y limpia la lista al
+  final: dos guardados seguidos pueden escribir un valor viejo de una regla.

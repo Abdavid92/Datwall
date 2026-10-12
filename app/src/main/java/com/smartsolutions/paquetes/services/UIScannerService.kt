@@ -110,7 +110,7 @@ class UIScannerService : AccessibilityService() {
     }
 
     private fun setServiceStatus(ready: Boolean) {
-        (application as DatwallApplication).uiScannerServiceReady = ready
+        (application as? DatwallApplication)?.uiScannerServiceReady = ready
     }
 
     companion object {
