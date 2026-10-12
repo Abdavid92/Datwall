@@ -48,9 +48,7 @@ class UIScannerService : AccessibilityService() {
             waitingUssdCodeResult = false
 
             //Preparo el intent.
-            val intent = Intent(USSDHelper.ACTION_SEND_USSD_REQUEST)
-                .putExtra(USSDHelper.EXTRA_RESULT, true)
-                .putExtra(USSDHelper.EXTRA_RESPONSE, response)
+            val intent = USSDHelper.createResponseIntent(this, response)
 
             //Lanzo el broadcast.
             sendBroadcast(intent)

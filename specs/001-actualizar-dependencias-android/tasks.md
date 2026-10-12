@@ -112,9 +112,9 @@ registrando (FR-002, FR-003, FR-004).
 
 **Independent Test**: [quickstart.md](quickstart.md) sección 6 (requiere SIM de Cubacel).
 
-- [ ] T033 [P] [US3] Prueba que reproduce el fallo: app/src/androidTest/java/com/smartsolutions/paquetes/helpers/USSDHelperReceiverTest.kt registra el receiver de respuesta USSD igual que B/helpers/USSDHelper.kt y comprueba que no lanza `SecurityException` y que recibe un broadcast enviado con `setPackage`. Debe fallar en un emulador Android 14+ antes de T034
-- [ ] T034 [US3] En B/helpers/USSDHelper.kt (≈ línea 201) registrar con `ContextCompat.registerReceiver(context, receiver, IntentFilter(ACTION_SEND_USSD_REQUEST), ContextCompat.RECEIVER_NOT_EXPORTED)`
-- [ ] T035 [US3] En B/services/UIScannerService.kt (≈ líneas 51–56) añadir `setPackage(packageName)` al `Intent` del `sendBroadcast`
+- [X] T033 [P] [US3] Prueba que reproduce el fallo: app/src/androidTest/java/com/smartsolutions/paquetes/helpers/USSDHelperReceiverTest.kt registra el receiver de respuesta USSD igual que B/helpers/USSDHelper.kt y comprueba que no lanza `SecurityException` y que recibe un broadcast enviado con `setPackage`. Debe fallar en un emulador Android 14+ antes de T034
+- [X] T034 [US3] En B/helpers/USSDHelper.kt (≈ línea 201) registrar con `ContextCompat.registerReceiver(context, receiver, IntentFilter(ACTION_SEND_USSD_REQUEST), ContextCompat.RECEIVER_NOT_EXPORTED)`
+- [X] T035 [US3] En B/services/UIScannerService.kt (≈ líneas 51–56) añadir `setPackage(packageName)` al `Intent` del `sendBroadcast`
 - [ ] T036 [US3] Pasar T033 en un emulador Android 14+ y validar con quickstart.md sección 6; commit: "Corregir el receiver de respuestas USSD en Android 14+"
 
 ---
