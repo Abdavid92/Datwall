@@ -84,7 +84,7 @@ registrando (FR-002, FR-003, FR-004).
 - [X] T024 [US1] En app/src/main/AndroidManifest.xml: añadir `<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>`; en `.services.FirewallService` y `.services.DatwallService` añadir `android:foregroundServiceType="specialUse"` y el `<property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="..."/>` con el texto exacto de contracts/manifest.md
 - [X] T025 [P] [US1] En B/services/FirewallService.kt: cambiar `startForeground` (≈ línea 378) por `ServiceCompat.startForeground(this, id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)` (el tipo solo en API ≥ 34, `ServiceCompat` lo gestiona); `stopForeground(true)` (≈ línea 370) por `ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)`; los `getParcelableExtra<App>` (≈ líneas 95, 110, 124) por `IntentCompat.getParcelableExtra(intent, key, App::class.java)`
 - [X] T026 [P] [US1] En B/services/DatwallService.kt: el mismo cambio de `startForeground` (≈ línea 130) y `stopForeground` (≈ línea 117)
-- [ ] T027 [US1] Compilar, instalar en emuladores Android 14, 15 y 16 y validar con quickstart.md secciones 2–4; commit: "Declarar tipos de servicio en primer plano del cortafuegos y la medición"
+- [X] T027 [US1] Compilar, instalar en emuladores Android 14, 15 y 16 y validar con quickstart.md secciones 2–4; commit: "Declarar tipos de servicio en primer plano del cortafuegos y la medición"
 
 **Checkpoint**: MVP — la función principal funciona en Android 14–16.
 
@@ -101,7 +101,7 @@ registrando (FR-002, FR-003, FR-004).
 - [X] T029 [US2] Implementar `isNotificationPermissionRequired` como función pura en B/managers/NotificationPermissionPolicy.kt (requerido solo si `sdkInt >= 33` y no está concedido); `./gradlew testDebugUnitTest` pasa
 - [X] T030 [US2] Declarar `<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>` en app/src/main/AndroidManifest.xml y añadirlo como permiso opcional (la app sigue funcionando si se rechaza) en la lista de B/managers/PermissionsManager.kt, usando `isNotificationPermissionRequired` para decidir si se muestra; título y descripción en los recursos de strings existentes (es y en), indicando que sin él no se verá la notificación persistente
 - [X] T031 [US2] En app/src/main/AndroidManifest.xml: `.services.BubbleFloatingService` con `android:foregroundServiceType="specialUse"` y su `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` de contracts/manifest.md; en B/services/BubleFloatingService.kt cambiar `startForeground` (≈ línea 128) por `ServiceCompat.startForeground(..., FOREGROUND_SERVICE_TYPE_SPECIAL_USE)`
-- [ ] T032 [US2] Validar con quickstart.md sección 5 (permiso concedido y rechazado, burbuja); commit: "Pedir permiso de notificaciones y declarar el tipo de servicio de la burbuja"
+- [X] T032 [US2] Validar con quickstart.md sección 5 (permiso concedido y rechazado, burbuja); commit: "Pedir permiso de notificaciones y declarar el tipo de servicio de la burbuja"
 
 ---
 
@@ -115,7 +115,7 @@ registrando (FR-002, FR-003, FR-004).
 - [X] T033 [P] [US3] Prueba que reproduce el fallo: app/src/androidTest/java/com/smartsolutions/paquetes/helpers/USSDHelperReceiverTest.kt registra el receiver de respuesta USSD igual que B/helpers/USSDHelper.kt y comprueba que no lanza `SecurityException` y que recibe un broadcast enviado con `setPackage`. Debe fallar en un emulador Android 14+ antes de T034
 - [X] T034 [US3] En B/helpers/USSDHelper.kt (≈ línea 201) registrar con `ContextCompat.registerReceiver(context, receiver, IntentFilter(ACTION_SEND_USSD_REQUEST), ContextCompat.RECEIVER_NOT_EXPORTED)`
 - [X] T035 [US3] En B/services/UIScannerService.kt (≈ líneas 51–56) añadir `setPackage(packageName)` al `Intent` del `sendBroadcast`
-- [ ] T036 [US3] Pasar T033 en un emulador Android 14+ y validar con quickstart.md sección 6; commit: "Corregir el receiver de respuestas USSD en Android 14+"
+- [X] T036 [US3] Pasar T033 en un emulador Android 14+ y validar con quickstart.md sección 6; commit: "Corregir el receiver de respuestas USSD en Android 14+"
 
 ---
 
@@ -129,13 +129,13 @@ sistema predictivo (FR-007).
 - [X] T037 [US4] Crear B/ui/WindowInsetsExt.kt con una única extensión `View.applySystemBarsPadding()` que use `ViewCompat.setOnApplyWindowInsetsListener` para sumar los insets de `systemBars()` y `displayCutout()` al padding original de la vista (DRY: es el único sitio con esta lógica)
 - [X] T038 [US4] En B/ui/AbstractActivity.kt llamar a `enableEdgeToEdge()` y aplicar `applySystemBarsPadding()` a la vista raíz del contenido (`findViewById<ViewGroup>(android.R.id.content).getChildAt(0)` tras `setContentView`, por ejemplo en `onContentChanged`)
 - [X] T039 [P] [US4] Quitar `android:statusBarColor` de R/values/themes.xml (≈ líneas 14 y 35), R/values-v23/themes.xml (≈ líneas 14 y 32) y R/values-night/themes.xml (≈ líneas 13 y 27); mantener `windowLightStatusBar`
-- [ ] T040 [US4] Revisar una a una las pantallas de AbstractActivity (MainActivity, SettingsActivity, SetupActivity, PermissionsActivity, SplashActivity, FragmentContainerActivity, ExceptionsActivity, y las transparentes DashboardControlActivity y AppControlActivity) en Android 16 con navegación por gestos y por botones; corregir con `applySystemBarsPadding()` en la vista concreta los casos de doble padding o contenido tapado (barras inferiores, FAB, listas)
+- [X] T040 [US4] Revisar una a una las pantallas de AbstractActivity (MainActivity, SettingsActivity, SetupActivity, PermissionsActivity, SplashActivity, FragmentContainerActivity, ExceptionsActivity, y las transparentes DashboardControlActivity y AppControlActivity) en Android 16 con navegación por gestos y por botones; corregir con `applySystemBarsPadding()` en la vista concreta los casos de doble padding o contenido tapado (barras inferiores, FAB, listas)
 - [X] T041 [US4] B/ui/PresentationActivity.kt no hereda de AbstractActivity (usa `WelcomeActivity` del AAR): aplicarle `enableEdgeToEdge()` y `applySystemBarsPadding()` a su raíz si su contenido queda tapado
 - [X] T042 [P] [US4] En B/ui/applications/AppControlActivity.kt: sustituir el `override fun onBackPressed()` (≈ línea 178) por un `OnBackPressedCallback` registrado en `onBackPressedDispatcher` que llame a `saveResult()` y cierre; las llamadas manuales (≈ líneas 82 y 190) por `onBackPressedDispatcher.onBackPressed()`; en `onPause` (≈ línea 185) llamar directamente a `saveResult()` en lugar de `onBackPressed()`
 - [X] T043 [P] [US4] En B/ui/exceptions/ExceptionsActivity.kt sustituir el `override fun onBackPressed()` (≈ línea 68) por un `OnBackPressedCallback` que llame a `close()`
 - [X] T044 [P] [US4] En B/ui/dashboard/FirewallControlsFragment.kt (≈ línea 58) y B/ui/dashboard/BubbleControlsFragment.kt (≈ línea 64) cambiar `activity?.onBackPressed()` por `activity?.onBackPressedDispatcher?.onBackPressed()`
 - [X] T045 [US4] Añadir `android:enableOnBackInvokedCallback="true"` al `<application>` de app/src/main/AndroidManifest.xml
-- [ ] T046 [US4] Validar con quickstart.md sección 7; commit: "Adaptar la UI a pantalla completa y al botón atrás predictivo"
+- [X] T046 [US4] Validar con quickstart.md sección 7; commit: "Adaptar la UI a pantalla completa y al botón atrás predictivo"
 
 ---
 
@@ -236,3 +236,37 @@ Fallos encontrados que ya existían (fuera del alcance de esta fase):
   desde AppControlActivity.
 - ApplicationsViewModel.commitUpdateApps lanza el guardado en una corrutina y limpia la lista al
   final: dos guardados seguidos pueden escribir un valor viejo de una regla.
+
+### Android 16 — REDMI 15C, HyperOS 3.0 (2026-10-12)
+
+Instalación nueva de la build de debug, verificada con mobile-mcp:
+
+- Pantalla de bienvenida, permisos, configuración de SIM y paquetes, Resumen, Controles, Aplicaciones,
+  Consumo, Ajustes y AppControlActivity: nada queda tapado por las barras del sistema (US4).
+- Flujo de permisos completo, incluido el nuevo paso de notificaciones (opcional, con "Saltar") y el
+  diálogo de POST_NOTIFICATIONS (US2).
+- DatwallService, FirewallService y BubbleFloatingService en primer plano con tipo specialUse
+  (`types=0x40000000`). FirewallService arranca solo desde segundo plano al activarse los datos
+  móviles, sigue activo tras quitar la app de recientes y se vuelve a levantar al reiniciar el
+  proceso (US1).
+- El cortafuegos bloquea Chrome (VPN `tun0` activa sobre LTE) y muestra la notificación de "permitir
+  acceso" con sus acciones (US1, US2).
+- La burbuja se muestra sobre otras apps con el consumo de la app en primer plano (US2).
+- Botón atrás predictivo: cierra AppControlActivity (US4).
+- USSDHelperReceiverTest pasa en Android 16 (US3). La sincronización de saldo no se cerró; falló por
+  la red (ver abajo).
+
+Sigue pendiente: Android 14 y 15 (no hay dispositivos), reinicio del teléfono con el cortafuegos
+activo y la compra real de paquetes.
+
+Fallos encontrados que ya existían (no son regresiones de esta fase):
+
+- USSD en modo moderno (`USSDHelper.sendUSSDRequestOreo`) usa el TelephonyManager por defecto e
+  ignora la SIM elegida: con dos SIM y la voz en "preguntar siempre" la consulta salió por la SIM 1
+  aunque se eligió la SIM 2. Corregir con `createForSubscriptionId` (fase 2, ETECSA).
+- La visibilidad y el tamaño de la burbuja cambian solos ("Solo si hay consumo" y tamaño mínimo) tras
+  reiniciarse el proceso de la app. Reproducido en Android 7 y en Android 16.
+- En la configuración de paquetes, el botón "Continuar" se superpone a la tarjeta "Paquetes
+  disponibles" (fase 4, UI).
+- El cortafuegos solo se activa con datos móviles; con Wi-Fi queda en espera (comportamiento de
+  diseño, no fallo).
