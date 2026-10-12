@@ -188,7 +188,7 @@ class FirewallHelper @Inject constructor(
             .build()
 
         NotificationManagerCompat.from(context)
-            .notify(NotificationHelper.ALERT_NOTIFICATION_ID, notification)
+            .notifyIfAllowed(context, NotificationHelper.ALERT_NOTIFICATION_ID, notification)
     }
 
     companion object {

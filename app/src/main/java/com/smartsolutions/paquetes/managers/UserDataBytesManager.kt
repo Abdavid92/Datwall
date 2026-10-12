@@ -17,7 +17,7 @@ import com.smartsolutions.paquetes.repositories.models.DataBytes.DataType
 import com.smartsolutions.paquetes.repositories.models.UsageGeneral
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
@@ -71,13 +71,19 @@ class UserDataBytesManager @Inject constructor(
         }
     }
 
-    override suspend fun addPromoBonus(simId: String, bytes: Long) {
+    override suspend fun addPromoBonus(simId: String, bytes: Long, bytesLte: Long) {
         val userDataBytes = withContext(Dispatchers.IO) {
             userDataBytesRepository.bySimId(simId)
         }.filter { it.type != DataType.DailyBag }.onEach {
 
             if (it.type == DataType.PromoBonus) {
                 it.bytes += bytes
+                it.initialBytes = it.bytes
+                it.startTime = System.currentTimeMillis()
+            }
+
+            if (it.type == DataType.PromoBonusLte) {
+                it.bytes += bytesLte
                 it.initialBytes = it.bytes
                 it.startTime = System.currentTimeMillis()
             }

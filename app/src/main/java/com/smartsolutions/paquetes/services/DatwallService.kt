@@ -3,17 +3,19 @@ package com.smartsolutions.paquetes.services
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.content.res.Configuration
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.helpers.notifyIfAllowed
 import com.smartsolutions.paquetes.helpers.uiHelper
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
@@ -107,14 +109,14 @@ class DatwallService : Service(), CoroutineScope {
 
         if (intent?.action == ACTION_STOP) {
 
-            mNotificationManager.notify(
+            mNotificationManager.notifyIfAllowed(this, 
                 NotificationHelper.MAIN_NOTIFICATION_ID,
                 mNotificationBuilder.apply {
                     setOngoing(false)
                 }.build()
             )
 
-            stopForeground(true)
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
             stopSelf()
 
             return START_NOT_STICKY
@@ -127,9 +129,11 @@ class DatwallService : Service(), CoroutineScope {
             NotificationHelper.MAIN_CHANNEL_ID
         )
 
-        startForeground(
+        ServiceCompat.startForeground(
+            this,
             NotificationHelper.MAIN_NOTIFICATION_ID,
-            mNotificationBuilder.build()
+            mNotificationBuilder.build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
 
         Log.i(TAG, "registering band with collector")
@@ -346,7 +350,7 @@ class DatwallService : Service(), CoroutineScope {
                                 )
                                 .build()
 
-                            mNotificationManager.notify(
+                            mNotificationManager.notifyIfAllowed(this, 
                                 NotificationHelper.ALERT_NOTIFICATION_ID,
                                 notification
                             )
@@ -373,7 +377,7 @@ class DatwallService : Service(), CoroutineScope {
      * los valores de la notificación.
      * */
     private fun updateNotification(userData: List<UserDataBytes>) {
-        mNotificationManager.notify(
+        mNotificationManager.notifyIfAllowed(this, 
             NotificationHelper.MAIN_NOTIFICATION_ID,
             mNotificationBuilder.setNotificationData(userData)
                 .build()
@@ -389,7 +393,7 @@ class DatwallService : Service(), CoroutineScope {
      * @param txBytes - Bytes de subida.
      * */
     private fun updateBandWith(rxBytes: Long, txBytes: Long) {
-        mNotificationManager.notify(
+        mNotificationManager.notifyIfAllowed(this, 
             NotificationHelper.MAIN_NOTIFICATION_ID,
             mNotificationBuilder
                 .setSmallIcon(getIcon(rxBytes + txBytes))
@@ -468,15 +472,11 @@ class DatwallService : Service(), CoroutineScope {
                                         SimsConfigurationFragment::class.java.name
                                     )
                                 },
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                                } else {
-                                    PendingIntent.FLAG_UPDATE_CURRENT
-                                }
+                                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                             )
                         ).build()
 
-                    mNotificationManager.notify(
+                    mNotificationManager.notifyIfAllowed(this@DatwallService, 
                         NotificationHelper.SIM_NOTIFICATION_ID,
                         notification
                     )
@@ -529,7 +529,8 @@ class DatwallService : Service(), CoroutineScope {
             .setContentIntent(NotificationBuilder.getSplashActivityPendingIntent(this))
 
         NotificationManagerCompat.from(this)
-            .notify(
+            .notifyIfAllowed(
+                this,
                 NotificationHelper.MAIN_NOTIFICATION_ID,
                 notification.build()
             )

@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.os.Build
@@ -16,6 +17,7 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
+import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -125,14 +127,16 @@ class BubbleFloatingService : Service(), CoroutineScope {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        startForeground(
+        ServiceCompat.startForeground(
+            this,
             NotificationHelper.MAIN_NOTIFICATION_ID,
             notificationHelper.buildNotification(
                 NotificationHelper.MAIN_CHANNEL_ID
             ).apply {
                 setSmallIcon(R.drawable.ic_main_notification)
                 setContentTitle("Burbuja Flotante")
-            }.build()
+            }.build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
 
         windowManager = ContextCompat.getSystemService(this, WindowManager::class.java)
@@ -257,7 +261,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun hideBubble() {
         isShowBubble = false
         bubbleBinding.root.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 bubbleBinding.root.animate().setListener(null)
                 bubbleBinding.root.visibility = View.GONE
             }
@@ -424,7 +428,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun hideMenu(menu: BubbleMenuFloatingLayoutBinding) {
         isShowMenu = false
         menu.root.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 menu.root.animate().setListener(null)
                 menu.root.visibility = View.GONE
                 animationMenu(false)

@@ -5,12 +5,10 @@ import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.net.ConnectivityManager
 import android.telephony.TelephonyManager
-import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import java.util.*
 
-@RequiresApi(23)
 @SuppressLint("HardwareIds")
 abstract class AbstractNetworkUsage(
     private val networkStatsManager: NetworkStatsManager,

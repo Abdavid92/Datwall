@@ -270,16 +270,15 @@ public class PacketUtil {
 	}
 
 	public static int ipAddressToInt(String ip) throws PacketHeaderException {
-		//TODO: No funciona
 		String[] split = ip.split("\\.");
 
 		if (split.length > 4)
 			throw new PacketHeaderException("Unsupported ip version");
 
-		return (int) (((Integer.parseInt(split[0]) >>> 24) & 0x000000FF) +
-				((Integer.parseInt(split[1]) >>> 16) & 0x000000FF) +
-				((Integer.parseInt(split[2]) >>> 8) & 0x000000FF) +
-				(Integer.parseInt(split[3]) & 0x000000FF));
+		return ((Integer.parseInt(split[0]) & 0x000000FF) << 24) |
+				((Integer.parseInt(split[1]) & 0x000000FF) << 16) |
+				((Integer.parseInt(split[2]) & 0x000000FF) << 8) |
+				(Integer.parseInt(split[3]) & 0x000000FF);
 	}
 
 	/**

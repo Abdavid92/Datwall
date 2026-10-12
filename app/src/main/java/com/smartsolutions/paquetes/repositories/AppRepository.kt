@@ -2,7 +2,6 @@ package com.smartsolutions.paquetes.repositories
 
 import android.app.usage.NetworkStats
 import android.content.Context
-import android.os.Build
 import com.google.gson.Gson
 import com.smartsolutions.paquetes.data.IAppDao
 import com.smartsolutions.paquetes.repositories.models.App
@@ -89,50 +88,48 @@ class AppRepository @Inject constructor(
             dao.get(uid).toMutableList()
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (uid.contains(NetworkStats.Bucket.UID_REMOVED)) {
-                apps.add(
-                    App(
-                        "android.removed.sytem",
-                        NetworkStats.Bucket.UID_REMOVED,
-                        "Aplicaciones Desintaladas",
-                        1,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        true,
-                        false,
-                        TrafficType.International,
-                        null,
-                        null,
-                        null
-                    )
+        if (uid.contains(NetworkStats.Bucket.UID_REMOVED)) {
+            apps.add(
+                App(
+                    "android.removed.sytem",
+                    NetworkStats.Bucket.UID_REMOVED,
+                    "Aplicaciones Desintaladas",
+                    1,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    TrafficType.International,
+                    null,
+                    null,
+                    null
                 )
-            }
+            )
+        }
 
-            if (uid.contains(NetworkStats.Bucket.UID_TETHERING)) {
-                apps.add(
-                    App(
-                        "android.hostpot.sytem",
-                        NetworkStats.Bucket.UID_TETHERING,
-                        "Conexión Compartida",
-                        1,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        true,
-                        false,
-                        TrafficType.International,
-                        null,
-                        null,
-                        null
-                    )
+        if (uid.contains(NetworkStats.Bucket.UID_TETHERING)) {
+            apps.add(
+                App(
+                    "android.hostpot.sytem",
+                    NetworkStats.Bucket.UID_TETHERING,
+                    "Conexión Compartida",
+                    1,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    TrafficType.International,
+                    null,
+                    null,
+                    null
                 )
-            }
+            )
         }
         return apps
     }

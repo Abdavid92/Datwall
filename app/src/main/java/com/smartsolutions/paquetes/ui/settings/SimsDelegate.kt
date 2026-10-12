@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.content.Context
-import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
@@ -36,30 +35,26 @@ class SimsDelegate(
     fun getSims(
         fragment: AbstractSettingsFragment
     ): LiveData<List<Sim>> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            permissionsManager
-                .findPermission(IPermissionsManager.CALL_CODE)?.let { permission ->
-                    if (!permission.checkPermission(permission, context)) {
+        permissionsManager
+            .findPermission(IPermissionsManager.CALL_CODE)?.let { permission ->
+                if (!permission.checkPermission(permission, context)) {
 
-                        SinglePermissionFragment.newInstance(
-                            IPermissionsManager.CALL_CODE,
-                            object : SinglePermissionFragment.SinglePermissionCallback {
-                                override fun onGranted() {
-                                    fillSims()
-                                }
-
-                                override fun onDenied() {
-                                    fragment.complete()
-                                }
+                    SinglePermissionFragment.newInstance(
+                        IPermissionsManager.CALL_CODE,
+                        object : SinglePermissionFragment.SinglePermissionCallback {
+                            override fun onGranted() {
+                                fillSims()
                             }
-                        ).show(fragment.childFragmentManager, null)
-                    } else {
-                        fillSims()
-                    }
+
+                            override fun onDenied() {
+                                fragment.complete()
+                            }
+                        }
+                    ).show(fragment.childFragmentManager, null)
+                } else {
+                    fillSims()
                 }
-        } else {
-            fillSims()
-        }
+            }
 
         return _sims
     }

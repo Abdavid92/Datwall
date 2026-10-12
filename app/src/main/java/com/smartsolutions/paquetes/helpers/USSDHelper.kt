@@ -196,9 +196,7 @@ class USSDHelper @Inject constructor(
                         }
                     }
 
-                    val filter = IntentFilter(ACTION_SEND_USSD_REQUEST)
-
-                    context.registerReceiver(receiver, filter)
+                    registerResponseReceiver(context, receiver)
 
                     val handler = Handler(Looper.getMainLooper())
 
@@ -234,6 +232,28 @@ class USSDHelper @Inject constructor(
                 PackageManager.PERMISSION_GRANTED
 
     companion object {
+
+        /**
+         * Registra el receiver de la respuesta del código ussd. No es exportado:
+         * solo recibe el broadcast de [UIScannerService].
+         * */
+        fun registerResponseReceiver(context: Context, receiver: BroadcastReceiver) {
+            ContextCompat.registerReceiver(
+                context,
+                receiver,
+                IntentFilter(ACTION_SEND_USSD_REQUEST),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        }
+
+        /**
+         * Crea el broadcast con la respuesta del código ussd, dirigido solo a esta app.
+         * */
+        fun createResponseIntent(context: Context, response: Array<CharSequence>): Intent =
+            Intent(ACTION_SEND_USSD_REQUEST)
+                .setPackage(context.packageName)
+                .putExtra(EXTRA_RESULT, true)
+                .putExtra(EXTRA_RESPONSE, response)
         /**
          * Broadcast que se lanza con el resultado de la ejecución del
          * código ussd.

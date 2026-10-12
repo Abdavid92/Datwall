@@ -15,7 +15,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
-import com.smartsolutions.paquetes.receivers.ChangeNetworkReceiver
 import com.smartsolutions.paquetes.services.DatwallService
 import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
@@ -42,7 +41,6 @@ class DatwallKernel @Inject constructor(
     private val configurationManager: IConfigurationManager,
     private val updateManager: IUpdateManager,
     private val dataPackageManager: IDataPackageManager,
-    private val changeNetworkReceiver: Lazy<ChangeNetworkReceiver>,
     private val changeNetworkCallback: Lazy<ChangeNetworkCallback>,
     private val notificationHelper: NotificationHelper,
     private val packageMonitor: PackageMonitor,
@@ -279,25 +277,13 @@ class DatwallKernel @Inject constructor(
     /**
      * Registra los broadcasts y los callbacks.
      * */
-    @Suppress("DEPRECATION")
     private fun registerBroadcastsAndCallbacks() {
-
-        //En apis 22 o menor se registra un receiver para escuchar los cambios de redes.
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            val filter = IntentFilter()
-            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
-
-            if (!changeNetworkReceiver.get().isRegister) {
-                changeNetworkReceiver.get().register(context, filter)
-            }
-        } else {
-            /* Si el sdk es api 23 o mayor se registra un callback de tipo
-             * NetworkCallback en el ConnectivityManager para escuchar los cambios de redes.
-             **/
-            if (!changeNetworkCallback.get().isRegistered) {
-                ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.let {
-                    changeNetworkCallback.get().register(it)
-                }
+        /* Se registra un callback de tipo NetworkCallback en el
+         * ConnectivityManager para escuchar los cambios de redes.
+         **/
+        if (!changeNetworkCallback.get().isRegistered) {
+            ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.let {
+                changeNetworkCallback.get().register(it)
             }
         }
     }
@@ -432,11 +418,7 @@ class DatwallKernel @Inject constructor(
                         Intent(context, SplashActivity::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                        } else {
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                        }
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )
                 )
             }.build()

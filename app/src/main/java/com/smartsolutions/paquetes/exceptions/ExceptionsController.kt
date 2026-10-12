@@ -150,7 +150,7 @@ class ExceptionsController @Inject constructor(
                             0,
                             Intent(context, clazz)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                            0
+                            PendingIntent.FLAG_IMMUTABLE
                         )
                     )
                 }

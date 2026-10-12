@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui.packages
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -137,10 +136,8 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
 
     override fun onMissingPermission() {
         Toast.makeText(requireContext(), getString(R.string.purchasing_package_permissions), Toast.LENGTH_SHORT).show()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val frag = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
-            frag.show(childFragmentManager, "PermissionFragment")
-        }
+        val frag = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
+        frag.show(childFragmentManager, "PermissionFragment")
     }
 
     override fun onDestroyView() {

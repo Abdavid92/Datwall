@@ -3,10 +3,8 @@ package com.smartsolutions.paquetes.ui.dashboard
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.os.Build
 import android.view.*
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatRadioButton
 import androidx.appcompat.widget.SwitchCompat
 import androidx.datastore.preferences.core.Preferences
@@ -82,15 +80,12 @@ class DashboardViewModel @Inject constructor(
             try {
                 ussdHelper.sendUSSDRequestLegacy(ussd, false)
             } catch (e: USSDRequestException) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (e.errorCode == USSDHelper.DENIED_CALL_PERMISSION) {
 
-                    if (e.errorCode == USSDHelper.DENIED_CALL_PERMISSION) {
-
-                        withContext(Dispatchers.Main) {
-                            SinglePermissionFragment.newInstance(
-                                IPermissionsManager.CALL_CODE
-                            ).show(fm, null)
-                        }
+                    withContext(Dispatchers.Main) {
+                        SinglePermissionFragment.newInstance(
+                            IPermissionsManager.CALL_CODE
+                        ).show(fm, null)
                     }
                 }
             }
@@ -377,7 +372,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun findDrawOverPermission() = permissionManager
         .findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
         ?: throw NullPointerException("Incorrect permission code")
@@ -390,29 +384,26 @@ class DashboardViewModel @Inject constructor(
         onGranted: () -> Unit,
         onDenied: (() -> Unit)? = null
     ): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val permission = findDrawOverPermission()
+        val permission = findDrawOverPermission()
 
-            if (permission.checkPermission(permission, getApplication())) {
-                onGranted()
-            } else {
-                SinglePermissionFragment.newInstance(
-                    IPermissionsManager.DRAW_OVERLAYS_CODE,
-                    object : SinglePermissionFragment.SinglePermissionCallback {
-                        override fun onGranted() {
-                            onGranted()
-                        }
-
-                        override fun onDenied() {
-                            onDenied?.invoke()
-                        }
-                    }
-                ).show(fm, null)
-
-                return false
-            }
-        } else
+        if (permission.checkPermission(permission, getApplication())) {
             onGranted()
+        } else {
+            SinglePermissionFragment.newInstance(
+                IPermissionsManager.DRAW_OVERLAYS_CODE,
+                object : SinglePermissionFragment.SinglePermissionCallback {
+                    override fun onGranted() {
+                        onGranted()
+                    }
+
+                    override fun onDenied() {
+                        onDenied?.invoke()
+                    }
+                }
+            ).show(fm, null)
+
+            return false
+        }
 
         return true
     }

@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.modules
 
-import android.os.Build
 import com.smartsolutions.paquetes.managers.*
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import dagger.Module
@@ -15,12 +14,8 @@ class ManagersModule {
 
     @Provides
     fun provideNetworkUsageManager(
-        impl: Provider<NetworkUsageManagerDefault>,
-        legacyImpl: Provider<NetworkUsageManagerLegacy>
+        impl: Provider<NetworkUsageManagerDefault>
     ): NetworkUsageManager {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            impl.get()
-        else
-            legacyImpl.get()
+        return impl.get()
     }
 }

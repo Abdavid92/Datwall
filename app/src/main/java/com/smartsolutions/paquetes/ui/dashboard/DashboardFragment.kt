@@ -99,7 +99,7 @@ class DashboardFragment : AbstractFragment() {
                             .setStartDelay(200)
                             .setListener(object : AnimatorListenerAdapter() {
 
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
 
                                     binding.queryCredit.extend()
                                     binding.queryBonus.extend()
@@ -134,7 +134,7 @@ class DashboardFragment : AbstractFragment() {
                             .setInterpolator(interpolator)
                             .setListener(object : AnimatorListenerAdapter() {
 
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
                                     binding.queryCredit.visibility = View.INVISIBLE
                                     binding.queryBonus.visibility = View.INVISIBLE
                                     binding.queryMb.visibility = View.INVISIBLE

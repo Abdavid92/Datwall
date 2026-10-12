@@ -2,29 +2,22 @@ package com.smartsolutions.paquetes.watcher
 
 import android.app.usage.NetworkStats
 import android.content.Context
-import android.net.TrafficStats
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
-import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.NetworkUtils
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
-import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.contracts.IUserDataBytesManager
 import com.smartsolutions.paquetes.managers.models.Traffic
-import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -37,8 +30,6 @@ class TrafficRegistration @Inject constructor(
     private val appRepository: IAppRepository,
     private val userDataBytesManager: IUserDataBytesManager,
     private val networkUtils: NetworkUtils,
-    private val simManager: ISimManager,
-    private val trafficRepository: ITrafficRepository,
     private val watcher: RxWatcher
 ) : CoroutineScope {
 
@@ -85,9 +76,7 @@ class TrafficRegistration @Inject constructor(
                 appRepository.flow().collect {
                     val list = mutableListOf<App>()
                     list.addAll(it)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        list.addAll(addMissingApps())
-                    }
+                    list.addAll(addMissingApps())
                     apps = list
                 }
             }
@@ -122,14 +111,7 @@ class TrafficRegistration @Inject constructor(
 
                         val start = lastTime
                         lastTime = currentTime
-                        registerLollipopTraffic(rxBytesLatest, txBytesLatest, currentTime)
                         registerTraffic(start)
-
-                        rxBytesLatest = 0
-                        txBytesLatest = 0
-                    } else {
-                        rxBytesLatest += it.first
-                        txBytesLatest += it.second
                     }
                 }
             }
@@ -190,31 +172,7 @@ class TrafficRegistration @Inject constructor(
     private suspend fun getTrafficsToRegister(start: Long): List<Traffic> {
         val toRegister = mutableListOf<Traffic>()
 
-        val traffics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            networkUsageManager.getAppsUsage(startTime, System.currentTimeMillis())
-        } else {
-            val traffics = mutableListOf<Traffic>()
-            simManager.getDefaultSimBoth(SimType.DATA)?.let { sim ->
-                apps.forEach { app ->
-                    traffics.add(Traffic(
-                        app.uid,
-                        TrafficStats.getUidRxBytes(app.uid),
-                        TrafficStats.getUidTxBytes(app.uid),
-                        sim.id
-                    ).apply {
-                        network = if (isLTE()) {
-                            Networks.NETWORK_4G
-                        } else {
-                            Networks.NETWORK_3G
-                        }
-
-                        startTime = start
-                        endTime = System.currentTimeMillis()
-                    })
-                }
-            }
-            traffics.toList()
-        }
+        val traffics = networkUsageManager.getAppsUsage(startTime, System.currentTimeMillis())
 
         traffics.forEach { traffic ->
             lastTraffics.firstOrNull { it.uid == traffic.uid && it.simId == traffic.simId }
@@ -225,10 +183,6 @@ class TrafficRegistration @Inject constructor(
         }
 
         lastTraffics.addAll(traffics)
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            trafficRepository.create(toRegister.filter { it.totalBytes.bytes > 0 })
-        }
 
         return toRegister
     }
@@ -244,26 +198,6 @@ class TrafficRegistration @Inject constructor(
         return System.currentTimeMillis() - (12 * DateUtils.MILLIS_PER_HOUR)
     }
 
-    /**
-     * Se encarga de obtener el trafico general y guardarlo en Lollipop.
-     */
-    private suspend fun registerLollipopTraffic(rx: Long, tx: Long, currentTime: Long) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && rx > 0 && tx > 0) {
-            simManager.getDefaultSimBoth(SimType.DATA)?.id?.let {
-                val traffic = Traffic(
-                    NetworkUsageManager.GENERAL_TRAFFIC_UID,
-                    rx,
-                    tx,
-                    it
-                ).apply {
-                    startTime = currentTime - DateUtils.MILLIS_PER_SECOND
-                    endTime = currentTime
-                }
-                trafficRepository.create(traffic)
-            }
-        }
-    }
-
     private fun isLTE(): Boolean {
         val isLTE = networkUtils.getNetworkGeneration() == NetworkUtils.NetworkType.NETWORK_4G
         if (isLTE) {
@@ -277,7 +211,6 @@ class TrafficRegistration @Inject constructor(
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun addMissingApps(): List<App> {
         return listOf(
             App(
@@ -319,7 +252,5 @@ class TrafficRegistration @Inject constructor(
 
     companion object {
         const val TAG = "TrafficRegistration"
-        private var rxBytesLatest = 0L
-        private var txBytesLatest = 0L
     }
 }

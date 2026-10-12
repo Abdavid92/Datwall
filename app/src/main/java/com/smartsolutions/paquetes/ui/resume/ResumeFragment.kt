@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui.resume
 
 import android.animation.Animator
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -155,16 +154,16 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             addOnExtendAnimationListener(object :
                 Animator.AnimatorListener {
 
-                override fun onAnimationStart(anim: Animator?) {
+                override fun onAnimationStart(anim: Animator) {
                     binding.floatingActionButton.apply {
                         animation?.cancel()
                         animation?.reset()
                     }
                 }
 
-                override fun onAnimationEnd(anim: Animator?) {}
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(anim: Animator) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
 
             })
 
@@ -172,17 +171,17 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             addOnShrinkAnimationListener(object :
                 Animator.AnimatorListener {
 
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator) {}
 
-                override fun onAnimationEnd(anim: Animator?) {
+                override fun onAnimationEnd(anim: Animator) {
                     binding.floatingActionButton.apply {
                         animation = rotateAnimation
                         animation?.start()
                     }
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
 
             })
         }
@@ -222,10 +221,8 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
 
     override fun onCallPermissionsDenied() {
         animateFAB(false)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val fragment = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
-            fragment.show(this.childFragmentManager, "PermissionsFragment")
-        }
+        val fragment = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
+        fragment.show(this.childFragmentManager, "PermissionsFragment")
     }
 
     override fun onUSSDFail(message: String) {

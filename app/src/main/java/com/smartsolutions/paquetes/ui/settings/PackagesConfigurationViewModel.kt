@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.content.Context
-import android.os.Build
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -79,24 +78,23 @@ class PackagesConfigurationViewModel @Inject constructor(
     ) {
         when (e.errorCode) {
             USSDHelper.DENIED_CALL_PERMISSION -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    SinglePermissionFragment.newInstance(
-                        IPermissionsManager.CALL_CODE,
-                        object : SinglePermissionFragment.SinglePermissionCallback {
-                            override fun onGranted() {
-                                showSnackbar(
-                                    fragment,
-                                    fragmentManager,
-                                    "Permiso concedido"
-                                )
-                            }
-
-                            override fun onDenied() {
-                                fragment.complete()
-                            }
-
+                SinglePermissionFragment.newInstance(
+                    IPermissionsManager.CALL_CODE,
+                    object : SinglePermissionFragment.SinglePermissionCallback {
+                        override fun onGranted() {
+                            showSnackbar(
+                                fragment,
+                                fragmentManager,
+                                "Permiso concedido"
+                            )
                         }
-                    ).show(fragmentManager, null)
+
+                        override fun onDenied() {
+                            fragment.complete()
+                        }
+
+                    }
+                ).show(fragmentManager, null)
             }
             USSDHelper.TELEPHONY_SERVICE_UNAVAILABLE, USSDHelper.USSD_CODE_FAILED -> {
                 showSnackbar(

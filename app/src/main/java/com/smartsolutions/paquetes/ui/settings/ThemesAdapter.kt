@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.ui.settings
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StyleRes
 import androidx.recyclerview.widget.RecyclerView
@@ -50,7 +51,9 @@ class ThemesAdapter(
                 binding.cardSecondary.circleColor = it
             }
 
-            binding.checked = themeWrapper.id == currentThemeId
+            val checkedVisibility = if (themeWrapper.id == currentThemeId) View.VISIBLE else View.INVISIBLE
+            binding.checkedOverlay.visibility = checkedVisibility
+            binding.commit.visibility = checkedVisibility
 
             binding.cardPrimary.setOnClickListener {
                 currentThemeId = themeWrapper.id

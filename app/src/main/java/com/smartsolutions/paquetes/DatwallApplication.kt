@@ -136,8 +136,8 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
         kernel.removeOpenActivityListener(key)
     }
 
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
 

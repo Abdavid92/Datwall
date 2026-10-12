@@ -263,7 +263,8 @@ class AppsListAdapter constructor(
             //Casteo al tipo App. Si no es este tipo se lanza una excepción
             app as App
 
-            binding.app = app
+            binding.name.text = app.name
+            binding.packageName.text = app.packageName
 
             binding.backgroundLayout.setOnClickListener {
 

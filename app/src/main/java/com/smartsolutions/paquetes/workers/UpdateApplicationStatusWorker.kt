@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -13,6 +12,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.helpers.notifyIfAllowed
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
@@ -44,10 +44,7 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
                     applicationContext,
                     0,
                     Intent(Intent.ACTION_VIEW, it.uri),
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                    else
-                        PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
 
                 val notification = NotificationCompat.Builder(
@@ -58,7 +55,7 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
                     .setContentIntent(intent)
                     .build()
 
-                nm.notify(NotificationHelper.ALERT_NOTIFICATION_ID, notification)
+                nm.notifyIfAllowed(applicationContext, NotificationHelper.ALERT_NOTIFICATION_ID, notification)
             }
 
             Log.i("Update Worker", "Launched")

@@ -75,12 +75,12 @@ class LegacyConfigurationHelper @Inject constructor(
             )
 
             if (cursor.moveToFirst()) {
-                var packageName = cursor.getString(cursor.getColumnIndex("package_name"))
+                var packageName = cursor.getString(cursor.getColumnIndexOrThrow("package_name"))
 
                 result.add(packageName)
 
                 while (cursor.moveToNext()) {
-                    packageName = cursor.getString(cursor.getColumnIndex("package_name"))
+                    packageName = cursor.getString(cursor.getColumnIndexOrThrow("package_name"))
 
                     result.add(packageName)
                 }
@@ -157,20 +157,20 @@ class LegacyConfigurationHelper @Inject constructor(
 
     private fun fillApp(cursor: Cursor): App {
         return App(
-            cursor.getString(cursor.getColumnIndex("package_name")),
-            cursor.getInt(cursor.getColumnIndex("uid")),
-            cursor.getString(cursor.getColumnIndex("name")),
-            cursor.getLong(cursor.getColumnIndex("version")),
-            cursor.getInt(cursor.getColumnIndex("access")) == 1,
-            cursor.getInt(cursor.getColumnIndex("foreground_access")) == 1,
-            cursor.getInt(cursor.getColumnIndex("temp_access")) == 1,
-            cursor.getInt(cursor.getColumnIndex("internet")) == 1,
-            cursor.getInt(cursor.getColumnIndex("executable")) == 1,
-            cursor.getInt(cursor.getColumnIndex("system")) == 1,
-            cursor.getInt(cursor.getColumnIndex("ask")) == 1,
-            TrafficType.valueOf(cursor.getString(cursor.getColumnIndex("traffic_type"))),
-            cursor.getString(cursor.getColumnIndex("allow_annotations")),
-            cursor.getString(cursor.getColumnIndex("blocked_annotations")),
+            cursor.getString(cursor.getColumnIndexOrThrow("package_name")),
+            cursor.getInt(cursor.getColumnIndexOrThrow("uid")),
+            cursor.getString(cursor.getColumnIndexOrThrow("name")),
+            cursor.getLong(cursor.getColumnIndexOrThrow("version")),
+            cursor.getInt(cursor.getColumnIndexOrThrow("access")) == 1,
+            cursor.getInt(cursor.getColumnIndexOrThrow("foreground_access")) == 1,
+            cursor.getInt(cursor.getColumnIndexOrThrow("temp_access")) == 1,
+            cursor.getInt(cursor.getColumnIndexOrThrow("internet")) == 1,
+            cursor.getInt(cursor.getColumnIndexOrThrow("executable")) == 1,
+            cursor.getInt(cursor.getColumnIndexOrThrow("system")) == 1,
+            cursor.getInt(cursor.getColumnIndexOrThrow("ask")) == 1,
+            TrafficType.valueOf(cursor.getString(cursor.getColumnIndexOrThrow("traffic_type"))),
+            cursor.getString(cursor.getColumnIndexOrThrow("allow_annotations")),
+            cursor.getString(cursor.getColumnIndexOrThrow("blocked_annotations")),
             null
         )
     }

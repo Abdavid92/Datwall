@@ -7,6 +7,7 @@ import android.transition.Transition
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.core.view.ViewCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ActivityAppControlBinding
@@ -78,8 +79,13 @@ class AppControlActivity : TransparentActivity() {
 
         loadData()
 
+        onBackPressedDispatcher.addCallback(this) {
+            saveResult()
+            finishAfterTransition()
+        }
+
         //Evento click del fondo para cerrar la actvidad.
-        binding.backgroundLayout.setOnClickListener { onBackPressed() }
+        binding.backgroundLayout.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
         binding.appInfo.setOnClickListener {
             //Empty para evitar el onCLick del background
         }
@@ -175,19 +181,14 @@ class AppControlActivity : TransparentActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        saveResult()
-        super.onBackPressed()
-    }
-
     override fun onPause() {
         super.onPause()
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
     }
 
     private fun saveAndBack() {
         saveResult()
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
     }
 
     private fun saveResult() {

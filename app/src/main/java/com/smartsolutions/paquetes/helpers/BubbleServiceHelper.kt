@@ -2,7 +2,6 @@ package com.smartsolutions.paquetes.helpers
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.DatwallKernel
@@ -30,14 +29,12 @@ class BubbleServiceHelper @Inject constructor(
             writeChangesDataStore(true)
 
         if (DatwallKernel.DATA_MOBILE_ON) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val permission =
-                    permissionsManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
-                if (permission?.checkPermission?.invoke(permission, context) != true) {
-                    stopBubble(true)
-                    notifyStop()
-                    return
-                }
+            val permission =
+                permissionsManager.findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
+            if (permission?.checkPermission?.invoke(permission, context) != true) {
+                stopBubble(true)
+                notifyStop()
+                return
             }
 
             kotlin.runCatching {

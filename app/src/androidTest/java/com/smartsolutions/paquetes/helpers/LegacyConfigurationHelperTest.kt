@@ -34,15 +34,4 @@ class LegacyConfigurationHelperTest {
             assertTrue(isPurchased)
         }
     }
-
-    @Test
-    fun getLegacyRules() {
-
-        runBlocking {
-
-            val result = configurationHelper.getLegacyRules()
-
-            assertNotNull(result)
-        }
-    }
 }

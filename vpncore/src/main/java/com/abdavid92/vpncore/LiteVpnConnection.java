@@ -2,11 +2,9 @@ package com.abdavid92.vpncore;
 
 import android.content.pm.PackageManager;
 import android.net.VpnService;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.abdavid92.vpncore.exceptions.PacketHeaderException;
 import com.abdavid92.vpncore.transport.ITransportHeader;
@@ -36,7 +34,6 @@ import static com.abdavid92.vpncore.DataConst.PROTOCOL_UDP;
  * La conexión se reinicia para aplicar los cambios de reglas de acceso, lo que puede provocar
  * pequeñas fugas de datos.
  * */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class LiteVpnConnection extends BaseVpnConnection {
 
     @Nullable

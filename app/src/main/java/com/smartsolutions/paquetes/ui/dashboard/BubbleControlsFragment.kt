@@ -61,7 +61,7 @@ class BubbleControlsFragment : Fragment() {
             //Empty
         }
         binding.root.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
 
