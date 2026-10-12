@@ -44,3 +44,7 @@
 -keepnames class org.bouncycastle.** { *; }
 -dontwarn org.bouncycastle.**
 -keep class com.github.mikephil.charting.** { *; }
+
+# OkHttp: plataformas TLS opcionales que no están en Android (R8 de AGP 8 falla si faltan)
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**

@@ -17,8 +17,8 @@ def officialVersionCode = 38
 def officialVersionName = "4.4.0"
 
 android {
-    compileSdkVersion 32
-    buildToolsVersion "31.0.0"
+    namespace "com.smartsolutions.paquetes"
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.smartsolutions.paquetes"
@@ -34,6 +34,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
     buildFeatures.dataBinding = true
@@ -63,6 +64,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = '11'
+    }
+
+    lint {
+        // La app se distribuye por Apklis, no por Google Play
+        disable 'ExpiredTargetSdkVersion'
     }
 
     kapt {
@@ -95,13 +101,16 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     //Three party libraries
-    implementation 'moe.feng.common:material-stepper-view:0.2.5'
-    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
-    implementation 'com.stephentuso:welcome:1.4.1'
-    implementation 'org.apache:commons-lang:2.4'
+    implementation 'com.github.fython:MaterialStepperView:0.2.5'
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.3'
+    // welcome 1.4.1 ya no está publicado en ningún repo oficial (era de JCenter): se usa el AAR de app/libs
+    implementation 'commons-lang:commons-lang:2.4'
     implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
-    implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
-    implementation 'com.github.Z17-CU:apklisupdate:v1.4'
+    // indicatorseekbar 2.1.2 ya no está publicado en ningún repo oficial (era de JCenter): se usa el AAR de app/libs
+    implementation('com.github.Z17-CU:apklisupdate:v1.4') {
+        // html-textview 3.9 ya no est� publicado en ning�n repo oficial (era de JCenter): se usa el AAR de app/libs
+        exclude group: 'org.sufficientlysecure', module: 'html-textview'
+    }
 
     //Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
@@ -122,8 +131,6 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.8.1'
 
-    //html
-    implementation 'org.sufficientlysecure:html-textview:3.9'
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     //Room database

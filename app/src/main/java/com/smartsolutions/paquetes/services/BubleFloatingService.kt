@@ -257,7 +257,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun hideBubble() {
         isShowBubble = false
         bubbleBinding.root.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 bubbleBinding.root.animate().setListener(null)
                 bubbleBinding.root.visibility = View.GONE
             }
@@ -424,7 +424,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
     private fun hideMenu(menu: BubbleMenuFloatingLayoutBinding) {
         isShowMenu = false
         menu.root.animate().scaleX(0f).scaleY(0f).setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 menu.root.animate().setListener(null)
                 menu.root.visibility = View.GONE
                 animationMenu(false)

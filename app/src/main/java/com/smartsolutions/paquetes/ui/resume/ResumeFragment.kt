@@ -155,16 +155,16 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             addOnExtendAnimationListener(object :
                 Animator.AnimatorListener {
 
-                override fun onAnimationStart(anim: Animator?) {
+                override fun onAnimationStart(anim: Animator) {
                     binding.floatingActionButton.apply {
                         animation?.cancel()
                         animation?.reset()
                     }
                 }
 
-                override fun onAnimationEnd(anim: Animator?) {}
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(anim: Animator) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
 
             })
 
@@ -172,17 +172,17 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             addOnShrinkAnimationListener(object :
                 Animator.AnimatorListener {
 
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator) {}
 
-                override fun onAnimationEnd(anim: Animator?) {
+                override fun onAnimationEnd(anim: Animator) {
                     binding.floatingActionButton.apply {
                         animation = rotateAnimation
                         animation?.start()
                     }
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
 
             })
         }
