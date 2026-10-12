@@ -1,8 +1,7 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-parcelize'
-    id 'kotlin-kapt'
+    id 'org.jetbrains.kotlin.plugin.parcelize'
+    id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
 }
 
@@ -16,17 +15,20 @@ def officialVersionCode = 38
  */
 def officialVersionName = "4.4.0"
 
+base {
+    archivesName = "Mis Datos-$officialVersionName-v$officialVersionCode"
+}
+
 android {
     namespace "com.smartsolutions.paquetes"
     compileSdk 35
 
     defaultConfig {
         applicationId "com.smartsolutions.paquetes"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 32
         versionCode officialVersionCode
         versionName officialVersionName
-        archivesBaseName = "Mis Datos-$versionName-v$versionCode"
 
         testInstrumentationRunner "com.smartsolutions.paquetes.HiltTestRunner"
 
@@ -37,7 +39,6 @@ android {
         buildConfig true
     }
 
-    buildFeatures.dataBinding = true
 
     buildTypes {
         release {
@@ -59,26 +60,20 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = '11'
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     lint {
         // La app se distribuye por Apklis, no por Google Play
         disable 'ExpiredTargetSdkVersion'
     }
+}
 
-    kapt {
-        javacOptions {
-            // These options are normally set automatically via the Hilt Gradle plugin, but we
-            // set them manually to workaround a bug in the Kotlin 1.5.20
-            option("-Adagger.fastInit=ENABLED")
-            option("-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true")
-        }
-    }
+configurations.configureEach {
+    // Bibliotecas antiguas traen kotlin-android-extensions-runtime, cuyas clases ya incluye
+    // kotlin-parcelize-runtime
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-android-extensions-runtime'
 }
 
 dependencies {
@@ -114,9 +109,9 @@ dependencies {
 
     //Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
-    implementation "androidx.hilt:hilt-work:1.0.0"
-    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
-    kapt "androidx.hilt:hilt-compiler:1.0.0"
+    implementation "androidx.hilt:hilt-work:1.2.0"
+    ksp "com.google.dagger:hilt-android-compiler:$hilt_version"
+    ksp "androidx.hilt:hilt-compiler:1.2.0"
 
     //Gson
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -136,7 +131,7 @@ dependencies {
     //Room database
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
 
     //Zxing
     implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
@@ -146,5 +141,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    kspAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
 }

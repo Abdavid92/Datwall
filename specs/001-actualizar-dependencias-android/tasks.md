@@ -36,16 +36,16 @@ depende del sistema (servicios, insets, botón atrás) se verifica con [quicksta
 **Purpose**: AGP 9, Gradle 9, Kotlin integrado y KSP; eliminar kapt y data binding (research R1, R2).
 Al terminar la fase la app compila con `targetSdk 32` y se comporta igual.
 
-- [ ] T001 Cambiar `distributionUrl` a `gradle-9.8.1-bin.zip` en gradle/wrapper/gradle-wrapper.properties
-- [ ] T002 En build.gradle (raíz): `com.android.tools.build:gradle:9.4.1`, `kotlin_version = "2.4.21"`, `hilt_version = '2.60.1'`, `room_version = "2.8.5"`, añadir classpath `com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.12`; eliminar las variables `ext` sin uso (`dagger_version`, `retrofit_version` si no se referencian)
-- [ ] T003 En app/build.gradle: quitar los plugins `kotlin-android` y `kotlin-kapt` (Kotlin queda integrado en AGP 9); cambiar `kotlin-parcelize` por `org.jetbrains.kotlin.plugin.parcelize`; añadir `com.google.devtools.ksp`; eliminar el bloque `kapt { ... }`; sustituir `kotlinOptions { jvmTarget = '11' }` y `compileOptions` por `JavaVersion.VERSION_17`; cambiar `kapt` → `ksp` en `hilt-android-compiler`, `androidx.hilt:hilt-compiler` y `room-compiler`, y `kaptAndroidTest` → `kspAndroidTest`
-- [ ] T004 [P] Pasar R/layout/item_app.xml de data binding a view binding (quitar `<layout>`/`<data>` y las expresiones `@{}`) y asignar esos valores desde código donde hoy se hace `binding.app = ...` en B/ui/applications/AppsListAdapter.kt (≈ línea 266)
-- [ ] T005 [P] Igual con R/layout/item_theme.xml: quitar la variable `checked` y asignar el estado desde B/ui/settings/ThemesAdapter.kt (≈ línea 53)
-- [ ] T006 [P] Quitar `<layout>`/`<data>` de R/layout/fragment_packages_configuration.xml; la expresión `network` (≈ línea 252) nunca se asigna, sustituirla por el valor por defecto que muestra hoy; comprobar que B/ui/settings/PackagesConfigurationFragment.kt (≈ línea 52) sigue inflando el binding
-- [ ] T007 [P] Quitar `<layout>`/`<data>` de R/layout/activity_ask.xml y la expresión `@{app.name}` (su binding no se usa en ningún sitio; dejar el texto vacío)
-- [ ] T008 Quitar `buildFeatures.dataBinding = true` de app/build.gradle (mantener `viewBinding true`); en vpncore/build.gradle pasar `compileOptions` a `JavaVersion.VERSION_17`
-- [ ] T009 Compilar con `./gradlew clean assembleDebug assembleRelease testDebugUnitTest`; corregir los errores derivados del cambio de herramientas. Comprobar que la `version` de cada `@Database` de Room no ha cambiado (data-model.md: "La versión de la base de datos Room y su esquema **no cambian**")
-- [ ] T010 Commit: "Migrar a AGP 9.4, Gradle 9.8, Kotlin integrado y KSP"
+- [X] T001 Cambiar `distributionUrl` a `gradle-9.8.1-bin.zip` en gradle/wrapper/gradle-wrapper.properties
+- [X] T002 En build.gradle (raíz): `com.android.tools.build:gradle:9.4.1`, `kotlin_version = "2.4.21"`, `hilt_version = '2.60.1'`, `room_version = "2.8.5"`, añadir classpath `com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.12`; eliminar las variables `ext` sin uso (`dagger_version`, `retrofit_version` si no se referencian)
+- [X] T003 En app/build.gradle: quitar los plugins `kotlin-android` y `kotlin-kapt` (Kotlin queda integrado en AGP 9); cambiar `kotlin-parcelize` por `org.jetbrains.kotlin.plugin.parcelize`; añadir `com.google.devtools.ksp`; eliminar el bloque `kapt { ... }`; sustituir `kotlinOptions { jvmTarget = '11' }` y `compileOptions` por `JavaVersion.VERSION_17`; cambiar `kapt` → `ksp` en `hilt-android-compiler`, `androidx.hilt:hilt-compiler` y `room-compiler`, y `kaptAndroidTest` → `kspAndroidTest`
+- [X] T004 [P] Pasar R/layout/item_app.xml de data binding a view binding (quitar `<layout>`/`<data>` y las expresiones `@{}`) y asignar esos valores desde código donde hoy se hace `binding.app = ...` en B/ui/applications/AppsListAdapter.kt (≈ línea 266)
+- [X] T005 [P] Igual con R/layout/item_theme.xml: quitar la variable `checked` y asignar el estado desde B/ui/settings/ThemesAdapter.kt (≈ línea 53)
+- [X] T006 [P] Quitar `<layout>`/`<data>` de R/layout/fragment_packages_configuration.xml; la expresión `network` (≈ línea 252) nunca se asigna, sustituirla por el valor por defecto que muestra hoy; comprobar que B/ui/settings/PackagesConfigurationFragment.kt (≈ línea 52) sigue inflando el binding
+- [X] T007 [P] Quitar `<layout>`/`<data>` de R/layout/activity_ask.xml y la expresión `@{app.name}` (su binding no se usa en ningún sitio; dejar el texto vacío)
+- [X] T008 Quitar `buildFeatures.dataBinding = true` de app/build.gradle (mantener `viewBinding true`); en vpncore/build.gradle pasar `compileOptions` a `JavaVersion.VERSION_17`
+- [X] T009 Compilar con `./gradlew clean assembleDebug assembleRelease testDebugUnitTest`; corregir los errores derivados del cambio de herramientas. Comprobar que la `version` de cada `@Database` de Room no ha cambiado (data-model.md: "La versión de la base de datos Room y su esquema **no cambian**")
+- [X] T010 Commit: "Migrar a AGP 9.4, Gradle 9.8, Kotlin integrado y KSP"
 
 **Checkpoint**: compila igual que antes, sin kapt.
 
