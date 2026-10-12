@@ -3,11 +3,14 @@ package com.smartsolutions.paquetes.services
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
+import android.content.pm.ServiceInfo
 import android.net.VpnService
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import com.abdavid92.vpncore.*
 import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
@@ -91,7 +94,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                     return START_NOT_STICKY
                 }
                 ACTION_ALLOW_APP -> {
-                    it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
+                    IntentCompat.getParcelableExtra(it, EXTRA_APP, App::class.java)?.let { app ->
                         cancelAskNotification(app.uid)
 
                         app.tempAccess = true
@@ -106,7 +109,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                     return START_NOT_STICKY
                 }
                 ACTION_NOT_ASK_APP -> {
-                    it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
+                    IntentCompat.getParcelableExtra(it, EXTRA_APP, App::class.java)?.let { app ->
                         cancelAskNotification(app.uid)
                         app.ask = false
                         launch(Dispatchers.IO) {
@@ -120,7 +123,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
                     return START_NOT_STICKY
                 }
                 ACTION_ALWAYS_GRANT_APP -> {
-                    it.getParcelableExtra<App>(EXTRA_APP)?.let { app ->
+                    IntentCompat.getParcelableExtra(it, EXTRA_APP, App::class.java)?.let { app ->
                         cancelAskNotification(app.uid)
                         app.tempAccess = true
                         app.foregroundAccess = true
@@ -354,7 +357,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         job.cancel()
 
         //Detengo el servicio en primer plano
-        stopForeground(true)
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
@@ -362,14 +365,16 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
      * Crea la notificación persistente del servicio.
      * */
     private fun launchNotification() {
-        startForeground(
+        ServiceCompat.startForeground(
+            this,
             NotificationHelper.MAIN_NOTIFICATION_ID,
             NotificationCompat.Builder(this, NotificationHelper.MAIN_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_main_notification)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.firewall_service_running))
                 .setContentIntent(getLaunchPendingIntent())
-                .build()
+                .build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
     }
 

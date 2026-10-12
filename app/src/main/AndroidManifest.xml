@@ -6,6 +6,7 @@
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
@@ -86,7 +87,12 @@
             android:name=".services.DatwallService"
             android:description="@string/main_service_description"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Medición continua del consumo de datos móviles y notificación persistente con la velocidad y el saldo del paquete." />
+        </service>
         <service
             android:name=".services.BubbleFloatingService"
             android:enabled="true"
@@ -106,10 +112,15 @@
         <service
             android:name=".services.FirewallService"
             android:exported="true"
+            android:foregroundServiceType="specialUse"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter android:priority="9999">
                 <action android:name="android.net.VpnService" />
             </intent-filter>
+
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Cortafuegos local basado en VPN que bloquea por app el tráfico de datos móviles; debe seguir activo mientras el usuario lo tenga encendido." />
         </service>
 
         <!-- Receivers -->

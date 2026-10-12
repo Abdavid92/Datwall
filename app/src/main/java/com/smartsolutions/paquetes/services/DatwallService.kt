@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.services
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.content.res.Configuration
 import android.os.Binder
 import android.os.IBinder
@@ -11,6 +12,7 @@ import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.uiHelper
@@ -113,7 +115,7 @@ class DatwallService : Service(), CoroutineScope {
                 }.build()
             )
 
-            stopForeground(true)
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
             stopSelf()
 
             return START_NOT_STICKY
@@ -126,9 +128,11 @@ class DatwallService : Service(), CoroutineScope {
             NotificationHelper.MAIN_CHANNEL_ID
         )
 
-        startForeground(
+        ServiceCompat.startForeground(
+            this,
             NotificationHelper.MAIN_NOTIFICATION_ID,
-            mNotificationBuilder.build()
+            mNotificationBuilder.build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
 
         Log.i(TAG, "registering band with collector")

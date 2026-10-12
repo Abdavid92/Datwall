@@ -81,9 +81,9 @@ registrando (FR-002, FR-003, FR-004).
 
 **Independent Test**: [quickstart.md](quickstart.md) secciones 2, 3 y 4 en Android 14, 15 y 16.
 
-- [ ] T024 [US1] En app/src/main/AndroidManifest.xml: añadir `<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>`; en `.services.FirewallService` y `.services.DatwallService` añadir `android:foregroundServiceType="specialUse"` y el `<property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="..."/>` con el texto exacto de contracts/manifest.md
-- [ ] T025 [P] [US1] En B/services/FirewallService.kt: cambiar `startForeground` (≈ línea 378) por `ServiceCompat.startForeground(this, id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)` (el tipo solo en API ≥ 34, `ServiceCompat` lo gestiona); `stopForeground(true)` (≈ línea 370) por `ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)`; los `getParcelableExtra<App>` (≈ líneas 95, 110, 124) por `IntentCompat.getParcelableExtra(intent, key, App::class.java)`
-- [ ] T026 [P] [US1] En B/services/DatwallService.kt: el mismo cambio de `startForeground` (≈ línea 130) y `stopForeground` (≈ línea 117)
+- [X] T024 [US1] En app/src/main/AndroidManifest.xml: añadir `<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>`; en `.services.FirewallService` y `.services.DatwallService` añadir `android:foregroundServiceType="specialUse"` y el `<property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="..."/>` con el texto exacto de contracts/manifest.md
+- [X] T025 [P] [US1] En B/services/FirewallService.kt: cambiar `startForeground` (≈ línea 378) por `ServiceCompat.startForeground(this, id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)` (el tipo solo en API ≥ 34, `ServiceCompat` lo gestiona); `stopForeground(true)` (≈ línea 370) por `ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)`; los `getParcelableExtra<App>` (≈ líneas 95, 110, 124) por `IntentCompat.getParcelableExtra(intent, key, App::class.java)`
+- [X] T026 [P] [US1] En B/services/DatwallService.kt: el mismo cambio de `startForeground` (≈ línea 130) y `stopForeground` (≈ línea 117)
 - [ ] T027 [US1] Compilar, instalar en emuladores Android 14, 15 y 16 y validar con quickstart.md secciones 2–4; commit: "Declarar tipos de servicio en primer plano del cortafuegos y la medición"
 
 **Checkpoint**: MVP — la función principal funciona en Android 14–16.
