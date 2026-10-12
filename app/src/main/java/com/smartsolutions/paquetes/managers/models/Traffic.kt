@@ -1,10 +1,8 @@
 package com.smartsolutions.paquetes.managers.models
 
 import android.app.usage.NetworkStats
-import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RequiresApi
 import androidx.room.*
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
@@ -107,7 +105,6 @@ open class Traffic(
         0, 0L, 0L, ""
     )
 
-    @RequiresApi(Build.VERSION_CODES.M)
     open operator fun plusAssign(bucket: NetworkStats.Bucket) {
         if (isInDiscountHour(bucket)) {
             this._rxBytes += bucket.rxBytes / 2
@@ -136,7 +133,6 @@ open class Traffic(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun isInDiscountHour(bucket: NetworkStats.Bucket): Boolean =
         DateCalendarUtils.isInDiscountHour(bucket.startTimeStamp, bucket.endTimeStamp)
 

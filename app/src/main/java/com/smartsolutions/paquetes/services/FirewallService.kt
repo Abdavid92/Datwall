@@ -4,7 +4,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
 import android.net.VpnService
-import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -276,11 +275,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             this,
             0,
             grantIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val notAskIntent = Intent(this, FirewallService::class.java)
@@ -291,11 +286,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             this,
             0,
             notAskIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
 
@@ -307,11 +298,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             this,
             0,
             alwaysGrantIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val notification = NotificationCompat.Builder(this, NotificationHelper.FIREWALL_CHANNEL_ID)
@@ -397,11 +384,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             this,
             0,
             restartVPNIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val notification = NotificationCompat.Builder(this, NotificationHelper.ALERT_CHANNEL_ID)
@@ -461,11 +444,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             Intent(this, SplashActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 

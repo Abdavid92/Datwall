@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.widget.RemoteViews
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.BubbleServiceHelper
@@ -153,11 +152,7 @@ class ControlsWidget : AppWidgetProvider() {
         val intent = Intent(context, javaClass)
         intent.action = action
         return PendingIntent.getBroadcast(
-            context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
+            context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 

@@ -61,11 +61,7 @@ class NotificationHelper @Inject constructor(
                                     putExtra(MainActivity.EXTRA_FRAGMENT, MainActivity.FRAGMENT_UPDATE_DIALOG)
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 },
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                                }else {
-                                    PendingIntent.FLAG_UPDATE_CURRENT
-                                }
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                             )
                         )
                 }.build()

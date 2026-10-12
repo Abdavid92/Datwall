@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.NotificationCompat
@@ -170,11 +169,7 @@ abstract class NotificationBuilder(
                     Intent(context, SplashActivity::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                    } else {
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                    }
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
         }
 

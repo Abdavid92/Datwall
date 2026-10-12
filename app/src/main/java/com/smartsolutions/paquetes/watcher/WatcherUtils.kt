@@ -1,6 +1,5 @@
 package com.smartsolutions.paquetes.watcher
 
-import android.app.ActivityManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
@@ -31,11 +30,6 @@ class WatcherUtils @Inject constructor(
     private val usageStatsManager = ContextCompat
         .getSystemService(context, UsageStatsManager::class.java)
 
-    private val activityManager by lazy {
-        ContextCompat.getSystemService(context, ActivityManager::class.java)
-            ?: throw NullPointerException()
-    }
-
     private val packageManager = context.packageManager
 
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -49,24 +43,7 @@ class WatcherUtils @Inject constructor(
     }
 
     fun getLastApp(): String? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            getLollipopMr1LastApp()
-        else
-            getLollipopLastApp()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun getLollipopLastApp(): String? {
-        val tasks = try {
-            activityManager.getRecentTasks(1, ActivityManager.RECENT_IGNORE_UNAVAILABLE)
-        } catch (e: SecurityException) {
-            emptyList<ActivityManager.RecentTaskInfo>()
-        }
-
-        if (tasks.isNotEmpty()) {
-            return tasks[0].baseIntent.component?.packageName
-        }
-        return null
+        return getLollipopMr1LastApp()
     }
 
     private fun getLollipopMr1LastApp(): String? {

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.fragment.app.Fragment
 
 data class Permission(
@@ -16,26 +15,21 @@ data class Permission(
     val minSdk: Int,
     val checkPermission: Permission.(context: Context) -> Boolean = { context ->
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            var result = true
+        var result = true
 
-            for (key in keys) {
-                if (context.checkSelfPermission(key) == PackageManager.PERMISSION_DENIED) {
-                    result = false
-                    break
-                }
+        for (key in keys) {
+            if (context.checkSelfPermission(key) == PackageManager.PERMISSION_DENIED) {
+                result = false
+                break
             }
-            result
-        } else
-            true
+        }
+        result
     },
     val requestPermissionActivity: Permission.(activity: Activity) -> Unit = { activity ->
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            activity.requestPermissions(keys, requestCode)
+        activity.requestPermissions(keys, requestCode)
     },
     val requestPermissionFragment: Permission.(fragment: Fragment) -> Unit = { fragment ->
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            fragment.requestPermissions(keys, requestCode)
+        fragment.requestPermissions(keys, requestCode)
     }
 ) {
 

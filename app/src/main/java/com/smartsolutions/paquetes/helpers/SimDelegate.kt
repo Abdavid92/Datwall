@@ -18,7 +18,6 @@ import javax.inject.Inject
 /**
  * Ayudante para obtener datos de las lineas instaladas en el dispositivo.
  * */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
 class SimDelegate @Inject constructor(
     @ApplicationContext
     private val context: Context
@@ -27,10 +26,9 @@ class SimDelegate @Inject constructor(
     private lateinit var subscriptionManager: SubscriptionManager
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            subscriptionManager =
-                ContextCompat.getSystemService(context, SubscriptionManager::class.java)
-                    ?: throw NullPointerException()
+        subscriptionManager =
+            ContextCompat.getSystemService(context, SubscriptionManager::class.java)
+                ?: throw NullPointerException()
     }
 
     /**

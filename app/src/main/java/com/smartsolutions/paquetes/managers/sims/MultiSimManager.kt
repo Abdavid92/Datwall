@@ -3,13 +3,11 @@ package com.smartsolutions.paquetes.managers.sims
 import android.content.Context
 import android.os.Build
 import android.telephony.SubscriptionInfo
-import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
 internal class MultiSimManager constructor(
     private val context: Context,
     private val subscriptionInfoList: List<SubscriptionInfo>,

@@ -2,9 +2,7 @@ package com.smartsolutions.paquetes.managers
 
 import android.app.usage.NetworkStatsManager
 import android.content.Context
-import android.os.Build
 import android.telephony.TelephonyManager
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Traffic
@@ -14,7 +12,6 @@ import com.smartsolutions.paquetes.repositories.models.IApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.M)
 class NetworkUsageManagerDefault @Inject constructor(
     @ApplicationContext
     context: Context,

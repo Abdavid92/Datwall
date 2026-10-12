@@ -5,7 +5,6 @@ import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.RemoteViews
@@ -468,11 +467,7 @@ class DatwallService : Service(), CoroutineScope {
                                         SimsConfigurationFragment::class.java.name
                                     )
                                 },
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                                } else {
-                                    PendingIntent.FLAG_UPDATE_CURRENT
-                                }
+                                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                             )
                         ).build()
 

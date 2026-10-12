@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.workers
 
 import android.content.Context
-import android.os.Build
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.PeriodicWorkRequestBuilder
@@ -9,9 +8,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
-import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
-import com.smartsolutions.paquetes.repositories.contracts.ITrafficRepository
 import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
 import com.smartsolutions.paquetes.repositories.models.UsageGeneral
 import dagger.assisted.Assisted
@@ -25,7 +22,6 @@ class TrafficDbOptimizer @AssistedInject constructor(
     context: Context,
     @Assisted
     parameters: WorkerParameters,
-    private val trafficRepository: ITrafficRepository,
     private val usageGeneralRepository: IUsageGeneralRepository,
     private val simRepository: ISimRepository,
     private val dateCalendarUtils: DateCalendarUtils
@@ -40,9 +36,6 @@ class TrafficDbOptimizer @AssistedInject constructor(
             val oldLimit = dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_YEAR).first
 
             compactUsageGeneral(limitTime, oldLimit)
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-                compactTrafficsLollipop(limitTime, oldLimit)
 
             Log.i("Optimized DB", "DataBase optimized successfully")
         }
@@ -107,62 +100,6 @@ class TrafficDbOptimizer @AssistedInject constructor(
                 usageGeneralRepository.create(*usages.toTypedArray())
             }
 
-        }
-    }
-
-
-    private suspend fun compactTrafficsLollipop(limitTime: Long, oldLimit: Long) {
-        simRepository.all().forEach { sim ->
-            val traffics = mutableListOf<Traffic>()
-            val trafficsToAdd = mutableListOf<Traffic>()
-            var period = 0L to 1L
-
-            val oldTraffics = trafficRepository.getAll(sim.id).onEach { trafficDb ->
-                if (trafficDb.startTime >= oldLimit) {
-                    val traff = trafficsToAdd.firstOrNull { it.uid == trafficDb.uid }
-
-                    when {
-                        traff == null -> {
-                            trafficsToAdd.add(trafficDb)
-                            period = if (trafficDb.startTime >= limitTime) {
-                                DateCalendarUtils.getStartAndFinishHour(trafficDb.startTime)
-                            } else {
-                                val day = Date(trafficDb.startTime)
-                                DateCalendarUtils.getZeroHour(
-                                    day
-                                ).time to DateCalendarUtils.getLastHour(
-                                    day
-                                ).time
-                            }
-                        }
-                        trafficDb.startTime in period.first..period.second -> {
-                            trafficsToAdd[trafficsToAdd.indexOf(traff)] += trafficDb
-                        }
-                        else -> {
-                            traffics.addAll(trafficsToAdd)
-                            trafficsToAdd.clear()
-                            trafficsToAdd.add(trafficDb)
-                            period = if (trafficDb.startTime >= limitTime) {
-                                DateCalendarUtils.getStartAndFinishHour(trafficDb.startTime)
-                            } else {
-                                val day = Date(trafficDb.startTime)
-                                DateCalendarUtils.getZeroHour(
-                                    day
-                                ).time to DateCalendarUtils.getLastHour(
-                                    day
-                                ).time
-                            }
-                        }
-                    }
-                }
-            }
-
-            traffics.addAll(trafficsToAdd)
-
-            if (oldTraffics.isNotEmpty() && traffics.isNotEmpty()) {
-                trafficRepository.delete(oldTraffics)
-                trafficRepository.create(traffics)
-            }
         }
     }
 

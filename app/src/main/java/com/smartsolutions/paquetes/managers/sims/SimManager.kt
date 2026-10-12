@@ -1,7 +1,6 @@
 package com.smartsolutions.paquetes.managers.sims
 
 import android.content.Context
-import android.os.Build
 import android.telephony.SubscriptionInfo
 import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
@@ -113,7 +112,7 @@ class SimManager @Inject constructor(
                 EmbeddedSimManager(simRepository)
             }
             SimsState.Single -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && status.second.isNotEmpty()) {
+                if (status.second.isNotEmpty()) {
                     SingleSimManager(
                         status.second[0],
                         simDelegate,
@@ -124,36 +123,27 @@ class SimManager @Inject constructor(
                 }
             }
             SimsState.Multiple -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    MultiSimManager(
-                        context,
-                        status.second,
-                        simDelegate,
-                        simRepository
-                    )
-                } else {
-                    EmbeddedSimManager(simRepository)
-                }
+                MultiSimManager(
+                    context,
+                    status.second,
+                    simDelegate,
+                    simRepository
+                )
             }
         }
     }
 
     private fun getSimsState(): Pair<SimsState, List<SubscriptionInfo>> {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        val infos = simDelegate.getActiveSimsInfo()
 
-            val infos = simDelegate.getActiveSimsInfo()
-
-            val status = when (infos.size) {
-                0 -> SimsState.Embedded
-                1 -> SimsState.Single
-                else -> SimsState.Multiple
-            }
-
-            return status to infos
+        val status = when (infos.size) {
+            0 -> SimsState.Embedded
+            1 -> SimsState.Single
+            else -> SimsState.Multiple
         }
 
-        return SimsState.Embedded to emptyList()
+        return status to infos
     }
 
 

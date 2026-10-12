@@ -93,11 +93,7 @@ open class PermissionsManager @Inject constructor(
                  val powerManager = ContextCompat.getSystemService(context, PowerManager::class.java)
                      ?: throw NullPointerException()
 
-                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                     powerManager.isIgnoringBatteryOptimizations(context.packageName)
-                 } else {
-                    true
-                 }
+                 powerManager.isIgnoringBatteryOptimizations(context.packageName)
              },
              requestPermissionActivity = { activity ->
                  activity.startActivityForResult(
@@ -120,11 +116,7 @@ open class PermissionsManager @Inject constructor(
              IPermissionsManager.DRAW_OVERLAYS_CODE,
              23,
              checkPermission = { context ->
-                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                     Settings.canDrawOverlays(context)
-                 } else {
-                     true
-                 }
+                 Settings.canDrawOverlays(context)
              },
              requestPermissionActivity = { activity ->
                  val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
