@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.text.HtmlCompat
@@ -13,6 +14,13 @@ import com.smartsolutions.paquetes.databinding.FragmentPresentationBinding
 import com.stephentuso.welcome.*
 
 class PresentationActivity : WelcomeActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+        applySystemBarsPaddingToContent()
+    }
 
     override fun configuration(): WelcomeConfiguration {
 

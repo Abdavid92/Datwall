@@ -55,7 +55,7 @@ class FirewallControlsFragment : Fragment() {
         }
 
         binding.root.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
         binding.firewallControls.setOnClickListener {
             //Empty

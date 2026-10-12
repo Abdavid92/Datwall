@@ -11,7 +11,6 @@
         <item name="colorSecondaryVariant">@color/yellow_dark</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
         <!-- Customize your theme here. -->
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
@@ -29,7 +28,6 @@
         <item name="splash_icon">@drawable/splash_screen</item>
         <item name="android:windowBackground">@color/white</item>
         <item name="android:colorBackground">@color/white</item>
-        <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 

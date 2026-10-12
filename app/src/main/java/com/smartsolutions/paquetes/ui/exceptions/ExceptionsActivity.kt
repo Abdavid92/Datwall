@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.addCallback
 import com.smartsolutions.paquetes.BuildConfig
 import com.smartsolutions.paquetes.DatwallKernel
 import com.smartsolutions.paquetes.R
@@ -63,10 +64,10 @@ class ExceptionsActivity : AbstractActivity() {
             close()
         }
 
-    }
+        onBackPressedDispatcher.addCallback(this) {
+            close()
+        }
 
-    override fun onBackPressed() {
-        close()
     }
 
     private fun close() {

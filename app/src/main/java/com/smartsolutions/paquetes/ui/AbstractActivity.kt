@@ -1,6 +1,7 @@
 package com.smartsolutions.paquetes.ui
 
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import com.smartsolutions.paquetes.PreferencesKeys
@@ -26,6 +27,14 @@ abstract class AbstractActivity : AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+    }
+
+    override fun onContentChanged() {
+        super.onContentChanged()
+
+        applySystemBarsPaddingToContent()
     }
 
     override fun onResume() {

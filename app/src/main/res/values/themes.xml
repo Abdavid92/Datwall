@@ -11,7 +11,6 @@
         <item name="colorSecondaryVariant">@color/yellow_dark</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
         <item name="buttonStyle">@style/BaseButton.PrimaryButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
@@ -32,7 +31,6 @@
         <item name="splash_icon">@drawable/splash_screen</item>
         <item name="android:windowBackground">@color/white</item>
         <item name="android:colorBackground">@color/white</item>
-        <item name="android:statusBarColor">@color/white</item>
     </style>
 
     <style name="Theme.Datwall.AlertDialogStyle" parent="ThemeOverlay.AppCompat.Dialog.Alert">

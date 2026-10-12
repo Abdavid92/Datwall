@@ -126,15 +126,15 @@ sistema predictivo (FR-007).
 
 **Independent Test**: [quickstart.md](quickstart.md) sección 7.
 
-- [ ] T037 [US4] Crear B/ui/WindowInsetsExt.kt con una única extensión `View.applySystemBarsPadding()` que use `ViewCompat.setOnApplyWindowInsetsListener` para sumar los insets de `systemBars()` y `displayCutout()` al padding original de la vista (DRY: es el único sitio con esta lógica)
-- [ ] T038 [US4] En B/ui/AbstractActivity.kt llamar a `enableEdgeToEdge()` y aplicar `applySystemBarsPadding()` a la vista raíz del contenido (`findViewById<ViewGroup>(android.R.id.content).getChildAt(0)` tras `setContentView`, por ejemplo en `onContentChanged`)
-- [ ] T039 [P] [US4] Quitar `android:statusBarColor` de R/values/themes.xml (≈ líneas 14 y 35), R/values-v23/themes.xml (≈ líneas 14 y 32) y R/values-night/themes.xml (≈ líneas 13 y 27); mantener `windowLightStatusBar`
+- [X] T037 [US4] Crear B/ui/WindowInsetsExt.kt con una única extensión `View.applySystemBarsPadding()` que use `ViewCompat.setOnApplyWindowInsetsListener` para sumar los insets de `systemBars()` y `displayCutout()` al padding original de la vista (DRY: es el único sitio con esta lógica)
+- [X] T038 [US4] En B/ui/AbstractActivity.kt llamar a `enableEdgeToEdge()` y aplicar `applySystemBarsPadding()` a la vista raíz del contenido (`findViewById<ViewGroup>(android.R.id.content).getChildAt(0)` tras `setContentView`, por ejemplo en `onContentChanged`)
+- [X] T039 [P] [US4] Quitar `android:statusBarColor` de R/values/themes.xml (≈ líneas 14 y 35), R/values-v23/themes.xml (≈ líneas 14 y 32) y R/values-night/themes.xml (≈ líneas 13 y 27); mantener `windowLightStatusBar`
 - [ ] T040 [US4] Revisar una a una las pantallas de AbstractActivity (MainActivity, SettingsActivity, SetupActivity, PermissionsActivity, SplashActivity, FragmentContainerActivity, ExceptionsActivity, y las transparentes DashboardControlActivity y AppControlActivity) en Android 16 con navegación por gestos y por botones; corregir con `applySystemBarsPadding()` en la vista concreta los casos de doble padding o contenido tapado (barras inferiores, FAB, listas)
 - [ ] T041 [US4] B/ui/PresentationActivity.kt no hereda de AbstractActivity (usa `WelcomeActivity` del AAR): aplicarle `enableEdgeToEdge()` y `applySystemBarsPadding()` a su raíz si su contenido queda tapado
-- [ ] T042 [P] [US4] En B/ui/applications/AppControlActivity.kt: sustituir el `override fun onBackPressed()` (≈ línea 178) por un `OnBackPressedCallback` registrado en `onBackPressedDispatcher` que llame a `saveResult()` y cierre; las llamadas manuales (≈ líneas 82 y 190) por `onBackPressedDispatcher.onBackPressed()`; en `onPause` (≈ línea 185) llamar directamente a `saveResult()` en lugar de `onBackPressed()`
-- [ ] T043 [P] [US4] En B/ui/exceptions/ExceptionsActivity.kt sustituir el `override fun onBackPressed()` (≈ línea 68) por un `OnBackPressedCallback` que llame a `close()`
-- [ ] T044 [P] [US4] En B/ui/dashboard/FirewallControlsFragment.kt (≈ línea 58) y B/ui/dashboard/BubbleControlsFragment.kt (≈ línea 64) cambiar `activity?.onBackPressed()` por `activity?.onBackPressedDispatcher?.onBackPressed()`
-- [ ] T045 [US4] Añadir `android:enableOnBackInvokedCallback="true"` al `<application>` de app/src/main/AndroidManifest.xml
+- [X] T042 [P] [US4] En B/ui/applications/AppControlActivity.kt: sustituir el `override fun onBackPressed()` (≈ línea 178) por un `OnBackPressedCallback` registrado en `onBackPressedDispatcher` que llame a `saveResult()` y cierre; las llamadas manuales (≈ líneas 82 y 190) por `onBackPressedDispatcher.onBackPressed()`; en `onPause` (≈ línea 185) llamar directamente a `saveResult()` en lugar de `onBackPressed()`
+- [X] T043 [P] [US4] En B/ui/exceptions/ExceptionsActivity.kt sustituir el `override fun onBackPressed()` (≈ línea 68) por un `OnBackPressedCallback` que llame a `close()`
+- [X] T044 [P] [US4] En B/ui/dashboard/FirewallControlsFragment.kt (≈ línea 58) y B/ui/dashboard/BubbleControlsFragment.kt (≈ línea 64) cambiar `activity?.onBackPressed()` por `activity?.onBackPressedDispatcher?.onBackPressed()`
+- [X] T045 [US4] Añadir `android:enableOnBackInvokedCallback="true"` al `<application>` de app/src/main/AndroidManifest.xml
 - [ ] T046 [US4] Validar con quickstart.md sección 7; commit: "Adaptar la UI a pantalla completa y al botón atrás predictivo"
 
 ---
