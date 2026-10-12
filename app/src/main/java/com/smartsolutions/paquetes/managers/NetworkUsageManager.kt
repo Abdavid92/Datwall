@@ -7,7 +7,7 @@ import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.IApp
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import java.util.*
 
 /**

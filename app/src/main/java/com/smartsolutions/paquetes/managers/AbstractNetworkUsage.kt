@@ -7,7 +7,7 @@ import android.net.ConnectivityManager
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 import java.util.*
 
 @RequiresApi(23)

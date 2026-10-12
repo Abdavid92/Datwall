@@ -166,8 +166,9 @@ open class PermissionsManager @Inject constructor(
                 }
             },
             requestPermissionFragment = { fragment ->
-                if (intent != null) {
-                    fragment.startActivityForResult(intent, requestCode)
+                val currentIntent = intent
+                if (currentIntent != null) {
+                    fragment.startActivityForResult(currentIntent, requestCode)
                 } else {
                     fragment.context?.let { context ->
                         VpnService.prepare(context)?.let { serviceIntent ->

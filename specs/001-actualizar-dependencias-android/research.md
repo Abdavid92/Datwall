@@ -96,14 +96,14 @@ Fecha: 2026-10-12. Versiones consultadas en Google Maven y Maven Central ese dí
 | appcompat | 1.5.0 | 1.8.0 | |
 | material | 1.6.1 | 1.14.0 | |
 | constraintlayout | 2.1.4 | 2.2.2 | |
-| navigation | 2.5.1 | 2.10.2 | |
+| navigation | 2.5.1 | 2.9.8 | **excepción**: 2.10 exige API 24 (FR-010 fija API 23) |
 | lifecycle | 2.5.1 | 2.11.0 | |
 | activity-ktx / fragment-ktx | transitivas | 1.13.0 / 1.9.1 | explícitas para `enableEdgeToEdge` y back |
 | preference-ktx | 1.2.0 | 1.2.1 | |
 | datastore-preferences | 1.0.0 | 1.2.1 | |
-| work-runtime-ktx | 2.7.1 | 2.12.0 | |
+| work-runtime-ktx | 2.7.1 | 2.11.2 | **excepción**: 2.12 exige API 24 (FR-010 fija API 23) |
 | recyclerview | 1.2.1 | 1.4.0 | |
-| legacy-support-v4 | 1.0.0 | se elimina | sustituida por dependencias explícitas |
+| legacy-support-v4 | 1.0.0 | se elimina | sustituida por dependencias explícitas (swiperefreshlayout 1.2.0, localbroadcastmanager 1.1.0) |
 | Room | 2.7.2 | 2.8.5 | KSP |
 | Hilt | 2.56.2 | 2.60.1 | KSP |
 | androidx.hilt (work/compiler) | 1.0.0 | 1.4.0 | KSP |

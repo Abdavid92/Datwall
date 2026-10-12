@@ -17,7 +17,7 @@ import com.smartsolutions.paquetes.repositories.models.DataBytes.DataType
 import com.smartsolutions.paquetes.repositories.models.UsageGeneral
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.commons.lang.time.DateUtils
+import org.apache.commons.lang3.time.DateUtils
 
 class UserDataBytesManager @Inject constructor(
     private val userDataBytesRepository: IUserDataBytesRepository,
