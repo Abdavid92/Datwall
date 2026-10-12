@@ -141,8 +141,8 @@ sistema predictivo (FR-007).
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T047 Ejecutar `./gradlew lintRelease` y corregir los errores nuevos; no desactivar checks sin justificarlo en un comentario (FR-013)
-- [ ] T048 [P] Actualizar README.md: requisitos (Android Studio con JBR 17+, Android 6.0 mínimo, Kotlin 2.4) y añadir `POST_NOTIFICATIONS` a la tabla de permisos
+- [X] T047 Ejecutar `./gradlew lintRelease` y corregir los errores nuevos; no desactivar checks sin justificarlo en un comentario (FR-013)
+- [X] T048 [P] Actualizar README.md: requisitos (Android Studio con JBR 17+, Android 6.0 mínimo, Kotlin 2.4) y añadir `POST_NOTIFICATIONS` a la tabla de permisos
 - [ ] T049 Ejecutar quickstart.md completo en Android 16 (incluida la sección 2, actualización desde 4.4.0) y la sección 3 en Android 14 y 15; anotar en el PR los pasos de verificación manual
 - [ ] T050 Ejecutar `./gradlew clean testDebugUnitTest assembleDebug assembleRelease` y `connectedDebugAndroidTest` en un emulador Android 16; commit final si hay cambios
 

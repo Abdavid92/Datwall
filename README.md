@@ -92,16 +92,18 @@ Datwall está diseñado con un enfoque de **privacidad primero**:
 | `READ_SMS` (opcional) | Detectar mensajes de ETECSA |
 | `CALL_PHONE` | Ejecutar USSD |
 | `SYSTEM_ALERT_WINDOW` | Burbuja flotante |
-| `FOREGROUND_SERVICE` | Notificación persistente |
+| `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE` | Cortafuegos, medición y burbuja en primer plano |
+| `POST_NOTIFICATIONS` (opcional, Android 13+) | Notificación persistente y alertas |
 
 ---
 
 ## 🧪 Compilación y ejecución
 
 ### Requisitos
-- Android Studio Flamingo o superior  
-- Kotlin 1.8+  
-- Android 6.0 (API 23) mínimo
+- Android Studio con JDK 17 o superior (sirve el JBR incluido)  
+- Android SDK con las plataformas 36 y 37  
+- Kotlin 2.4 (integrado en AGP 9)  
+- Android 6.0 (API 23) mínimo; objetivo Android 16 (API 36)
 
 ### Pasos
 ```bash

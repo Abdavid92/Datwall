@@ -12,6 +12,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.helpers.notifyIfAllowed
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
@@ -54,7 +55,7 @@ class UpdateApplicationStatusWorker @AssistedInject constructor(
                     .setContentIntent(intent)
                     .build()
 
-                nm.notify(NotificationHelper.ALERT_NOTIFICATION_ID, notification)
+                nm.notifyIfAllowed(applicationContext, NotificationHelper.ALERT_NOTIFICATION_ID, notification)
             }
 
             Log.i("Update Worker", "Launched")

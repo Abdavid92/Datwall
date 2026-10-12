@@ -92,7 +92,7 @@ public class UDPPacketFactory {
 		
 		//now copy udp data
 		if (packetData != null)
-		System.arraycopy(packetData, 0, buffer, start, packetData.length);
+			System.arraycopy(packetData, 0, buffer, start, packetData.length);
 
 		UDPHeader udpHeader = new UDPHeader(srcPort, destPort, udpLen, checksum);
 

@@ -16,6 +16,7 @@ import com.abdavid92.vpncore.socket.IProtectSocket
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.NotificationHelper
+import com.smartsolutions.paquetes.helpers.notifyIfAllowed
 import com.smartsolutions.paquetes.managers.PacketManager
 import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
@@ -333,7 +334,8 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
             .setAutoCancel(true)
 
         NotificationManagerCompat.from(this)
-            .notify(
+            .notifyIfAllowed(
+                this,
                 app.uid,
                 notification.build()
             )

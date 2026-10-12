@@ -4,6 +4,11 @@
 
     <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
 
+    <!-- La app gestiona datos móviles, llamadas USSD y SMS: requiere telefonía -->
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="true" />
+
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />

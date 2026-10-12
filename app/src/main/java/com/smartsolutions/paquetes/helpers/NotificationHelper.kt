@@ -1,17 +1,21 @@
 package com.smartsolutions.paquetes.helpers
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.isNotificationPermissionRequired
 import com.smartsolutions.paquetes.ui.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -34,7 +38,7 @@ class NotificationHelper @Inject constructor(
 
 
     fun notify(id: Int, notification: Notification){
-        notificationManager.notify(id, notification)
+        notificationManager.notifyIfAllowed(context, id, notification)
     }
 
     fun cancelNotification(id: Int){
@@ -154,4 +158,19 @@ class NotificationHelper @Inject constructor(
         const val FIREWALL_CHANNEL_ID = "firewall_channel"
     }
 
+}
+
+/**
+ * En Android 13+ sin el permiso de notificaciones el sistema ignora la notificación.
+ * Se comprueba el permiso de forma explícita antes de notificar.
+ * */
+fun NotificationManagerCompat.notifyIfAllowed(context: Context, id: Int, notification: Notification) {
+    val granted = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.POST_NOTIFICATIONS
+    ) == PackageManager.PERMISSION_GRANTED
+
+    if (!isNotificationPermissionRequired(Build.VERSION.SDK_INT, granted)) {
+        notify(id, notification)
+    }
 }
