@@ -223,7 +223,6 @@
     <string name="apklis">Apklis</string>
     <string name="purchase">Comprar</string>
     <string name="plan_title">Planes</string>
-    <string name="packages_title">Paquetes LTE</string>
     <string name="no_sim_configured">Es necesario configurar la Sim actual para saber los paquetes y planes que están disponibles</string>
     <string name="configure_button">Configurar Sim</string>
     <string name="no_sim_default">No hay ninguna Sim predeterminada para Llamadas. Por favor configure la Sim antes de comprar un paquete</string>
@@ -376,7 +375,6 @@
     <string name="header_average_rest">Restantes Diarios</string>
     <string name="data_aviable">Megas Disponibles</string>
     <string name="data_type_messaging_bag">Bolsa Mensajería</string>
-    <string name="others_title">Otros</string>
     <string name="traffic_messaging">Mensajería</string>
     <string name="vpn_access_summary">Permite el acceso en todo momento a Internet</string>
     <string name="foreground_access_summary">Solamente permite acceso a Internet cuando la app esté abierta y en primer plano</string>

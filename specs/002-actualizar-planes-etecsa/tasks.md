@@ -111,9 +111,9 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T031 Ejecutar `./gradlew lintRelease testDebugUnitTest assembleDebug assembleRelease` y corregir lo nuevo
-- [ ] T032 [P] Revisar textos que mencionen "LTE", "Bolsa" o "Mensajería" en la pantalla de compra y la configuración (R/values/strings.xml, R/values-es/strings.xml); las notificaciones y estadísticas quedan para la fase 4
-- [ ] T033 Anotar en este archivo los resultados de la verificación en dispositivo y lo que queda pendiente
+- [X] T031 Ejecutar `./gradlew lintRelease testDebugUnitTest assembleDebug assembleRelease` y corregir lo nuevo
+- [X] T032 [P] Revisar textos que mencionen "LTE", "Bolsa" o "Mensajería" en la pantalla de compra y la configuración (R/values/strings.xml, R/values-es/strings.xml); las notificaciones y estadísticas quedan para la fase 4
+- [X] T033 Anotar en este archivo los resultados de la verificación en dispositivo y lo que queda pendiente
 
 ---
 
@@ -157,3 +157,35 @@ Task: "T027 [US4] PurchaseSmsMatcherTest con los 5 SMS reales"
 
 1. US1 (oferta y códigos) → US2 (SIM elegida) → US4 (saldo y SMS) → US3 (verificación del historial).
 2. Cada historia termina con su commit; al final, merge `--no-ff` en `development`.
+
+---
+
+## Verificación (2026-10-13)
+
+**Pruebas unitarias**: 27 pasan (`DataPackagesTest`, `BuildPurchaseUssdTest`, `UssdBalanceParserTest`,
+`PurchaseSmsMatcherTest`, `DataBytesTest` y las previas). `lintRelease`, `assembleDebug` y
+`assembleRelease` sin errores.
+
+**Teléfono** (REDMI 15C, Android 16, dos SIM Cubacel; llamadas en "preguntar siempre"):
+
+- Configuración: SIM 1 "no puede comprar planes", SIM 2 "sí". La pantalla de compra de la SIM 2
+  muestra los 5 planes vigentes; la de la SIM 1 muestra "Esta línea no puede comprar planes" sin el
+  botón de configurar. No se pulsó "Comprar".
+- Sincronización por la SIM de la pestaña, sin preguntar la SIM por defecto:
+  - SIM 2 (`*222*328#`, `*222*266#`): Plan Diario 200 MB sin vencimiento ("no activos"); sin bonos.
+  - SIM 1 empresarial (`*111#`): 16 700 MB sin vencimiento.
+
+**Emulador** (Android 7): versión de `development` con tres compras antiguas (Plan Básico, Paquete 16 GB,
+Bolsa Mensajería) → actualización a esta versión: catálogo v4, paquetes antiguos obsoletos, SIM
+configurada y el historial conserva las tres compras con nombre y precio.
+
+**Pendiente / no verificado**:
+
+- La detección del SMS de compra se probó con los textos reales en pruebas unitarias, no con un SMS
+  recibido en el teléfono.
+- No se probó la compra real (por diseño: la app marca el código y compraría).
+- En una línea empresarial, `*111#` también informa minutos y SMS; la app solo registra los datos.
+- La sincronización programada (`SynchronizationWorker`) sigue usando la SIM de voz por defecto.
+- Para la fase 4: textos LTE/Mensajería en notificaciones y estadísticas, layouts sin uso
+  (`fragment_default_sims_dialog`, `item_sim_default`, `activity_ask`) y avisos de lint previos
+  (`UnusedResources`, `SetTextI18n`).
