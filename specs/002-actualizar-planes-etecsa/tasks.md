@@ -29,7 +29,7 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 
 ## Phase 1: Setup
 
-- [ ] T001 Comprobar que la rama `002-actualizar-planes-etecsa` compila y pasa las pruebas antes de cambiar nada: `./gradlew testDebugUnitTest assembleDebug`
+- [X] T001 Comprobar que la rama `002-actualizar-planes-etecsa` compila y pasa las pruebas antes de cambiar nada: `./gradlew testDebugUnitTest assembleDebug`
 
 ---
 
@@ -37,12 +37,12 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 
 **Purpose**: research R1, R2 y R4 (migración de SIM). **Bloquea todas las historias.**
 
-- [ ] T002 Escribir primero T/data/DataPackagesTest.kt: los planes con `deprecated = false` son exactamente `DailyBag`, `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB` con los valores de data-model.md (precio, `bytes`, `nationalBytes` = 300 MB salvo el Diario = 0, `minutes`, `sms`, `network` = `NETWORK_3G_4G`, `index` 1–4 para los de 35 días, `duration` 35 y 1 para el Diario, `bytesLte` = 0); todos los demás valores del enum tienen `deprecated = true`; los ordinales de los 8 valores antiguos no cambian (`DailyBag` = 0 … `MessagingBag` = 7). Debe fallar
-- [ ] T003 En B/data/DataPackages.kt: añadir **al final** de `PackageId` los valores `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB` (sin mover ni borrar los existentes); redefinir `DailyBag` como Plan Diario (25 CUP, 200 MB todas las redes, `NETWORK_3G_4G`, 24 horas, `smsKey` = `Plan Diario 200MB`); añadir los 4 planes de 35 días con los `smsKey` verificados de research.md R7 (`Plan 4.5GB`, `Plan 2GB+15MIN+20SMS`, `Plan 4GB+35MIN+40SMS`, `Plan 6GB+60MIN+70SMS`); marcar `deprecated = true` los 7 restantes; `PACKAGES_VERSION = 4`; `GENERAL_DURATION = 35`; añadir `DAILY_PLAN_USSD = "*133*1*3#"` y `PLANS_USSD_PREFIX = "*133*1*4*"`. Descripciones con la vigencia de 35 días y la suma de recursos (FR-009). T002 pasa
-- [ ] T004 En B/data/IDataPackageDao.kt cambiar el `@Insert(onConflict = REPLACE)` usado por `createOrUpdate` por `@Upsert`, para que actualizar el catálogo no borre en cascada `purchased_packages` (research R2)
-- [ ] T005 En B/managers/DataPackageManager.kt (`createOrUpdateDataPackages`, ≈ líneas 68–81): al pasar de una versión < 4 a la 4, poner `network = NETWORK_3G_4G` en las SIM con `network != NETWORK_NONE` (research R4, migración de datos)
-- [ ] T006 [P] En B/repositories/SimRepository.kt (`transform`, ≈ líneas 87–117) y B/repositories/DataPackageRepository.kt (`transform`, ≈ líneas 81–111) excluir los paquetes con `deprecated = true` en todas las consultas
-- [ ] T007 Compilar y pasar las pruebas; commit: "Catálogo de planes de ETECSA v4"
+- [X] T002 Escribir primero T/data/DataPackagesTest.kt: los planes con `deprecated = false` son exactamente `DailyBag`, `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB` con los valores de data-model.md (precio, `bytes`, `nationalBytes` = 300 MB salvo el Diario = 0, `minutes`, `sms`, `network` = `NETWORK_3G_4G`, `index` 1–4 para los de 35 días, `duration` 35 y 1 para el Diario, `bytesLte` = 0); todos los demás valores del enum tienen `deprecated = true`; los ordinales de los 8 valores antiguos no cambian (`DailyBag` = 0 … `MessagingBag` = 7). Debe fallar
+- [X] T003 En B/data/DataPackages.kt: añadir **al final** de `PackageId` los valores `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB` (sin mover ni borrar los existentes); redefinir `DailyBag` como Plan Diario (25 CUP, 200 MB todas las redes, `NETWORK_3G_4G`, 24 horas, `smsKey` = `Plan Diario 200MB`); añadir los 4 planes de 35 días con los `smsKey` verificados de research.md R7 (`Plan 4.5GB`, `Plan 2GB+15MIN+20SMS`, `Plan 4GB+35MIN+40SMS`, `Plan 6GB+60MIN+70SMS`); marcar `deprecated = true` los 7 restantes; `PACKAGES_VERSION = 4`; `GENERAL_DURATION = 35`; añadir `DAILY_PLAN_USSD = "*133*1*3#"` y `PLANS_USSD_PREFIX = "*133*1*4*"`. Descripciones con la vigencia de 35 días y la suma de recursos (FR-009). T002 pasa
+- [X] T004 En B/data/IDataPackageDao.kt cambiar el `@Insert(onConflict = REPLACE)` usado por `createOrUpdate` por `@Upsert`, para que actualizar el catálogo no borre en cascada `purchased_packages` (research R2)
+- [X] T005 En B/managers/DataPackageManager.kt (`createOrUpdateDataPackages`, ≈ líneas 68–81): al pasar de una versión < 4 a la 4, poner `network = NETWORK_3G_4G` en las SIM con `network != NETWORK_NONE` (research R4, migración de datos)
+- [X] T006 [P] En B/repositories/SimRepository.kt (`transform`, ≈ líneas 87–117) y B/repositories/DataPackageRepository.kt (`transform`, ≈ líneas 81–111) excluir los paquetes con `deprecated = true` en todas las consultas
+- [X] T007 Compilar y pasar las pruebas; commit: "Catálogo de planes de ETECSA v4"
 
 **Checkpoint**: catálogo nuevo en la base de datos sin perder filas antiguas.
 
@@ -54,8 +54,8 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 
 **Independent Test**: [quickstart.md](quickstart.md) secciones 1, 3 y 4.
 
-- [ ] T008 [P] [US1] Escribir primero T/managers/BuildUssdTest.kt: `DailyBag` → `*133*1*3#`; `Plan_4_5GB` → `*133*1*4*1#`; `Plan_2GB` → `*133*1*4*2#`; `Plan_4GB` → `*133*1*4*3#`; `Plan_6GB` → `*133*1*4*4#`. Para poder probarlo sin Android, extraer `buildUssd` como función pura `buildPurchaseUssd(dataPackage)` en B/data/DataPackages.kt. Debe fallar
-- [ ] T009 [US1] Implementar `buildPurchaseUssd` en B/data/DataPackages.kt con `DAILY_PLAN_USSD` y `PLANS_USSD_PREFIX + index + "#"`, y hacer que `buildUssd` de B/managers/DataPackageManager.kt (≈ líneas 222–240) la use. T008 pasa
+- [X] T008 [P] [US1] Escribir primero T/managers/BuildUssdTest.kt: `DailyBag` → `*133*1*3#`; `Plan_4_5GB` → `*133*1*4*1#`; `Plan_2GB` → `*133*1*4*2#`; `Plan_4GB` → `*133*1*4*3#`; `Plan_6GB` → `*133*1*4*4#`. Para poder probarlo sin Android, extraer `buildUssd` como función pura `buildPurchaseUssd(dataPackage)` en B/data/DataPackages.kt. Debe fallar
+- [X] T009 [US1] Implementar `buildPurchaseUssd` en B/data/DataPackages.kt con `DAILY_PLAN_USSD` y `PLANS_USSD_PREFIX + index + "#"`, y hacer que `buildUssd` de B/managers/DataPackageManager.kt (≈ líneas 222–240) la use. T008 pasa
 - [ ] T010 [US1] Configuración "puede comprar planes sí/no" (FR-006): en B/ui/settings/PackagesConfigurationFragment.kt y B/ui/settings/PackagesConfigurationViewModel.kt sustituir el modo automático/manual y el diálogo de `R.array.sim_networks` por una elección sí/no que llame a `setDataPackagesManualConfiguration` con `NETWORK_3G_4G` (sí) o `NETWORK_NONE` (no); `complete()` exige que la SIM de voz esté configurada, no que pueda comprar
 - [ ] T011 [US1] En R/layout/fragment_packages_configuration.xml quitar el modo automático (`radio_group_mode`, `automatic_mode`, `manual_mode`, `btn_start_configuration`) y dejar la elección sí/no; actualizar R/values/array.xml (`sim_networks`) y los textos `all_packages_plan_available`, `packages_avaible`, `plan_avalaible`, `select_packages_available` en R/values/strings.xml y R/values-es/strings.xml
 - [ ] T012 [US1] En B/managers/DataPackageManager.kt: `isConfiguredDataPackages` pasa a `setupDate > 0` de la SIM de voz (research R4); eliminar `configureDataPackages` (modo automático) y su uso en el ViewModel y en B/managers/contracts/IDataPackageManager.kt

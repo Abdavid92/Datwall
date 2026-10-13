@@ -73,6 +73,17 @@ class DataPackageManager @Inject constructor(
             if (oldVersion < DataPackages.PACKAGES_VERSION) {
                 dataPackageRepository.createOrUpdate(DataPackages.PACKAGES.toList())
 
+                //Desde la versión 4 la configuración de la línea es "puede comprar planes sí/no":
+                //las líneas que admitían algún tipo de paquete pasan a admitir los planes.
+                if (oldVersion < 4) {
+                    val sims = simRepository.all()
+                        .filter { it.network != Networks.NETWORK_NONE && it.network != Networks.NETWORK_3G_4G }
+                        .onEach { it.network = Networks.NETWORK_3G_4G }
+
+                    if (sims.isNotEmpty())
+                        simRepository.update(sims)
+                }
+
                 dataStore.edit {
                     it[PreferencesKeys.CURRENT_PACKAGES_VERSION] = DataPackages.PACKAGES_VERSION
                 }
@@ -219,23 +230,6 @@ class DataPackageManager @Inject constructor(
         )
     }
 
-    private fun buildUssd(dataPackage: DataPackage): String {
-
-        if (dataPackage.id == DataPackages.PackageId.DailyBag)
-            return "*133*1*3#"
-
-        return when (dataPackage.network) {
-            Networks.NETWORK_4G -> {
-                "*133*1*4*${dataPackage.index}#"
-            }
-            Networks.NETWORK_3G,
-            Networks.NETWORK_3G_4G -> {
-                "*133*5*${dataPackage.index}#"
-            }
-            Networks.NETWORK_NONE -> {
-                "*133*1*${dataPackage.index}#"
-            }
-            else -> throw IllegalStateException()
-        }
-    }
+    private fun buildUssd(dataPackage: DataPackage): String =
+        DataPackages.buildPurchaseUssd(dataPackage)
 }

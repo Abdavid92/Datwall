@@ -81,6 +81,12 @@ class DataPackageRepository @Inject constructor(
     private suspend fun transform(dataPackage: DataPackage): DataPackage {
         val sims = mutableListOf<Sim>()
 
+        //Los paquetes obsoletos no se pueden comprar en ninguna línea.
+        if (dataPackage.deprecated) {
+            dataPackage.sims = sims
+            return dataPackage
+        }
+
         sims.addAll(
             withContext(dispatcher) {
                 simDao.getByNetwork(Networks.NETWORK_3G_4G)
