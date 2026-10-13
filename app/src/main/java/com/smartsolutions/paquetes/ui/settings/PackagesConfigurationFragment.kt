@@ -6,13 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,7 +65,7 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
             }
             setAdapterSpinner(it)
 
-            showPackagesAvailable(installedSims[binding.sims.selectedItemPosition].network)
+            showConfiguration(installedSims[binding.sims.selectedItemPosition])
         }
 
         binding.apply {
@@ -79,40 +78,14 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
                     id: Long
                 ) {
                     kotlin.runCatching {
-                        showPackagesAvailable(installedSims[position].network)
+                        showConfiguration(installedSims[position])
                     }
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
 
-            btnStartConfiguration.setOnClickListener {
-                when (radioGroupMode.checkedRadioButtonId) {
-                    R.id.automatic_mode -> {
-                        viewModel.invokeOnDefaultSim(
-                            requireContext(),
-                            installedSims[sims.selectedItemPosition],
-                            SimType.VOICE,
-                            parentFragmentManager
-                        ) {
-                            viewModel.configureAutomaticPackages(
-                                this@PackagesConfigurationFragment,
-                                parentFragmentManager
-                            )
-                        }
-                    }
-                    R.id.manual_mode -> {
-                        showDialogManualMode()
-                    }
-                    else -> {
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.must_have_select),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
+            radioGroupMode.setOnCheckedChangeListener(onCanBuyPlansChanged)
 
             btnContinue.setOnClickListener {
                 complete()
@@ -145,52 +118,39 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
         }
     }
 
-    private fun showDialogManualMode() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(
-                getString(
-                    R.string.select_packages_available,
-                    installedSims[binding.sims.selectedItemPosition].name()
-                )
-            )
-            .setItems(
-                R.array.sim_networks
-            ) { _, pos ->
-                viewModel.configureManualPackages(
-                    when (pos) {
-                        0 -> Networks.NETWORK_3G_4G
-                        1 -> Networks.NETWORK_3G
-                        2 -> Networks.NETWORK_4G
-                        else -> Networks.NETWORK_NONE
-                    },
-                    installedSims[binding.sims.selectedItemPosition]
-                )
-            }.show()
+    /**
+     * Guarda si la línea seleccionada puede comprar planes.
+     * */
+    private val onCanBuyPlansChanged = RadioGroup.OnCheckedChangeListener { _, checkedId ->
+        val network = when (checkedId) {
+            R.id.can_buy_plans -> Networks.NETWORK_3G_4G
+            R.id.cannot_buy_plans -> Networks.NETWORK_NONE
+            else -> return@OnCheckedChangeListener
+        }
+
+        viewModel.configureManualPackages(network, installedSims[binding.sims.selectedItemPosition])
     }
 
-    private fun showPackagesAvailable(@Networks network: String) {
+    /**
+     * Muestra la configuración guardada de la línea sin volver a guardarla.
+     * */
+    private fun showConfiguration(sim: Sim) {
         binding.apply {
-            cardManualOptions.visibility = if (network != Networks.NETWORK_NONE) {
-                View.VISIBLE
-            } else {
-                View.GONE
+            radioGroupMode.setOnCheckedChangeListener(null)
+            when {
+                sim.setupDate <= 0 -> radioGroupMode.clearCheck()
+                sim.network == Networks.NETWORK_NONE -> radioGroupMode.check(R.id.cannot_buy_plans)
+                else -> radioGroupMode.check(R.id.can_buy_plans)
             }
+            radioGroupMode.setOnCheckedChangeListener(onCanBuyPlansChanged)
+
+            cardManualOptions.visibility = if (sim.setupDate > 0) View.VISIBLE else View.GONE
 
             packagesAvailable.text = getString(
-                when (network) {
-                    Networks.NETWORK_3G_4G -> {
-                        R.string.all_packages_plan_available
-                    }
-                    Networks.NETWORK_4G -> {
-                        R.string.packages_avaible
-                    }
-                    Networks.NETWORK_3G -> {
-                        R.string.plan_avalaible
-                    }
-                    else -> {
-                        R.string.pkgs_not_configured
-                    }
-                }
+                if (sim.network == Networks.NETWORK_NONE)
+                    R.string.no_plans_available
+                else
+                    R.string.all_packages_plan_available
             )
         }
     }
@@ -201,7 +161,7 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
             kotlin.runCatching {
                 val simDefault =
                     installedSims.first { viewModel.isDefaultSim(it, SimType.VOICE)!! }
-                if (simDefault.network != Networks.NETWORK_NONE) {
+                if (simDefault.setupDate > 0) {
                     super.complete()
                     return@runCatching
                 } else {

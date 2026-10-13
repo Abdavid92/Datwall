@@ -99,7 +99,7 @@ class SimRepository @Inject constructor(
                 }.filter { !it.deprecated })
                 packages.addAll(withContext(dispatcher) {
                     dataPackageDao.getByNetwork(NETWORK_4G)
-                })
+                }.filter { !it.deprecated })
             }
             NETWORK_3G -> {
                 packages.addAll(withContext(dispatcher) {

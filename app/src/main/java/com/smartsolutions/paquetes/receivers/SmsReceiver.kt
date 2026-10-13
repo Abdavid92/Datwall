@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsMessage
+import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Este broadcast va a recivir todos los mensajes de Cubacel.
+ * Este broadcast va a recivir todos los mensajes del operador (cubacel o ETECSA).
  * Va a llamar a IDataPackageManager para que registre un nuevo paquete
  * si se encuentra.
  * */
@@ -53,7 +54,7 @@ class SmsReceiver : BroadcastReceiver() {
         number?.let { phoneNumber ->
 
             scope.launch {
-                if (phoneNumber.equals("cubacel", true))
+                if (DataPackages.isOperatorSender(phoneNumber))
                     dataPackageManager.registerDataPackage(body, simIndex)
             }
         }

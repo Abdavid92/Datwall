@@ -56,7 +56,6 @@
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/data_sim"
             android:padding="4dp"
-            tools:entries="@array/sim_networks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
@@ -80,7 +79,6 @@
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/voice_sim"
             android:padding="4dp"
-            tools:entries="@array/sim_networks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"

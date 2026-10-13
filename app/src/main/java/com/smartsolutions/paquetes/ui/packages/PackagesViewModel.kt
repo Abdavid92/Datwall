@@ -1,8 +1,6 @@
 package com.smartsolutions.paquetes.ui.packages
 
 import android.app.Application
-import android.content.Context
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
@@ -10,11 +8,9 @@ import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.helpers.SimsHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
@@ -31,26 +27,13 @@ class PackagesViewModel @Inject constructor(
     private val simManager: ISimManager,
     private val dataPackageManager: IDataPackageManager,
     private val simRepository: ISimRepository,
-    private val ussdHelper: USSDHelper,
-    private val simsHelper: SimsHelper
+    private val ussdHelper: USSDHelper
 ) : AndroidViewModel(application) {
 
     private var liveSimPackageInfo = MutableLiveData<Pair<Sim, List<IDataPackage>>>()
 
     fun getInstalledSims(): LiveData<List<Sim>> {
         return simManager.flowInstalledSims().asLiveData(Dispatchers.IO)
-    }
-
-    fun invokeOnDefaultSim(
-        context: Context,
-        sim: Sim,
-        simType: SimType,
-        fragmentManager: FragmentManager,
-        onDefault: () -> Unit
-    ){
-        viewModelScope.launch {
-            simsHelper.invokeOnDefault(context, sim, simType, fragmentManager, onDefault)
-        }
     }
 
     fun getSimAndPackages(simID: String): LiveData<Pair<Sim, List<IDataPackage>>>{
@@ -64,66 +47,19 @@ class PackagesViewModel @Inject constructor(
 
 
     fun prepareListPackages(sim: Sim): List<IDataPackage> {
+        if (sim.network == Networks.NETWORK_NONE || sim.packages.isEmpty())
+            return emptyList()
+
         val list = mutableListOf<IDataPackage>()
-        return when (sim.network) {
-            Networks.NETWORK_3G -> {
-                list.addAll(getNetworksPackages(Networks.NETWORK_3G, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
-                list
-            }
-            Networks.NETWORK_3G_4G -> {
-                list.addAll(getNetworksPackages(Networks.NETWORK_3G_4G, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_4G, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
-                list
-            }
-            Networks.NETWORK_4G -> {
-                list.addAll(getNetworksPackages(sim.network, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
-                list
-            }
-            else -> emptyList()
-        }
-    }
 
+        list.add(
+            HeaderPackagesItem(
+                name = getApplication<Application>().getString(R.string.plan_title)
+            )
+        )
+        list.addAll(sim.packages)
 
-    private fun getNetworksPackages(
-        @Networks networks: String,
-        list: List<DataPackage>
-    ): List<IDataPackage> {
-        val ordered = mutableListOf<IDataPackage>()
-
-        when(networks) {
-            Networks.NETWORK_3G, Networks.NETWORK_3G_4G -> {
-                ordered.add(
-                    HeaderPackagesItem(
-                        name = getApplication<Application>().getString(R.string.plan_title)
-                    )
-                )
-
-                ordered.addAll(list.filter { it.network == Networks.NETWORK_3G_4G || it.network == Networks.NETWORK_3G })
-            }
-            Networks.NETWORK_4G -> {
-                ordered.add(
-                    HeaderPackagesItem(
-                        name = getApplication<Application>().getString(R.string.packages_title)
-                    )
-                )
-
-                ordered.addAll(list.filter { it.network == Networks.NETWORK_4G })
-            }
-            Networks.NETWORK_NONE -> {
-                ordered.add(
-                    HeaderPackagesItem(
-                        name = getApplication<Application>().getString(R.string.others_title)
-                    )
-                )
-
-                ordered.add(DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.MessagingBag })
-            }
-        }
-
-        return ordered
+        return list
     }
 
 

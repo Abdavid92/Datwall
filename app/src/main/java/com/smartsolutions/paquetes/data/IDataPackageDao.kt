@@ -27,7 +27,11 @@ interface IDataPackageDao {
     @Insert
     suspend fun create(dataPackages: List<DataPackage>): List<Long>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    /**
+     * Upsert y no REPLACE: REPLACE borra la fila antes de insertarla y eso eliminaría
+     * en cascada las compras registradas (purchased_packages).
+     * */
+    @Upsert
     suspend fun createOrUpdate(dataPackages: List<DataPackage>)
 
     @Update

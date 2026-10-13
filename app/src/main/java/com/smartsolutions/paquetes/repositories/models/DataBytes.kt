@@ -17,7 +17,7 @@ open class DataBytes(
         PromoBonusLte, // Bono de promoción de consumo en la red lte
         PromoBonus, // Bono de promoción de consumo internacional en todas las redes
         National, // Datos de consumo nacional en todas las redes
-        DailyBag, // Bolsa diaria
+        DailyBag, // Plan Diario
         MessagingBag; // Bolsa de mensajería
 
         companion object {
@@ -41,7 +41,7 @@ open class DataBytes(
                 //Obtengo los DataType PromoBonus e International que son los que se consumen
                 // en las redes que no son lte
                 return values()
-                    .filter { it == PromoBonus && it == International }
+                    .filter { it == PromoBonus || it == International }
                     .toTypedArray()
             }
         }

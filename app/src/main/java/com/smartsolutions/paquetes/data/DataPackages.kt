@@ -11,30 +11,109 @@ object DataPackages {
 
     /**
      * v3  Cambiado el precio del Plan Basico a 110
+     * v4  Oferta de octubre de 2026: Plan Diario y planes de 35 días. Los paquetes anteriores
+     *     quedan obsoletos.
      **/
-    const val PACKAGES_VERSION = 3
+    const val PACKAGES_VERSION = 4
 
     const val PROMO_BONUS_KEY = "Su cuenta ha sido recargada en promocion"
 
     const val MESSAGING_BAG_KEY = "bolsa Mensajeria"
 
-    const val GENERAL_DURATION = 30
+    const val GENERAL_DURATION = 35
+
+    /**
+     * Código de compra del Plan Diario.
+     * */
+    const val DAILY_PLAN_USSD = "*133*1*3#"
+
+    /**
+     * Prefijo del código de compra de los planes de 35 días. Se completa con el
+     * índice del plan en el menú *133*1*4# y #.
+     * */
+    const val PLANS_USSD_PREFIX = "*133*1*4*"
+
+    private const val PLAN_DESCRIPTION_SUFFIX = "Tiene una vigencia de 35 días a partir del primer " +
+            "uso. Si compra otro plan estando este activo, los recursos se suman y se extiende la vigencia."
 
     val PACKAGES = arrayOf(
         DataPackage(
             DailyBag,
-            "Bolsa Diaria",
-            "Proporciona 200MB a consumir en 24 horas a partir del primer uso. " +
-                    "Disponibles solo bajo la red LTE.",
+            "Plan Diario",
+            "Proporciona 200MB para todas las redes a consumir en 24 horas a partir del primer uso.",
             25f,
-            0,
             DataValue(200.0, DataUnit.MB).toBytes(),
             0,
-            NETWORK_4G,
+            0,
+            NETWORK_3G_4G,
             -1,
             1,
-            "bolsa Diaria de 200MB"
+            "Plan Diario 200MB"
         ),
+        DataPackage(
+            Plan_4_5GB,
+            "Plan 4.5 GB",
+            "Proporciona 4.5GB para todas las redes y 300MB para navegación nacional. " +
+                    PLAN_DESCRIPTION_SUFFIX,
+            240f,
+            DataValue(4.5, DataUnit.GB).toBytes(),
+            0,
+            DataValue(300.0, DataUnit.MB).toBytes(),
+            NETWORK_3G_4G,
+            1,
+            GENERAL_DURATION,
+            "Plan 4.5GB"
+        ),
+        DataPackage(
+            Plan_2GB,
+            "Plan 120",
+            "Proporciona 2GB para todas las redes, 300MB para navegación nacional, " +
+                    "15min para llamadas y 20sms. " + PLAN_DESCRIPTION_SUFFIX,
+            120f,
+            DataValue(2.0, DataUnit.GB).toBytes(),
+            0,
+            DataValue(300.0, DataUnit.MB).toBytes(),
+            NETWORK_3G_4G,
+            2,
+            GENERAL_DURATION,
+            "Plan 2GB+15MIN+20SMS",
+            minutes = 15,
+            sms = 20
+        ),
+        DataPackage(
+            Plan_4GB,
+            "Plan 240",
+            "Proporciona 4GB para todas las redes, 300MB para navegación nacional, " +
+                    "35min para llamadas y 40sms. " + PLAN_DESCRIPTION_SUFFIX,
+            240f,
+            DataValue(4.0, DataUnit.GB).toBytes(),
+            0,
+            DataValue(300.0, DataUnit.MB).toBytes(),
+            NETWORK_3G_4G,
+            3,
+            GENERAL_DURATION,
+            "Plan 4GB+35MIN+40SMS",
+            minutes = 35,
+            sms = 40
+        ),
+        DataPackage(
+            Plan_6GB,
+            "Plan 360",
+            "Proporciona 6GB para todas las redes, 300MB para navegación nacional, " +
+                    "60min para llamadas y 70sms. " + PLAN_DESCRIPTION_SUFFIX,
+            360f,
+            DataValue(6.0, DataUnit.GB).toBytes(),
+            0,
+            DataValue(300.0, DataUnit.MB).toBytes(),
+            NETWORK_3G_4G,
+            4,
+            GENERAL_DURATION,
+            "Plan 6GB+60MIN+70SMS",
+            minutes = 60,
+            sms = 70
+        ),
+
+        // Paquetes obsoletos: se conservan para no perder el historial de compras.
         DataPackage(
             Combined_Basic,
             "Plan Básico",
@@ -47,8 +126,9 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_3G_4G,
             1,
-            GENERAL_DURATION,
+            30,
             "600MB +800MB LTE",
+            deprecated = true,
             minutes = 15,
             sms = 20
         ),
@@ -64,8 +144,9 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_3G_4G,
             2,
-            GENERAL_DURATION,
+            30,
             "1.5GB +2GB LTE",
+            deprecated = true,
             minutes = 35,
             sms = 40
         ),
@@ -81,8 +162,9 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_3G_4G,
             3,
-            GENERAL_DURATION,
+            30,
             "3.5GB +4.5GB LTE",
+            deprecated = true,
             minutes = 75,
             sms = 80
         ),
@@ -97,8 +179,9 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_4G,
             1,
-            GENERAL_DURATION,
-            "1GB solo LTE"
+            30,
+            "1GB solo LTE",
+            deprecated = true
         ),
         DataPackage(
             P_2_5GB_LTE,
@@ -111,8 +194,9 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_4G,
             2,
-            GENERAL_DURATION,
-            "2.5GB solo LTE"
+            30,
+            "2.5GB solo LTE",
+            deprecated = true
         ),
         DataPackage(
             P_4GB_12GB_LTE,
@@ -125,8 +209,9 @@ object DataPackages {
             DataValue(300.0, DataUnit.MB).toBytes(),
             NETWORK_4G,
             3,
-            GENERAL_DURATION,
-            "12GB LTE" //TODO: Revisar la clave
+            30,
+            "12GB LTE",
+            deprecated = true
         ),
         DataPackage(
             MessagingBag,
@@ -139,11 +224,47 @@ object DataPackages {
             0L,
             NETWORK_NONE,
             2,
-            GENERAL_DURATION,
-            MESSAGING_BAG_KEY
+            30,
+            MESSAGING_BAG_KEY,
+            deprecated = true
         )
     )
 
+    /**
+     * Construye el código ussd de compra de un plan según el menú *133#.
+     * */
+    fun buildPurchaseUssd(dataPackage: DataPackage): String =
+        if (dataPackage.id == DailyBag)
+            DAILY_PLAN_USSD
+        else
+            "$PLANS_USSD_PREFIX${dataPackage.index}#"
+
+    /**
+     * Busca el paquete de un SMS de compra comparando su [DataPackage.smsKey] sin espacios
+     * ni mayúsculas. Incluye los obsoletos, para leer SMS antiguos. Si coinciden varias
+     * claves gana la más larga, para no confundir planes cuyas claves empiezan igual.
+     * */
+    fun findPurchasedPackage(smsBody: String): DataPackage? {
+        val body = normalize(smsBody)
+        return PACKAGES
+            .filter { body.contains(normalize(it.smsKey)) }
+            .maxByOrNull { normalize(it.smsKey).length }
+    }
+
+    /**
+     * Remitentes de los SMS del operador: "cubacel" (antes) y "ETECSA" (desde 2026).
+     * */
+    fun isOperatorSender(sender: String): Boolean =
+        OPERATOR_SENDERS.any { it.equals(sender.trim(), true) }
+
+    private val OPERATOR_SENDERS = listOf("cubacel", "ETECSA")
+
+    private fun normalize(text: String) = text.filterNot { it.isWhitespace() }.lowercase()
+
+    /**
+     * Se guarda en la base de datos por ordinal: los valores nuevos se añaden siempre
+     * al final y los existentes no se mueven ni se borran.
+     * */
     enum class PackageId {
         DailyBag,
         Combined_Basic,
@@ -152,6 +273,10 @@ object DataPackages {
         P_1GB_LTE,
         P_2_5GB_LTE,
         P_4GB_12GB_LTE,
-        MessagingBag
+        MessagingBag,
+        Plan_4_5GB,
+        Plan_2GB,
+        Plan_4GB,
+        Plan_6GB
     }
 }

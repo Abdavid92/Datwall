@@ -116,26 +116,23 @@ class PurchasedPackagesManager @Inject constructor(
                 }
             }
 
-            val smses = smsReader.getAllSmsReceived().filter { it.number.contains("cubacel", true) }
+            val smses = smsReader.getAllSmsReceived().filter { DataPackages.isOperatorSender(it.number) }
             val packages = mutableListOf<PurchasedPackage>()
 
             try {
                 smses.forEach { sms ->
-                    for (pack in DataPackages.PACKAGES) {
-                        if (sms.body.contains(pack.smsKey, true)) {
-                            simDelegate.getSubcriptionInfo(sms.subscriptionId.toInt())?.let {
-                                packages.add(
-                                    PurchasedPackage(
-                                        System.currentTimeMillis(),
-                                        sms.date,
-                                        IDataPackageManager.ConnectionMode.USSD,
-                                        simDelegate.getSimId(it),
-                                        false,
-                                        pack.id
-                                    )
+                    DataPackages.findPurchasedPackage(sms.body)?.let { pack ->
+                        simDelegate.getSubcriptionInfo(sms.subscriptionId.toInt())?.let {
+                            packages.add(
+                                PurchasedPackage(
+                                    System.currentTimeMillis(),
+                                    sms.date,
+                                    IDataPackageManager.ConnectionMode.USSD,
+                                    simDelegate.getSimId(it),
+                                    false,
+                                    pack.id
                                 )
-                            }
-                            break
+                            )
                         }
                     }
                 }

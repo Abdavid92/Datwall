@@ -13,7 +13,6 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPackagesHolderBinding
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -86,7 +85,13 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
                     setAdapter(it.second)
                 }
             }else {
+                // Una línea configurada sin planes es una línea empresarial.
+                val configured = it.first.setupDate > 0L
                 binding.apply {
+                    textSimNotConfigured.setText(
+                        if (configured) R.string.no_plans_available else R.string.no_sim_configured
+                    )
+                    buttonConfigureSim.visibility = if (configured) View.GONE else View.VISIBLE
                     linSimNotConfigured.visibility = View.VISIBLE
                     recycler.visibility = View.GONE
                 }
@@ -112,14 +117,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
             builder.setTitle("Comprar ${dataPackage.name}")
                 .setMessage(dataPackage.description)
                 .setPositiveButton(getString(R.string.purchase)){_, _ ->
-                    viewModel.invokeOnDefaultSim(
-                        requireContext(),
-                        it,
-                        SimType.VOICE,
-                        parentFragmentManager
-                    ) {
-                        viewModel.purchasePackage(it, dataPackage, this)
-                    }
+                    viewModel.purchasePackage(it, dataPackage, this)
                 }
                 .setNegativeButton(getString(R.string.btn_cancel), null)
                 .show()

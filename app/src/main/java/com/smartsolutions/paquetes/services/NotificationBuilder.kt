@@ -154,7 +154,7 @@ abstract class NotificationBuilder(
                 DataBytes.DataType.PromoBonus -> "Promo"
                 DataBytes.DataType.PromoBonusLte -> "Promo LTE"
                 DataBytes.DataType.National -> ".CU"
-                DataBytes.DataType.DailyBag -> "Bolsa"
+                DataBytes.DataType.DailyBag -> "Diario"
             }
         }
 

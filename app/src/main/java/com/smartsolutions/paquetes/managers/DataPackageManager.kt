@@ -73,52 +73,20 @@ class DataPackageManager @Inject constructor(
             if (oldVersion < DataPackages.PACKAGES_VERSION) {
                 dataPackageRepository.createOrUpdate(DataPackages.PACKAGES.toList())
 
+                //Desde la versión 4 la configuración de la línea es "puede comprar planes sí/no":
+                //las líneas que admitían algún tipo de paquete pasan a admitir los planes.
+                if (oldVersion < 4) {
+                    val sims = simRepository.all()
+                        .filter { it.network != Networks.NETWORK_NONE && it.network != Networks.NETWORK_3G_4G }
+                        .onEach { it.network = Networks.NETWORK_3G_4G }
+
+                    if (sims.isNotEmpty())
+                        simRepository.update(sims)
+                }
+
                 dataStore.edit {
                     it[PreferencesKeys.CURRENT_PACKAGES_VERSION] = DataPackages.PACKAGES_VERSION
                 }
-            }
-        }
-    }
-
-    override suspend fun configureDataPackages() {
-        val plainsResultText = ussdHelper.sendUSSDRequestLegacy("*133#")
-        val lteResultText = ussdHelper.sendUSSDRequestLegacy("*133*1#")
-
-        //Indica si los planes están abilitados
-        var enabledCombinedPlains = false
-
-        //Indica si los paquetes 4G están abilitados
-        var enabledLte = false
-
-        //Linea predeterminada para llamadas
-        simManager.getDefaultSimBoth(SimType.VOICE)?.let { defaultSim ->
-
-            plainsResultText?.let {
-                val text = it.string()
-
-                if (text.contains("Planes", true))
-                    enabledCombinedPlains = true
-            }
-
-            lteResultText?.let {
-                val text = it.string()
-
-                if (text.contains("Paquetes LTE", true))
-                    enabledLte = true
-            }
-
-            when {
-                enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_3G_4G
-                enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_3G
-                !enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_4G
-                !enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_NONE
-            }
-
-            //Fecha en la que se configuró esta linea.
-            defaultSim.setupDate = System.currentTimeMillis()
-
-            withContext(Dispatchers.IO) {
-                simRepository.update(defaultSim)
             }
         }
     }
@@ -139,7 +107,7 @@ class DataPackageManager @Inject constructor(
     override suspend fun isConfiguredDataPackages(): Boolean {
         return try {
             (simManager.getDefaultSimBoth(SimType.VOICE)
-                ?.network ?: Networks.NETWORK_NONE) != Networks.NETWORK_NONE
+                ?.setupDate ?: 0L) > 0L
         } catch (e: IllegalStateException) {
             false
         }
@@ -152,7 +120,7 @@ class DataPackageManager @Inject constructor(
             throw UnsupportedOperationException("The sim must be provide with relations")
         }
 
-        if (!sim.packages.contains(dataPackage) && dataPackage.id != DataPackages.PackageId.MessagingBag) {
+        if (!sim.packages.contains(dataPackage)) {
             throw IllegalStateException(context.getString(R.string.pkg_not_configured))
         }
 
@@ -177,10 +145,10 @@ class DataPackageManager @Inject constructor(
             simManager.getDefaultSimBoth(SimType.VOICE)
 
         if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
-            val bytes = getBytesFromText("Bonos: ", smsBody)
-            val bytesLte = getBytesFromText(" y ", smsBody)
+            val bytes = UssdBalanceParser.readBytes("Bonos: ", smsBody)
+            val bytesLte = UssdBalanceParser.readBytes(" y ", smsBody) ?: -1L
 
-            if (bytes != -1L) {
+            if (bytes != null) {
                 defaultSim?.id?.let {
                     userDataBytesManager.addPromoBonus(it, bytes, bytesLte)
                 }
@@ -195,7 +163,7 @@ class DataPackageManager @Inject constructor(
             return
         }
 
-        DataPackages.PACKAGES.firstOrNull { smsBody.contains(it.smsKey) }?.let {
+        DataPackages.findPurchasedPackage(smsBody)?.let {
 
             withContext(Dispatchers.IO){
                 dataPackageRepository.get(it.id)
@@ -210,7 +178,7 @@ class DataPackageManager @Inject constructor(
 
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage, sim: Sim) {
 
-        ussdHelper.sendUSSDRequestLegacy(buildUssd(dataPackage),false)
+        ussdHelper.sendUSSDRequestLegacy(buildUssd(dataPackage), false, sim)
 
         purchasedPackagesManager.newPurchased(
             dataPackage.id,
@@ -219,23 +187,6 @@ class DataPackageManager @Inject constructor(
         )
     }
 
-    private fun buildUssd(dataPackage: DataPackage): String {
-
-        if (dataPackage.id == DataPackages.PackageId.DailyBag)
-            return "*133*1*3#"
-
-        return when (dataPackage.network) {
-            Networks.NETWORK_4G -> {
-                "*133*1*4*${dataPackage.index}#"
-            }
-            Networks.NETWORK_3G,
-            Networks.NETWORK_3G_4G -> {
-                "*133*5*${dataPackage.index}#"
-            }
-            Networks.NETWORK_NONE -> {
-                "*133*1*${dataPackage.index}#"
-            }
-            else -> throw IllegalStateException()
-        }
-    }
+    private fun buildUssd(dataPackage: DataPackage): String =
+        DataPackages.buildPurchaseUssd(dataPackage)
 }
