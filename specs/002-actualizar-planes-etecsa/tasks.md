@@ -87,8 +87,8 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 
 **Independent Test**: [quickstart.md](quickstart.md) sección 2.
 
-- [ ] T021 [US3] Comprobar que B/ui/history (HistoryViewModel, HistoryRecyclerAdapter) muestra las compras de paquetes con `deprecated = true` (nombre y precio desde su fila) y corregir si los filtra
-- [ ] T022 [US3] Validar quickstart.md sección 2 en el emulador de Android 7 (registrar una compra antigua con la versión de `development`, actualizar, el historial la conserva); commit si hubo cambios
+- [X] T021 [US3] Comprobar que B/ui/history (HistoryViewModel, HistoryRecyclerAdapter) muestra las compras de paquetes con `deprecated = true` (nombre y precio desde su fila) y corregir si los filtra
+- [X] T022 [US3] Validar quickstart.md sección 2 en el emulador de Android 7 (registrar una compra antigua con la versión de `development`, actualizar, el historial la conserva); commit si hubo cambios
 
 ---
 
