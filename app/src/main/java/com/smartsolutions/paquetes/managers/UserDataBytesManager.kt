@@ -88,7 +88,7 @@ class UserDataBytesManager @Inject constructor(
                 it.startTime = System.currentTimeMillis()
             }
             //Le ampliamos la fecha de expiración a todos UserDataBytes.
-            it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
+            it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * DataPackages.GENERAL_DURATION
         }
 
         withContext(Dispatchers.IO) {
@@ -103,7 +103,7 @@ class UserDataBytesManager @Inject constructor(
             it.bytes += dataPackage.bytes
             it.initialBytes = it.bytes
             it.startTime = System.currentTimeMillis()
-            it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
+            it.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * DataPackages.GENERAL_DURATION
 
             userDataBytesRepository.update(it)
         }
@@ -182,10 +182,12 @@ class UserDataBytesManager @Inject constructor(
                     initialBytes = dataBytes.bytes
                 }
 
-                startTime = if (type == DataType.DailyBag)
-                    expiredTime - DateUtils.MILLIS_PER_DAY
-                else
-                    expiredTime - DateUtils.MILLIS_PER_DAY * 30
+                // Sin vencimiento todavía: initTimes lo fija con el primer consumo.
+                startTime = when {
+                    expiredTime == 0L -> 0L
+                    type == DataType.DailyBag -> expiredTime - DateUtils.MILLIS_PER_DAY
+                    else -> expiredTime - DateUtils.MILLIS_PER_DAY * DataPackages.GENERAL_DURATION
+                }
             }
         }
 
@@ -273,7 +275,7 @@ class UserDataBytesManager @Inject constructor(
         if (userDataBytes.type == DataType.DailyBag) {
             userDataBytes.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY
         } else {
-            userDataBytes.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * 30
+            userDataBytes.expiredTime = System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY * DataPackages.GENERAL_DURATION
         }
     }
 

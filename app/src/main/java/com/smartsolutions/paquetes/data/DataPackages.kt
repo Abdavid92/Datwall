@@ -240,6 +240,28 @@ object DataPackages {
             "$PLANS_USSD_PREFIX${dataPackage.index}#"
 
     /**
+     * Busca el paquete de un SMS de compra comparando su [DataPackage.smsKey] sin espacios
+     * ni mayúsculas. Incluye los obsoletos, para leer SMS antiguos. Si coinciden varias
+     * claves gana la más larga, para no confundir planes cuyas claves empiezan igual.
+     * */
+    fun findPurchasedPackage(smsBody: String): DataPackage? {
+        val body = normalize(smsBody)
+        return PACKAGES
+            .filter { body.contains(normalize(it.smsKey)) }
+            .maxByOrNull { normalize(it.smsKey).length }
+    }
+
+    /**
+     * Remitentes de los SMS del operador: "cubacel" (antes) y "ETECSA" (desde 2026).
+     * */
+    fun isOperatorSender(sender: String): Boolean =
+        OPERATOR_SENDERS.any { it.equals(sender.trim(), true) }
+
+    private val OPERATOR_SENDERS = listOf("cubacel", "ETECSA")
+
+    private fun normalize(text: String) = text.filterNot { it.isWhitespace() }.lowercase()
+
+    /**
      * Se guarda en la base de datos por ordinal: los valores nuevos se añaden siempre
      * al final y los existentes no se mueven ni se borran.
      * */

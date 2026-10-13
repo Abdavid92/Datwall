@@ -41,7 +41,7 @@ open class DataBytes(
                 //Obtengo los DataType PromoBonus e International que son los que se consumen
                 // en las redes que no son lte
                 return values()
-                    .filter { it == PromoBonus && it == International }
+                    .filter { it == PromoBonus || it == International }
                     .toTypedArray()
             }
         }

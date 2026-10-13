@@ -5,11 +5,11 @@ import android.os.Build
 import androidx.datastore.preferences.core.edit
 import androidx.work.*
 import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.settingsDataStore
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.helpers.getBytesFromText
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
@@ -19,8 +19,6 @@ import com.smartsolutions.paquetes.workersDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import org.apache.commons.lang3.time.DateUtils
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -64,7 +62,6 @@ class SynchronizationManager @Inject constructor(
             }
         }
 
-
     init {
         launch(Dispatchers.IO) {
             context.settingsDataStore.data.collect {
@@ -81,45 +78,37 @@ class SynchronizationManager @Inject constructor(
     }
 
     override suspend fun synchronizeUserDataBytes(sim: Sim) {
-        if (_synchronizationMode == IDataPackageManager.ConnectionMode.USSD) {
-            val data = mutableListOf<DataBytes>()
+        if (_synchronizationMode != IDataPackageManager.ConnectionMode.USSD)
+            return
 
-            val bytesPackages = sendUSSDRequest("*222*328#", sim)
-            val bonusPackages = sendUSSDRequest("*222*266#", sim)
-
-            if (bytesPackages != null && bonusPackages != null) {
-
-                bytesPackages.forEach {
-                    if (it.contains("mmi", true))
-                        throw USSDRequestException(
-                            USSDHelper.USSD_CODE_FAILED,
-                            USSDHelper.USSD_MMI_FULL
-                        )
-                }
-
-                bonusPackages.forEach {
-                    if (it.contains("mmi", true))
-                        throw USSDRequestException(
-                            USSDHelper.USSD_CODE_FAILED,
-                            USSDHelper.USSD_MMI_FULL
-                        )
-                }
-
-                data.addAll(obtainDataBytesPackages(bytesPackages))
-                data.addAll(obtainDataByteBonus(bonusPackages))
-
-                userDataBytesManager.synchronizeUserDataBytes(
-                    fillMissingDataBytes(data),
-                    sim.id
-                )
-                withContext(Dispatchers.IO) {
-                    simRepository.update(sim.apply {
-                        lastSynchronization = System.currentTimeMillis()
-                    })
-                }
-
-            }
+        val data = if (sim.network == Networks.NETWORK_NONE) {
+            // Las líneas empresariales consultan datos, minutos y sms con *111#.
+            val balance = sendUSSDRequest(BUSINESS_BALANCE_USSD, sim) ?: return
+            checkMmi(balance)
+            UssdBalanceParser.parsePackages(joinString(balance))
+        } else {
+            val bytesPackages = sendUSSDRequest(BALANCE_USSD, sim) ?: return
+            val bonusPackages = sendUSSDRequest(BONUS_USSD, sim) ?: return
+            checkMmi(bytesPackages)
+            checkMmi(bonusPackages)
+            UssdBalanceParser.parsePackages(joinString(bytesPackages)) +
+                    UssdBalanceParser.parseBonus(joinString(bonusPackages))
         }
+
+        userDataBytesManager.synchronizeUserDataBytes(fillMissingDataBytes(data), sim.id)
+        withContext(Dispatchers.IO) {
+            simRepository.update(sim.apply {
+                lastSynchronization = System.currentTimeMillis()
+            })
+        }
+    }
+
+    private fun checkMmi(response: Array<CharSequence>) {
+        if (response.any { it.contains("mmi", true) })
+            throw USSDRequestException(
+                USSDHelper.USSD_CODE_FAILED,
+                USSDHelper.USSD_MMI_FULL
+            )
     }
 
     override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int) {
@@ -144,91 +133,6 @@ class SynchronizationManager @Inject constructor(
         workManager.cancelAllWorkByTag(SYNCHRONIZATION_WORKER_TAG)
     }
 
-    private fun obtainDataBytesPackages(bytesPackages: Array<CharSequence>): Collection<DataBytes> {
-        val response = joinString(bytesPackages)
-
-        val data = mutableListOf<DataBytes>()
-
-        if (response.contains(PAQUETES))
-            data.addAll(getInternationals(response))
-
-        var value = getBytesFromText(DIARIA, response)
-        if (value > 0) {
-            data.add(
-                DataBytes(
-                    DataBytes.DataType.DailyBag,
-                    value,
-                    getExpireDatePackages(response, DIARIA)
-                )
-            )
-        }
-
-        value  = getBytesFromText(MENSAJERIA, response)
-        if (value > 0) {
-            data.add(
-                DataBytes(
-                    DataBytes.DataType.MessagingBag,
-                    value,
-                    getExpireDatePackages(response, MENSAJERIA)
-                )
-            )
-        }
-
-        return data
-    }
-
-    private fun obtainDataByteBonus(bonusPackages: Array<CharSequence>): Collection<DataBytes> {
-
-        val response = joinString(bonusPackages)
-
-        val data = mutableListOf<DataBytes>()
-
-        //Bono de promoción
-        var value = getBytesFromText(PROMO_BONO, response)
-
-        if (value >= 0) {
-            data.add(
-                DataBytes(
-                    DataBytes.DataType.PromoBonus,
-                    value,
-                    getExpireDateBonus(PROMO_BONO, response)
-                )
-            )
-        }
-
-        //Datos nacionales
-        value = getBytesFromText(NATIONAL, response)
-
-        if (value >= 0) {
-            data.add(
-                DataBytes(
-                    DataBytes.DataType.National,
-                    value,
-                    getExpireDateBonus(NATIONAL, response)
-                )
-            )
-        }
-
-        //Bono de promoción Lte
-        if (response.contains(PLUS_SYMBOL) && response.contains(LTE)) {
-
-            value = getBytesFromText(PLUS_SYMBOL, response)
-
-            if (value >= 0) {
-
-                data.add(
-                    DataBytes(
-                        DataBytes.DataType.PromoBonusLte,
-                        value,
-                        getExpireDateBonus(PROMO_BONO, response)
-                    )
-                )
-            }
-        }
-
-        return data
-    }
-
     private fun fillMissingDataBytes(data: List<DataBytes>): List<DataBytes> {
         val list = data.toMutableList()
 
@@ -238,94 +142,6 @@ class SynchronizationManager @Inject constructor(
             }
         }
         return list
-    }
-
-    private fun getInternationals(text: String): List<DataBytes> {
-        var international = 0L
-        var internationalLte = 0L
-
-        if (!text.contains(LTE)) {
-
-            international = getBytesFromText(PAQUETES, text)
-
-        } else if (text.contains(LTE) && !text.contains(PLUS_SYMBOL)) {
-
-            internationalLte = getBytesFromText(PAQUETES, text)
-
-        } else if (text.contains(LTE) && text.contains(PLUS_SYMBOL)) {
-
-            international = getBytesFromText(PAQUETES, text)
-            internationalLte = getBytesFromText(PLUS_SYMBOL, text)
-        }
-
-        return listOf(
-            DataBytes(
-                DataBytes.DataType.International,
-                international,
-                getExpireDatePackages(text, PAQUETES)
-            ),
-            DataBytes(
-                DataBytes.DataType.InternationalLte,
-                internationalLte,
-                getExpireDatePackages(text, PAQUETES)
-            )
-        )
-    }
-
-    private fun getExpireDatePackages(text: String, key: String): Long {
-        if (!text.contains(key)) {
-            return 0L
-        }
-
-        val start = text.indexOf("validos", text.indexOf(key)) + 7
-
-        if (key == MENSAJERIA){
-            val packagesIndex = text.indexOf(PAQUETES)
-            if (packagesIndex in 1 until start){
-                return 0L
-            }
-        }
-
-        val finish = if (key == DIARIA) {
-            text.indexOf("horas", start)
-        } else {
-            text.indexOf("dias", start)
-        }
-
-        return try {
-            val value = text.substring(start, finish).trimStart().trimEnd().toInt()
-            if (key == DIARIA) {
-                DateUtils.addHours(Date(), value).time
-            } else {
-                var date = DateUtils.addDays(Date(), value)
-                date = DateUtils.setHours(date, 23)
-                date = DateUtils.setMinutes(date, 59)
-                date = DateUtils.setSeconds(date, 59)
-                date = DateUtils.setMilliseconds(date, 0)
-                date.time
-            }
-        } catch (e: Exception) {
-            0L
-        }
-    }
-
-    private fun getExpireDateBonus(find: String, text: String): Long {
-        if (!text.contains(find)) {
-            return 0L
-        }
-        val start = text.indexOf("vence", text.indexOf(find)) + 5
-        val finish = text.indexOf(".", start)
-
-        return try {
-            val dateString = text.substring(start, finish).trimStart().trimEnd()
-            var date = SimpleDateFormat("dd-MM-yy", Locale.US).parse(dateString)
-            date = DateUtils.setHours(date, 23)
-            date = DateUtils.setMinutes(date, 59)
-            date = DateUtils.setSeconds(date, 59)
-            date?.time ?: 0
-        } catch (e: Exception) {
-            0L
-        }
     }
 
     private fun joinString(charSequence: Array<CharSequence>): String {
@@ -345,13 +161,9 @@ class SynchronizationManager @Inject constructor(
     }
 
     companion object {
-        const val MENSAJERIA = "Mensajeria:"
-        const val DIARIA = "Diaria:"
-        const val PAQUETES = "Paquetes:"
-        const val PROMO_BONO = "Datos:"
-        const val NATIONAL = "Datos.cu"
-        const val PLUS_SYMBOL = "+"
-        const val LTE = "LTE"
+        const val BALANCE_USSD = "*222*328#"
+        const val BONUS_USSD = "*222*266#"
+        const val BUSINESS_BALANCE_USSD = "*111#"
 
         const val SYNCHRONIZATION_WORKER_TAG = "synchronization_worker"
     }

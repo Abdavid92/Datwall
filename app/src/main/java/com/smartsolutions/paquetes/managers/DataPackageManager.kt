@@ -145,10 +145,10 @@ class DataPackageManager @Inject constructor(
             simManager.getDefaultSimBoth(SimType.VOICE)
 
         if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
-            val bytes = getBytesFromText("Bonos: ", smsBody)
-            val bytesLte = getBytesFromText(" y ", smsBody)
+            val bytes = UssdBalanceParser.readBytes("Bonos: ", smsBody)
+            val bytesLte = UssdBalanceParser.readBytes(" y ", smsBody) ?: -1L
 
-            if (bytes != -1L) {
+            if (bytes != null) {
                 defaultSim?.id?.let {
                     userDataBytesManager.addPromoBonus(it, bytes, bytesLte)
                 }
@@ -163,7 +163,7 @@ class DataPackageManager @Inject constructor(
             return
         }
 
-        DataPackages.PACKAGES.firstOrNull { smsBody.contains(it.smsKey) }?.let {
+        DataPackages.findPurchasedPackage(smsBody)?.let {
 
             withContext(Dispatchers.IO){
                 dataPackageRepository.get(it.id)

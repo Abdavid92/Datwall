@@ -72,6 +72,15 @@ Tarifa: No activa. Diaria: 200 MB no activos.
 El Plan Diario aparece tras `Diaria:`. Mientras no se use, no tiene vencimiento ("no activos"): se
 registra con los 200 MB y sin fecha de vencimiento.
 
+**Respuesta de `*111#` en una línea empresarial** (SIM 1, 2026-10-13):
+
+```text
+Voz: 148 MIN. SMS: 8. Datos: 16700 MB. Roaming:
+```
+
+Las líneas empresariales (las que no pueden comprar planes) consultan su saldo con `*111#`. Los datos
+van tras `Datos:` y no tienen vigencia.
+
 **Respuesta de `*222*266#` (bonos activos)** (2026-10-13):
 
 ```text
