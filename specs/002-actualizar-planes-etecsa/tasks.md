@@ -105,7 +105,7 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 - [X] T027 [P] [US4] Escribir primero T/managers/PurchaseSmsMatcherTest.kt con los 5 SMS reales de spec.md: cada uno devuelve su `PackageId` (`DailyBag`, `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB`); un SMS de promoción no devuelve ningún plan; el SMS de 240 no se confunde con el de 4.5 GB. Debe fallar
 - [X] T028 [US4] Crear la función pura `findPurchasedPackage(smsBody)` en B/data/DataPackages.kt que normaliza (sin espacios, minúsculas) el texto y cada `smsKey` y devuelve el plan cuya clave completa aparece; usarla en `registerDataPackage` de B/receivers/SmsReceiver.kt (≈ líneas 171–209) y en `seedOldPurchasedPackages` de B/managers/PurchasedPackagesManager.kt (≈ líneas 107–158). T027 pasa
 - [X] T029 [US4] En B/receivers/SmsReceiver.kt (≈ líneas 33–60) aceptar los remitentes `cubacel` y `ETECSA` sin distinguir mayúsculas (research R7)
-- [ ] T030 [US4] Compilar y pasar pruebas; validar la sincronización en el teléfono (SIM 2); commit: "Lectura del saldo y de los SMS con el formato nuevo"
+- [X] T030 [US4] Compilar y pasar pruebas; validar la sincronización en el teléfono (SIM 2); commit: "Lectura del saldo y de los SMS con el formato nuevo"
 
 ---
 

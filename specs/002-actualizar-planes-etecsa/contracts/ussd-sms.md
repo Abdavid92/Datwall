@@ -20,6 +20,7 @@ La app depende de los formatos de ETECSA. Este es el contrato que debe cumplir.
 | `Tarifa: No activa. Datos: 130.08 MB validos 24 dias.` | International = 130.08 MB, vence en 24 días |
 | `Tarifa: No activa. Diaria: 200 MB no activos.` | DailyBag = 200 MB, sin vencimiento hasta el primer uso |
 | `Voz: 148 MIN. SMS: 8. Datos: 16700 MB. Roaming:` (`*111#`) | International = 16700 MB, sin vencimiento |
+| `Usted no dispone de bonos activos.` (`*222*266#`) | sin bonos, sin error |
 | `Datos.cu 273 MB vence 06-11-26.` | National = 273 MB, vence 06-11-2026 23:59:59 |
 
 ## SMS de compra

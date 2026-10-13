@@ -87,6 +87,12 @@ van tras `Datos:` y no tienen vigencia.
 Datos.cu 273 MB vence 06-11-26.
 ```
 
+**Respuesta de `*222*266#` sin bonos** (SIM 2, 2026-10-13):
+
+```text
+Usted no dispone de bonos activos.
+```
+
 Muestra los bonos activos; aquí, los datos nacionales (.cu) con fecha de vencimiento en formato
 `dd-MM-yy`. Sin bono de promoción activo, ese bloque no aparece.
 

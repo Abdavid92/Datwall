@@ -79,6 +79,11 @@ class UssdBalanceParserTest {
     }
 
     @Test
+    fun noActiveBonus() {
+        assertTrue(UssdBalanceParser.parseBonus("Usted no dispone de bonos activos.").isEmpty())
+    }
+
+    @Test
     fun nationalBonus() {
         val data = UssdBalanceParser.parseBonus("Datos.cu 273 MB vence 06-11-26.")
 
