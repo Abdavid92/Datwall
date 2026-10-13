@@ -34,6 +34,14 @@ Aportados por el usuario; las cifras personales están ocultas.
 ETECSA Plan Nacional: Se ha comprado Plan 2GB+15MIN+20SMS valido por 35 dias, se activa con el primer uso. Se desconto 120.00 CUP. Saldo actual ****.** CUP
 ```
 
+**SMS de confirmación de compra — Plan 4.5 GB, Plan 240 y Plan 360** (2026-10-13):
+
+```text
+ETECSA Plan Nacional: Se ha comprado Plan 4.5GB valido por 35 dias, se activa con el primer uso. Se desconto 240.00 CUP. Saldo actual ****.** CUP
+ETECSA Plan Nacional: Se ha comprado Plan 4GB+35MIN+40SMS valido por 35 dias, se activa con el primer uso. Se desconto 240.00 CUP. Saldo actual ****.** CUP
+ETECSA Plan Nacional: Se ha comprado Plan 6GB+60MIN+70SMS valido por 35 dias, se activa con el primer uso. Se desconto 360.00 CUP. Saldo actual ****.** CUP
+```
+
 **Respuesta de `*222*328#` sin plan activo** (SIM 2, 2026-10-13):
 
 ```text
@@ -58,8 +66,8 @@ Datos.cu 273 MB vence 06-11-26.
 Muestra los bonos activos; aquí, los datos nacionales (.cu) con fecha de vencimiento en formato
 `dd-MM-yy`. Sin bono de promoción activo, ese bloque no aparece.
 
-Pendientes: SMS de compra del Plan Diario, 4.5 GB, 240 y 360, y una respuesta de `*222*266#` con un bono
-de promoción activo (si alguien lo tiene).
+Pendientes: SMS de compra del Plan Diario y una respuesta de `*222*266#` con un bono de promoción activo
+(si alguien lo tiene).
 
 ## User Scenarios & Testing *(mandatory)*
 

@@ -82,9 +82,9 @@ Fecha: 2026-10-13. Basado en el inventario del código de la rama `002-actualiza
 | Plan | `smsKey` | Estado |
 |---|---|---|
 | Plan 120 | `Plan 2GB+15MIN+20SMS` | ✅ verificada |
-| Plan 240 | `Plan 4GB+35MIN+40SMS` | por confirmar |
-| Plan 360 | `Plan 6GB+60MIN+70SMS` | por confirmar |
-| Plan 4.5 GB | `Plan 4.5GB` | por confirmar |
+| Plan 240 | `Plan 4GB+35MIN+40SMS` | ✅ verificada |
+| Plan 360 | `Plan 6GB+60MIN+70SMS` | ✅ verificada |
+| Plan 4.5 GB | `Plan 4.5GB` | ✅ verificada |
 | Plan Diario | `bolsa Diaria de 200MB` (clave antigua) | por confirmar |
 
 - **Bug relacionado**: `SmsReceiver` solo acepta el remitente "cubacel"; los SMS de ETECSA del teléfono de
