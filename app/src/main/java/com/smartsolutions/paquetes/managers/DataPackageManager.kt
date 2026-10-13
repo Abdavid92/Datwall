@@ -91,49 +91,6 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override suspend fun configureDataPackages() {
-        val plainsResultText = ussdHelper.sendUSSDRequestLegacy("*133#")
-        val lteResultText = ussdHelper.sendUSSDRequestLegacy("*133*1#")
-
-        //Indica si los planes están abilitados
-        var enabledCombinedPlains = false
-
-        //Indica si los paquetes 4G están abilitados
-        var enabledLte = false
-
-        //Linea predeterminada para llamadas
-        simManager.getDefaultSimBoth(SimType.VOICE)?.let { defaultSim ->
-
-            plainsResultText?.let {
-                val text = it.string()
-
-                if (text.contains("Planes", true))
-                    enabledCombinedPlains = true
-            }
-
-            lteResultText?.let {
-                val text = it.string()
-
-                if (text.contains("Paquetes LTE", true))
-                    enabledLte = true
-            }
-
-            when {
-                enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_3G_4G
-                enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_3G
-                !enabledCombinedPlains && enabledLte -> defaultSim.network = Networks.NETWORK_4G
-                !enabledCombinedPlains && !enabledLte -> defaultSim.network = Networks.NETWORK_NONE
-            }
-
-            //Fecha en la que se configuró esta linea.
-            defaultSim.setupDate = System.currentTimeMillis()
-
-            withContext(Dispatchers.IO) {
-                simRepository.update(defaultSim)
-            }
-        }
-    }
-
     override suspend fun setDataPackagesManualConfiguration(network: String, sim: Sim) {
         sim.apply {
             this.network = network
@@ -150,7 +107,7 @@ class DataPackageManager @Inject constructor(
     override suspend fun isConfiguredDataPackages(): Boolean {
         return try {
             (simManager.getDefaultSimBoth(SimType.VOICE)
-                ?.network ?: Networks.NETWORK_NONE) != Networks.NETWORK_NONE
+                ?.setupDate ?: 0L) > 0L
         } catch (e: IllegalStateException) {
             false
         }
@@ -163,7 +120,7 @@ class DataPackageManager @Inject constructor(
             throw UnsupportedOperationException("The sim must be provide with relations")
         }
 
-        if (!sim.packages.contains(dataPackage) && dataPackage.id != DataPackages.PackageId.MessagingBag) {
+        if (!sim.packages.contains(dataPackage)) {
             throw IllegalStateException(context.getString(R.string.pkg_not_configured))
         }
 

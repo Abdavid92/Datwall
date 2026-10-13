@@ -34,18 +34,6 @@ interface IDataPackageManager {
     suspend fun createOrUpdateDataPackages()
 
     /**
-     * Configura los paquetes de datos en dependencia
-     * de los que tenga disponible la tarjeta sim. Este método
-     * elige la linea predeterminada para llamadas para realizar la configuración.
-     *
-     * @throws USSDRequestException en caso de que no tenga permiso de llamada,
-     * el servicio de accesibilidad no esté encendido o la respuesta agote el
-     * tiempo de espera.
-     * */
-    @Throws(USSDRequestException::class)
-    suspend fun configureDataPackages()
-
-    /**
      * Configura los paquetes de datos usando el tipo de red dado. Este método
      * elige la linea predeterminada para llamadas para realizar la configuración.
      *

@@ -4,8 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.smartsolutions.paquetes.annotations.Networks
-import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.databinding.*
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
@@ -16,25 +14,14 @@ class PackagesRecyclerAdapter(
 ): RecyclerView.Adapter<PackagesRecyclerAdapter.ItemHolder>() {
 
     override fun getItemViewType(position: Int): Int {
-        return when {
-            dataPackages[position] is PackagesViewModel.HeaderPackagesItem -> 0
-            dataPackages[position].network == Networks.NETWORK_3G_4G ||
-            dataPackages[position].network == Networks.NETWORK_3G -> 1
-            dataPackages[position].network == Networks.NETWORK_4G -> 2
-            dataPackages[position].network == Networks.NETWORK_NONE -> 2
-            else -> -1
-        }
+        return if (dataPackages[position] is PackagesViewModel.HeaderPackagesItem) 0 else 1
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return when(viewType){
             0 -> HeaderHolder(ItemHeaderPackagesBinding.inflate(layoutInflater, parent, false))
-            1 -> PlanHolder(ItemPlan2Binding.inflate(layoutInflater,parent, false))
-            2 -> PackagesHolder(ItemPackage2Binding.inflate(layoutInflater, parent, false))
-            else -> {
-              PackagesHolder(ItemPackage2Binding.inflate(layoutInflater, parent, false))
-            }
+            else -> PlanHolder(ItemPlan2Binding.inflate(layoutInflater,parent, false))
         }
     }
 
@@ -63,16 +50,22 @@ class PackagesRecyclerAdapter(
         override fun onBind(iPackage: IDataPackage) {
             binding?.apply {
                 val international = DataUnitBytes(iPackage.bytes).getValue()
-                val lteInternational = DataUnitBytes(iPackage.bytesLte).getValue()
                 val national = DataUnitBytes(iPackage.nationalBytes).getValue()
 
                 titlePackage.text = iPackage.name
                 textPrice.text = iPackage.price.toString()
                 valueMb.text = "${international.value} ${international.dataUnit}"
-                valueMbLte.text = "${lteInternational.value} ${lteInternational.dataUnit}"
                 valueMbCu.text = "${national.value} ${national.dataUnit}"
                 valueMin.text = "${iPackage.minutes} min"
                 valueSms.text = "${iPackage.sms} sms"
+
+                //La oferta actual no tiene datos solo para LTE. Los recursos a cero no se muestran.
+                hMbLte.visibility = View.GONE
+                valueMbLte.visibility = View.GONE
+                visibleIf(iPackage.nationalBytes > 0, hMbCu, valueMbCu)
+                visibleIf(iPackage.minutes > 0, hMin, valueMin)
+                visibleIf(iPackage.sms > 0, hSms, valueSms)
+                visibleIf(iPackage.minutes > 0 || iPackage.sms > 0, divider1)
 
                 buttonBuy.setOnClickListener {
                     fragment.purchasePackage(iPackage)
@@ -82,36 +75,7 @@ class PackagesRecyclerAdapter(
 
     }
 
-    inner class PackagesHolder(private var binding: ItemPackage2Binding?): ItemHolder(binding!!.root){
-
-        override fun onBind(iPackage: IDataPackage) {
-            binding?.apply {
-                val lteInternational = DataUnitBytes(iPackage.bytesLte).getValue()
-                val national = DataUnitBytes(iPackage.nationalBytes).getValue()
-
-                titlePackage.text = iPackage.name
-                textPrice.text = iPackage.price.toString()
-
-                if (iPackage.id == DataPackages.PackageId.P_4GB_12GB_LTE){
-                    val international = DataUnitBytes(iPackage.bytes).getValue()
-                    valueMbLte.text = "${international.value}\n + \n${lteInternational.value} (LTE) ${lteInternational.dataUnit}"
-                }else {
-                    valueMbLte.text = "${lteInternational.value} ${lteInternational.dataUnit}"
-                }
-                valueMbCu.text = "${national.value} ${national.dataUnit}"
-
-                buttonBuy.setOnClickListener {
-                    fragment.purchasePackage(iPackage)
-                }
-                if (iPackage.id == DataPackages.PackageId.MessagingBag){
-                    hMbCu.visibility = View.GONE
-                    valueMbCu.visibility = View.GONE
-                    hMbLte.text = "Megas"
-                    val international = DataUnitBytes(iPackage.bytes).getValue()
-                    valueMbLte.text = "${international.value} ${international.dataUnit}"
-                }
-            }
-        }
-
+    private fun visibleIf(visible: Boolean, vararg views: View) {
+        views.forEach { it.visibility = if (visible) View.VISIBLE else View.GONE }
     }
 }

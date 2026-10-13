@@ -124,50 +124,39 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/title_card_mode_selection"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:layout_marginBottom="10dp"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp">
 
                         <androidx.appcompat.widget.AppCompatRadioButton
-                            android:id="@+id/automatic_mode"
+                            android:id="@+id/can_buy_plans"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/automatic_mode"/>
+                            android:text="@string/can_buy_plans"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_marginStart="15dp"
                             android:layout_marginEnd="15dp"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/automatic_configuration_mode_summary" />
+                            android:text="@string/can_buy_plans_summary" />
 
                         <androidx.appcompat.widget.AppCompatRadioButton
-                            android:id="@+id/manual_mode"
+                            android:id="@+id/cannot_buy_plans"
                             android:layout_marginTop="6dp"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/manual_mode"/>
+                            android:text="@string/cannot_buy_plans"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_marginStart="15dp"
                             android:layout_marginEnd="15dp"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/manual_configuration_mode_summary" />
+                            android:text="@string/cannot_buy_plans_summary" />
 
                     </RadioGroup>
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btn_start_configuration"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/radio_group_mode"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        style="@style/BaseButton.SecondaryButton"
-                        android:text="@string/configure_packages"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="10dp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

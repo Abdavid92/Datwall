@@ -86,7 +86,13 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
                     setAdapter(it.second)
                 }
             }else {
+                // Una línea configurada sin planes es una línea empresarial.
+                val configured = it.first.setupDate > 0L
                 binding.apply {
+                    textSimNotConfigured.setText(
+                        if (configured) R.string.no_plans_available else R.string.no_sim_configured
+                    )
+                    buttonConfigureSim.visibility = if (configured) View.GONE else View.VISIBLE
                     linSimNotConfigured.visibility = View.VISIBLE
                     recycler.visibility = View.GONE
                 }

@@ -64,66 +64,19 @@ class PackagesViewModel @Inject constructor(
 
 
     fun prepareListPackages(sim: Sim): List<IDataPackage> {
+        if (sim.network == Networks.NETWORK_NONE || sim.packages.isEmpty())
+            return emptyList()
+
         val list = mutableListOf<IDataPackage>()
-        return when (sim.network) {
-            Networks.NETWORK_3G -> {
-                list.addAll(getNetworksPackages(Networks.NETWORK_3G, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
-                list
-            }
-            Networks.NETWORK_3G_4G -> {
-                list.addAll(getNetworksPackages(Networks.NETWORK_3G_4G, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_4G, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
-                list
-            }
-            Networks.NETWORK_4G -> {
-                list.addAll(getNetworksPackages(sim.network, sim.packages))
-                list.addAll(getNetworksPackages(Networks.NETWORK_NONE, sim.packages))
-                list
-            }
-            else -> emptyList()
-        }
-    }
 
+        list.add(
+            HeaderPackagesItem(
+                name = getApplication<Application>().getString(R.string.plan_title)
+            )
+        )
+        list.addAll(sim.packages)
 
-    private fun getNetworksPackages(
-        @Networks networks: String,
-        list: List<DataPackage>
-    ): List<IDataPackage> {
-        val ordered = mutableListOf<IDataPackage>()
-
-        when(networks) {
-            Networks.NETWORK_3G, Networks.NETWORK_3G_4G -> {
-                ordered.add(
-                    HeaderPackagesItem(
-                        name = getApplication<Application>().getString(R.string.plan_title)
-                    )
-                )
-
-                ordered.addAll(list.filter { it.network == Networks.NETWORK_3G_4G || it.network == Networks.NETWORK_3G })
-            }
-            Networks.NETWORK_4G -> {
-                ordered.add(
-                    HeaderPackagesItem(
-                        name = getApplication<Application>().getString(R.string.packages_title)
-                    )
-                )
-
-                ordered.addAll(list.filter { it.network == Networks.NETWORK_4G })
-            }
-            Networks.NETWORK_NONE -> {
-                ordered.add(
-                    HeaderPackagesItem(
-                        name = getApplication<Application>().getString(R.string.others_title)
-                    )
-                )
-
-                ordered.add(DataPackages.PACKAGES.first { it.id == DataPackages.PackageId.MessagingBag })
-            }
-        }
-
-        return ordered
+        return list
     }
 
 
