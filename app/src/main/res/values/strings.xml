@@ -123,7 +123,7 @@
     <string name="data_type_international_lte">Megas Internacionales (LTE)</string>
     <string name="data_type_national">Bono Navegación Nacional</string>
     <string name="data_type_promo_bonus">Bono Promoción</string>
-    <string name="data_type_daily_bag">Bolsa Diaria</string>
+    <string name="data_type_daily_bag">Plan Diario</string>
     <string name="no_package_data">No se han registrado megas \nUtilice el botón Sincronizar</string>
     <string name="synchronization_failed">Sincronización Fallida</string>
     <string name="synchronization_failed_message">Ocurrió un error desconocido y no se pudo sincronizar. Si el error persiste puede enviarnos un correo explicando el error. Gracias</string>
@@ -198,8 +198,8 @@
     <string name="notification_style_summary">Estilo que tendrá la notificación principal</string>
     <string name="main_notification">Notificación principal</string>
     <string name="secondary_notifications">Otras notificaciones</string>
-    <string name="daily_bag_notification">Bolsa diaria</string>
-    <string name="daily_bag_notification_summary">Notificar cuando quede el siguiente porcentaje de la bolsa diaria</string>
+    <string name="daily_bag_notification">Plan Diario</string>
+    <string name="daily_bag_notification_summary">Notificar cuando quede el siguiente porcentaje del Plan Diario</string>
     <string name="international_notification">Datos internacionales</string>
     <string name="international_notification_summary">Notificar cuando quede el siguiente porcentaje de los datos internacionales</string>
     <string name="international_lte_notification">Datos internacionales (Lte)</string>
@@ -234,7 +234,6 @@
     <string name="sim_default_data">Datos</string>
     <string name="sim_default_voice">Voz</string>
     <string name="not_execute_action">No se puede realizar la acción</string>
-    <string name="no_sim_default_data">La %s no es la Sim predeterminada para Datos Móviles</string>
     <string name="no_sim_default_voice">La %s no es la Sim predeterminada para Llamadas</string>
     <string name="set_default_sim">Establecer Sim Predeterminada</string>
     <string name="is_default_voice">Predeterminada Voz</string>
@@ -263,7 +262,7 @@
     <string name="enable_data_synchronization">Activar la Sincronización Automática</string>
     <string name="synchonization">Sincronización</string>
     <string name="traffic_international_lte">Internacional LTE</string>
-    <string name="traffic_bag_daily">Bolsa Diaria</string>
+    <string name="traffic_bag_daily">Plan Diario</string>
     <string name="traffic_promo_bonus">Bono Promoción</string>
     <string name="title_usage_general">Consumo General</string>
     <string name="purchase_function">Esta función es de pago y ya ha expirado el periodo de prueba. Debe comprar la licencia para poder seguir usandola.</string>
@@ -393,10 +392,6 @@
     <string name="rest_bytes">Megas Restantes</string>
     <string name="btn_change">Cambiar</string>
     <string name="date_bytes">Fecha de Expiración</string>
-    <string name="is_default_sim_data">¿Es la %s la Sim seleccionada la predeterminada para Datos Móviles?</string>
-    <string name="is_default_sim_voice">¿Es la %s la Sim seleccionada la predeterminada para Llamadas?</string>
-    <string name="is_default_sim_summary">Mis Datos no puede determinar si la Sim seleccionada es la predeterminada o no. Debe asegurarse de que la Sim sea la predeterminada en los Ajustes del Sistema antes de continuar o se producirán inexactitudes en la información. Seleccione Sí para realizar la operación si está seguro de que la Sim seleccionada es la predeterminada</string>
-    <string name="no_sim_default_summary">No se puede realizar la acción porque la Sim seleccionada no es la predeterminada. Debe cambiar en los Ajustes del Sistema la Sim predeterminada y volver a intentarlo</string>
     <string name="messaging_apps">Aplicaciones de consumo de mensajería (%d)</string>
     <string name="all_packages_plan_available">Todos los planes de datos</string>
     <string name="can_buy_plans">Sí, puede comprar planes</string>

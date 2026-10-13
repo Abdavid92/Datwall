@@ -11,7 +11,6 @@ import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.USSDHelper
 import com.smartsolutions.paquetes.helpers.getBytesFromText
 import com.smartsolutions.paquetes.managers.contracts.*
-import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -32,7 +31,6 @@ class SynchronizationManager @Inject constructor(
     private val context: Context,
     private val userDataBytesManager: IUserDataBytesManager,
     private val ussdHelper: USSDHelper,
-    private val simManager: ISimManager,
     private val simRepository: ISimRepository
 ) : ISynchronizationManager, CoroutineScope {
 
@@ -86,8 +84,8 @@ class SynchronizationManager @Inject constructor(
         if (_synchronizationMode == IDataPackageManager.ConnectionMode.USSD) {
             val data = mutableListOf<DataBytes>()
 
-            val bytesPackages = sendUSSDRequest("*222*328#")
-            val bonusPackages = sendUSSDRequest("*222*266#")
+            val bytesPackages = sendUSSDRequest("*222*328#", sim)
+            val bonusPackages = sendUSSDRequest("*222*266#", sim)
 
             if (bytesPackages != null && bonusPackages != null) {
 
@@ -110,16 +108,14 @@ class SynchronizationManager @Inject constructor(
                 data.addAll(obtainDataBytesPackages(bytesPackages))
                 data.addAll(obtainDataByteBonus(bonusPackages))
 
-                simManager.getDefaultSimBoth(SimType.VOICE)?.let {
-                    userDataBytesManager.synchronizeUserDataBytes(
-                        fillMissingDataBytes(data),
-                        it.id
-                    )
-                    withContext(Dispatchers.IO) {
-                        simRepository.update(it.apply {
-                            lastSynchronization = System.currentTimeMillis()
-                        })
-                    }
+                userDataBytesManager.synchronizeUserDataBytes(
+                    fillMissingDataBytes(data),
+                    sim.id
+                )
+                withContext(Dispatchers.IO) {
+                    simRepository.update(sim.apply {
+                        lastSynchronization = System.currentTimeMillis()
+                    })
                 }
 
             }
@@ -340,11 +336,11 @@ class SynchronizationManager @Inject constructor(
         return string
     }
 
-    private suspend fun sendUSSDRequest(ussd: String): Array<CharSequence>? {
+    private suspend fun sendUSSDRequest(ussd: String, sim: Sim): Array<CharSequence>? {
         return if (_synchronizationUSSDModeModern) {
-            ussdHelper.sendUSSDRequest(ussd)
+            ussdHelper.sendUSSDRequest(ussd, sim)
         } else {
-            ussdHelper.sendUSSDRequestLegacy(ussd, true)
+            ussdHelper.sendUSSDRequestLegacy(ussd, true, sim)
         }
     }
 

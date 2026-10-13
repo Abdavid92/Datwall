@@ -13,7 +13,6 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPackagesHolderBinding
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
@@ -118,14 +117,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
             builder.setTitle("Comprar ${dataPackage.name}")
                 .setMessage(dataPackage.description)
                 .setPositiveButton(getString(R.string.purchase)){_, _ ->
-                    viewModel.invokeOnDefaultSim(
-                        requireContext(),
-                        it,
-                        SimType.VOICE,
-                        parentFragmentManager
-                    ) {
-                        viewModel.purchasePackage(it, dataPackage, this)
-                    }
+                    viewModel.purchasePackage(it, dataPackage, this)
                 }
                 .setNegativeButton(getString(R.string.btn_cancel), null)
                 .show()

@@ -25,7 +25,7 @@ import com.smartsolutions.paquetes.repositories.models.Sim
  *
  * @param index - Índice en donde esta el tipo de paquete (si es 3G o 4G).
  * @param dataPackageIndex - Índice en donde está el paquete. Si este parámetro
- * es -1 se considera que se está construyendo el código ussd de la bolsa diaria
+ * es -1 se considera que se está construyendo el código ussd del Plan Diario
  * y por lo tanto el resultado será diferente.
  * */
 fun buildDataPackageUssdCode(index: Int, dataPackageIndex: Int): String {

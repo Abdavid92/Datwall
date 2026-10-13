@@ -15,9 +15,7 @@ import com.smartsolutions.paquetes.annotations.Networks
 @Entity(tableName = "sims")
 data class Sim(
     /**
-     * Id de la linea. Puede ser el cardId(android 30 o superior) o
-     * el iccId(android 29 o menor) del subscritionInfo
-     * utilizado para obtener la linea.
+     * Id de la linea: el subscriptionId del SubscriptionInfo.
      * */
     @PrimaryKey
     val id: String,

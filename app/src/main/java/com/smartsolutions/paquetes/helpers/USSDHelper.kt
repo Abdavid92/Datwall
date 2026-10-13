@@ -11,6 +11,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.telecom.PhoneAccountHandle
+import android.telecom.TelecomManager
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -18,6 +21,7 @@ import androidx.core.content.ContextCompat
 import com.abdavid92.persistentlog.Log
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
+import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.runBlocking
@@ -62,30 +66,37 @@ class USSDHelper @Inject constructor(
      * Ejecuta un código ussd.
      *
      * @param ussd - Código ussd.
+     * @param sim - Línea por la que se envía. Si es null se usa la del sistema.
      *
      * @return Array<CharSequence> con el cuerpo de la respuesta.
      * */
     @Throws(USSDRequestException::class)
-    suspend fun sendUSSDRequest(ussd: String): Array<CharSequence> {
+    suspend fun sendUSSDRequest(ussd: String, sim: Sim? = null): Array<CharSequence> {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            sendUSSDRequestOreo(ussd)
+            sendUSSDRequestOreo(ussd, sim)
         } else {
-            sendUSSDRequestLegacy(ussd)!!
+            sendUSSDRequestLegacy(ussd, true, sim)!!
         }
     }
 
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun sendUSSDRequestOreo(ussd: String): Array<CharSequence> {
+    private suspend fun sendUSSDRequestOreo(ussd: String, sim: Sim?): Array<CharSequence> {
 
         return suspendCancellableCoroutine {
-            ContextCompat.getSystemService(context, TelephonyManager::class.java)?.let { telephonyManager ->
+            ContextCompat.getSystemService(context, TelephonyManager::class.java)?.let { defaultManager ->
 
                 //Si el permiso de llamadas está denegado lanzo un error.
-                if (!callPermissionGranted())
+                if (!callPermissionGranted()) {
                     it.resumeWithException(USSDRequestException(
                         DENIED_CALL_PERMISSION,
                         errorMessages[DENIED_CALL_PERMISSION]))
+                    return@suspendCancellableCoroutine
+                }
+
+                val telephonyManager = subscriptionIdOf(sim)?.let { subscriptionId ->
+                    defaultManager.createForSubscriptionId(subscriptionId)
+                } ?: defaultManager
 
                 telephonyManager.sendUssdRequest(ussd, object : TelephonyManager.UssdResponseCallback() {
                     override fun onReceiveUssdResponse(
@@ -137,6 +148,8 @@ class USSDHelper @Inject constructor(
      * de que sea `true`, el servicio de accesibilidad debe estar encendido. En caso
      * contrario, no se verficará si el servicio está encendido y por lo tanto no se producirá
      * un error si este servicio está apagado.
+     * @param sim - Línea por la que se marca. Si es null o no se encuentra su cuenta,
+     * el sistema decide (o pregunta).
      *
      * @return Un Array de CharSequence con el cuerpo de la respuesta o null si la variable
      * readResponse es `false`, osea, no se quiere leer el cuerpo de la respuesta.
@@ -147,7 +160,11 @@ class USSDHelper @Inject constructor(
      * Si la respuesta se demora más del tiempo dado en la propiedad timeout se lanza una excepción.
      * */
     @Throws(USSDRequestException::class)
-    suspend fun sendUSSDRequestLegacy(ussd: String, readResponse: Boolean = true): Array<CharSequence>? {
+    suspend fun sendUSSDRequestLegacy(
+        ussd: String,
+        readResponse: Boolean = true,
+        sim: Sim? = null
+    ): Array<CharSequence>? {
         //Si el permiso de llamadas está denegado lanzo un error.
         if (!callPermissionGranted())
             throw USSDRequestException(DENIED_CALL_PERMISSION, errorMessages[DENIED_CALL_PERMISSION])
@@ -156,6 +173,10 @@ class USSDHelper @Inject constructor(
         val callIntent = Intent(Intent.ACTION_CALL)
             .setData(Uri.parse("tel:" + Uri.encode(ussd)))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        phoneAccountOf(sim)?.let {
+            callIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, it)
+        }
 
         val accessibilityServiceEnabled = accessibilityServiceHelper
             .accessibilityServiceEnabled()
@@ -224,6 +245,37 @@ class USSDHelper @Inject constructor(
         } else {
             context.startActivity(callIntent)
             return null
+        }
+    }
+
+    /**
+     * El id de la [Sim] es el subscriptionId. La sim embebida (sin id numérico) no tiene.
+     * */
+    private fun subscriptionIdOf(sim: Sim?): Int? = sim?.id?.toIntOrNull()
+
+    /**
+     * Cuenta de llamadas de la línea, para que ACTION_CALL no use la SIM de voz por defecto.
+     * */
+    @SuppressLint("MissingPermission")
+    private fun phoneAccountOf(sim: Sim?): PhoneAccountHandle? {
+        val subscriptionId = subscriptionIdOf(sim) ?: return null
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) !=
+            PackageManager.PERMISSION_GRANTED)
+            return null
+
+        val accounts = ContextCompat.getSystemService(context, TelecomManager::class.java)
+            ?.callCapablePhoneAccounts ?: return null
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val telephonyManager = ContextCompat.getSystemService(context, TelephonyManager::class.java)
+                ?: return null
+            accounts.firstOrNull { telephonyManager.getSubscriptionId(it) == subscriptionId }
+        } else {
+            // Antes de Android 11 el id de la cuenta suele ser el subscriptionId o el iccId.
+            val iccId = ContextCompat.getSystemService(context, SubscriptionManager::class.java)
+                ?.getActiveSubscriptionInfo(subscriptionId)?.iccId
+            accounts.firstOrNull { it.id == subscriptionId.toString() || it.id == iccId }
         }
     }
 

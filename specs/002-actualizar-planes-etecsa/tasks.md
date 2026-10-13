@@ -73,11 +73,11 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 
 **Independent Test**: [quickstart.md](quickstart.md) sección 5.
 
-- [ ] T016 [US2] En B/helpers/USSDHelper.kt añadir un parámetro `sim: Sim?` a `sendUSSDRequest`, `sendUSSDRequestOreo` y `sendUSSDRequestLegacy`; en el modo moderno usar `telephonyManager.createForSubscriptionId(sim.id.toInt())` cuando `sim` no sea null y su id sea numérico (research R5)
-- [ ] T017 [US2] En `sendUSSDRequestLegacy` de B/helpers/USSDHelper.kt añadir `TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE` al `ACTION_CALL` con la cuenta de la SIM: en API ≥ 30 la cuenta de `TelecomManager.getCallCapablePhoneAccounts()` cuyo `TelephonyManager.getSubscriptionId(handle)` sea el de la SIM; en API < 30 la que tenga `handle.id` igual al `subscriptionId` o al `iccId`; si no se encuentra, sin extra (comportamiento actual)
-- [ ] T018 [US2] Pasar la SIM: B/managers/DataPackageManager.kt `buyDataPackageForUSSD` (≈ línea 213) usa `sim`; B/managers/SynchronizationManager.kt `synchronizeUserDataBytes(sim)` (≈ líneas 85–127 y 343–349) la pasa a USSD y guarda los datos en `sim`, no en `getDefaultSimBoth(VOICE)`
-- [ ] T019 [US2] Quitar la comprobación "¿es la SIM predeterminada para llamadas?" (`SimsHelper.invokeOnDefault(VOICE)`) en la compra de B/ui/packages/PackagesHolderFragment.kt (≈ líneas 108–127) y en la sincronización de B/ui/resume/ResumeViewModel.kt (≈ líneas 138–142), que debe sincronizar la SIM de la pestaña seleccionada
-- [ ] T020 [US2] Validar quickstart.md sección 5 en el teléfono (SIM 2, sin plan: 0 datos sin error; en el log de radio el USSD sale por `PHONE1`); commit: "USSD por la SIM elegida"
+- [X] T016 [US2] En B/helpers/USSDHelper.kt añadir un parámetro `sim: Sim?` a `sendUSSDRequest`, `sendUSSDRequestOreo` y `sendUSSDRequestLegacy`; en el modo moderno usar `telephonyManager.createForSubscriptionId(sim.id.toInt())` cuando `sim` no sea null y su id sea numérico (research R5)
+- [X] T017 [US2] En `sendUSSDRequestLegacy` de B/helpers/USSDHelper.kt añadir `TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE` al `ACTION_CALL` con la cuenta de la SIM: en API ≥ 30 la cuenta de `TelecomManager.getCallCapablePhoneAccounts()` cuyo `TelephonyManager.getSubscriptionId(handle)` sea el de la SIM; en API < 30 la que tenga `handle.id` igual al `subscriptionId` o al `iccId`; si no se encuentra, sin extra (comportamiento actual)
+- [X] T018 [US2] Pasar la SIM: B/managers/DataPackageManager.kt `buyDataPackageForUSSD` (≈ línea 213) usa `sim`; B/managers/SynchronizationManager.kt `synchronizeUserDataBytes(sim)` (≈ líneas 85–127 y 343–349) la pasa a USSD y guarda los datos en `sim`, no en `getDefaultSimBoth(VOICE)`
+- [X] T019 [US2] Quitar la comprobación "¿es la SIM predeterminada para llamadas?" (`SimsHelper.invokeOnDefault(VOICE)`) en la compra de B/ui/packages/PackagesHolderFragment.kt (≈ líneas 108–127) y en la sincronización de B/ui/resume/ResumeViewModel.kt (≈ líneas 138–142), que debe sincronizar la SIM de la pestaña seleccionada
+- [X] T020 [US2] Validar quickstart.md sección 5 en el teléfono (SIM 2, sin plan: 0 datos sin error; en el log de radio el USSD sale por `PHONE1`); commit: "USSD por la SIM elegida"
 
 ---
 

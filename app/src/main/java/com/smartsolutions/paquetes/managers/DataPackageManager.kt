@@ -178,7 +178,7 @@ class DataPackageManager @Inject constructor(
 
     private suspend fun buyDataPackageForUSSD(dataPackage: DataPackage, sim: Sim) {
 
-        ussdHelper.sendUSSDRequestLegacy(buildUssd(dataPackage),false)
+        ussdHelper.sendUSSDRequestLegacy(buildUssd(dataPackage), false, sim)
 
         purchasedPackagesManager.newPurchased(
             dataPackage.id,

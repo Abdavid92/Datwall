@@ -17,7 +17,7 @@ open class DataBytes(
         PromoBonusLte, // Bono de promoción de consumo en la red lte
         PromoBonus, // Bono de promoción de consumo internacional en todas las redes
         National, // Datos de consumo nacional en todas las redes
-        DailyBag, // Bolsa diaria
+        DailyBag, // Plan Diario
         MessagingBag; // Bolsa de mensajería
 
         companion object {

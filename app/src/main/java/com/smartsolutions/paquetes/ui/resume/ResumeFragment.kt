@@ -15,7 +15,6 @@ import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.AbstractFragment
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
@@ -85,15 +84,8 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         configureAnimationFAB()
 
         binding.floatingActionButton.setOnClickListener {
-            viewModel.invokeOnDefaultSim(
-                requireContext(),
-                installedSims[binding.pager.currentItem],
-                SimType.VOICE,
-                parentFragmentManager
-            ){
-                animateFAB(true)
-                viewModel.synchronizeUserDataBytes(this)
-            }
+            animateFAB(true)
+            viewModel.synchronizeUserDataBytes(installedSims[binding.pager.currentItem], this)
         }
 
         binding.floatingActionButton.setOnLongClickListener {

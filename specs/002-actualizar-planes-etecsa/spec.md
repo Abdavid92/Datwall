@@ -63,6 +63,15 @@ Tarifa: No activa. Datos: 130.08 MB validos 24 dias.
 Los datos aparecen tras `Datos:` (antes era `Paquetes:`), y la vigencia se indica en días restantes
 ("validos 24 dias"), no como fecha.
 
+**Respuesta de `*222*328#` con el Plan Diario comprado y sin usar** (SIM 2, 2026-10-13):
+
+```text
+Tarifa: No activa. Diaria: 200 MB no activos.
+```
+
+El Plan Diario aparece tras `Diaria:`. Mientras no se use, no tiene vencimiento ("no activos"): se
+registra con los 200 MB y sin fecha de vencimiento.
+
 **Respuesta de `*222*266#` (bonos activos)** (2026-10-13):
 
 ```text
