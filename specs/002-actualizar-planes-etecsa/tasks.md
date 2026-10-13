@@ -38,7 +38,7 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 **Purpose**: research R1, R2 y R4 (migración de SIM). **Bloquea todas las historias.**
 
 - [ ] T002 Escribir primero T/data/DataPackagesTest.kt: los planes con `deprecated = false` son exactamente `DailyBag`, `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB` con los valores de data-model.md (precio, `bytes`, `nationalBytes` = 300 MB salvo el Diario = 0, `minutes`, `sms`, `network` = `NETWORK_3G_4G`, `index` 1–4 para los de 35 días, `duration` 35 y 1 para el Diario, `bytesLte` = 0); todos los demás valores del enum tienen `deprecated = true`; los ordinales de los 8 valores antiguos no cambian (`DailyBag` = 0 … `MessagingBag` = 7). Debe fallar
-- [ ] T003 En B/data/DataPackages.kt: añadir **al final** de `PackageId` los valores `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB` (sin mover ni borrar los existentes); redefinir `DailyBag` como Plan Diario (25 CUP, 200 MB todas las redes, `NETWORK_3G_4G`, 24 horas); añadir los 4 planes de 35 días con los `smsKey` verificados de research.md R7 (`Plan 4.5GB`, `Plan 2GB+15MIN+20SMS`, `Plan 4GB+35MIN+40SMS`, `Plan 6GB+60MIN+70SMS`); marcar `deprecated = true` los 7 restantes; `PACKAGES_VERSION = 4`; `GENERAL_DURATION = 35`; añadir `DAILY_PLAN_USSD = "*133*1*3#"` y `PLANS_USSD_PREFIX = "*133*1*4*"`. Descripciones con la vigencia de 35 días y la suma de recursos (FR-009). T002 pasa
+- [ ] T003 En B/data/DataPackages.kt: añadir **al final** de `PackageId` los valores `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB` (sin mover ni borrar los existentes); redefinir `DailyBag` como Plan Diario (25 CUP, 200 MB todas las redes, `NETWORK_3G_4G`, 24 horas, `smsKey` = `Plan Diario 200MB`); añadir los 4 planes de 35 días con los `smsKey` verificados de research.md R7 (`Plan 4.5GB`, `Plan 2GB+15MIN+20SMS`, `Plan 4GB+35MIN+40SMS`, `Plan 6GB+60MIN+70SMS`); marcar `deprecated = true` los 7 restantes; `PACKAGES_VERSION = 4`; `GENERAL_DURATION = 35`; añadir `DAILY_PLAN_USSD = "*133*1*3#"` y `PLANS_USSD_PREFIX = "*133*1*4*"`. Descripciones con la vigencia de 35 días y la suma de recursos (FR-009). T002 pasa
 - [ ] T004 En B/data/IDataPackageDao.kt cambiar el `@Insert(onConflict = REPLACE)` usado por `createOrUpdate` por `@Upsert`, para que actualizar el catálogo no borre en cascada `purchased_packages` (research R2)
 - [ ] T005 En B/managers/DataPackageManager.kt (`createOrUpdateDataPackages`, ≈ líneas 68–81): al pasar de una versión < 4 a la 4, poner `network = NETWORK_3G_4G` en las SIM con `network != NETWORK_NONE` (research R4, migración de datos)
 - [ ] T006 [P] En B/repositories/SimRepository.kt (`transform`, ≈ líneas 87–117) y B/repositories/DataPackageRepository.kt (`transform`, ≈ líneas 81–111) excluir los paquetes con `deprecated = true` en todas las consultas
@@ -102,7 +102,7 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 - [ ] T024 [US4] Crear B/managers/UssdBalanceParser.kt (sin dependencias de Android) moviendo desde B/managers/SynchronizationManager.kt `obtainDataBytesPackages`, `obtainDataByteBonus`, `getInternationals`, `getExpireDatePackages`, `getExpireDateBonus` y sus constantes; `*222*328#` lee los datos tras `Datos:` como `International` (se mantiene `Diaria:`); SynchronizationManager usa el parser. T023 pasa
 - [ ] T025 [P] [US4] Escribir primero T/repositories/DataBytesTest.kt: `DataBytes.getDataTypeOfInternationalNetworks()` devuelve `International` y `PromoBonus`. Debe fallar; corregir el `&&`/`==` en B/repositories/models/DataBytes.kt (≈ líneas 39–46)
 - [ ] T026 [P] [US4] En B/managers/UserDataBytesManager.kt sustituir los 30 días fijos (≈ líneas 91, 106, 188, 276) por `DataPackages.GENERAL_DURATION`
-- [ ] T027 [P] [US4] Escribir primero T/managers/PurchaseSmsMatcherTest.kt con los 4 SMS reales de spec.md: cada uno devuelve su `PackageId` (`Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB`); un SMS de promoción no devuelve ningún plan; el SMS de 240 no se confunde con el de 4.5 GB. Debe fallar
+- [ ] T027 [P] [US4] Escribir primero T/managers/PurchaseSmsMatcherTest.kt con los 5 SMS reales de spec.md: cada uno devuelve su `PackageId` (`DailyBag`, `Plan_4_5GB`, `Plan_2GB`, `Plan_4GB`, `Plan_6GB`); un SMS de promoción no devuelve ningún plan; el SMS de 240 no se confunde con el de 4.5 GB. Debe fallar
 - [ ] T028 [US4] Crear la función pura `findPurchasedPackage(smsBody)` en B/data/DataPackages.kt que normaliza (sin espacios, minúsculas) el texto y cada `smsKey` y devuelve el plan cuya clave completa aparece; usarla en `registerDataPackage` de B/receivers/SmsReceiver.kt (≈ líneas 171–209) y en `seedOldPurchasedPackages` de B/managers/PurchasedPackagesManager.kt (≈ líneas 107–158). T027 pasa
 - [ ] T029 [US4] En B/receivers/SmsReceiver.kt (≈ líneas 33–60) aceptar los remitentes `cubacel` y `ETECSA` sin distinguir mayúsculas (research R7)
 - [ ] T030 [US4] Compilar y pasar pruebas; validar la sincronización en el teléfono (SIM 2); commit: "Lectura del saldo y de los SMS con el formato nuevo"
@@ -113,7 +113,7 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 
 - [ ] T031 Ejecutar `./gradlew lintRelease testDebugUnitTest assembleDebug assembleRelease` y corregir lo nuevo
 - [ ] T032 [P] Revisar textos que mencionen "LTE", "Bolsa" o "Mensajería" en la pantalla de compra y la configuración (R/values/strings.xml, R/values-es/strings.xml); las notificaciones y estadísticas quedan para la fase 4
-- [ ] T033 Anotar en este archivo los resultados de la verificación en dispositivo y lo que queda pendiente (SMS del Plan Diario)
+- [ ] T033 Anotar en este archivo los resultados de la verificación en dispositivo y lo que queda pendiente
 
 ---
 
@@ -140,7 +140,7 @@ modificada. Se escriben antes de la implementación y deben fallar primero.
 Task: "T023 [US4] UssdBalanceParserTest con los ejemplos reales"
 Task: "T025 [US4] DataBytesTest y arreglo de getDataTypeOfInternationalNetworks"
 Task: "T026 [US4] 35 días en UserDataBytesManager"
-Task: "T027 [US4] PurchaseSmsMatcherTest con los 4 SMS reales"
+Task: "T027 [US4] PurchaseSmsMatcherTest con los 5 SMS reales"
 ```
 
 ---

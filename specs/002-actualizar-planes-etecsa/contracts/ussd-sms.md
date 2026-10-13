@@ -24,6 +24,6 @@ La app depende de los formatos de ETECSA. Este es el contrato que debe cumplir.
 - Remitentes aceptados: `cubacel` y `ETECSA` (sin distinguir mayúsculas).
 - Se busca el `smsKey` de cada plan en el texto normalizado (sin espacios, sin mayúsculas).
 - Ejemplos verificados (texto tras "Se ha comprado"): `Plan 4.5GB` → Plan 4.5 GB; `Plan 2GB+15MIN+20SMS` →
-  Plan 120; `Plan 4GB+35MIN+40SMS` → Plan 240; `Plan 6GB+60MIN+70SMS` → Plan 360. El Plan Diario no está
-  verificado.
+  Plan 120; `Plan 4GB+35MIN+40SMS` → Plan 240; `Plan 6GB+60MIN+70SMS` → Plan 360; `Plan Diario 200MB` → Plan
+  Diario.
 - La comparación usa la clave completa, para no confundir planes cuyas claves empiezan igual.

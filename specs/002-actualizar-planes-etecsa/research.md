@@ -85,7 +85,7 @@ Fecha: 2026-10-13. Basado en el inventario del código de la rama `002-actualiza
 | Plan 240 | `Plan 4GB+35MIN+40SMS` | ✅ verificada |
 | Plan 360 | `Plan 6GB+60MIN+70SMS` | ✅ verificada |
 | Plan 4.5 GB | `Plan 4.5GB` | ✅ verificada |
-| Plan Diario | `bolsa Diaria de 200MB` (clave antigua) | por confirmar |
+| Plan Diario | `Plan Diario 200MB` | ✅ verificada |
 
 - **Bug relacionado**: `SmsReceiver` solo acepta el remitente "cubacel"; los SMS de ETECSA del teléfono de
   pruebas llegan del remitente **"ETECSA"**. Se aceptan ambos.
@@ -101,4 +101,3 @@ Fecha: 2026-10-13. Basado en el inventario del código de la rama `002-actualiza
 
 - Quitar los textos "LTE" de las notificaciones y estadísticas (fase 4, UI).
 - Planes Adicional, Extra, Sectorial, SMS y voz (decisión del usuario).
-- La exactitud de las claves "por confirmar" hasta tener los SMS reales.

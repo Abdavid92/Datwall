@@ -42,6 +42,12 @@ ETECSA Plan Nacional: Se ha comprado Plan 4GB+35MIN+40SMS valido por 35 dias, se
 ETECSA Plan Nacional: Se ha comprado Plan 6GB+60MIN+70SMS valido por 35 dias, se activa con el primer uso. Se desconto 360.00 CUP. Saldo actual ****.** CUP
 ```
 
+**SMS de confirmación de compra — Plan Diario** (2026-10-13):
+
+```text
+ETECSA Plan Nacional: Se ha comprado Plan Diario 200MB valido por 24 horas, se activa con el primer uso. Se desconto 25.00 CUP. Saldo actual ****.** CUP
+```
+
 **Respuesta de `*222*328#` sin plan activo** (SIM 2, 2026-10-13):
 
 ```text
@@ -66,8 +72,7 @@ Datos.cu 273 MB vence 06-11-26.
 Muestra los bonos activos; aquí, los datos nacionales (.cu) con fecha de vencimiento en formato
 `dd-MM-yy`. Sin bono de promoción activo, ese bloque no aparece.
 
-Pendientes: SMS de compra del Plan Diario y una respuesta de `*222*266#` con un bono de promoción activo
-(si alguien lo tiene).
+Pendiente (opcional): una respuesta de `*222*266#` con un bono de promoción activo.
 
 ## User Scenarios & Testing *(mandatory)*
 
