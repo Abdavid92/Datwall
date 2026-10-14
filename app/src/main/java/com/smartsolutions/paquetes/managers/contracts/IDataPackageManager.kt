@@ -72,14 +72,13 @@ interface IDataPackageManager {
     suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim)
 
     /**
-     * Registra un paquete comprado y actualiza los corresppondientes
-     * repositorios.
+     * Confirma la compra sin confirmar del plan que indica el SMS de compra que el usuario
+     * compartió (SMS User Consent).
      *
-     * @param smsBody - Cuerpo del mensage recibido como confirmación
-     * del paquete comprado.
-     * @param simIndex - Index o slot de la linea por donde entró el mensaje.
+     * @param smsBody - Texto del SMS de ETECSA.
+     * @param simId - Línea por la que se hizo la compra.
      * */
-    suspend fun registerDataPackage(smsBody: String, simIndex: Int)
+    suspend fun confirmPurchaseFromSms(smsBody: String, simId: String)
 
     /**
      * Modo de compra y sincronización de los paquetes.

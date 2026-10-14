@@ -3,6 +3,7 @@ package com.smartsolutions.paquetes.managers.sims
 import android.content.Context
 import android.telephony.SubscriptionInfo
 import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.internalDataStore
@@ -135,7 +136,13 @@ class SimManager @Inject constructor(
 
     private fun getSimsState(): Pair<SimsState, List<SubscriptionInfo>> {
 
-        val infos = simDelegate.getActiveSimsInfo()
+        // Sin el permiso de teléfono no se pueden leer las líneas: se trabaja con una sola
+        // línea sin identificar hasta que el usuario lo conceda.
+        val infos = try {
+            simDelegate.getActiveSimsInfo()
+        } catch (e: MissingPermissionException) {
+            return SimsState.Embedded to emptyList()
+        }
 
         val status = when (infos.size) {
             0 -> SimsState.Embedded

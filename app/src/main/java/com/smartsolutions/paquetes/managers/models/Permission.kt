@@ -10,9 +10,12 @@ data class Permission(
     val name: String,
     val keys: Array<String>,
     val description: String,
-    val category: Category,
     val requestCode: Int,
     val minSdk: Int,
+    /**
+     * Se pide en el primer uso. El resto se pide al usar la función que lo necesita.
+     * */
+    val atStartup: Boolean = false,
     val checkPermission: Permission.(context: Context) -> Boolean = { context ->
 
         var result = true
@@ -35,11 +38,6 @@ data class Permission(
 
     var intent: Intent? = null
 
-    enum class Category {
-        Required,
-        Optional
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -49,7 +47,7 @@ data class Permission(
         if (name != other.name) return false
         if (!keys.contentEquals(other.keys)) return false
         if (description != other.description) return false
-        if (category != other.category) return false
+        if (atStartup != other.atStartup) return false
 
         return true
     }
@@ -58,7 +56,7 @@ data class Permission(
         var result = name.hashCode()
         result = 31 * result + keys.contentHashCode()
         result = 31 * result + description.hashCode()
-        result = 31 * result + category.hashCode()
+        result = 31 * result + atStartup.hashCode()
         return result
     }
 }

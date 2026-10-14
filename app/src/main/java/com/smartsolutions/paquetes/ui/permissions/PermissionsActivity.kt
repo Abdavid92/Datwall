@@ -1,66 +1,99 @@
 package com.smartsolutions.paquetes.ui.permissions
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.Button
+import android.provider.Settings
+import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.managers.models.Permission
+import com.smartsolutions.paquetes.managers.PermissionAction
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.addOpenActivityListener
-import com.smartsolutions.paquetes.ui.next
 import dagger.hilt.android.AndroidEntryPoint
-import moe.feng.common.stepperview.VerticalStepperView
+import kotlinx.coroutines.launch
 
 /**
- * Actividad de los permisos.
+ * Explicación del uso de datos y lista de permisos. En el primer uso muestra solo los permisos
+ * que se piden al inicio y deja continuar sin conceder ninguno; desde Ajustes ("Permisos y
+ * privacidad") muestra todos y la recomendación de batería.
  * */
 @AndroidEntryPoint
 class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
     private val viewModel by viewModels<PermissionsViewModel>()
 
-    private lateinit var steppers: VerticalStepperView
+    private val adapter = PermissionsAdapter { onPermissionAction(it) }
+
+    private val isFirstUse by lazy { intent.action != ACTION_PERMISSIONS_SETTINGS }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        steppers = findViewById(R.id.steppers)
+        if (!isFirstUse) {
+            setTitle(R.string.permissions_privacy)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
 
-        steppers.isAnimationEnabled = true
+        findViewById<RecyclerView>(R.id.permissions).adapter = adapter
 
-        steppers.stepperAdapter = StepperAdapter(viewModel.permissions, this)
+        findViewById<View>(R.id.battery_recommendation).apply {
+            visibility = if (isFirstUse) View.GONE else View.VISIBLE
+            findViewById<View>(R.id.btn_battery).setOnClickListener {
+                startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+            }
+        }
 
-        viewModel.addOpenActivityListener(this) { activity, args, application ->
-            application.removeOpenActivityListener(this)
-            startActivity(Intent(this, activity))
-            finish()
+        if (isFirstUse) {
+            findViewById<View>(R.id.startup_buttons).visibility = View.VISIBLE
+            findViewById<View>(R.id.btn_not_now).setOnClickListener { viewModel.finishFirstUse() }
+            findViewById<View>(R.id.btn_continue).setOnClickListener { viewModel.finishFirstUse() }
+
+            viewModel.addOpenActivityListener(this) { activity, _, application ->
+                application.removeOpenActivityListener(this)
+                startActivity(Intent(this, activity))
+                finish()
+            }
         }
     }
 
-    fun nextStep() {
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
 
-        steppers.setErrorText(steppers.currentStep, null)
+    override fun onResume() {
+        super.onResume()
+        refresh()
+    }
 
-        if (steppers.canNext())
-            steppers.nextStep()
-        else {
-            viewModel.next()
+    private fun refresh() {
+        lifecycleScope.launch {
+            adapter.items = viewModel.permissions(isFirstUse).map {
+                PermissionItem(it, viewModel.permissionsManager.actionFor(it, this@PermissionsActivity))
+            }
         }
     }
 
+    private fun onPermissionAction(item: PermissionItem) {
+        when (item.action) {
+            PermissionAction.Nothing -> Unit
+            PermissionAction.OpenAppSettings -> openAppSettings()
+            PermissionAction.Request -> lifecycleScope.launch {
+                viewModel.permissionsManager.markRequested(item.permission.requestCode)
+                item.permission.requestPermissionActivity(item.permission, this@PermissionsActivity)
+            }
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        viewModel.permissions.firstOrNull {
-            it.requestCode == requestCode
-        }?.let {
-            processPermissionResult(it.checkPermission(it, this), it)
-        }
+        refresh()
     }
 
     override fun onRequestPermissionsResult(
@@ -70,29 +103,26 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        viewModel.permissions.firstOrNull {
-            it.requestCode == requestCode
-        }?.let {
-            var granted = true
+        val granted = grantResults.isNotEmpty() &&
+                grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED }
 
-            grantResults.forEach { result ->
-                if (result == PackageManager.PERMISSION_DENIED)
-                    granted = false
+        if (!isFirstUse && granted && requestCode == IPermissionsManager.CALL_CODE) {
+            lifecycleScope.launch {
+                if (restartIfSimSetupPending(viewModel.configurationManager))
+                    finish()
+                else
+                    refresh()
             }
-
-            processPermissionResult(granted, it)
+        } else {
+            refresh()
         }
     }
 
-    private fun processPermissionResult(granted: Boolean, permission: Permission) {
-        if (granted) {
-            nextStep()
-        } else {
-            if (permission.category == Permission.Category.Required) {
-                steppers.setErrorText(steppers.currentStep, getString(R.string.required_permission_denied))
-            } else {
-                steppers.setErrorText(steppers.currentStep, getString(R.string.optional_permission_denied))
-            }
-        }
+    companion object {
+        /**
+         * Acción con la que Ajustes abre la sección "Permisos y privacidad"
+         * (res/xml/header_preferences.xml).
+         * */
+        const val ACTION_PERMISSIONS_SETTINGS = "com.smartsolutions.paquetes.action.PERMISSIONS_SETTINGS"
     }
 }

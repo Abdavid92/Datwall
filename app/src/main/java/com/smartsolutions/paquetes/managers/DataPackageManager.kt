@@ -136,43 +136,11 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    override suspend fun registerDataPackage(smsBody: String, simIndex: Int) {
-
-        val defaultSim = if (simIndex == -1)
-            simManager.getDefaultSimBoth(SimType.VOICE)
-        else
-            simManager.getInstalledSims().firstOrNull { it.slotIndex == simIndex } ?:
-            simManager.getDefaultSimBoth(SimType.VOICE)
-
-        if (smsBody.contains(DataPackages.PROMO_BONUS_KEY)) {
-            val bytes = UssdBalanceParser.readBytes("Bonos: ", smsBody)
-            val bytesLte = UssdBalanceParser.readBytes(" y ", smsBody) ?: -1L
-
-            if (bytes != null) {
-                defaultSim?.id?.let {
-                    userDataBytesManager.addPromoBonus(it, bytes, bytesLte)
-                }
-            }
-            return
-        } else if (smsBody.contains(DataPackages.MESSAGING_BAG_KEY)){
-            defaultSim?.id?.let { simId ->
-                DataPackages.PACKAGES.firstOrNull { it.id == DataPackages.PackageId.MessagingBag }?.let {
-                    userDataBytesManager.addMessagingBag(simId, it)
-                }
-            }
-            return
-        }
-
+    override suspend fun confirmPurchaseFromSms(smsBody: String, simId: String) {
+        // Solo se confirma la compra: los datos llegan con la sincronización y sumarlos aquí
+        // los duplicaría.
         DataPackages.findPurchasedPackage(smsBody)?.let {
-
-            withContext(Dispatchers.IO){
-                dataPackageRepository.get(it.id)
-            }?.let { dataPackage ->
-                defaultSim?.id?.let {
-                    userDataBytesManager.addDataBytes(dataPackage, it)
-                    purchasedPackagesManager.confirmPurchased(dataPackage.id, it)
-                }
-            }
+            purchasedPackagesManager.confirmPurchased(it.id, simId)
         }
     }
 

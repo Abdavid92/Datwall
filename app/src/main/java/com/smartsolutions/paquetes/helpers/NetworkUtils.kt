@@ -8,7 +8,6 @@ import android.os.Build
 import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlin.jvm.Throws
@@ -24,8 +23,11 @@ class NetworkUtils @Inject constructor(
     private val telephonyManager = ContextCompat
         .getSystemService(context, TelephonyManager::class.java) ?: throw NullPointerException()
 
+    /**
+     * Generación de la red móvil actual. Sin el permiso de teléfono devuelve
+     * [NetworkType.NETWORK_UNKNOWN].
+     * */
     @Suppress("DEPRECATION")
-    @Throws(MissingPermissionException::class)
     fun getNetworkGeneration(): NetworkType {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (ActivityCompat.checkSelfPermission(
@@ -33,7 +35,7 @@ class NetworkUtils @Inject constructor(
                     Manifest.permission.READ_PHONE_STATE
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                throw MissingPermissionException(Manifest.permission.READ_PHONE_STATE)
+                return NetworkType.NETWORK_UNKNOWN
             }
             getNetworkGeneration(telephonyManager.dataNetworkType)
         } else {

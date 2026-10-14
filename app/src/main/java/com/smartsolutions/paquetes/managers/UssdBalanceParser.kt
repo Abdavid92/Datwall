@@ -101,13 +101,6 @@ object UssdBalanceParser {
     }
 
     /**
-     * Cantidad de bytes escrita justo después de [key], p. ej. "Bonos: 1.5 GB".
-     *
-     * @return los bytes o null si no aparece la clave o la cantidad.
-     * */
-    fun readBytes(key: String, text: String): Long? = bytesAfter(key, text, emptyList())
-
-    /**
      * Formato anterior a 2026: "Paquetes: X [+ Y LTE] validos N dias".
      * */
     private fun legacyInternationals(text: String, now: Long): List<DataBytes> {

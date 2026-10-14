@@ -26,14 +26,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
         android:text="@string/start_accessibility_service_summary"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textAlignment="center" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_jump"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/btn_cancel"
+        android:text="@string/btn_no_thanks"
         style="@style/BaseButton.SecondaryButton"
         app:layout_constraintTop_toBottomOf="@id/summary"
         app:layout_constraintEnd_toStartOf="@id/btn_open_settings"
@@ -47,6 +46,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/summary"
         android:layout_marginEnd="8dp"
-        android:text="@string/open_settings" />
+        android:text="@string/btn_accept" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

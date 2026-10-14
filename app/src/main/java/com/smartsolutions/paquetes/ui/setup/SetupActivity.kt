@@ -36,6 +36,10 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup),
         nextOrComplete()
     }
 
+    override fun onSetupSkipped() {
+        viewModel.next()
+    }
+
     private fun nextOrComplete() {
         if (viewModel.hasNextConfiguration()) {
             supportFragmentManager.beginTransaction()

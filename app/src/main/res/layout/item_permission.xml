@@ -3,29 +3,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/permission_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/state"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Acceso de uso" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@id/permission_name"
+        tools:text="Concedido" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/description"
-        android:paddingTop="4dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingBottom="6dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/permission_name"
         tools:text="Descripción del permiso" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_jump"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toStartOf="@id/btn_grant"
-        app:layout_constraintTop_toBottomOf="@id/description"
-        style="@style/BaseButton.SecondaryButton"
-        android:text="@string/jump" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_grant"

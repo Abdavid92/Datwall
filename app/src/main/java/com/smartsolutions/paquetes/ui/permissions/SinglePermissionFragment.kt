@@ -12,7 +12,9 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.managers.models.Permission
+import com.smartsolutions.paquetes.managers.PermissionAction
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -61,30 +63,66 @@ class SinglePermissionFragment private constructor(
         view.findViewById<MaterialTextView>(R.id.description)
             .text = viewModel.permission.description
 
-        view.findViewById<AppCompatButton>(R.id.btn_jump).apply {
-            if (viewModel.permission.category == Permission.Category.Required)
-                this.visibility = View.GONE
-            else {
-                setOnClickListener {
-                    dismiss()
-                    notifyResult(false)
+        view.findViewById<AppCompatButton>(R.id.btn_jump).setOnClickListener {
+            notifyResult(false)
+        }
+
+        val grantButton = view.findViewById<AppCompatButton>(R.id.btn_grant)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val action = viewModel.permissionManager.actionFor(viewModel.permission, requireActivity())
+
+            if (action == PermissionAction.OpenAppSettings)
+                grantButton.setText(R.string.btn_open_settings)
+
+            grantButton.setOnClickListener {
+                when (action) {
+                    PermissionAction.Nothing -> notifyResult(true)
+                    PermissionAction.OpenAppSettings -> {
+                        waitingAppSettings = true
+                        requireContext().openAppSettings()
+                    }
+                    PermissionAction.Request -> viewLifecycleOwner.lifecycleScope.launch {
+                        viewModel.permissionManager.markRequested(viewModel.permission.requestCode)
+                        viewModel.permission
+                            .requestPermissionFragment(viewModel.permission, this@SinglePermissionFragment)
+                    }
                 }
             }
         }
+    }
 
-        view.findViewById<AppCompatButton>(R.id.btn_grant)
-            .setOnClickListener {
-                viewModel.permission
-                    .requestPermissionFragment(viewModel.permission, this)
-            }
+    /**
+     * El usuario fue a los ajustes de la app a conceder un permiso rechazado de forma permanente.
+     * */
+    private var waitingAppSettings = false
+
+    override fun onResume() {
+        super.onResume()
+
+        if (waitingAppSettings) {
+            waitingAppSettings = false
+            notifyResult(viewModel.permission.checkPermission(viewModel.permission, requireContext()))
+        }
     }
 
     private fun notifyResult(granted: Boolean) {
         viewModel.granted = granted
-        if (granted)
+
+        if (granted && viewModel.permission.requestCode == IPermissionsManager.CALL_CODE) {
+            val activity = requireActivity()
+            val callback = viewModel.callback
+
+            // Si hay que configurar las SIM, se configuran antes de seguir con la acción.
+            activity.lifecycleScope.launch {
+                if (!activity.restartIfSimSetupPending(viewModel.configurationManager))
+                    callback?.onGranted()
+            }
+        } else if (granted) {
             viewModel.callback?.onGranted()
-        else
+        } else {
             viewModel.callback?.onDenied()
+        }
 
         this.dismiss()
     }

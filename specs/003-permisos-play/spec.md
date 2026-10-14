@@ -35,7 +35,7 @@ Revisada en el código el 2026-10-14:
 | Permiso o acceso | Función que lo usa | Cuándo se pide |
 |---|---|---|
 | Acceso de uso | Estadísticas de consumo por app; cortafuegos dinámico | Al inicio, con explicación previa (función principal) |
-| Llamadas y estado del teléfono | Consultar saldo y comprar por USSD; reconocer las SIM | Al configurar las SIM, sincronizar o comprar |
+| Llamadas y estado del teléfono | Consultar saldo y comprar por USSD; reconocer las SIM | Al configurar las líneas en el primer uso; después, al sincronizar o comprar |
 | Lista de apps instaladas | Cortafuegos por app y estadísticas por app | Se declara; se explica en la explicación inicial |
 | Superposición | Burbuja flotante | Al activar la burbuja |
 | Notificaciones (Android 13+) | Notificación de consumo y avisos | En el primer uso, después del acceso de uso, como paso opcional |
@@ -59,6 +59,9 @@ Revisada en el código el 2026-10-14:
   cámara.
 - Q: ¿Debe haber en Ajustes una sección "Permisos y privacidad"? → A: Sí; muestra la explicación del uso de datos y
   cada permiso con su uso, su estado y un botón para concederlo, además de la recomendación de batería.
+- Nota del usuario (tras implementar): la configuración de las líneas vuelve al primer uso. Pide el permiso de
+  teléfono con su explicación; si se rechaza, se entra a la app con una línea sin identificar y la configuración se
+  ofrece al conceder el permiso más tarde.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -66,8 +69,9 @@ Revisada en el código el 2026-10-14:
 
 Un usuario nuevo instala la app. Ve una explicación clara de qué datos usa la app y para qué: el consumo por
 aplicación, la lista de apps instaladas y que todo se procesa en el teléfono. Después se le pide el acceso de uso y,
-en Android 13 o superior, las notificaciones como paso opcional. Conceda o no, puede entrar a la app. Ninguna otra
-autorización se pide en este momento.
+en Android 13 o superior, las notificaciones como paso opcional. Después configura sus líneas, para lo que se le
+pide el permiso de teléfono. Conceda o no cada permiso, puede entrar a la app. Ninguna otra autorización se pide en
+este momento.
 
 **Why this priority**: hoy la app no se puede usar sin conceder cuatro permisos, entre ellos los SMS. Es el
 incumplimiento más grave y lo primero que ve cualquier usuario.
@@ -213,7 +217,9 @@ app (Play, Apklis o un usuario) encuentra una justificación para cada permiso r
   por un permiso denegado.
 - **FR-002**: En el primer uso, la app MUST mostrar una explicación destacada del uso de datos (consumo por app, lista
   de apps instaladas, procesamiento en el teléfono) antes de pedir cualquier permiso, y pedir en ese momento solo el
-  acceso de uso y, en Android 13+, las notificaciones como paso que se puede omitir.
+  acceso de uso y, en Android 13+, las notificaciones como paso que se puede omitir; a continuación, la configuración
+  de las líneas pide el permiso de teléfono con su explicación. Si se rechaza, la app usa una línea sin identificar y
+  abre la configuración de las líneas en cuanto se concede el permiso.
 - **FR-003**: Cada permiso de la tabla "Permisos y su uso" MUST pedirse en el momento indicado, precedido de una
   explicación breve de para qué se usa.
 - **FR-004**: Si un permiso se rechaza, la función que lo necesita MUST no ejecutarse y MUST indicar cómo concederlo;
@@ -256,8 +262,8 @@ app (Play, Apklis o un usuario) encuentra una justificación para cada permiso r
 
 ### Measurable Outcomes
 
-- **SC-001**: Un usuario nuevo llega a la pantalla principal pidiéndosele como máximo dos permisos (acceso de uso y,
-  en Android 13+, notificaciones), aunque los rechace.
+- **SC-001**: Un usuario nuevo llega a la pantalla principal pidiéndosele como máximo tres permisos (acceso de uso,
+  notificaciones en Android 13+ y teléfono al configurar las líneas), aunque los rechace.
 - **SC-002**: Con todos los permisos denegados, el 100 % de las pantallas se abren y ninguna función provoca un cierre
   inesperado o un bucle de peticiones.
 - **SC-003**: La app instalada declara 0 permisos de SMS, 0 de cámara y 0 permisos sin uso de los listados en FR-012.

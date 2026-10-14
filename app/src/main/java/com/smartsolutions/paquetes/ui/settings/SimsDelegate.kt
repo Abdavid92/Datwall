@@ -9,6 +9,11 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.PreferencesKeys
+import com.smartsolutions.paquetes.settingsDataStore
 
 /**
  * Delegado de la ui que se encarga de pedir las lineas instaladas al
@@ -47,7 +52,16 @@ class SimsDelegate(
                             }
 
                             override fun onDenied() {
-                                fragment.complete()
+                                // Sin permiso no se pueden leer las líneas: se deja la
+                                // configuración para cuando lo conceda.
+                                scope.launch {
+                                    context.settingsDataStore.edit {
+                                        it[PreferencesKeys.SIM_SETUP_SKIPPED] = true
+                                    }
+                                    withContext(Dispatchers.Main) {
+                                        fragment.skipSetup()
+                                    }
+                                }
                             }
                         }
                     ).show(fragment.childFragmentManager, null)

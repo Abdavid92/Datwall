@@ -9,10 +9,7 @@
     <string name="main_notification_channel_name">Canal principal de notificaciones</string>
     <string name="alert_notification_channel_name">Canal de alertas y mensajes</string>
     <string name="generic_group_name">Grupo número %d</string>
-    <string name="fail_sign_in">No se ha podido iniciar sesión</string>
-    <string name="sign_up_fail">No se pudo crear la cuenta</string>
-    <string name="sign_up_wrong_code">Código de verificación incorrecto</string>
-    <string name="accessibility_service_description">Este servicio es necesario para poder detectar la compra de paquetes y la activación de la licencia.</string>
+    <string name="accessibility_service_description">Mis Datos usa este servicio solo en Android 6 y 7, o con el modo USSD antiguo, para leer el texto de la respuesta del operador cuando consulta tu saldo. Solo lee la ventana de respuesta de la app de teléfono mientras espera esa respuesta, y el texto no se guarda ni se envía a ningún sitio.</string>
     <string name="missing_call_permission">Permiso de realizar llamadas denegado.</string>
     <string name="telephony_service_unavailable">El servicio de telefonía no está disponible.</string>
     <string name="ussd_return_failure">Ha fallado el código USSD. Si recibe este error constantemente puede ir a los Ajustes de la app, busque la opción Sincronización, desactive la Sincronización silenciosa y reintente</string>
@@ -31,14 +28,10 @@
     <string name="c_5">package_name</string>
     <string name="c_6">version</string>
     <string name="c_7">key</string>
-    <string name="account_not_found">No se encontró ninguna cuenta vinculada a esta línea.</string>
-    <string name="product_not_found">No se ha podido encontrar el paquete solicitado en mi.cubacel.net.</string>
 
     <!--Permissions-->
     <string name="call_permission">Permiso de llamadas</string>
     <string name="call_permission_description">Es necesario para poder realizar las consultas de los códigos USSD y la sincronización de los datos con Etecsa</string>
-    <string name="sms_permission">Permiso de sms</string>
-    <string name="sms_permission_description">Se necesita para poder detectar los sms de los nuevos paquetes o planes que adquiera y registrarlos en la app</string>
     <string name="usage_access_permission">Acceso a Datos de Uso</string>
     <string name="usage_access_permission_description">Este permiso permite obtener del sistema la cantidad de megas consumidos por cada app en diferentes períodos de tiempo</string>
     <string name="draw_overlays_permission">Permiso para sobreponerse a otras apps</string>
@@ -50,9 +43,6 @@
     <string name="btn_continue">Continuar</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_ok">Aceptar</string>
-    <string name="jump">Saltar</string>
-    <string name="required_permission_denied">Sin este permiso la aplicación no puede funcionar.</string>
-    <string name="optional_permission_denied">Sin este permiso algunas funciones no estarán disponibles.</string>
     <string name="btn_grant">Conceder</string>
     <string name="page_1_title">Compra tus Paquetes</string>
     <string name="page_1_description">Compra de manera fácil y segura todos los paquetes de datos de Etecsa.</string>
@@ -67,11 +57,10 @@
 
     <string name="btn_close">Cerrar</string>
     <string name="btn_retry">Reintentar</string>
-    <string name="begin_activation_title">Iniciando activación</string>
     <string name="sims_configuration_summary">A continuación, debe establecer cuáles son las líneas predeterminadas para datos y llamadas. Asegúrese de que configure las predeterminadas como mismo está configurado en el sistema android. De lo contrario se producirán errores</string>
     <string name="btn_save">Guardar</string>
     <string name="start_accessibility_service_title">Servicio de accesibilidad</string>
-    <string name="start_accessibility_service_summary">Es necesario encender el servicio de accesibilidad para poder efectuar esta operación.</string>
+    <string name="start_accessibility_service_summary">Para sincronizar el saldo en este teléfono, Mis Datos necesita activar su servicio de accesibilidad.\n\nQué lee: solo el texto de la respuesta del operador (por ejemplo, «Datos: 130 MB validos 24 dias») en la ventana de la app de teléfono, y solo mientras espera esa respuesta.\n\nPara qué: registrar tu saldo de datos en la app.\n\nNo lee nada más, no guarda ese texto y no lo envía a ningún sitio. Si aceptas, se abrirán los ajustes de accesibilidad para que actives «Mis Datos».</string>
     <string name="open_settings">Abrir ajustes</string>
     <string name="packages_configuration_summary">Vamos a configurar los paquetes disponibles para la línea actual.</string>
     <string name="start_packages_configuration">Iniciar configuración</string>
@@ -113,8 +102,7 @@
     <string name="tab_national">Nacional</string>
     <string name="tab_free">Gratis</string>
     <string name="title_usage">Consumo</string>
-    <string name="battery_optimization_permission">Permiso de optimización de batería</string>
-    <string name="battery_optimization_permission_description">Es necesario para que la app pueda mantenerse funcionando en segundo plano y se mantenga la información actualizada</string>
+    <string name="battery_optimization_permission">Optimización de batería</string>
     <string name="title_more">Más</string>
     <string name="title_resume">Resumen</string>
     <string name="title_packages">Paquetes</string>
@@ -180,7 +168,6 @@
     <string name="updates">Actualizaciones</string>
     <string name="history_cache_header">Historial y caché</string>
     <string name="about">Acerca de…</string>
-    <string name="activation_header">Activación</string>
     <string name="clear_history">Borrar historial</string>
     <string name="clear_history_summary">Borrar el historial de paquetes comprados</string>
     <string name="clear_icon_cache">Limpiar caché de íconos</string>
@@ -264,12 +251,8 @@
     <string name="traffic_bag_daily">Plan Diario</string>
     <string name="traffic_promo_bonus">Bono Promoción</string>
     <string name="title_usage_general">Consumo General</string>
-    <string name="purchase_function">Esta función es de pago y ya ha expirado el periodo de prueba. Debe comprar la licencia para poder seguir usandola.</string>
     <string name="expired_try_period">Periodo de prueba expirado</string>
     <string name="expired_try_period_summary">Debe comprar la licencia para seguir usando la app.</string>
-    <string name="recharge_credit">Recargar saldo</string>
-    <string name="qr_prompt">Coloque la tarjeta de recarga</string>
-    <string name="fail_scan_qr">Falló el escaneo del qr</string>
     <string name="title_exceptions">Ha Ocurrido un Error</string>
     <string name="get_more_info">Dénos más información</string>
     <string name="hint_more_info">Describa el problema</string>
@@ -305,25 +288,11 @@
     <string name="sim_configuration_mode_select">¿Esta línea puede comprar planes?</string>
     <string name="packages_avaibles">Planes disponibles</string>
     <string name="package_configuration_required">Es necesario terminar la configuración de los paquetes antes de continuar.</string>
-    <string name="summary_activation">Para continuar necesitamos saber el estado de su licencia en el servidor. Presione verificar para proceder</string>
-    <string name="button_verify">Verificar</string>
     <string name="wifi_off_title">Wifi Apagada</string>
     <string name="wifi_off_description">Para poder obtener el identificador de su dispositivo se necesita que la wifi esté encendida. Puede usar el botón de abajo para encederla.</string>
     <string name="button_wifi_on">Encender Wifi</string>
     <string name="must_have_complete">Debe completar la configuración antes de continuar</string>
-    <string name="is_purchased_title">Licencia Comprada</string>
-    <string name="is_purchased_description">Se ha restaurado la licencia. Puede usar la app sin límites</string>
-    <string name="is_descontinued_title">App Descontinuada</string>
-    <string name="is_descontinued_description">Lo sentimos, la app ha sido descontinuada y no puede utilizarla</string>
-    <string name="is_deprecated_title">App Desactualizada</string>
-    <string name="is_deprecated_description">La versión de la app que está usando es muy vieja y no es funcional. Debe actualizar para poder continuar</string>
-    <string name="is_trial_period_title">Período de Prueba</string>
-    <string name="is_trial_period_expire_title">Período de Prueba Terminado</string>
-    <string name="is_trial_period_expire_description">El período de prueba se ha terminado. Para poder usar la app debe comprar la licencia</string>
-    <string name="purchase_licence">Comprar Licencia</string>
-    <string name="is_failed_title">Hubo un Error</string>
     <string name="btn_update">Actualizar</string>
-    <string name="title_activation">Activación y Licencia</string>
     <string name="update_aviable">Actualización Disponible</string>
     <string name="download_way">Descargar mediante:</string>
     <string name="apklis_store">Tienda Apklis</string>
@@ -353,23 +322,6 @@
     <string name="silent_sync_on">Se ejecutarán los códigos ussd mediante las apis internas del sistema de forma transparente para el usuario.</string>
     <string name="silent_sync_off">Se ejecutarán los códigos ussd mediante la aplicación de teléfono los cual mostrará un cuadro de diálogo indicando el estado de la operación. Este modo imposibilita la sincronización automática debido a la interrupción de la experiencia de ui del usuario.</string>
     <string name="title_sim_configuration">Configuración de Sim</string>
-    <string name="title_purchase">Licencia y Activación</string>
-    <string name="agree_terms_and_conditions">Acepto los términos y condiciones</string>
-    <string name="must_have_agree">Debe aceptar los términos y condiciones para continuar</string>
-    <string name="banking_transfer">Transferencia Bancaria vía Transfermóvil</string>
-    <string name="credit_transfer">Transferencia de Saldo Móvil</string>
-    <string name="transfer_mode">Modo de Compra</string>
-    <string name="mode_transfer_description">Seleccione el modo de transferencia que utilizará para pagar la licencia de la app</string>
-    <string name="must_have_select">Debe seleccionar una opción antes de continuar</string>
-    <string name="open_transfermovil">Abrir Transfermóvil</string>
-    <string name="waiting_confirm">Esperando SMS de confirmación</string>
-    <string name="hint_key_transfer">Clave</string>
-    <string name="transfer">Transferir</string>
-    <string name="must_have_input_key">Debe introducir la clave de transferencias</string>
-    <string name="key_to_short">La clave debe ser de 4 dígitos</string>
-    <string name="purchased_done">Licencia Comprada</string>
-    <string name="purchased_description">Felicidades. Puede usar la app sin límites</string>
-    <string name="purchase_now_licence">Comprar Ahora</string>
     <string name="average">Promedios</string>
     <string name="header_average_dayli">Consumo Diario</string>
     <string name="header_average_rest">Restantes Diarios</string>
@@ -416,4 +368,17 @@
     <string name="add_widget">Add widget</string>
     <string name="data_type_promo_bonus_lte">Bono de promoción (LTE)</string>
     <string name="github">GitHub</string>
+    <!-- Permisos y privacidad -->
+    <string name="data_disclosure">Mis Datos mide el consumo de datos móviles de cada aplicación y te permite bloquear su acceso a Internet con un cortafuegos. Para eso necesita:\n\n• Acceso de uso: saber cuántos datos consume cada app y cuál está en primer plano.\n• La lista de apps instaladas: mostrar el consumo y las reglas del cortafuegos de cada una.\n\nTodo se procesa en el teléfono: el consumo, la configuración y el tráfico del cortafuegos nunca salen de él. La app solo se conecta a Internet para comprobar actualizaciones en Apklis, y solo envía un informe de error por correo si tú lo decides.\n\nLos demás permisos se piden cuando uses la función que los necesita.</string>
+    <string name="battery_optimization_recommendation">Recomendado: excluye la app de la optimización de batería para que la medición del consumo no se detenga en segundo plano. Se abrirá la lista del sistema; busca Mis Datos y elige «No optimizar».</string>
+    <string name="btn_open_settings">Abrir ajustes</string>
+    <string name="btn_not_now">Ahora no</string>
+    <string name="permission_state_granted">Concedido</string>
+    <string name="permission_state_denied">No concedido</string>
+    <string name="permissions_privacy">Permisos y privacidad</string>
+    <string name="permissions_privacy_summary">Qué datos usa la app y el estado de cada permiso</string>
+    <string name="purchase_unconfirmed">%1$s · Sin confirmar</string>
+    <string name="btn_accept">Acepto</string>
+    <string name="btn_no_thanks">No, gracias</string>
+    <string name="accessibility_sync_cancelled">La sincronización necesita el servicio de accesibilidad en este teléfono</string>
 </resources>

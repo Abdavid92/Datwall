@@ -38,6 +38,15 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
     private var adapter: PackagesRecyclerAdapter? = null
     private var sim: Sim? = null
 
+    /**
+     * SIM de la última compra, para confirmarla cuando el usuario comparta el SMS.
+     * */
+    private var purchaseSimId: String? = null
+
+    private val purchaseSmsConsent = PurchaseSmsConsent(this) { smsBody ->
+        purchaseSimId?.let { viewModel.confirmPurchaseFromSms(smsBody, it) }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -117,6 +126,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
             builder.setTitle("Comprar ${dataPackage.name}")
                 .setMessage(dataPackage.description)
                 .setPositiveButton(getString(R.string.purchase)){_, _ ->
+                    purchaseSimId = it.id
                     viewModel.purchasePackage(it, dataPackage, this)
                 }
                 .setNegativeButton(getString(R.string.btn_cancel), null)
@@ -126,6 +136,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
 
     override fun onSuccess() {
         Toast.makeText(requireContext(), getString(R.string.purchasing_package), Toast.LENGTH_SHORT).show()
+        purchaseSmsConsent.start()
     }
 
     override fun onFailed() {

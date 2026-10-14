@@ -26,6 +26,17 @@
         app:title="@string/updates" />
 
     <Preference
+        app:icon="@drawable/ic_privacy"
+        app:key="permissions_key"
+        app:title="@string/permissions_privacy"
+        app:summary="@string/permissions_privacy_summary">
+        <intent
+            android:action="com.smartsolutions.paquetes.action.PERMISSIONS_SETTINGS"
+            android:targetPackage="com.smartsolutions.paquetes"
+            android:targetClass="com.smartsolutions.paquetes.ui.permissions.PermissionsActivity" />
+    </Preference>
+
+    <Preference
         app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$OthersFragment"
         app:key="others_key"
         app:icon="@drawable/ic_bug_report"

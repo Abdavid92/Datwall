@@ -34,16 +34,9 @@ class HistoryViewModel @Inject constructor(
 
     fun getPurchasedPackages(simId: String): LiveData<List<IPurchasedPackage>> {
         return purchasePackageManager.getHistory().map { list ->
-            return@map orderListPurchasedPackages(list.filter { it.simId == simId && !it.pending }
+            return@map orderListPurchasedPackages(list.filter { it.simId == simId }
                 .sortedByDescending { it.date })
         }.asLiveData(Dispatchers.IO)
-    }
-
-
-    fun seedOldPurchasedPackages(){
-        viewModelScope.launch {
-            purchasePackageManager.seedOldPurchasedPackages()
-        }
     }
 
 

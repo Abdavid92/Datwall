@@ -284,12 +284,14 @@ class DatwallService : Service(), CoroutineScope {
             simManager.flowInstalledSims(false)
                 .combine(userDataBytesRepository.flow()) { sims, userDataBytes ->
 
-                    val defaultDataSim = sims.first {
+                    // Sin SIM de datos configurada (por ejemplo, recién concedido el permiso de
+                    // teléfono) no hay datos que mostrar.
+                    val defaultDataSim = sims.firstOrNull {
                         simManager.isSimDefaultBoth(
                             SimType.DATA,
                             it
                         ) == true
-                    }
+                    } ?: return@combine emptyList()
 
                     return@combine userDataBytes
                         .filter { it.simId == defaultDataSim.id }

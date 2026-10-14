@@ -6,8 +6,8 @@
 
 ## Summary
 
-Quitar el bloqueo inicial: ningún permiso es obligatorio y el primer uso muestra una explicación de datos y pide
-solo el acceso de uso y, en Android 13+, las notificaciones. El resto se pide en contexto, como ya ocurre en la
+Quitar el bloqueo inicial: ningún permiso es obligatorio y el primer uso muestra una explicación de datos, pide el
+acceso de uso y, en Android 13+, las notificaciones, y después configura las líneas pidiendo el permiso de teléfono. El resto se pide en contexto, como ya ocurre en la
 mayoría de funciones, añadiendo el caso de rechazo permanente (abrir los ajustes). Una sola pantalla de
 permisos sirve para el primer uso y para Ajustes → "Permisos y privacidad". Los SMS se sustituyen por la API SMS
 User Consent tras comprar desde la app; las compras sin SMS quedan en el historial como "sin confirmar". La

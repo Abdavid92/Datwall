@@ -10,8 +10,12 @@ Revisión del código y de las dependencias del 2026-10-14. Rutas relativas a
   - El kernel abre el primer uso solo si no se ha aceptado ni rechazado la explicación de datos (marca en DataStore)
     **y** el acceso de uso no está concedido.
   - Los usuarios que actualizan ya tienen el acceso de uso, así que no ven el primer uso (caso límite del spec).
-  - La configuración de SIM y planes (`SetupActivity`) solo se exige si el permiso de teléfono está concedido; sin él
-    se entra a la app y las pantallas que dependen de la SIM muestran el botón de configurar que ya existe.
+  - La configuración de líneas y planes (`SetupActivity`) sigue en el primer uso y pide el permiso de teléfono con
+    su explicación. Si el usuario lo rechaza ahí, se guarda `SIM_SETUP_SKIPPED`, se termina la configuración y se
+    entra a la app; el kernel no la vuelve a exigir hasta que el permiso esté concedido.
+  - Sin permiso de teléfono, `SimManager` usa una línea sin identificar (`EmbeddedSimManager`) en lugar de lanzar
+    excepciones. Al conceder el permiso más tarde, si las líneas no están configuradas, se vuelve a ejecutar el
+    arranque (`restartIfSimSetupPending`) para abrir su configuración.
 - **Por qué**: FR-001. Hoy la app vuelve a `PermissionsActivity` en cada arranque mientras falte un permiso
   `Required`.
 - **Alternativas**: mantener `Required` solo para el acceso de uso. Se descarta porque Play exige que la app siga

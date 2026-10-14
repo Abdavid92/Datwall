@@ -32,14 +32,21 @@ val Context.workersDataStore by preferencesDataStore(name = "workers_settings")
 object PreferencesKeys {
 
     /**
-     * Indica la hora en que se empezó a esperar la confirmación de la compra
-     */
-    val WAITING_PUCHASE = longPreferencesKey("waiting_purchase")
+     * El usuario aceptó o rechazó la explicación de datos del primer uso.
+     * */
+    val DATA_DISCLOSURE_ANSWERED = booleanPreferencesKey("data_disclosure_answered")
 
     /**
-     * Licencia de la aplicación.
+     * Códigos de los permisos que la app ha pedido alguna vez. Sirve para distinguir
+     * un permiso nunca pedido de uno rechazado de forma permanente.
      * */
-    val LICENSE = stringPreferencesKey("license")
+    val REQUESTED_PERMISSIONS = stringSetPreferencesKey("requested_permissions")
+
+    /**
+     * El usuario rechazó el permiso de teléfono al configurar las líneas en el primer inicio:
+     * no se vuelve a exigir la configuración hasta que conceda el permiso.
+     * */
+    val SIM_SETUP_SKIPPED = booleanPreferencesKey("sim_setup_skipped")
 
     /**
      * Implementación de la notificación principal.
@@ -176,10 +183,6 @@ object PreferencesKeys {
      */
     val SYNCHRONIZATION_USSD_MODE_MODERN = booleanPreferencesKey("synchronization_ussd_mode_modern")
 
-    /**
-     * Indica si ya fueron sembrados los paquetes comprados anteriormente
-     */
-    val IS_SEED_OLD_PURCHASED_PACKAGES = booleanPreferencesKey("is_seeded_old_purchased_packages")
 
     /**
      * Indica si la app se cerro previamente debido a una excepcion y por lo tanto el Kernel no debe iniciar sus servicios

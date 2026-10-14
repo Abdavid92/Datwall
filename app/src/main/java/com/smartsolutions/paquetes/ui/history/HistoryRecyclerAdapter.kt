@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.history
 
+import com.smartsolutions.paquetes.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -115,9 +116,14 @@ class HistoryRecyclerAdapter constructor(
         override fun onBind(purchasedPackage: IPurchasedPackage) {
             binding?.apply {
                 val data = purchasedPackage as PurchasedPackage
-                textDate.text = SimpleDateFormat("dd MMM hh:mm aa", Locale.getDefault()).format(
+                val date = SimpleDateFormat("dd MMM hh:mm aa", Locale.getDefault()).format(
                     Date(data.date)
                 )
+                // Compra hecha desde la app cuyo SMS de confirmación no se compartió.
+                textDate.text = if (data.pending)
+                    root.context.getString(R.string.purchase_unconfirmed, date)
+                else
+                    date
                 textPackage.text = data.dataPackage.name
                 textPrice.text = "${data.dataPackage.price.toInt()} $"
             }

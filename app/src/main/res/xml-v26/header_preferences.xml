@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
         app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$ThemesFragment"
@@ -29,6 +30,17 @@
         app:icon="@drawable/ic_download"
         app:key="updates_key"
         app:title="@string/updates" />
+
+    <Preference
+        app:icon="@drawable/ic_privacy"
+        app:key="permissions_key"
+        app:title="@string/permissions_privacy"
+        app:summary="@string/permissions_privacy_summary">
+        <intent
+            android:action="com.smartsolutions.paquetes.action.PERMISSIONS_SETTINGS"
+            android:targetPackage="com.smartsolutions.paquetes"
+            android:targetClass="com.smartsolutions.paquetes.ui.permissions.PermissionsActivity" />
+    </Preference>
 
     <Preference
         app:fragment="com.smartsolutions.paquetes.ui.settings.SettingsActivity$OthersFragment"

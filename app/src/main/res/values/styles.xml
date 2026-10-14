@@ -53,6 +53,13 @@
         <item name="tabSelectedTextColor">@color/black</item>
     </style>
 
+    <!-- Antes venía de la biblioteca MaterialStepperView, que ya no se usa -->
+    <style name="TextAppearance.MaterialCompat.Body1" parent="">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
     <style name="BackgroundStyle">
         <item name="android:background">@drawable/background_fragments</item>
     </style>

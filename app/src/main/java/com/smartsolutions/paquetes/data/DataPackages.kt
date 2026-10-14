@@ -16,8 +16,6 @@ object DataPackages {
      **/
     const val PACKAGES_VERSION = 4
 
-    const val PROMO_BONUS_KEY = "Su cuenta ha sido recargada en promocion"
-
     const val MESSAGING_BAG_KEY = "bolsa Mensajeria"
 
     const val GENERAL_DURATION = 35

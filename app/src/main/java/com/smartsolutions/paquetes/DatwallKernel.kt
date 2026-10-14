@@ -97,6 +97,10 @@ class DatwallKernel @Inject constructor(
      * */
     suspend fun main() {
 
+        //Las actividades que se suscriban mientras se ejecuta recibirán la que se decida ahora,
+        //no la de una ejecución anterior.
+        openActivity = null
+
         //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
         if (!canContinue(true))
             return
@@ -111,16 +115,13 @@ class DatwallKernel @Inject constructor(
         createOrUpdatePackages()
 
         when {
-            //Verifica los permisos
-            missingSomePermission() -> {
+            //Primer uso: explicación de datos y permisos que se piden al inicio
+            showFirstUse() -> {
                 openActivity(PermissionsActivity::class.java)
-                considerNotify(
-                    context.getString(R.string.missing_permmissions_title_notification),
-                    context.getString(R.string.missing_permmissions_description_notification)
-                )
             }
-            //Verfica las configuraciones iniciales
-            missingSomeConfiguration() -> {
+            //Verfica las configuraciones iniciales. La de las líneas pide el permiso de teléfono;
+            //si el usuario lo rechazó ahí, se entra a la app y se configura al conceder el permiso.
+            missingSomeConfiguration() && (phonePermissionGranted() || !simSetupSkipped()) -> {
                 openActivity(
                     SetupActivity::class.java,
                     Bundle().apply {
@@ -268,11 +269,23 @@ class DatwallKernel @Inject constructor(
     }
 
     /**
-     * Indica si falta algún permiso.
+     * El primer uso se muestra mientras el usuario no haya respondido a la explicación de
+     * datos. Quien actualiza ya tiene el acceso de uso concedido y no lo ve.
      * */
-    private fun missingSomePermission(): Boolean {
-        return permissionManager.getDeniedPermissions().isNotEmpty()
+    private suspend fun showFirstUse(): Boolean {
+        val answered = context.settingsDataStore.data.firstOrNull()
+            ?.get(PreferencesKeys.DATA_DISCLOSURE_ANSWERED) == true
+
+        return !answered && permissionManager.getDeniedPermissions(onlyAtStartup = true)
+            .any { it.requestCode == IPermissionsManager.USAGE_ACCESS_CODE }
     }
+
+    private suspend fun simSetupSkipped(): Boolean =
+        context.settingsDataStore.data.firstOrNull()?.get(PreferencesKeys.SIM_SETUP_SKIPPED) == true
+
+    private fun phonePermissionGranted(): Boolean =
+        permissionManager.findPermission(IPermissionsManager.CALL_CODE)
+            ?.let { it.checkPermission(it, context) } == true
 
     /**
      * Registra los broadcasts y los callbacks.

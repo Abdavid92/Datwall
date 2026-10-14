@@ -7,7 +7,7 @@ La app expone al usuario (y a una revisión de Play) este comportamiento. Cada p
 |---|---|---|---|
 | Acceso de uso | Primer uso (tras la explicación de datos); pantallas de estadísticas | Estadísticas y cortafuegos dinámico muestran la explicación y "Conceder" | Abre el ajuste de acceso de uso (no tiene diálogo del sistema) |
 | Notificaciones (13+) | Primer uso, paso opcional | La app funciona; la notificación de consumo no se ve | Abre los ajustes de la app |
-| Llamadas y estado del teléfono | Configurar SIM, Sincronizar, Comprar, USSD del panel | La acción no se hace; la sincronización en segundo plano se omite sin avisar | Abre los ajustes de la app |
+| Llamadas y estado del teléfono | Configurar las líneas (primer uso), Sincronizar, Comprar, USSD del panel | La acción no se hace; la sincronización en segundo plano se omite sin avisar | Abre los ajustes de la app |
 | Superposición | Activar la burbuja | La burbuja queda desactivada | Abre el ajuste de superposición |
 | VPN | Activar el cortafuegos | El cortafuegos queda desactivado | Diálogo del sistema de VPN (no tiene rechazo permanente) |
 | Accesibilidad | Sincronizar por el camino legacy (API < 26 o modo moderno desactivado), tras la divulgación con "Acepto" | La sincronización se cancela con un mensaje | Abre el ajuste de accesibilidad |
@@ -21,6 +21,8 @@ La app expone al usuario (y a una revisión de Play) este comportamiento. Cada p
 3. "Continuar" muestra la lista con el acceso de uso y, en Android 13+, las notificaciones; cada uno con "Conceder";
    "Continuar" final lleva a la app aunque no se haya concedido nada.
 4. Se muestra una sola vez (`DATA_DISCLOSURE_ANSWERED`), y no a quien ya tenía el acceso de uso concedido.
+5. Después, la configuración de las líneas pide el permiso de teléfono. Si se rechaza, termina la configuración y se
+   entra a la app; al conceder el permiso más tarde se abre la configuración de las líneas.
 
 ## SMS User Consent
 

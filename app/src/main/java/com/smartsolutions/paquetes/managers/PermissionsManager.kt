@@ -8,11 +8,14 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
-import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
+import androidx.datastore.preferences.core.edit
+import com.smartsolutions.paquetes.settingsDataStore
+import kotlinx.coroutines.flow.first
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.USAGE_ACCESS_CODE
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager.Companion.VPN_CODE
@@ -26,14 +29,14 @@ open class PermissionsManager @Inject constructor(
 ) : IPermissionsManager {
 
 
-     protected open val permissions = listOf(
+     override val permissions = listOf(
          Permission(
              context.getString(R.string.usage_access_permission),
              emptyArray(),
              context.getString(R.string.usage_access_permission_description),
-             Permission.Category.Required,
              USAGE_ACCESS_CODE,
              21,
+             atStartup = true,
              checkPermission = { context ->
                  val applicationInfo = context.packageManager
                      .getApplicationInfo(context.packageName, 0)
@@ -71,49 +74,13 @@ open class PermissionsManager @Inject constructor(
              context.getString(R.string.call_permission),
              arrayOf(Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE),
              context.getString(R.string.call_permission_description),
-             Permission.Category.Required,
              IPermissionsManager.CALL_CODE,
              23
-         ),
-         Permission(
-             context.getString(R.string.sms_permission),
-             arrayOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS),
-             context.getString(R.string.sms_permission_description),
-             Permission.Category.Required,
-             IPermissionsManager.SMS_CODE,
-             23
-         ),
-         Permission(
-             context.getString(R.string.battery_optimization_permission),
-             emptyArray(),
-             context.getString(R.string.battery_optimization_permission_description),
-             Permission.Category.Required,
-             IPermissionsManager.BATTERY_OPTIMIZATION_CODE,
-             23,
-             checkPermission = { context ->
-                 val powerManager = ContextCompat.getSystemService(context, PowerManager::class.java)
-                     ?: throw NullPointerException()
-
-                 powerManager.isIgnoringBatteryOptimizations(context.packageName)
-             },
-             requestPermissionActivity = { activity ->
-                 activity.startActivityForResult(
-                     Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                         .setData(Uri.parse("package:${activity.packageName}")),
-                     requestCode
-                 )
-             },
-             requestPermissionFragment = { fragment ->
-                 fragment.activity?.let {
-                     requestPermissionActivity(this, it)
-                 }
-             }
          ),
          Permission(
              context.getString(R.string.draw_overlays_permission),
              emptyArray(),
              context.getString(R.string.draw_overlays_permission_description),
-             Permission.Category.Optional,
              IPermissionsManager.DRAW_OVERLAYS_CODE,
              23,
              checkPermission = { context ->
@@ -142,9 +109,9 @@ open class PermissionsManager @Inject constructor(
             context.getString(R.string.notifications_permission),
             arrayOf(Manifest.permission.POST_NOTIFICATIONS),
             context.getString(R.string.notifications_permission_description),
-            Permission.Category.Optional,
             IPermissionsManager.NOTIFICATIONS_CODE,
             Build.VERSION_CODES.TIRAMISU,
+            atStartup = true,
             checkPermission = { context ->
                 val granted = ContextCompat.checkSelfPermission(
                     context,
@@ -158,7 +125,6 @@ open class PermissionsManager @Inject constructor(
             context.getString(R.string.vpn_permission),
             emptyArray(),
             context.getString(R.string.vpn_permission_description),
-            Permission.Category.Optional,
             VPN_CODE,
             21,
             checkPermission = { context ->
@@ -203,12 +169,20 @@ open class PermissionsManager @Inject constructor(
         return list
     }
 
-    override fun getDeniedPermissions(onlyRequired: Boolean) =
+    override fun getDeniedPermissions(onlyAtStartup: Boolean) =
         permissions.filter {
-            (if (onlyRequired)
-                it.category == Permission.Category.Required
-            else
-                true) && !it.checkPermission(it, context)
+            (!onlyAtStartup || it.atStartup) && !it.checkPermission(it, context)
         }
+
+    override suspend fun wasRequested(requestCode: Int): Boolean =
+        context.settingsDataStore.data.first()[PreferencesKeys.REQUESTED_PERMISSIONS]
+            ?.contains(requestCode.toString()) == true
+
+    override suspend fun markRequested(requestCode: Int) {
+        context.settingsDataStore.edit {
+            it[PreferencesKeys.REQUESTED_PERMISSIONS] =
+                (it[PreferencesKeys.REQUESTED_PERMISSIONS] ?: emptySet()) + requestCode.toString()
+        }
+    }
 
 }

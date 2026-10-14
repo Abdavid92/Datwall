@@ -13,6 +13,9 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageBinding
 import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
+import com.smartsolutions.paquetes.ui.permissions.bindPermissionNeeded
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class UsageFragment : AbstractFragment() {
@@ -22,6 +25,14 @@ class UsageFragment : AbstractFragment() {
     }
 
     private val viewModel by viewModels<UsageViewModel>()
+
+    @Inject
+    lateinit var permissionsManager: IPermissionsManager
+
+    /**
+     * Para recargar el consumo solo cuando el acceso de uso se acaba de conceder.
+     * */
+    private var usageAccessGranted = true
 
     private var _binding: FragmentUsageBinding? = null
     private val binding: FragmentUsageBinding
@@ -68,6 +79,24 @@ class UsageFragment : AbstractFragment() {
             tab.text = adapter.fragmentsList[position].second
         }.attach()
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // El consumo por app sale de las estadísticas del sistema: sin el acceso de uso se
+        // explica por qué hace falta y se ofrece concederlo.
+        val granted = bindPermissionNeeded(
+            binding.usagePermission,
+            binding.pager,
+            permissionsManager,
+            IPermissionsManager.USAGE_ACCESS_CODE
+        )
+
+        if (granted && !usageAccessGranted)
+            viewModel.setUsagePeriod(binding.spinnerUsageOptions.selectedItemPosition)
+
+        usageAccessGranted = granted
     }
 
     private fun showFilterOptions(){

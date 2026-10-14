@@ -84,8 +84,7 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         configureAnimationFAB()
 
         binding.floatingActionButton.setOnClickListener {
-            animateFAB(true)
-            viewModel.synchronizeUserDataBytes(installedSims[binding.pager.currentItem], this)
+            synchronize()
         }
 
         binding.floatingActionButton.setOnLongClickListener {
@@ -207,13 +206,25 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         }
     }
 
+    private fun synchronize() {
+        animateFAB(true)
+        viewModel.synchronizeUserDataBytes(installedSims[binding.pager.currentItem], this)
+    }
+
     override fun onSuccess() {
         animateFAB(false)
     }
 
     override fun onCallPermissionsDenied() {
         animateFAB(false)
-        val fragment = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
+        val fragment = SinglePermissionFragment.newInstance(
+            IPermissionsManager.CALL_CODE,
+            object : SinglePermissionFragment.SinglePermissionCallback {
+                // Con el permiso concedido se continúa la sincronización que pidió el usuario.
+                override fun onGranted() = synchronize()
+                override fun onDenied() = Unit
+            }
+        )
         fragment.show(this.childFragmentManager, "PermissionsFragment")
     }
 
@@ -235,7 +246,19 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
 
     override fun onAccessibilityServiceDisabled() {
         animateFAB(false)
-        val fragment = StartAccessibilityServiceFragment.newInstance()
+        val fragment = StartAccessibilityServiceFragment.newInstance(
+            object : SinglePermissionFragment.SinglePermissionCallback {
+                override fun onGranted() = synchronize()
+
+                override fun onDenied() {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.accessibility_sync_cancelled,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        )
         fragment.show(this.childFragmentManager, "AccessibilityFragment")
     }
 

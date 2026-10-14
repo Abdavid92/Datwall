@@ -38,7 +38,7 @@ no concedido, ya se pidió y no deja pedir   → AbrirAjustesDeLaApp
 |---|---|---|
 | `DATA_DISCLOSURE_ANSWERED` (nueva) | Boolean | El usuario aceptó o rechazó la explicación de datos del primer uso; si es `true` no se vuelve a mostrar |
 | `REQUESTED_PERMISSIONS` (nueva) | Set<String> | Códigos de permiso pedidos alguna vez (R3) |
-| `ACCESSIBILITY_DISCLOSURE_ACCEPTED` (nueva) | Boolean | Aceptó la divulgación de accesibilidad; si es `true`, la siguiente vez se abre directamente el ajuste |
+| `SIM_SETUP_SKIPPED` (nueva) | Boolean | Se rechazó el permiso de teléfono al configurar las líneas; no se exige la configuración hasta conceder el permiso (R1) |
 | `LICENSE`, `WAITING_PUCHASE` | se eliminan | Sin uso |
 
 ## PurchasedPackage (tabla `purchased_packages`, sin cambios de esquema)

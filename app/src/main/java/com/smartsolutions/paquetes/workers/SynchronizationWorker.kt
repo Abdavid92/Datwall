@@ -1,5 +1,8 @@
 package com.smartsolutions.paquetes.workers
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -34,6 +37,11 @@ class SynchronizationWorker @AssistedInject constructor(
 
 
     override suspend fun doWork(): Result {
+
+        // Sin permiso de llamadas no se puede marcar el código USSD: se omite sin avisar.
+        if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CALL_PHONE) !=
+            PackageManager.PERMISSION_GRANTED)
+            return Result.success()
 
         var canExecute = try {
             userDataBytesRepository.get(

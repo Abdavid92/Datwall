@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.edit
 import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.helpers.SmsInboxReaderHelper
 import com.smartsolutions.paquetes.internalDataStore
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
 import com.smartsolutions.paquetes.managers.contracts.IPurchasedPackagesManager
@@ -24,7 +23,6 @@ class PurchasedPackagesManager @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val purchasedPackageRepository: IPurchasedPackageRepository,
-    private val smsReader: SmsInboxReaderHelper,
     private val simDelegate: SimDelegate
 ) : IPurchasedPackagesManager {
 
@@ -52,41 +50,15 @@ class PurchasedPackagesManager @Inject constructor(
     override suspend fun confirmPurchased(dataPackageId: DataPackages.PackageId, simId: String) {
         val pending = withContext(Dispatchers.IO) {
             purchasedPackageRepository.getPending(dataPackageId)
-        }.first().toMutableList()
+        }.first()
 
-        if (pending.isNotEmpty()) {
-
-            val pendingToDelete = mutableListOf<PurchasedPackage>()
-
-            pending.forEach {
-                if (System.currentTimeMillis() - it.date > DateUtils.MILLIS_PER_DAY) {
-                    withContext(Dispatchers.IO) {
-                        purchasedPackageRepository.delete(it)
-                    }
-                    pendingToDelete.add(it)
+        PendingPurchaseSelector.select(pending, dataPackageId, simId, System.currentTimeMillis())
+            ?.let {
+                it.pending = false
+                withContext(Dispatchers.IO) {
+                    purchasedPackageRepository.update(it)
                 }
             }
-
-            pending.removeAll(pendingToDelete)
-
-            if (pending.isNotEmpty()) {
-                val pendingToConfirmed = pending.firstOrNull { it.simId == simId }
-
-                if (pendingToConfirmed != null) {
-                    pendingToConfirmed.pending = false
-                    withContext(Dispatchers.IO) {
-                        purchasedPackageRepository.update(pendingToConfirmed)
-                    }
-                } else {
-                    newPurchased(
-                        dataPackageId,
-                        simId,
-                        IDataPackageManager.ConnectionMode.Unknown,
-                        false
-                    )
-                }
-            }
-        }
     }
 
     override fun getHistory(): Flow<List<PurchasedPackage>> =
@@ -103,55 +75,5 @@ class PurchasedPackagesManager @Inject constructor(
         }
     }
 
-
-    override suspend fun seedOldPurchasedPackages() {
-        if (withContext(Dispatchers.IO) {
-                dataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES) != true
-            }) {
-
-            withContext(Dispatchers.IO) {
-                dataStore.edit {
-                    it[PreferencesKeys.IS_SEED_OLD_PURCHASED_PACKAGES] = true
-                }
-            }
-
-            val smses = smsReader.getAllSmsReceived().filter { DataPackages.isOperatorSender(it.number) }
-            val packages = mutableListOf<PurchasedPackage>()
-
-            try {
-                smses.forEach { sms ->
-                    DataPackages.findPurchasedPackage(sms.body)?.let { pack ->
-                        simDelegate.getSubcriptionInfo(sms.subscriptionId.toInt())?.let {
-                            packages.add(
-                                PurchasedPackage(
-                                    System.currentTimeMillis(),
-                                    sms.date,
-                                    IDataPackageManager.ConnectionMode.USSD,
-                                    simDelegate.getSimId(it),
-                                    false,
-                                    pack.id
-                                )
-                            )
-                        }
-                    }
-                }
-            } catch (e: Exception) { }
-
-            val purchased = purchasedPackageRepository.getAll().first()
-
-            val packagesToAdd = mutableListOf<PurchasedPackage>()
-
-            packages.forEach { smsPackages ->
-                if (purchased.firstOrNull { it.date == smsPackages.date } == null){
-                    packagesToAdd.add(smsPackages)
-                }
-            }
-
-            withContext(Dispatchers.IO) {
-                purchasedPackageRepository.create(packagesToAdd)
-            }
-        }
-    }
 
 }

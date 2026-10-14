@@ -10,29 +10,92 @@
 
     <include layout="@layout/secondary_toolbar" />
 
-    <!-- <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btn_help"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_help"
-        android:layout_gravity="end"
-        style="@style/Widget.AppCompat.Button.Borderless" /> -->
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        style="@style/BackgroundStyle"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        style="@style/BackgroundStyle">
 
-        <moe.feng.common.stepperview.VerticalStepperView
-            android:id="@+id/steppers"
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:step_normal_color="?attr/colorPrimary"
-            app:step_activated_color="?attr/colorAccent"
-            app:step_show_summary_always="true"
-            app:step_enable_animation="true" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/data_disclosure"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="@string/data_disclosure" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/permissions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_permission" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/battery_recommendation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:text="@string/battery_optimization_permission" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:text="@string/battery_optimization_recommendation" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_battery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="@string/btn_open_settings" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.core.widget.NestedScrollView>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/startup_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:padding="8dp"
+        android:background="?android:attr/colorBackground"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_not_now"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            style="@style/BaseButton.SecondaryButton"
+            android:text="@string/btn_not_now" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_continue" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

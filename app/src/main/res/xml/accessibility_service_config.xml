@@ -5,5 +5,4 @@
     android:accessibilityFlags="flagDefault"
     android:canRetrieveWindowContent="true"
     android:description="@string/accessibility_service_description"
-    android:packageNames="com.android.phone"
-    android:settingsActivity="com.example.android.accessibility.ServiceSettingsActivity" />
+    android:packageNames="com.android.phone" />

@@ -17,4 +17,14 @@ abstract class AbstractSettingsFragment : Fragment {
                 it.onCompleted()
         }
     }
+
+    /**
+     * Termina la configuración inicial sin completar los pasos restantes.
+     * */
+    fun skipSetup() {
+        activity?.let {
+            if (it is OnCompletedListener)
+                it.onSetupSkipped()
+        }
+    }
 }

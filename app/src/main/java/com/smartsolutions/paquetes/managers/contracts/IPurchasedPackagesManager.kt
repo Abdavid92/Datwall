@@ -17,6 +17,4 @@ interface IPurchasedPackagesManager {
     fun getHistory(): Flow<List<PurchasedPackage>>
 
     suspend fun clearHistory()
-
-    suspend fun seedOldPurchasedPackages()
 }

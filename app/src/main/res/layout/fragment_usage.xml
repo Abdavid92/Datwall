@@ -100,4 +100,11 @@
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         tools:ignore="SpeakableTextPresentCheck" />
 
+    <include
+        android:id="@+id/usage_permission"
+        layout="@layout/layout_permission_needed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

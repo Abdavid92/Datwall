@@ -61,6 +61,7 @@ class ExceptionsController @Inject constructor(
         }
 
         if (e is MissingPermissionException) {
+            Log.e(e.javaClass.name, "Permiso no concedido", e)
             notify(
                 context.getString(R.string.missing_permmissions_title_notification),
                 context.getString(R.string.missing_permmissions_description_notification),

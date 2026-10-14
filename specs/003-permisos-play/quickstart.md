@@ -27,7 +27,9 @@ No aparecen SMS, `READ_PRIVILEGED_PHONE_STATE`, `REQUEST_INSTALL_PACKAGES`, `CHA
 
 1. Abrir la app: aparece la explicación de datos antes de cualquier diálogo del sistema.
 2. "Ahora no" → se llega a la app sin ningún diálogo de permisos (SC-001).
-3. Reinstalar, "Continuar" → solo acceso de uso (y notificaciones en 13+). Rechazar → se llega a la app.
+3. Reinstalar, "Continuar" → acceso de uso (y notificaciones en 13+) → configuración de las líneas, que pide el
+   permiso de teléfono. Rechazarlo → se llega a la app sin bucles; concederlo después → se abre la configuración de
+   las líneas.
 4. Las estadísticas muestran por qué necesitan el acceso de uso y el botón para concederlo; nada se cierra (SC-002).
 
 ## 4. Actualización (teléfono)

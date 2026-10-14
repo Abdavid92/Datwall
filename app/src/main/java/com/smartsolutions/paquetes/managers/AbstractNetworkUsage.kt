@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.net.ConnectivityManager
+import android.os.Build
 import android.telephony.TelephonyManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import org.apache.commons.lang3.time.DateUtils
@@ -16,11 +17,19 @@ abstract class AbstractNetworkUsage(
     simManager: ISimManager
 ) : NetworkUsageManager(simManager) {
 
+    /**
+     * Desde Android 10 solo las apps del sistema pueden leer el subscriberId; con null las
+     * estadísticas de red devuelven el consumo de todas las líneas.
+     * */
     private val subscriberId by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            return@lazy null
+
         try {
+            @SuppressLint("MissingPermission")
             telephonyManager.subscriberId
         } catch (e: SecurityException) {
-            return@lazy null
+            null
         }
     }
 
