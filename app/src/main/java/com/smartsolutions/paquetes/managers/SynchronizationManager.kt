@@ -85,7 +85,7 @@ class SynchronizationManager @Inject constructor(
             // Las líneas empresariales consultan datos, minutos y sms con *111#.
             val balance = sendUSSDRequest(BUSINESS_BALANCE_USSD, sim) ?: return
             checkMmi(balance)
-            UssdBalanceParser.parsePackages(joinString(balance))
+            UssdBalanceParser.parseBusinessBalance(joinString(balance))
         } else {
             val bytesPackages = sendUSSDRequest(BALANCE_USSD, sim) ?: return
             val bonusPackages = sendUSSDRequest(BONUS_USSD, sim) ?: return

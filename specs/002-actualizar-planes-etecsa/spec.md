@@ -79,7 +79,8 @@ Voz: 148 MIN. SMS: 8. Datos: 16700 MB. Roaming:
 ```
 
 Las líneas empresariales (las que no pueden comprar planes) consultan su saldo con `*111#`. Los datos
-van tras `Datos:` y no tienen vigencia.
+van tras `Datos:`. Los datos, minutos y SMS se reinician al principio de cada mes, así que los datos
+vencen el último día del mes en curso.
 
 **Respuesta de `*222*266#` (bonos activos)** (2026-10-13):
 
