@@ -66,16 +66,28 @@ class UssdBalanceParserTest {
     }
 
     @Test
-    fun businessLineBalance() {
-        // *111# de una línea empresarial: sin vigencia.
-        val data = UssdBalanceParser.parsePackages(
+    fun businessLineBalanceExpiresAtEndOfMonth() {
+        // *111# de una línea empresarial: la cuota se reinicia al principio de cada mes.
+        val data = UssdBalanceParser.parseBusinessBalance(
             "Voz: 148 MIN. SMS: 8. Datos: 16700 MB. Roaming:",
             now
         )
 
         val international = data.of(DataType.International)!!
         assertEquals(mb(16700.0), international.bytes)
-        assertEquals(0L, international.expiredTime)
+        assertEquals(endOfDay(2026, Calendar.OCTOBER, 31), international.expiredTime)
+    }
+
+    @Test
+    fun businessLineBalanceInDecember() {
+        val december = Calendar.getInstance().apply {
+            clear()
+            set(2026, Calendar.DECEMBER, 31, 23, 0, 0)
+        }.timeInMillis
+
+        val data = UssdBalanceParser.parseBusinessBalance("Datos: 1 GB.", december)
+
+        assertEquals(endOfDay(2026, Calendar.DECEMBER, 31), data.of(DataType.International)!!.expiredTime)
     }
 
     @Test

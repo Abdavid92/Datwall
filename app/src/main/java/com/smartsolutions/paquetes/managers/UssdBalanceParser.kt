@@ -58,6 +58,26 @@ object UssdBalanceParser {
     }
 
     /**
+     * Respuesta de *111# de una línea empresarial. La cuota se reinicia al principio
+     * de cada mes, así que los datos vencen el último día del mes en curso.
+     * */
+    fun parseBusinessBalance(response: String, now: Long = System.currentTimeMillis()): List<DataBytes> {
+        val endOfMonth = Calendar.getInstance().run {
+            timeInMillis = now
+            set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
+            setEndOfDay()
+            timeInMillis
+        }
+
+        return parsePackages(response, now).map {
+            if (it.type == DataType.International && it.expiredTime == 0L)
+                DataBytes(it.type, it.bytes, endOfMonth)
+            else
+                it
+        }
+    }
+
+    /**
      * Respuesta de *222*266# (bonos y datos .cu).
      * */
     fun parseBonus(response: String): List<DataBytes> {

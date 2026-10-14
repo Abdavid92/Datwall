@@ -173,7 +173,7 @@ Task: "T027 [US4] PurchaseSmsMatcherTest con los 5 SMS reales"
   botón de configurar. No se pulsó "Comprar".
 - Sincronización por la SIM de la pestaña, sin preguntar la SIM por defecto:
   - SIM 2 (`*222*328#`, `*222*266#`): Plan Diario 200 MB sin vencimiento ("no activos"); sin bonos.
-  - SIM 1 empresarial (`*111#`): 16 700 MB sin vencimiento.
+  - SIM 1 empresarial (`*111#`): 16 700 MB; vencen a fin de mes (la cuota se reinicia cada mes).
 
 **Emulador** (Android 7): versión de `development` con tres compras antiguas (Plan Básico, Paquete 16 GB,
 Bolsa Mensajería) → actualización a esta versión: catálogo v4, paquetes antiguos obsoletos, SIM
