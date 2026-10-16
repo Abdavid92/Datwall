@@ -11,6 +11,7 @@ import com.abdavid92.persistentlog.Event
 import com.abdavid92.persistentlog.EventType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.smartsolutions.paquetes.BuildConfig
+import android.widget.Toast
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentEventsBinding
 import com.smartsolutions.paquetes.helpers.LocalFileHelper
@@ -95,12 +96,15 @@ class EventsFragment : BottomSheetDialogFragment() {
             .setMessage(event.msg)
             .setPositiveButton(getString(R.string.btn_close), null)
             .setNegativeButton(getString(R.string.send_inform)) { _, _ ->
-                localFileHelper.sendFileByEmail(
+                val sent = localFileHelper.sendFileByEmail(
                     BuildConfig.DEVELOPERS_EMAIL,
                     "Informe de Evento Datwall",
                     event.type.name,
                     "${event.tag} \n ${event.msg}"
                 )
+
+                if (!sent)
+                    Toast.makeText(requireContext(), R.string.no_email_app, Toast.LENGTH_SHORT).show()
             }.show()
     }
 

@@ -23,7 +23,6 @@ import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
@@ -48,7 +47,7 @@ class ExceptionsActivity : AbstractActivity() {
         )
 
         binding.buttonSendReport.setOnClickListener {
-            localFileHelper.sendFileByEmail(
+            val sent = localFileHelper.sendFileByEmail(
                 BuildConfig.DEVELOPERS_EMAIL,
                 "Informe de Error Datwall",
                 binding.editMoreInfo.text.toString(),
@@ -58,6 +57,9 @@ class ExceptionsActivity : AbstractActivity() {
                     null
                 }
             )
+
+            if (!sent)
+                Toast.makeText(this, R.string.no_email_app, Toast.LENGTH_SHORT).show()
         }
 
         binding.buttonCloseApp.setOnClickListener {

@@ -11,7 +11,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.PermissionAction
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.ui.AbstractActivity
-import com.smartsolutions.paquetes.ui.addOpenActivityListener
+import com.smartsolutions.paquetes.ui.followStartDestination
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -53,11 +53,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
             findViewById<View>(R.id.btn_not_now).setOnClickListener { viewModel.finishFirstUse() }
             findViewById<View>(R.id.btn_continue).setOnClickListener { viewModel.finishFirstUse() }
 
-            viewModel.addOpenActivityListener(this) { activity, _, application ->
-                application.removeOpenActivityListener(this)
-                startActivity(Intent(this, activity))
-                finish()
-            }
+            followStartDestination()
         }
     }
 
@@ -85,7 +81,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
             PermissionAction.OpenAppSettings -> openAppSettings()
             PermissionAction.Request -> lifecycleScope.launch {
                 viewModel.permissionsManager.markRequested(item.permission.requestCode)
-                item.permission.requestPermissionActivity(item.permission, this@PermissionsActivity)
+                PermissionLauncher.request(item.permission, this@PermissionsActivity)
             }
         }
     }

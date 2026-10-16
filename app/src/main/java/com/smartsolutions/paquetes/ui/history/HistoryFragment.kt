@@ -9,7 +9,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.databinding.FragmentHistoryBinding
-import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
+import com.smartsolutions.paquetes.ui.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint

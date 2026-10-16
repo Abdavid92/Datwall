@@ -17,15 +17,13 @@ class HistoryRecyclerAdapter constructor(
     var history: List<IPurchasedPackage>
 ) : RecyclerView.Adapter<HistoryRecyclerAdapter.AbstractItemHolder>() {
 
-    private var historyShow = history
-
-
     fun update(historyNew: List<IPurchasedPackage>){
+        val old = history
         history = historyNew
 
         val result = DiffUtil.calculateDiff(object: DiffUtil.Callback() {
             override fun getOldListSize(): Int {
-                return historyShow.size
+                return old.size
             }
 
             override fun getNewListSize(): Int {
@@ -33,29 +31,15 @@ class HistoryRecyclerAdapter constructor(
             }
 
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return historyShow[oldItemPosition] == history[newItemPosition]
+                return old[oldItemPosition] == history[newItemPosition]
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return historyShow[oldItemPosition].date == history[newItemPosition].date
+                return old[oldItemPosition].date == history[newItemPosition].date
             }
         })
 
-        historyShow = history
-
         result.dispatchUpdatesTo(this)
-    }
-
-
-    fun filter(header: HistoryViewModel.HeaderPurchasedPackage?){
-        if (header == null){
-            historyShow = history
-            notifyDataSetChanged()
-        }else {
-            val index = history.indexOf(header)
-            historyShow = history.subList(index, index + header.cuantity)
-            notifyDataSetChanged()
-        }
     }
 
 
@@ -89,7 +73,7 @@ class HistoryRecyclerAdapter constructor(
     }
 
     override fun getItemCount(): Int {
-        return historyShow.size
+        return history.size
     }
 
     abstract class AbstractItemHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -104,7 +88,7 @@ class HistoryRecyclerAdapter constructor(
             binding?.apply {
                 val data = purchasedPackage as HistoryViewModel.HeaderPurchasedPackage
                 titleMonth.text = data.month
-                textTotalPrice.text = "${data.priceTotal} $"
+                textTotalPrice.text = itemView.context.getString(R.string.price_cup, data.priceTotal)
             }
         }
 
@@ -125,7 +109,7 @@ class HistoryRecyclerAdapter constructor(
                 else
                     date
                 textPackage.text = data.dataPackage.name
-                textPrice.text = "${data.dataPackage.price.toInt()} $"
+                textPrice.text = itemView.context.getString(R.string.price_cup, data.dataPackage.price.toInt())
             }
         }
 
