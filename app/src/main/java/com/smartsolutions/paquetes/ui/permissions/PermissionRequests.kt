@@ -43,11 +43,19 @@ suspend fun Activity.restartIfSimSetupPending(configurationManager: IConfigurati
         return false
 
     (application as DatwallApplication).main()
+    openStartScreen()
+    return true
+}
+
+/**
+ * Abre la pantalla inicial de la app descartando las demás. El arranque ya se reinició y esa pantalla
+ * sigue su destino.
+ * */
+fun Activity.openStartScreen() {
     startActivity(
         Intent(this, SplashActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
     )
-    return true
 }
 
 /**

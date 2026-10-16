@@ -25,8 +25,10 @@ import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.AbstractFragment
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
 import com.smartsolutions.paquetes.ui.ErrorTexts
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
-import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
+import com.smartsolutions.paquetes.ui.permissions.onAccessibilityResult
+import com.smartsolutions.paquetes.ui.permissions.onPermissionResult
+import com.smartsolutions.paquetes.ui.permissions.showAccessibilitySheet
+import com.smartsolutions.paquetes.ui.permissions.showPermissionSheet
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
@@ -58,6 +60,27 @@ class ResumeFragment : AbstractFragment() {
         repeatCount = 30
     }
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Con el permiso concedido se continúa la sincronización que pidió el usuario.
+        onPermissionResult { _, granted ->
+            if (granted)
+                viewModel.onPermissionGranted()
+        }
+
+        onAccessibilityResult { granted ->
+            if (granted)
+                viewModel.onPermissionGranted()
+            else
+                Toast.makeText(
+                    requireContext(),
+                    R.string.accessibility_sync_cancelled,
+                    Toast.LENGTH_SHORT
+                ).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -232,28 +255,9 @@ class ResumeFragment : AbstractFragment() {
 
     private fun onEvent(event: ResumeEvent) {
         when (event) {
-            is ResumeEvent.RequestPermission -> SinglePermissionFragment.newInstance(
-                event.requestCode,
-                object : SinglePermissionFragment.SinglePermissionCallback {
-                    // Con el permiso concedido se continúa la sincronización que pidió el usuario.
-                    override fun onGranted() = viewModel.onPermissionGranted()
-                    override fun onDenied() = Unit
-                }
-            ).show(childFragmentManager, "PermissionsFragment")
+            is ResumeEvent.RequestPermission -> showPermissionSheet(event.requestCode)
 
-            ResumeEvent.RequestAccessibility -> StartAccessibilityServiceFragment.newInstance(
-                object : SinglePermissionFragment.SinglePermissionCallback {
-                    override fun onGranted() = viewModel.onPermissionGranted()
-
-                    override fun onDenied() {
-                        Toast.makeText(
-                            requireContext(),
-                            R.string.accessibility_sync_cancelled,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            ).show(childFragmentManager, "AccessibilityFragment")
+            ResumeEvent.RequestAccessibility -> showAccessibilitySheet()
 
             is ResumeEvent.SyncFailed -> BottomSheetDialogBasic.newInstance(
                 BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED,

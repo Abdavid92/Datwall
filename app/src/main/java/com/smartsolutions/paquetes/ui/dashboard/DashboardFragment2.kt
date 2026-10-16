@@ -15,7 +15,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.smartsolutions.paquetes.services.BubbleFloatingService
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
+import com.smartsolutions.paquetes.ui.permissions.onPermissionResult
+import com.smartsolutions.paquetes.ui.permissions.showPermissionSheet
 import com.warkiz.widget.IndicatorSeekBar
 import com.warkiz.widget.OnSeekChangeListener
 import com.warkiz.widget.SeekParams
@@ -43,6 +44,17 @@ class DashboardFragment2 : AbstractFragment() {
 
     override fun getTitle(): CharSequence {
         return requireContext().getString(R.string.title_dashboard)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        onPermissionResult { requestCode, granted ->
+            if (granted)
+                viewModel.onPermissionGranted(requestCode)
+            else
+                viewModel.onPermissionDenied()
+        }
     }
 
     override fun onCreateView(
@@ -182,13 +194,7 @@ class DashboardFragment2 : AbstractFragment() {
 
     private fun onEvent(event: DashboardEvent) {
         when (event) {
-            is DashboardEvent.RequestPermission -> SinglePermissionFragment.newInstance(
-                event.requestCode,
-                object : SinglePermissionFragment.SinglePermissionCallback {
-                    override fun onGranted() = viewModel.onPermissionGranted(event.requestCode)
-                    override fun onDenied() = viewModel.onPermissionDenied()
-                }
-            ).show(childFragmentManager, null)
+            is DashboardEvent.RequestPermission -> showPermissionSheet(event.requestCode)
 
             DashboardEvent.FirewallNeedsBlockedApp -> {
                 render(viewModel.state.value)

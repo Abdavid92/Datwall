@@ -31,7 +31,7 @@ fun Fragment.showAccessibilitySheet()
 **La hoja**:
 
 - Escribe el resultado en `parentFragmentManager` una sola vez: al conceder, al rechazar o al descartarla sin responder
-  (en `onDismiss`, nunca por una recreación).
+  (en `onDismiss`, pero no si la actividad se está recreando: `DialogFragment` también llama a `onDismiss` al girar).
 - Con el permiso de llamadas concedido y líneas por configurar, no entrega "concedido": avisa de `SimSetupPending` y la
   pantalla reinicia el arranque (comportamiento actual).
 

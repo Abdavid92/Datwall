@@ -1,25 +1,26 @@
 package com.smartsolutions.paquetes.ui.permissions
 
+import android.content.DialogInterface
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.smartsolutions.paquetes.R
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 /**
- * A simple [Fragment] subclass.
- * Use the [StartAccessibilityServiceFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+ * Hoja que lleva al usuario a activar el servicio de accesibilidad. Se abre con
+ * [showAccessibilitySheet] y devuelve su resultado a [onAccessibilityResult].
+ * */
 @AndroidEntryPoint
 class StartAccessibilityServiceFragment : BottomSheetDialogFragment() {
-
-    private var listener: SinglePermissionFragment.SinglePermissionCallback? = null
 
     private val viewModel by viewModels<StartAccessibilityServiceViewModel>()
 
@@ -38,47 +39,45 @@ class StartAccessibilityServiceFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (this.listener != null)
-            viewModel.listener = this.listener
-        else
-            this.listener = viewModel.listener
-
         view.findViewById<Button>(R.id.btn_open_settings)
             .setOnClickListener {
-                viewModel.openAccessibilityServicesActivity()
+                viewModel.onOpenSettingsClicked()
             }
 
         view.findViewById<Button>(R.id.btn_jump)
             .setOnClickListener {
-                listener?.onDenied()
-                closeFragment()
+                viewModel.onSkipClicked()
             }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        is StartAccessibilityEvent.Finish -> {
+                            sendAccessibilityResult(event.granted)
+                            dismiss()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-
-        if (viewModel.checkAccessibilityService(this))
-            closeFragment()
+        viewModel.onResumed()
     }
 
-    fun closeFragment() {
-        parentFragmentManager.beginTransaction()
-            .detach(this)
-            .commit()
-    }
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @return A new instance of fragment StartAccessibilityServiceFragment.
-         */
-        @JvmStatic
-        fun newInstance(listener: SinglePermissionFragment.SinglePermissionCallback? = null) =
-            StartAccessibilityServiceFragment().apply {
-                this.listener = listener
-            }
+        // DialogFragment también llama a onDismiss cuando la pantalla se recrea (por ejemplo, al
+        // girar): eso no es una respuesta del usuario.
+        if (activity?.isChangingConfigurations != false)
+            return
+
+        // Descartada sin responder (gesto de volver o tocar fuera).
+        if (viewModel.onDismissed() && isAdded)
+            sendAccessibilityResult(false)
     }
 }

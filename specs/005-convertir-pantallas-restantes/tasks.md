@@ -73,22 +73,22 @@ API de resultados de fragmentos y no se guardan objetos de respuesta.
 **Independent Test**: [quickstart.md](quickstart.md) sección 4: pedir cada permiso desde Resumen, Controles y la
 configuración de líneas, con giro a mitad y con el diálogo del sistema visible.
 
-- [ ] T006 [P] [US1] Escribir primero T/ui/permissions/SinglePermissionViewModelTest.kt (data-model "Hoja de permiso"):
+- [X] T006 [P] [US1] Escribir primero T/ui/permissions/SinglePermissionViewModelTest.kt (data-model "Hoja de permiso"):
   - estado inicial con la acción según se haya pedido antes y pueda volver a pedirse;
   - conceder, rechazar y rechazar de forma permanente (→ `OpenAppSettings`);
   - permiso de llamadas concedido con líneas pendientes → `SimSetupPending` y `kernel.restart()`;
   - descartar sin responder entrega "denegado" una sola vez;
   - recrear el ViewModel con el mismo `SavedStateHandle` tras entregar un resultado no entrega otro (R8, primer
     error: debe fallar si el error existe).
-- [ ] T007 [P] [US1] Escribir primero T/ui/permissions/StartAccessibilityServiceViewModelTest.kt: sin esperar al
+- [X] T007 [P] [US1] Escribir primero T/ui/permissions/StartAccessibilityServiceViewModelTest.kt: sin esperar al
   inicio; abrir ajustes emite `OpenAccessibilitySettings`; volver con el servicio activo entrega "concedido" y sin
   activar entrega "denegado"; volver sin haber abierto los ajustes no entrega nada.
-- [ ] T008 [US1] Crear B/ui/permissions/PermissionResult.kt según
+- [X] T008 [US1] Crear B/ui/permissions/PermissionResult.kt según
   [contracts/permission-result.md](contracts/permission-result.md): claves `permission_result` y
   `accessibility_result`, y las funciones `Fragment.onPermissionResult`, `Fragment.showPermissionSheet`,
   `Fragment.onAccessibilityResult` y `Fragment.showAccessibilitySheet`, más lo que necesiten las hojas para escribir su
   resultado.
-- [ ] T009 [US1] Reescribir B/ui/permissions/SinglePermissionViewModel.kt (`SavedStateHandle`, `PermissionsManager`,
+- [X] T009 [US1] Reescribir B/ui/permissions/SinglePermissionViewModel.kt (`SavedStateHandle`, `PermissionsManager`,
   `ConfigurationManager`, `DatwallKernel`, `@ApplicationContext`; estado, acciones y eventos de data-model) y
   B/ui/permissions/SinglePermissionFragment.kt:
   - sin constructor privado ni `callback`; `newInstance(requestCode)`;
@@ -96,22 +96,34 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
   - la pantalla calcula `canAskAgain` con la actividad y se lo pasa a la lógica como dato;
   - con `SimSetupPending` abre la pantalla inicial (sin lógica de decisión en la pantalla).
   T006 pasa.
-- [ ] T010 [US1] Reescribir B/ui/permissions/StartAccessibilityServiceViewModel.kt (sin `Application` ni recibir el
+- [X] T010 [US1] Reescribir B/ui/permissions/StartAccessibilityServiceViewModel.kt (sin `Application` ni recibir el
   fragmento) y StartAccessibilityServiceFragment.kt (sin `listener`; entrega el resultado con T008). T007 pasa.
-- [ ] T011 [US1] Actualizar los cuatro sitios que abren una hoja con un objeto de respuesta, para registrar el oyente en
+- [X] T011 [US1] Actualizar los cuatro sitios que abren una hoja con un objeto de respuesta, para registrar el oyente en
   `onCreate` y abrir la hoja con T008, reenviando el resultado a su ViewModel con la acción que ya tienen:
   - B/ui/resume/ResumeFragment.kt (permiso y accesibilidad);
   - B/ui/dashboard/DashboardFragment2.kt;
   - B/ui/packages/PackagesHolderFragment.kt (sin acción tras el resultado);
   - B/ui/settings/SimsConfigurationFragment.kt.
   Eliminar `SinglePermissionCallback`.
-- [ ] T012 [US1] Comprobar los posibles errores de R8 (primero y segundo) en el teléfono: girar con la hoja abierta,
+- [X] T012 [US1] Comprobar los posibles errores de R8 (primero y segundo) en el teléfono: girar con la hoja abierta,
   y con "No conservar actividades" activado concediendo el permiso desde el diálogo del sistema. Anotar el resultado
   aquí.
 
   **Evidencia previa** (2026-10-16, al probar Setup en el emulador): girar con la hoja del permiso de llamadas abierta
   omitió todo el asistente y llevó a Resumen. Es el primer error de R8, confirmado en el código actual: la hoja avisa de
   "denegado" desde `onDestroy` al girar y eso omite la configuración. Debe desaparecer con T009.
+
+  **Resultado** (emulador Android 7, 2026-10-16; el teléfono no estaba conectado):
+  - girar con la hoja abierta ya no omite el asistente; la hoja sigue ahí;
+  - girar con el diálogo del sistema visible y aceptar: el permiso queda concedido y el flujo sigue (antes, o
+    sin la comprobación de abajo, la hoja se quedaba abierta); el asistente pasa al paso de planes;
+  - descartar la hoja con "Atrás" cuenta como "denegado" una sola vez y omite el asistente, como antes;
+  - Resumen → Sincronizar sin el permiso abre la hoja y esta sobrevive al giro.
+  - **Error que apareció al probarlo**: `DialogFragment` llama a `onDismiss` desde `onDestroyView`, también al girar.
+    Con eso la hoja daba por descartada la petición y marcaba el resultado como entregado, así que al aceptar el
+    diálogo del sistema no pasaba nada. Se corrigió ignorando `onDismiss` mientras la actividad se recrea
+    (`isChangingConfigurations`) en las dos hojas.
+  - Pendiente de ver en el teléfono: "Abrir ajustes" tras rechazar dos veces y la hoja de accesibilidad.
 
 **Checkpoint**: ninguna pantalla pasa un objeto de respuesta a una hoja.
 

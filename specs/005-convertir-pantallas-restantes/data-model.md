@@ -17,15 +17,16 @@ Ambos viajan como paquete de la API de resultados de fragmentos, con una clave f
 ## Hoja de permiso (`SinglePermissionViewModel`)
 
 - **Estado** `SinglePermissionUiState`:
-  - `requestCode`, para elegir los textos;
-  - `keys: List<String>`: permisos de Android de ese permiso, para calcular `canAskAgain`;
+  - `permission: Permission`: sus textos (por código) y las claves de Android con las que la pantalla calcula
+    `canAskAgain`;
   - `action: PermissionAction?` (`Request`, `OpenAppSettings`, `Nothing`), nulo hasta calcularlo.
 - **Acciones**:
   - `onShown(canAskAgain)`: calcula la acción;
   - `onGrantClicked()` y `onSkipClicked()`;
-  - `onSystemResult(granted, canAskAgain)`: resultado del diálogo del sistema o de la pantalla de configuración;
-  - `onReturnedFromAppSettings()`;
-  - `onDismissed()`.
+  - `onRequestPermissionsResult(granted)`: resultado del diálogo del sistema;
+  - `onReturnedFromSystem()`: se vuelve de una pantalla del sistema (comprueba el permiso);
+  - `onResumed()`: si se fue a los ajustes de la app, comprueba el permiso al volver;
+  - `onDismissed()`: devuelve true si hay que entregar "denegado" porque se descartó sin responder.
 - **Eventos**:
   - `RequestFromSystem`: lanzar el diálogo del sistema;
   - `OpenAppSettings`;
@@ -36,8 +37,9 @@ Ambos viajan como paquete de la API de resultados de fragmentos, con una clave f
 
 ## Hoja de accesibilidad (`StartAccessibilityServiceViewModel`)
 
-- **Estado**: `waitingForSettings: Boolean` (se fue a los ajustes y falta volver).
-- **Acciones**: `onOpenSettingsClicked()`, `onReturned()` (comprueba si el servicio quedó activo), `onSkipped()`.
+- **Estado interno** (`SavedStateHandle`): se fue a los ajustes y falta volver; ya se entregó un resultado.
+- **Acciones**: `onOpenSettingsClicked()`, `onResumed()` (si venía de los ajustes, comprueba el servicio),
+  `onSkipClicked()`, `onDismissed()`.
 - **Eventos**: `OpenAccessibilitySettings`, `Finish(granted)`.
 
 ## Lista de Permisos (`PermissionsViewModel`)

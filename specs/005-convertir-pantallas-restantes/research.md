@@ -38,8 +38,10 @@ abrir los ajustes y dibujar.
   `PermissionNeeded`). Queda `PermissionRequestPolicy.decide` como única regla y `actionFor` como ayuda de UI que
   calcula el dato y llama a la regla.
 - **Ya no se entrega "denegado" al girar**: hoy `onDestroy` avisa de "denegado" si no hubo resultado, y se ejecuta también
-  al girar la pantalla. El aviso pasa a `onDismiss`, que no se llama al recrearse, y solo si no se entregó otro
-  resultado (error candidato, ver R8).
+  al girar la pantalla. El aviso pasa a `onDismiss`, solo si la actividad no se está recreando
+  (`isChangingConfigurations`) y solo si no se entregó otro resultado. **Corrección tras probarlo**: se creyó que
+  `DialogFragment` no llama a `onDismiss` al recrearse; sí lo hace desde `onDestroyView`, así que sin esa comprobación el
+  giro contaba como respuesta y la hoja perdía el resultado real (ver R8).
 
 ## R3. Permiso de llamadas y configuración de líneas pendiente
 
@@ -100,7 +102,7 @@ Se comprueban con una prueba antes de cambiar nada; si se confirman, se corrigen
 | Posible error | Dónde | Cómo se comprueba |
 |---|---|---|
 | Al girar la hoja de permiso se avisa de "denegado" aunque el usuario no respondió | `SinglePermissionFragment.onDestroy` | prueba de `SinglePermissionViewModel`: un descarte tras recrear no entrega resultado; en el teléfono, girar con la hoja abierta |
-| El resultado de la hoja se pierde si la pantalla de origen se destruye durante el diálogo del sistema | objeto de respuesta guardado en la lógica | con R1 el resultado queda en el gestor de fragmentos; se comprueba en el teléfono con "no conservar actividades" |
+| El resultado de la hoja se pierde si la pantalla de origen se destruye durante el diálogo del sistema | objeto de respuesta guardado en la lógica | con R1 el resultado queda en el gestor de fragmentos; probado en el emulador girando con el diálogo del sistema visible (ver tasks.md T012) |
 | Setup avanza o termina al girar el teléfono | `SetupActivity` observa un `LiveData` que se vuelve a entregar | **Confirmado** (ver tasks.md T017); la muerte del proceso no es un error. Corregido con estado y un último paso mostrado guardado en la actividad |
 
 ## R9. Pendientes menores
