@@ -54,7 +54,7 @@ de registros inyectable.
   - borrar B/ui/AndroidViewModelExtensions.kt (`next()`) y reemplazar `restartIfSimSetupPending` más adelante (T015,
     T010).
   T003 pasa.
-- [ ] T005 [P] Crear B/modules/LogModule.kt (`@Module @InstallIn(SingletonComponent::class)`) con un `@Provides` de
+- [X] T005 [P] Crear B/modules/LogModule.kt (`@Module @InstallIn(SingletonComponent::class)`) con un `@Provides` de
   `LogManager` (`LogManager.newInstance()`). `DropLogsWorker` no cambia (no es un worker de Hilt).
 
 **Checkpoint**: compila; las pruebas siguen en verde.
@@ -151,11 +151,11 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
 
 - [ ] T019 [P] [US3] Escribir primero T/ui/history/HistoryViewModelTest.kt: cargando y luego líneas con sus filas por
   mes; una compra nueva aparece sin reabrir; línea sin compras.
-- [ ] T020 [P] [US3] Escribir primero T/ui/events/EventsViewModelTest.kt con un `LogManager` doble: lista del más
+- [X] T020 [P] [US3] Escribir primero T/ui/events/EventsViewModelTest.kt con un `LogManager` doble: lista del más
   reciente al más antiguo; filtrar por tipo; enviar por correo sin app de correo emite `ShowMessage`.
 - [ ] T021 [US3] Reescribir B/ui/history/HistoryViewModel.kt (estado único: líneas y filas por línea) y adaptar
   HistoryFragment.kt, HistoryHolderFragment.kt y HistoryRecyclerAdapter.kt. T019 pasa.
-- [ ] T022 [US3] Reescribir B/ui/events/EventsViewModel.kt (`@HiltViewModel`, `LogManager` y `LocalFileHelper`
+- [X] T022 [US3] Reescribir B/ui/events/EventsViewModel.kt (`@HiltViewModel`, `LogManager` y `LocalFileHelper`
   inyectados; filtro y envío por correo como acciones) y adaptar EventsFragment.kt y EventsRecyclerAdapter.kt (el
   adaptador deja de aplicar el filtro). T020 pasa.
 

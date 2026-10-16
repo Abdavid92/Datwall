@@ -3,57 +3,24 @@ package com.smartsolutions.paquetes.ui.events
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.abdavid92.persistentlog.Event
 import com.abdavid92.persistentlog.EventType
 import com.smartsolutions.paquetes.databinding.ItemEventsBinding
-import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 
-class EventsRecyclerAdapter constructor(
-    private var events: List<Event>,
-    private val fragment: EventsFragment
-) : RecyclerView.Adapter<EventsRecyclerAdapter.ItemViewHolder>(), CoroutineScope {
+class EventsRecyclerAdapter(
+    private val onEventClicked: (Event) -> Unit
+) : ListAdapter<Event, EventsRecyclerAdapter.ItemViewHolder>(DiffCallback) {
 
-    private var filter: EventType? = null
-    private var filtered = events
-    private var eventsShow = events
-
-
-    fun updateEvents(list: List<Event>) {
-
-        events = list
-
-        filtered = if (filter == null) {
-            events
-        } else {
-            list.filter { it.type == filter }
-        }
-
-        eventsShow = filtered
-        if (eventsShow.isEmpty()){
-            fragment.setNoData(true)
-        }else {
-            fragment.setNoData(false)
-        }
-        notifyDataSetChanged()
-    }
-
-
-    fun setFilter(type: EventType?) {
-        filter = type
-        updateEvents(events)
-    }
-
-
-    inner class ItemViewHolder(var binding: ItemEventsBinding?) :
-        RecyclerView.ViewHolder(binding!!.root) {
+    inner class ItemViewHolder(var binding: ItemEventsBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(event: Event) {
-            binding?.apply {
-
+            binding.apply {
                 typeEvent.text = event.type.name
 
                 linTypeEvent.setBackgroundColor(
@@ -61,7 +28,7 @@ class EventsRecyclerAdapter constructor(
                         EventType.Info -> Color.BLUE
                         EventType.Error -> Color.RED
                         EventType.Warning -> {
-                           typeEvent.setTextColor(Color.BLACK)
+                            typeEvent.setTextColor(Color.BLACK)
                             Color.YELLOW
                         }
                         EventType.Debug -> Color.GREEN
@@ -70,18 +37,16 @@ class EventsRecyclerAdapter constructor(
 
                 titleEvent.text = event.tag
                 descriptionEvent.text = event.msg
-
                 dateEvent.text =
                     SimpleDateFormat("dd-MMM-yyyy hh:mm:ss aa", Locale.getDefault()).format(
                         event.date
                     )
 
                 root.setOnClickListener {
-                    fragment.showEventDetail(event)
+                    onEventClicked(event)
                 }
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -91,15 +56,13 @@ class EventsRecyclerAdapter constructor(
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        holder.bind(eventsShow[position])
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int {
-        return eventsShow.size
+    private object DiffCallback : DiffUtil.ItemCallback<Event>() {
+
+        override fun areItemsTheSame(oldItem: Event, newItem: Event) = oldItem == newItem
+
+        override fun areContentsTheSame(oldItem: Event, newItem: Event) = oldItem == newItem
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default
-
-
 }
