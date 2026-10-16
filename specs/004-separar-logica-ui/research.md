@@ -102,10 +102,13 @@ UI). Rutas relativas a `app/src/main/java/com/smartsolutions/paquetes/` (`B/`) s
   - **Nombre del grupo de apps**: `AbstractAppRepository.kt:75` guarda en la base de datos el nombre genérico del
     grupo con `getString`. Desde ahora guarda un nombre vacío y la UI muestra el texto genérico cuando está vacío. Los
     grupos ya guardados conservan su nombre.
+- **Cambio durante la implementación (T018)**: el nombre genérico del grupo de apps se queda en el repositorio. Se
+  usa para ordenar y buscar, y se muestra en varias pantallas; dejarlo vacío cambiaría el orden visible.
 - **Excepciones admitidas** (FR-002):
   - textos de notificaciones (`NotificationHelper`, `ExceptionsController`, `SynchronizationWorker`, `FirewallHelper`,
     `BubbleServiceHelper`, `DatwallKernel` y los `NotificationBuilder`);
-  - el catálogo de planes (`data/DataPackages.kt`), que es un dato de negocio de ETECSA.
+  - el catálogo de planes (`data/DataPackages.kt`), que es un dato de negocio de ETECSA;
+  - el nombre genérico de los grupos de apps (`AbstractAppRepository`), que forma parte de los datos de la app.
 - **Por qué**: FR-004.
 
 ## R7. Utilidades de UI fuera de `ui/`
