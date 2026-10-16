@@ -60,17 +60,19 @@ reiniciar el arranque. El kernel ya es un `@Singleton` inyectable.
 
 ## R5. Setup: pasos, orden y recuperación
 
-**Decisión**: `SetupViewModel` expone `SetupUiState(steps, index)` con el paso actual derivado, guarda `index` en
-`SavedStateHandle` y recibe `onStepCompleted()` y `onSetupSkipped()`. Al agotar los pasos o al omitir, llama a
-`kernel.restart()`.
+**Decisión**: `SetupViewModel` expone `SetupUiState(steps, index)` con el paso actual derivado y recibe
+`onStepCompleted()` y `onSetupSkipped()`. Al agotar los pasos o al omitir, llama a `kernel.restart()`. El índice vive
+en el ViewModel (sobrevive al giro) y **no** se guarda en `SavedStateHandle`: los pasos pendientes se recalculan al
+recrearse el proceso y los ya completados no salen, así que un índice guardado se desfasaría.
 
 - Los pasos (`SimsConfigurationFragment`, `PackagesConfigurationFragment`) avisan con un resultado de fragmento
   (`setup_step_result`) en lugar de la interfaz `OnCompletedListener`. `SetupActivity` y `FragmentContainerActivity`
   escuchan ese resultado: la primera reenvía al ViewModel, la segunda cierra con `RESULT_OK`.
 - `OnCompletedListener` desaparece; `AbstractSettingsFragment.complete()` y `skipSetup()` escriben el resultado.
 
-**Error candidato**: hoy el índice del paso vive en un campo del ViewModel; un giro lo conserva, pero la muerte del
-proceso lo reinicia (R8).
+**Error real (confirmado)**: al girar, `SetupActivity` volvía a observar el `LiveData`, que entregaba otra vez su valor
+y llamaba a `nextOrComplete()`: avanzaba al paso siguiente o terminaba el asistente (R8). La muerte del proceso, en
+cambio, no es un error: se vuelven a calcular los pasos pendientes.
 
 ## R6. Lista de Permisos
 
@@ -99,7 +101,7 @@ Se comprueban con una prueba antes de cambiar nada; si se confirman, se corrigen
 |---|---|---|
 | Al girar la hoja de permiso se avisa de "denegado" aunque el usuario no respondió | `SinglePermissionFragment.onDestroy` | prueba de `SinglePermissionViewModel`: un descarte tras recrear no entrega resultado; en el teléfono, girar con la hoja abierta |
 | El resultado de la hoja se pierde si la pantalla de origen se destruye durante el diálogo del sistema | objeto de respuesta guardado en la lógica | con R1 el resultado queda en el gestor de fragmentos; se comprueba en el teléfono con "no conservar actividades" |
-| Setup vuelve al primer paso tras morir el proceso | índice en un campo | prueba de `SetupViewModel` con `SavedStateHandle` |
+| Setup avanza o termina al girar el teléfono | `SetupActivity` observa un `LiveData` que se vuelve a entregar | **Confirmado** (ver tasks.md T017); la muerte del proceso no es un error. Corregido con estado y un último paso mostrado guardado en la actividad |
 
 ## R9. Pendientes menores
 

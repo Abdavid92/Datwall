@@ -53,7 +53,7 @@ Ambos viajan como paquete de la API de resultados de fragmentos, con una clave f
 ## Setup (`SetupViewModel`)
 
 - **Estado** `SetupUiState`: `steps: List<ConfigurationStep>?` (nulo mientras se leen), `index: Int`, y el paso actual
-  derivado (`current`). El índice se guarda en `SavedStateHandle`.
+  derivado (`current`). El índice vive en el ViewModel; los pasos pendientes se recalculan si muere el proceso.
 - **Acciones**: `onStepCompleted()`, `onSetupSkipped()`.
 - **Eventos**: ninguno; al agotar los pasos o al omitir llama al kernel (`restart()`), y las pantallas que siguen el
   destino de inicio abren la que toque.

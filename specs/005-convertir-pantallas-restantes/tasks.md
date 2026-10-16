@@ -43,10 +43,10 @@ reintentar. En el teléfono, los toques por `adb input` funcionan; los de `mobil
 **Bloquea todas las historias**: US1 y US2 reinician el arranque desde la lógica de pantalla, y US3 necesita el gestor
 de registros inyectable.
 
-- [ ] T003 [P] Crear T/DatwallKernelRestartTest.kt (con dobles de las dependencias del kernel): `restart()` limpia el
+- [X] T003 [P] Crear T/DatwallKernelRestartTest.kt (con dobles de las dependencias del kernel): `restart()` limpia el
   destino de inicio, vuelve a ejecutar `main()` y, si ya hay una ejecución en curso, no lanza otra a la vez. Debe
   fallar mientras `restart()` no exista.
-- [ ] T004 Añadir `DatwallKernel.restart()` en B/DatwallKernel.kt:
+- [X] T004 Añadir `DatwallKernel.restart()` en B/DatwallKernel.kt:
   - traer de `DatwallApplication.main()` la guarda `kernelRunning`, la llamada a `clearStartDestination()` y el
     lanzamiento de `main()` en un ámbito propio del kernel (`SupervisorJob` + `Dispatchers.Default`);
   - B/DatwallApplication.kt llama a `kernel.restart()` en `onCreate` y deja de tener `main()`, `kernelRunning` y el
@@ -54,6 +54,10 @@ de registros inyectable.
   - borrar B/ui/AndroidViewModelExtensions.kt (`next()`) y reemplazar `restartIfSimSetupPending` más adelante (T015,
     T010).
   T003 pasa.
+
+  **Hecho a medias a propósito**: `DatwallKernel.restart()` ya existe y `DatwallApplication.main()` solo lo llama.
+  `AndroidViewModel.next()` y `DatwallApplication.main()` se quedan como envoltorios de una línea hasta convertir
+  Permisos (T015), que es quien aún los usa; allí se eliminan junto con `restartIfSimSetupPending`.
 - [X] T005 [P] Crear B/modules/LogModule.kt (`@Module @InstallIn(SingletonComponent::class)`) con un `@Provides` de
   `LogManager` (`LogManager.newInstance()`). `DropLogsWorker` no cambia (no es un worker de Hilt).
 
@@ -105,6 +109,10 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
   y con "No conservar actividades" activado concediendo el permiso desde el diálogo del sistema. Anotar el resultado
   aquí.
 
+  **Evidencia previa** (2026-10-16, al probar Setup en el emulador): girar con la hoja del permiso de llamadas abierta
+  omitió todo el asistente y llevó a Resumen. Es el primer error de R8, confirmado en el código actual: la hoja avisa de
+  "denegado" desde `onDestroy` al girar y eso omite la configuración. Debe desaparecer con T009.
+
 **Checkpoint**: ninguna pantalla pasa un objeto de respuesta a una hoja.
 
 ---
@@ -119,9 +127,9 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
   de inicio y desde Ajustes todos; `onShown(rationaleKeys)` calcula la acción de cada fila; "Continuar" y "Ahora no"
   guardan `DATA_DISCLOSURE_ANSWERED` con `IPreferencesRepository` y llaman a `kernel.restart()`; la fila cambia de
   acción tras un resultado; con el permiso de llamadas concedido y líneas pendientes se emite `SimSetupPending`.
-- [ ] T014 [P] [US2] Escribir primero T/ui/setup/SetupViewModelTest.kt: estado inicial con los pasos pendientes y el
+- [X] T014 [P] [US2] Escribir primero T/ui/setup/SetupViewModelTest.kt: estado inicial con los pasos pendientes y el
   primero actual; completar avanza; omitir llama a `kernel.restart()`; sin pasos pendientes termina enseguida; con el
-  mismo `SavedStateHandle` el índice sobrevive (R8, tercer error).
+  estado de nuevo (lo que hace la pantalla al girar) no cambia de paso (R8, tercer error).
 - [ ] T015 [US2] Reescribir B/ui/permissions/PermissionsViewModel.kt (sin `Application` ni DataStore; estado y eventos de
   data-model) y adaptar PermissionsActivity.kt y PermissionsAdapter.kt:
   - la actividad calcula las claves con rationale y se las pasa a `onShown`;
@@ -130,12 +138,18 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
   - `restartIfSimSetupPending` se sustituye por abrir la pantalla inicial tras el evento `SimSetupPending`, sin
     comprobar nada de negocio.
   T013 pasa.
-- [ ] T016 [US2] Cambiar el aviso de paso completado: B/ui/settings/AbstractSettingsFragment.kt (`complete()` y
+- [X] T016 [US2] Cambiar el aviso de paso completado: B/ui/settings/AbstractSettingsFragment.kt (`complete()` y
   `skipSetup()` escriben `setup_step_result` en su `parentFragmentManager`), B/ui/FragmentContainerActivity.kt (escucha
   el resultado y cierra con `RESULT_OK`) y eliminar B/ui/setup/OnCompletedListener.kt.
-- [ ] T017 [US2] Reescribir B/ui/setup/SetupViewModel.kt (`SavedStateHandle`, `IConfigurationManager`, `DatwallKernel`;
+- [X] T017 [US2] Reescribir B/ui/setup/SetupViewModel.kt (`IConfigurationManager`, `DatwallKernel`;
   sin `Application`, `LiveData` ni `Array`) y B/ui/setup/SetupActivity.kt (dibuja `current`, escucha el resultado de
   paso y lo reenvía). T014 pasa.
+
+  **Resultado**: error confirmado y corregido. En el código anterior, girar el teléfono durante el asistente lo
+  avanzaba o lo cerraba, porque `SetupActivity` volvía a recibir el valor del `LiveData`. Ahora `SetupActivity` dibuja
+  el paso de `state` y recuerda el último que mostró; en el emulador Android 7, girar en el paso de planes lo
+  conserva y "Continuar" termina el asistente y abre Resumen. `OnCompletedListener` desaparece: los pasos avisan con
+  `setup_step_result` (B/ui/setup/SetupStepResult.kt).
 - [ ] T018 [US2] Validar el primer uso y Setup en el emulador Android 7 con instalación limpia
   ([quickstart.md](quickstart.md) sección 3) y la lista de Permisos en el teléfono. Anotar los resultados aquí.
 
