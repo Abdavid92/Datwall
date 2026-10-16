@@ -8,6 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -37,7 +41,7 @@ class HistoryHolderFragment : Fragment() {
     private val binding: FragmentHistoryHolderBinding
         get() = _binding!!
 
-    private val viewModel by viewModels<HistoryViewModel>()
+    private val viewModel by viewModels<HistoryViewModel>({ requireParentFragment() })
 
     private var adapter: HistoryRecyclerAdapter? = null
     private lateinit var uiHelper: UIHelper
@@ -67,27 +71,30 @@ class HistoryHolderFragment : Fragment() {
         uiHelper = UIHelper(requireContext())
         configureBarChart()
 
-        viewModel.getPurchasedPackages(simId).observe(viewLifecycleOwner) {
-            binding.progressBar.visibility = View.VISIBLE
-            setAdapter(it)
-            setValuesBarCHart(it.filterIsInstance<HistoryViewModel.HeaderPurchasedPackage>().sortedBy { it.date })
-
-            if(it.isEmpty()){
-                binding.apply {
-                    linNoData.visibility = View.VISIBLE
-                    barChart.visibility = View.INVISIBLE
-                }
-            }else {
-                binding.apply {
-                    linNoData.visibility = View.GONE
-                    barChart.visibility = View.VISIBLE
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect(::render)
             }
-            binding.progressBar.visibility = View.GONE
         }
-
     }
 
+    private fun render(state: HistoryUiState) {
+        if (state.loading) {
+            binding.progressBar.visibility = View.VISIBLE
+            return
+        }
+
+        val rows = state.rows[simId].orEmpty()
+
+        setAdapter(rows)
+        setValuesBarCHart(rows.filterIsInstance<HistoryViewModel.HeaderPurchasedPackage>().sortedBy { it.date })
+
+        binding.apply {
+            linNoData.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
+            barChart.visibility = if (rows.isEmpty()) View.INVISIBLE else View.VISIBLE
+            progressBar.visibility = View.GONE
+        }
+    }
 
     private fun setAdapter(list: List<IPurchasedPackage>) {
         if (adapter == null){

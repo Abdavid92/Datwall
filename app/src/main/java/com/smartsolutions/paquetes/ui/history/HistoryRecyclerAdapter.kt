@@ -87,7 +87,7 @@ class HistoryRecyclerAdapter constructor(
         override fun onBind(purchasedPackage: IPurchasedPackage) {
             binding?.apply {
                 val data = purchasedPackage as HistoryViewModel.HeaderPurchasedPackage
-                titleMonth.text = data.month
+                titleMonth.text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(Date(data.date))
                 textTotalPrice.text = itemView.context.getString(R.string.price_cup, data.priceTotal)
             }
         }

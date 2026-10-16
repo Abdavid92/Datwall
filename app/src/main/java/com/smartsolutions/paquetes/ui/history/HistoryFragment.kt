@@ -7,6 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.databinding.FragmentHistoryBinding
 import com.smartsolutions.paquetes.ui.setTabLayoutMediatorSims
@@ -28,6 +34,7 @@ class HistoryFragment : AbstractFragment() {
         get() = _binding!!
 
     private var adapter: HistoryPagerAdapter? = null
+    private var tabsMediator: TabLayoutMediator? = null
 
 
     override fun onCreateView(
@@ -42,15 +49,25 @@ class HistoryFragment : AbstractFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getInstalledSims().observe(viewLifecycleOwner){
-            setAdapter(it)
-            setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, it)
-            if (it.size <= 1){
-                binding.tabs.visibility = View.GONE
-            }else {
-                binding.tabs.visibility = View.VISIBLE
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.map { it.sims }.distinctUntilChanged().collect(::renderSims)
             }
         }
+    }
+
+    private fun renderSims(sims: List<Sim>) {
+        // El estado empieza sin líneas mientras se leen: no hay nada que dibujar todavía.
+        if (sims.isEmpty())
+            return
+
+        // Las pestañas viejas siguen observando el adaptador: se sueltan antes de crear las nuevas.
+        tabsMediator?.detach()
+
+        setAdapter(sims)
+        tabsMediator = setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, sims)
+
+        binding.tabs.visibility = if (sims.size <= 1) View.GONE else View.VISIBLE
     }
 
 
@@ -65,6 +82,8 @@ class HistoryFragment : AbstractFragment() {
     }
 
     override fun onDestroyView() {
+        tabsMediator?.detach()
+        tabsMediator = null
         _binding = null
         super.onDestroyView()
     }
