@@ -45,9 +45,6 @@
             android:label="@string/title_activity_settings"
             android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ui.dashboard.DashboardControlActivity"
-            android:theme="@style/Theme.Datwall.Transparent" />
-        <activity
             android:name=".ui.applications.AppControlActivity"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/Theme.Datwall.Transparent" />
