@@ -1,410 +1,204 @@
 package com.smartsolutions.paquetes.ui.dashboard
 
-import android.annotation.SuppressLint
-import android.app.Application
-import android.content.Context
-import android.view.*
-import android.widget.*
-import androidx.appcompat.widget.AppCompatRadioButton
-import androidx.appcompat.widget.SwitchCompat
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.*
-import com.smartsolutions.paquetes.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.helpers.BubbleServiceHelper
 import com.smartsolutions.paquetes.helpers.FirewallHelper
 import com.smartsolutions.paquetes.helpers.USSDHelper
-import com.smartsolutions.paquetes.DatwallApplication
+import com.smartsolutions.paquetes.managers.contracts.IAppsManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.services.BubbleFloatingService
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
-import com.warkiz.widget.IndicatorSeekBar
-import com.warkiz.widget.OnSeekChangeListener
-import com.warkiz.widget.SeekParams
+import com.smartsolutions.paquetes.repositories.contracts.IPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
+
+data class DashboardUiState(
+    val firewallOn: Boolean = false,
+    /**
+     * Modo dinámico del cortafuegos; false es el modo estático.
+     * */
+    val dynamicFirewall: Boolean = true,
+    val allowedApps: Int = 0,
+    val blockedApps: Int = 0,
+    val totalApps: Int = 0,
+    val bubbleOn: Boolean = false,
+    /**
+     * Posición del tamaño de la burbuja (0 pequeña, 1 mediana, 2 grande).
+     * */
+    val bubbleSize: Int = DashboardViewModel.DEFAULT_BUBBLE_SIZE,
+    val bubbleTransparency: Float = DashboardViewModel.DEFAULT_BUBBLE_TRANSPARENCY,
+    val bubbleAlwaysShow: Boolean = DashboardViewModel.DEFAULT_BUBBLE_ALWAYS_SHOW
+)
+
+sealed interface DashboardEvent {
+    /**
+     * Falta un permiso para el control; el resultado vuelve con [DashboardViewModel.onPermissionGranted]
+     * o [DashboardViewModel.onPermissionDenied].
+     * */
+    data class RequestPermission(val requestCode: Int) : DashboardEvent
+
+    /**
+     * No se puede encender el cortafuegos si todas las apps tienen acceso.
+     * */
+    data object FirewallNeedsBlockedApp : DashboardEvent
+
+    /**
+     * El control que tocó el usuario no se aplicó: la pantalla vuelve a dibujar el estado.
+     * */
+    data object StateOutOfSync : DashboardEvent
+}
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    application: Application,
-    private val appRepository: IAppRepository,
-    private val permissionManager: IPermissionsManager,
+    private val appsManager: IAppsManager,
+    private val permissionsManager: IPermissionsManager,
     private val firewallHelper: FirewallHelper,
     private val bubbleServiceHelper: BubbleServiceHelper,
-    private val ussdHelper: USSDHelper
-) : AndroidViewModel(application) {
+    private val ussdHelper: USSDHelper,
+    private val preferencesRepository: IPreferencesRepository
+) : ViewModel() {
+
+    private val apps = MutableStateFlow(Triple(0, 0, 0))
+
+    val state: StateFlow<DashboardUiState> = combine(
+        firewallHelper.observeFirewallState(),
+        bubbleServiceHelper.observeBubbleChanges(),
+        preferencesRepository.preferences,
+        apps
+    ) { firewallOn, bubbleOn, preferences, apps ->
+        DashboardUiState(
+            firewallOn = firewallOn,
+            dynamicFirewall = preferences.dynamicFirewall ?: true,
+            allowedApps = apps.first,
+            blockedApps = apps.second,
+            totalApps = apps.third,
+            bubbleOn = bubbleOn,
+            bubbleSize = preferences.bubbleSize
+                ?.let { name -> BUBBLE_SIZES.indexOf(name).takeIf { it >= 0 } }
+                ?: DEFAULT_BUBBLE_SIZE,
+            bubbleTransparency = preferences.bubbleTransparency ?: DEFAULT_BUBBLE_TRANSPARENCY,
+            bubbleAlwaysShow = preferences.bubbleAlwaysShow ?: DEFAULT_BUBBLE_ALWAYS_SHOW
+        )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, DashboardUiState())
+
+    private val _events = Channel<DashboardEvent>(Channel.BUFFERED)
+    val events: Flow<DashboardEvent> = _events.receiveAsFlow()
+
+    init {
+        refreshApps()
+    }
 
     /**
-     * DataStore interno.
+     * Cuenta las apps permitidas y bloqueadas; se llama al volver a la pantalla.
      * */
-    private val dataStore = getApplication<DatwallApplication>().internalDataStore
-
-    private val _appsData = MutableLiveData<IntArray>()
-
-    @SuppressLint("StaticFieldLeak")
-    private var bubbleView: View? = null
-
-    /**
-     * LiveData que contiene un Array de tres items.
-     * El primero es el total de aplicaciones permitidas,
-     * el segundo es el total de aplicaciones bloqueadas,
-     * y el tercero es el total de aplicaciones guardadas
-     * en la base de datos.
-     * */
-    val appsData: LiveData<IntArray>
-        get() {
-            viewModelScope.launch {
-                val apps = withContext(Dispatchers.IO){
-                    appRepository.all()
-                }
-
-                val allowedAppsCount = apps.count { it.access }
-                val blockedAppsCount = apps.count { !it.access }
-
-                _appsData.postValue(intArrayOf(allowedAppsCount, blockedAppsCount, apps.size))
-            }
-
-            return _appsData
-        }
-
-    fun launchUssdCode(ussd: String, fm: FragmentManager) {
+    fun refreshApps() {
         viewModelScope.launch {
-            try {
-                ussdHelper.sendUSSDRequestLegacy(ussd, false)
-            } catch (e: USSDRequestException) {
-                if (e.errorCode == USSDHelper.DENIED_CALL_PERMISSION) {
-
-                    withContext(Dispatchers.Main) {
-                        SinglePermissionFragment.newInstance(
-                            IPermissionsManager.CALL_CODE
-                        ).show(fm, null)
-                    }
-                }
-            }
+            val all = appsManager.all()
+            apps.value = Triple(all.count { it.access }, all.count { !it.access }, all.size)
         }
     }
 
-    fun setFirewallSwitchListener(switch: SwitchCompat, fm: FragmentManager) {
+    fun onFirewallToggled(on: Boolean) {
         viewModelScope.launch {
-
-            firewallHelper.observeFirewallState().collect {
-                withContext(Dispatchers.Main) {
-                    switch.setOnCheckedChangeListener(null)
-
-                    switch.isChecked = it
-
-                    switch.setOnCheckedChangeListener { buttonView,_ ->
-                        onFirewallChangeListener(buttonView, fm)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun onFirewallChangeListener(
-        buttonView: CompoundButton,
-        fm: FragmentManager
-    ) {
-        if (buttonView.isChecked) {
-
-            viewModelScope.launch {
-                if (firewallHelper.allAccess(appRepository.all())) {
-
-                    withContext(Dispatchers.Main) {
-                        buttonView.isChecked = false
-
-                        Toast.makeText(
-                            getApplication(),
-                            getApplication<DatwallApplication>()
-                                .getString(R.string.error_starting_firewall_for_all_access),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-
-                    startFirewall(buttonView, fm)
-                }
-            }
-        } else {
-            viewModelScope.launch {
+            if (!on) {
                 firewallHelper.stopFirewall(true)
-            }
-        }
-    }
-
-    private fun startFirewall(buttonView: CompoundButton, fm: FragmentManager) {
-        if (!firewallHelper.checkFirewallPermission()) {
-            SinglePermissionFragment.newInstance(
-                IPermissionsManager.VPN_CODE,
-                object : SinglePermissionFragment.SinglePermissionCallback {
-
-                    override fun onGranted() {
-                        viewModelScope.launch {
-                            firewallHelper.startFirewall(true)
-                        }
-                    }
-
-                    override fun onDenied() {
-                        buttonView.isChecked = false
-                    }
-                }
-            ).show(fm, null)
-
-        } else {
-            viewModelScope.launch {
+            } else if (firewallHelper.allAccess(appsManager.all())) {
+                _events.send(DashboardEvent.FirewallNeedsBlockedApp)
+            } else if (!firewallHelper.checkFirewallPermission()) {
+                _events.send(DashboardEvent.RequestPermission(IPermissionsManager.VPN_CODE))
+            } else {
                 firewallHelper.startFirewall(true)
             }
         }
     }
 
-    fun setFirewallDynamicModeListener(
-        dynamicRadio: RadioButton,
-        staticRadio: RadioButton
-    ) {
+    fun onDynamicFirewallToggled(on: Boolean) {
         viewModelScope.launch {
-
-            val dynamic = withContext(Dispatchers.IO){
-                dataStore.data
-                    .firstOrNull()?.get(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL)
-            } ?: true
-
-            if (dynamic)
-                dynamicRadio.isChecked = true
-            else
-                staticRadio.isChecked = true
-
-            dynamicRadio.setOnCheckedChangeListener { _, isChecked ->
-                writeChangesDataStore(PreferencesKeys.ENABLED_DYNAMIC_FIREWALL, isChecked)
-            }
+            preferencesRepository.setDynamicFirewall(on)
         }
     }
 
-    fun setBubbleSwitchListener(bubble: SwitchCompat, childFragmentManager: FragmentManager) {
+    fun onBubbleToggled(on: Boolean) {
         viewModelScope.launch {
-
-            bubbleServiceHelper.observeBubbleChanges().collect {
-
-                withContext(Dispatchers.Main) {
-                    bubble.setOnCheckedChangeListener(null)
-
-                    bubble.isChecked = it
-
-                    bubble.setOnCheckedChangeListener { buttonView, isChecked ->
-                        onBubbleChangeListener(
-                            buttonView,
-                            isChecked,
-                            childFragmentManager
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun onBubbleChangeListener(
-        buttonView: CompoundButton,
-        isChecked: Boolean,
-        fm: FragmentManager
-    ) {
-        if (isChecked) {
-           requestDrawOverPermission(fm,
-           onGranted = {
-               viewModelScope.launch {
-                   bubbleServiceHelper.startBubble(true)
-               }
-           },
-           onDenied = {
-               buttonView.isChecked = false
-           })
-        } else {
-            viewModelScope.launch {
+            if (!on) {
                 bubbleServiceHelper.stopBubble(true)
+            } else if (!permissionsManager.isGranted(IPermissionsManager.DRAW_OVERLAYS_CODE)) {
+                _events.send(DashboardEvent.RequestPermission(IPermissionsManager.DRAW_OVERLAYS_CODE))
+            } else {
+                bubbleServiceHelper.startBubble(true)
             }
         }
     }
 
-    fun setTransparencyListener(bubbleTransparency: IndicatorSeekBar) {
+    fun onBubbleSizeChanged(size: Int) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().uiDataStore
-
-            val transparency = dataStore.data.firstOrNull()
-                ?.get(PreferencesKeys.BUBBLE_TRANSPARENCY) ?: BubbleFloatingService.TRANSPARENCY
-
-            bubbleTransparency.setProgress((transparency * 10))
-
-            initBubbleView(bubbleTransparency.context)
-
-            bubbleTransparency.indicator.contentView = bubbleView
-
-            bubbleTransparency.onSeekChangeListener = object : OnSeekChangeListener {
-                override fun onSeeking(seekParams: SeekParams) {
-
-                    if (seekParams.fromUser) {
-                        val newTransparency = seekParams.progress.toFloat() / 10f
-
-                        bubbleView?.findViewById<LinearLayout>(R.id.lin_background_bubble)
-                            ?.alpha = newTransparency
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: IndicatorSeekBar?) { }
-
-                override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
-                    val newTransparency = seekBar.progress.toFloat() / 10f
-
-                    viewModelScope.launch {
-                        dataStore.edit {
-                            it[PreferencesKeys.BUBBLE_TRANSPARENCY] = newTransparency
-                        }
-                    }
-                }
-            }
+            preferencesRepository.setBubbleSize(BUBBLE_SIZES[size.coerceIn(BUBBLE_SIZES.indices)])
         }
     }
 
-    fun setSizeListener(bubbleSize: IndicatorSeekBar) {
+    fun onBubbleTransparencyChanged(transparency: Float) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().uiDataStore
-
-            val size = BubbleFloatingService.BubbleSize.valueOf(
-                dataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.BUBBLE_SIZE) ?: BubbleFloatingService.SIZE.name
-            )
-
-            initBubbleView(bubbleSize.context)
-
-            BubbleFloatingService.setSizeBubble(
-                getApplication(),
-                bubbleView!!,
-                size
-            )
-
-            bubbleSize.indicator.contentView = bubbleView
-
-            bubbleSize.setProgress(size.ordinal.toFloat())
-
-            bubbleSize.onSeekChangeListener = object : OnSeekChangeListener {
-
-                override fun onSeeking(seekParams: SeekParams) {
-                    val newSize = BubbleFloatingService.BubbleSize.values()[seekParams.progress]
-
-                    BubbleFloatingService.setSizeBubble(
-                        getApplication(),
-                        bubbleView!!,
-                        newSize
-                    )
-                }
-
-                override fun onStartTrackingTouch(seekBar: IndicatorSeekBar?) { }
-
-                override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
-                    val newSize = BubbleFloatingService.BubbleSize.values()[seekBar.progress]
-
-                    viewModelScope.launch(Dispatchers.IO) {
-                        dataStore.edit {
-                            it[PreferencesKeys.BUBBLE_SIZE] = newSize.name
-                        }
-                    }
-                }
-            }
+            preferencesRepository.setBubbleTransparency(transparency)
         }
     }
 
-    fun setBubbleAllWayListener(allWay: AppCompatRadioButton, onlyConsume: AppCompatRadioButton) {
+    fun onBubbleAlwaysShowChanged(alwaysShow: Boolean) {
         viewModelScope.launch {
-            val dataStore = getApplication<DatwallApplication>().uiDataStore
-
-            val allWayStore = withContext(Dispatchers.IO){
-                dataStore.data
-                    .firstOrNull()?.get(PreferencesKeys.BUBBLE_ALWAYS_SHOW)
-            } ?: BubbleFloatingService.ALWAYS_SHOW
-
-            if (allWayStore)
-                allWay.isChecked = true
-            else
-                onlyConsume.isChecked = true
-
-            allWay.setOnCheckedChangeListener { _, isChecked ->
-                viewModelScope.launch(Dispatchers.IO) {
-                    dataStore.edit {
-                        it[PreferencesKeys.BUBBLE_ALWAYS_SHOW] = isChecked
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-
-        bubbleView = null
-    }
-
-    private fun initBubbleView(context: Context) {
-        if (bubbleView == null) {
-            bubbleView = LayoutInflater.from(context)
-                .inflate(
-                    R.layout.bubble_floating_layout,
-                    null,
-                    false).apply {
-                        findViewById<LinearLayout>(R.id.lin_background_bubble)
-                            .visibility = View.VISIBLE
-                }
+            preferencesRepository.setBubbleAlwaysShow(alwaysShow)
         }
     }
 
     /**
-     * Guarda los cambios en el dataStore interno.
+     * Consulta rápida por USSD (ver [USSD_CREDIT], [USSD_BONUS] y [USSD_MB]).
      * */
-    private fun writeChangesDataStore(preferences: Preferences.Key<Boolean>, value: Boolean) {
+    fun onUssdShortcut(code: String) {
         viewModelScope.launch {
-            dataStore.edit {
-                it[preferences] = value
+            try {
+                ussdHelper.sendUSSDRequestLegacy(code, false)
+            } catch (e: USSDRequestException) {
+                if (e.errorCode == USSDHelper.DENIED_CALL_PERMISSION)
+                    _events.send(DashboardEvent.RequestPermission(IPermissionsManager.CALL_CODE))
             }
         }
     }
 
-    private fun findDrawOverPermission() = permissionManager
-        .findPermission(IPermissionsManager.DRAW_OVERLAYS_CODE)
-        ?: throw NullPointerException("Incorrect permission code")
-
     /**
-     * Pide el permiso de sobreposición de pantalla en caso de estar en android 6 en adelante
+     * Se concedió el permiso pedido con [DashboardEvent.RequestPermission].
      * */
-    private fun requestDrawOverPermission(
-        fm: FragmentManager,
-        onGranted: () -> Unit,
-        onDenied: (() -> Unit)? = null
-    ): Boolean {
-        val permission = findDrawOverPermission()
-
-        if (permission.checkPermission(permission, getApplication())) {
-            onGranted()
-        } else {
-            SinglePermissionFragment.newInstance(
-                IPermissionsManager.DRAW_OVERLAYS_CODE,
-                object : SinglePermissionFragment.SinglePermissionCallback {
-                    override fun onGranted() {
-                        onGranted()
-                    }
-
-                    override fun onDenied() {
-                        onDenied?.invoke()
-                    }
-                }
-            ).show(fm, null)
-
-            return false
+    fun onPermissionGranted(requestCode: Int) {
+        viewModelScope.launch {
+            when (requestCode) {
+                IPermissionsManager.VPN_CODE -> firewallHelper.startFirewall(true)
+                IPermissionsManager.DRAW_OVERLAYS_CODE -> bubbleServiceHelper.startBubble(true)
+            }
         }
+    }
 
-        return true
+    fun onPermissionDenied() {
+        _events.trySend(DashboardEvent.StateOutOfSync)
+    }
+
+    companion object {
+        const val USSD_CREDIT = "*222#"
+        const val USSD_BONUS = "*222*266#"
+        const val USSD_MB = "*222*328#"
+
+        /**
+         * Nombres de los tamaños de la burbuja, en el orden de su control.
+         * */
+        val BUBBLE_SIZES = listOf("SMALL", "MEDIUM", "LARGE")
+
+        const val DEFAULT_BUBBLE_SIZE = 1
+        const val DEFAULT_BUBBLE_TRANSPARENCY = 0.5f
+        const val DEFAULT_BUBBLE_ALWAYS_SHOW = true
     }
 }

@@ -10,6 +10,14 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.managers.models.AppListSection
+import com.smartsolutions.paquetes.managers.models.AppListSectionType
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsPlaceholderBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.repositories.models.App
@@ -107,55 +115,66 @@ class PlaceHolderFragment : AbstractFragment(),
         super.onViewCreated(view, savedInstanceState)
 
         binding.refresh.setOnRefreshListener {
-            if(!viewModel.commitUpdateApps()) {
+            if(!viewModel.onCommitChanges()) {
                 binding.refresh.isRefreshing = false
             }
         }
 
-        viewModel.getApps(key).observe(viewLifecycleOwner) {
-            if (adapter != null) {
-                adapter!!.updateList(it.first, it.second)
-            } else {
-                adapter = AppsListAdapter(
-                    this,
-                    appControlLauncher,
-                    viewModel.iconManager,
-                    it.first,
-                    it.second)
+        adapter = AppsListAdapter(
+            this,
+            appControlLauncher,
+            viewModel.iconManager,
+            viewModel.state.value.filter
+        )
+        binding.appsList.adapter = adapter
 
-                binding.appsList.adapter = adapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state
+                    .map { state ->
+                        Triple(
+                            state.loading,
+                            state.filter,
+                            if (key == SectionsPagerAdapter.SYSTEM_APPS) state.systemSections else state.userSections
+                        )
+                    }
+                    .collect { (loading, filter, sections) ->
+                        if (!loading) {
+                            adapter?.submit(filter, rows(sections))
+                            binding.refresh.isRefreshing = false
+                        }
+                    }
             }
-            binding.refresh.isRefreshing = false
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        /*Se invoca cuando se cambia el filtro.
-        * Se asigna en el método onResume para que
-        * el fragmento que esté visible sea el que
-        * escuche el evento. El otro no.*/
-        viewModel.filterChangeListener = {
-            binding.refresh.isRefreshing = true
+    /**
+     * Filas de la lista: cada sección con su cabecera.
+     * */
+    private fun rows(sections: List<AppListSection>): List<IApp> =
+        sections.flatMap { section ->
+            val header = section.type?.let { listOf(HeaderApp.newInstance(headerText(it, section.apps.size))) }
+            (header ?: emptyList()) + section.apps
         }
-    }
+
+    private fun headerText(type: AppListSectionType, count: Int): String =
+        getString(
+            when (type) {
+                AppListSectionType.ALLOWED -> R.string.allowed_applications
+                AppListSectionType.BLOCKED -> R.string.blocked_applications
+                AppListSectionType.FREE -> R.string.free_apps
+                AppListSectionType.NATIONAL -> R.string.national_apps
+                AppListSectionType.INTERNATIONAL -> R.string.international_apps
+                AppListSectionType.MESSAGING -> R.string.messaging_apps
+            },
+            count
+        )
 
     /**
      * Se invoca cuando se cambian las propiedades de una app.
      * */
     override fun onAppChange(app: IApp) {
-        viewModel.addAppToUpdate(app)
-    }
-
-    /**
-     * Se invoca cuando se está buscando una app.
-     * */
-    override fun onQueryApp(query: String?) {
-        //adapter?.search(query)
-
-        if (query != null && query.isNotBlank() && adapter != null)
-            viewModel.scheduleSearchQuery(query, adapter!!)
+        viewModel.onAccessChanged(app)
     }
 
     override fun onUpList() {
@@ -166,6 +185,7 @@ class PlaceHolderFragment : AbstractFragment(),
 
     override fun onDestroyView() {
         _binding = null
+        adapter = null
         super.onDestroyView()
     }
 

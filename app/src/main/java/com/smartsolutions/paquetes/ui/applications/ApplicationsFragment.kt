@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
+import com.smartsolutions.paquetes.managers.models.AppsFilter
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentApplicationsBinding
 import com.smartsolutions.paquetes.ui.AbstractFragment
@@ -44,6 +45,11 @@ class ApplicationsFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // El cuadro de búsqueda no sobrevive a recrear la pantalla (por ejemplo al girar): se
+        // limpia también la búsqueda para que la lista no quede filtrada sin que se vea por qué.
+        if (savedInstanceState != null)
+            viewModel.onQueryChanged(null)
 
         val sectionsAdapter = SectionsPagerAdapter(this)
         binding.viewPager.adapter = sectionsAdapter
@@ -84,11 +90,7 @@ class ApplicationsFragment : AbstractFragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                childFragmentManager.fragments.filter { it is ApplicationsFragmentListener }
-                    .forEach { fragment ->
-                        fragment as ApplicationsFragmentListener
-                        fragment.onQueryApp(newText)
-                    }
+                viewModel.onQueryChanged(newText)
                 return true
             }
         })
@@ -98,7 +100,7 @@ class ApplicationsFragment : AbstractFragment() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_filter_title)
             .setItems(R.array.filter_options) { _, which ->
-                viewModel.setFilter(AppsFilter.values()[which])
+                viewModel.onFilterChanged(AppsFilter.entries[which])
             }.show()
     }
 
@@ -106,7 +108,7 @@ class ApplicationsFragment : AbstractFragment() {
         super.onPause()
 
         //Confirmo los cambios
-        viewModel.commitUpdateApps()
+        viewModel.onCommitChanges()
     }
 
     override fun onDestroyView() {
@@ -115,8 +117,6 @@ class ApplicationsFragment : AbstractFragment() {
     }
 
     interface ApplicationsFragmentListener {
-        fun onQueryApp(query: String?)
-
         fun onUpList()
     }
 }

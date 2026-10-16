@@ -1,8 +1,10 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import com.smartsolutions.paquetes.repositories.contracts.PreferencesStore
+import com.smartsolutions.paquetes.repositories.contracts.preferencesRepository
+import kotlinx.coroutines.flow.first
 import android.annotation.SuppressLint
 import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -28,7 +30,7 @@ import com.smartsolutions.paquetes.databinding.FragmentThemesBinding
 import com.smartsolutions.paquetes.databinding.ItemNotificationSampleBinding
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.uiHelper
-import com.smartsolutions.paquetes.managers.contracts.IUpdateManager
+import com.smartsolutions.paquetes.ui.uiHelper
 import com.smartsolutions.paquetes.services.NotificationBuilder
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.SplashActivity
@@ -130,9 +132,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
         private val uiHelper by uiHelper()
 
-        private val preferenceDataStore by lazy {
-            AbstractPreferenceFragmentCompat.PreferenceDataStore(requireContext().settingsDataStore)
-        }
+        private val preferencesRepository by lazy { requireContext().preferencesRepository() }
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -159,66 +159,53 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
-            launch {
-                val dataStore = requireContext().settingsDataStore
+            val preferences = preferencesRepository.preferences.value
 
-                var themeMode = dataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.THEME_MODE) ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            when (preferences.themeMode ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                AppCompatDelegate.MODE_NIGHT_NO -> {
+                    binding.themeLight.isChecked = true
+                }
+                AppCompatDelegate.MODE_NIGHT_YES -> {
+                    binding.themeDark.isChecked = true
+                }
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> {
+                    binding.themeSystem.isChecked = true
+                }
+            }
 
-                when (themeMode) {
-                    AppCompatDelegate.MODE_NIGHT_NO -> {
-                        binding.themeLight.isChecked = true
-                    }
-                    AppCompatDelegate.MODE_NIGHT_YES -> {
-                        binding.themeDark.isChecked = true
-                    }
-                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> {
-                        binding.themeSystem.isChecked = true
-                    }
+            binding.radioButtons.setOnCheckedChangeListener { _, id ->
+
+                val themeMode = when (id) {
+                    R.id.theme_light -> AppCompatDelegate.MODE_NIGHT_NO
+                    R.id.theme_dark -> AppCompatDelegate.MODE_NIGHT_YES
+                    else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 }
 
-                binding.radioButtons.setOnCheckedChangeListener { _, id ->
+                launch { preferencesRepository.setThemeMode(themeMode) }
 
-                    themeMode = when (id) {
-                        R.id.theme_light -> {
-                            AppCompatDelegate.MODE_NIGHT_NO
-                        }
-                        R.id.theme_dark -> {
-                            AppCompatDelegate.MODE_NIGHT_YES
-                        }
-                        R.id.theme_system -> {
-                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        }
-                        else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                    }
+                AppCompatDelegate.setDefaultNightMode(themeMode)
+            }
 
-                    preferenceDataStore.putInt(
-                        PreferencesKeys.THEME_MODE.name,
-                        themeMode
-                    )
-
-                    AppCompatDelegate.setDefaultNightMode(themeMode)
-                }
-
-                val currentTheme = dataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
-
-                binding.themeList.adapter = ThemesAdapter(
-                    uiHelper,
-                    currentTheme
-                ).apply {
-                    onThemeChange = { newTheme ->
-
-                        preferenceDataStore.putInt(
-                            PreferencesKeys.APP_THEME.name,
-                            newTheme
-                        )
-
+            binding.themeList.adapter = ThemesAdapter(
+                uiHelper,
+                preferences.appTheme ?: R.style.Theme_Datwall
+            ).apply {
+                onThemeChange = { newTheme ->
+                    launch {
+                        setAppTheme(newTheme)
                         activity?.recreate()
-                        //showRestartDialog()
                     }
                 }
             }
+        }
+
+        /**
+         * Guarda el tema y espera a que llegue a la copia en memoria, que es la que lee la
+         * actividad al recrearse.
+         * */
+        private suspend fun setAppTheme(theme: Int) {
+            preferencesRepository.setAppTheme(theme)
+            preferencesRepository.preferences.first { it.appTheme == theme }
         }
 
         override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -238,23 +225,21 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
                     val theme = themes[r]
 
-                    preferenceDataStore.putInt(PreferencesKeys.APP_THEME.name, theme.id)
-
-                    showRestartDialog()
+                    launch {
+                        setAppTheme(theme.id)
+                        showRestartDialog()
+                    }
                 }
                 R.id.action_restore_default -> {
-                    preferenceDataStore.putInt(
-                        PreferencesKeys.THEME_MODE.name,
-                        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                    )
+                    launch {
+                        preferencesRepository.setThemeMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        setAppTheme(R.style.Theme_Datwall)
 
-                    preferenceDataStore
-                        .putInt(PreferencesKeys.APP_THEME.name, R.style.Theme_Datwall)
+                        AppCompatDelegate
+                            .setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 
-                    AppCompatDelegate
-                        .setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-
-                    requireActivity().recreate()
+                        activity?.recreate()
+                    }
                 }
             }
 
@@ -270,7 +255,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
     class SynchronizationFragment : AbstractPreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             preferenceManager.preferenceDataStore =
-                PreferenceDataStore(requireContext().workersDataStore)
+                PreferencesBridge(requireContext().preferencesRepository(), PreferencesStore.WORKERS)
             setPreferencesFromResource(R.xml.sync_preferences, rootKey)
 
             findPreference<SwitchPreferenceCompat>("synchronization_ussd_mode_modern")
@@ -322,13 +307,10 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
                 false
             )
 
-            val dataStore = requireContext().settingsDataStore
+            val preferencesRepository = requireContext().preferencesRepository()
 
-            val className = runBlocking {
-                dataStore.data.firstOrNull()
-                    ?.get(PreferencesKeys.NOTIFICATION_CLASS)
-                    ?: NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
-            }
+            val className = preferencesRepository.preferences.value.notificationClass
+                ?: NotificationBuilder.DEFAULT_NOTIFICATION_IMPL
 
             val styles = NotificationBuilder.getNotificationStyles()
 
@@ -364,11 +346,7 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
             binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
                 styles.forEach {
                     if (checkedId == it.hashCode()) {
-                        runBlocking(Dispatchers.IO) {
-                            dataStore.edit { preferences ->
-                                preferences[PreferencesKeys.NOTIFICATION_CLASS] = it.name
-                            }
-                        }
+                        launch { preferencesRepository.setNotificationClass(it.name) }
                     }
                 }
             }
@@ -539,116 +517,11 @@ class SettingsActivity : AbstractActivity(R.layout.activity_settings),
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             preferenceManager.preferenceDataStore =
-                PreferenceDataStore(requireContext().settingsDataStore)
+                PreferencesBridge(requireContext().preferencesRepository(), PreferencesStore.SETTINGS)
         }
 
         override fun title(): CharSequence {
             return mTitle
-        }
-
-        class PreferenceDataStore(
-            private val dataStore: DataStore<Preferences>
-        ) : androidx.preference.PreferenceDataStore(), CoroutineScope {
-
-            override val coroutineContext: CoroutineContext
-                get() = Dispatchers.IO
-
-            override fun putString(key: String, value: String?) {
-                putValue(key, value)
-            }
-
-            override fun putStringSet(key: String, values: MutableSet<String>?) {
-                putValue(key, values)
-            }
-
-            override fun putInt(key: String, value: Int) {
-                putValue(key, value)
-            }
-
-            override fun putLong(key: String, value: Long) {
-                putValue(key, value)
-            }
-
-            override fun putFloat(key: String, value: Float) {
-                putValue(key, value)
-            }
-
-            override fun putBoolean(key: String, value: Boolean) {
-                putValue(key, value)
-            }
-
-            override fun getString(key: String?, defValue: String?): String? {
-                key?.let {
-                    return getValue(it)
-                }
-                return defValue
-            }
-
-            override fun getStringSet(
-                key: String?,
-                defValues: MutableSet<String>?
-            ): MutableSet<String> {
-                key?.let {
-                    return getValue(it) ?: mutableSetOf()
-                }
-
-                return defValues ?: mutableSetOf()
-            }
-
-            override fun getInt(key: String?, defValue: Int): Int {
-                key?.let {
-                    return getValue(it) ?: defValue
-                }
-
-                return defValue
-            }
-
-            override fun getLong(key: String?, defValue: Long): Long {
-                key?.let {
-                    return getValue(it) ?: defValue
-                }
-
-                return defValue
-            }
-
-            override fun getFloat(key: String?, defValue: Float): Float {
-                key?.let {
-                    return getValue(it) ?: defValue
-                }
-
-                return defValue
-            }
-
-            override fun getBoolean(key: String?, defValue: Boolean): Boolean {
-                key?.let {
-                    return getValue(it) ?: defValue
-                }
-
-                return defValue
-            }
-
-            private fun <T> putValue(key: String, value: T?) {
-                value?.let { v ->
-                    PreferencesKeys.findPreferenceByKey<T>(key)?.let { preferenceKey ->
-                        launch {
-                            dataStore.edit {
-                                it[preferenceKey] = v
-                            }
-                        }
-                    }
-                }
-            }
-
-            private fun <T> getValue(key: String): T? {
-                PreferencesKeys.findPreferenceByKey<T>(key)?.let { dataKey ->
-                    return runBlocking(Dispatchers.IO) {
-                        return@runBlocking dataStore.data.firstOrNull()
-                            ?.get(dataKey)
-                    }
-                }
-
-                return null
-            }
         }
     }
 

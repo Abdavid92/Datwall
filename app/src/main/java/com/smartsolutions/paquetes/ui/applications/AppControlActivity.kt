@@ -122,7 +122,7 @@ class AppControlActivity : TransparentActivity() {
             }
 
             //Asigno el evento del checkBox del vpn
-            uiHelper.setVpnAccessCheckBoxListener(it, binding.included.vpnAccess) {
+            binding.included.vpnAccess.bindVpnAccess(it) {
 
                 binding.included.vpnAccess.isChecked.also {
                     binding.included.ask.isEnabled = !it
