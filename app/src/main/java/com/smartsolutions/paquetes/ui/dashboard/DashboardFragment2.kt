@@ -173,9 +173,9 @@ class DashboardFragment2 : AbstractFragment() {
             binding.dynamicMode.isChecked = state.dynamicFirewall
             binding.staticMode.isChecked = !state.dynamicFirewall
 
-            binding.allowedAppsValue.text = state.allowedApps.toString()
-            binding.blockedAppsValue.text = state.blockedApps.toString()
-            binding.allAppsValue.text = state.totalApps.toString()
+            binding.allowedAppsValue.text = getString(R.string.value_int, state.allowedApps)
+            binding.blockedAppsValue.text = getString(R.string.value_int, state.blockedApps)
+            binding.allAppsValue.text = getString(R.string.value_int, state.totalApps)
 
             binding.bubble.isChecked = state.bubbleOn
             binding.allWay.isChecked = state.bubbleAlwaysShow

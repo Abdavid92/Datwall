@@ -33,8 +33,9 @@ reintentar. En el teléfono, los toques por `adb input` funcionan; los de `mobil
 
 - [ ] T001 Comprobar que el árbol compila y pasa las pruebas antes de empezar: `./gradlew testDebugUnitTest
   assembleDebug`.
-- [ ] T002 Medir la línea base de lint con `./gradlew lintRelease` y anotar al final de este archivo cuántos avisos hay
+- [X] T002 Medir la línea base de lint con `./gradlew lintRelease` y anotar al final de este archivo cuántos avisos hay
   de `UnusedResources` y de `SetTextI18n` (R9). `app/build` se borró al liberar disco: la primera compilación es larga.
+  **Línea base** (medida en T025, antes de limpiar): 453 avisos en total, 170 de `UnusedResources` y 23 de `SetTextI18n`.
 
 ---
 
@@ -213,9 +214,14 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
   no por megas. El resto (`data_type_international_lte`, `data_type_promo_bonus_lte`, `traffic_international_lte`,
   `mb_lte_header`, `international_lte_notification*`, `traffic_messaging`, `tab_messaging`, `messaging_apps`) nombra tipos
   de datos que el usuario aún puede tener, no ofrece planes.
-- [ ] T025 [US4] Dejar a 0 los avisos de `UnusedResources` y `SetTextI18n` en `lintRelease` (línea base de T002): borrar
+- [X] T025 [US4] Dejar a 0 los avisos de `UnusedResources` y `SetTextI18n` en `lintRelease` (línea base de T002): borrar
   los recursos que solo usaba código eliminado, conservar con `tools:keep` los que se usan por reflexión o desde el
   manifiesto, y mover a strings.xml los textos escritos directamente al asignar texto a una vista.
+  **Resultado**: `lintRelease` pasa de 453 a 247 avisos, con 0 de `UnusedResources` y 0 de `SetTextI18n`. Se borraron los 170
+  recursos sin uso (91 archivos de drawable/layout/anim/menu y el resto, entradas de values y values-es), todos los que
+  informó lint, sin `tools:keep`. Los 23 textos se movieron a strings.xml (`data_amount`, `value_int`, `value_decimal`,
+  `minutes_value`, `sms_value`, `percent_value`; "Abrir Ajustes" usa `btn_open_settings`); la salida es la misma que antes
+  (los decimales siguen con `toString()`).
 
 **Checkpoint**: `lintRelease` sin avisos de esas dos reglas.
 

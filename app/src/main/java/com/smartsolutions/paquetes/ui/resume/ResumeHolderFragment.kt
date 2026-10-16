@@ -99,7 +99,7 @@ class ResumeHolderFragment : Fragment() {
             progressBar.isIndeterminate = false
             progressBar.max = 100
             progressBar.progress = summary.percent
-            textPercentTotal.text = "${summary.percent}%"
+            textPercentTotal.text = getString(R.string.percent_value, summary.percent)
             textRestTotal.text = getString(R.string.resume_rest_total, rest.value.toString(), rest.dataUnit.name)
             textUsageTotal.text = getString(R.string.resume_used_total, used.value.toString(), used.dataUnit.name)
         }

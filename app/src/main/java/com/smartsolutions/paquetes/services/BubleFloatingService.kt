@@ -467,12 +467,12 @@ class BubbleFloatingService : Service(), CoroutineScope {
         menu.valueDownloadApp.apply {
             setTextColor(color)
             text =
-                "${traffic.rxBytes.getValue().value} ${traffic.rxBytes.getValue().dataUnit.name}"
+                traffic.rxBytes.getValue().let { getString(R.string.data_amount, it.value.toString(), it.dataUnit.name) }
         }
         menu.valueUploadApp.apply {
             setTextColor(color)
             text =
-                "${traffic.txBytes.getValue().value} ${traffic.txBytes.getValue().dataUnit.name}"
+                traffic.txBytes.getValue().let { getString(R.string.data_amount, it.value.toString(), it.dataUnit.name) }
         }
 
         menu.switchAccess.apply {

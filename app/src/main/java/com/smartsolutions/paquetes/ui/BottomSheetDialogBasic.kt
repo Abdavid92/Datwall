@@ -74,7 +74,7 @@ class BottomSheetDialogBasic : BottomSheetDialogFragment() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     binding.buttonCancel.apply {
                         visibility = View.VISIBLE
-                        text = "Abrir Ajustes"
+                        text = getString(R.string.btn_open_settings)
                         setOnClickListener {
                             val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS)
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
