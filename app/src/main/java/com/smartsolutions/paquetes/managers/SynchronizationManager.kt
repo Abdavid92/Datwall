@@ -105,10 +105,7 @@ class SynchronizationManager @Inject constructor(
 
     private fun checkMmi(response: Array<CharSequence>) {
         if (response.any { it.contains("mmi", true) })
-            throw USSDRequestException(
-                USSDHelper.USSD_CODE_FAILED,
-                USSDHelper.USSD_MMI_FULL
-            )
+            throw USSDRequestException(USSDHelper.USSD_TOO_MANY_REQUESTS)
     }
 
     override fun scheduleUserDataBytesSynchronization(intervalInMinutes: Int) {

@@ -1,42 +1,31 @@
 package com.smartsolutions.paquetes.managers.models
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.fragment.app.Fragment
 
+/**
+ * Permiso que necesita una función de la app. Solo describe el permiso: la UI pone sus
+ * textos (por [requestCode]) y decide cómo pedirlo (por [kind]).
+ * */
 data class Permission(
-    val name: String,
+    /**
+     * Claves de los permisos del sistema; vacío en los permisos especiales.
+     * */
     val keys: Array<String>,
-    val description: String,
     val requestCode: Int,
     val minSdk: Int,
+    /**
+     * Cómo se concede.
+     * */
+    val kind: PermissionKind = PermissionKind.RUNTIME,
     /**
      * Se pide en el primer uso. El resto se pide al usar la función que lo necesita.
      * */
     val atStartup: Boolean = false,
     val checkPermission: Permission.(context: Context) -> Boolean = { context ->
-
-        var result = true
-
-        for (key in keys) {
-            if (context.checkSelfPermission(key) == PackageManager.PERMISSION_DENIED) {
-                result = false
-                break
-            }
-        }
-        result
-    },
-    val requestPermissionActivity: Permission.(activity: Activity) -> Unit = { activity ->
-        activity.requestPermissions(keys, requestCode)
-    },
-    val requestPermissionFragment: Permission.(fragment: Fragment) -> Unit = { fragment ->
-        fragment.requestPermissions(keys, requestCode)
+        keys.all { context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
     }
 ) {
-
-    var intent: Intent? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -44,18 +33,18 @@ data class Permission(
 
         other as Permission
 
-        if (name != other.name) return false
         if (!keys.contentEquals(other.keys)) return false
-        if (description != other.description) return false
+        if (requestCode != other.requestCode) return false
+        if (kind != other.kind) return false
         if (atStartup != other.atStartup) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + keys.contentHashCode()
-        result = 31 * result + description.hashCode()
+        var result = keys.contentHashCode()
+        result = 31 * result + requestCode
+        result = 31 * result + kind.hashCode()
         result = 31 * result + atStartup.hashCode()
         return result
     }

@@ -18,19 +18,15 @@ import android.util.TypedValue
 import android.view.PixelCopy
 import android.view.View
 import android.view.Window
-import android.widget.CompoundButton
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.StyleRes
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.models.ThemeWrapper
-import com.smartsolutions.paquetes.repositories.models.IApp
 import kotlin.Exception
 
 
@@ -273,67 +269,6 @@ class UIHelper(
         )
     }
 
-    /**
-     * Asigna el evento onCheckedChange al checkBox y establece la propiedad
-     * [CompoundButton.isChecked] de manera segura sin lanzar el evento
-     * accidentalmente. Si la app tiene mensajes de advertencia, se muestran en
-     * un alertDialog antes de asignarle el nuevo valor.
-     *
-     * @param app - App que se le cambiará el acceso.
-     * @param checkBox - CheckBox que se le asignará el evento.
-     * @param callback - Se lanza cuando se cambia el acceso de la app.
-     * */
-    fun setVpnAccessCheckBoxListener(
-        app: IApp,
-        checkBox: CompoundButton,
-        callback: (() -> Unit)? = null
-    ) {
-        checkBox.setOnCheckedChangeListener(null)
-        checkBox.isChecked = app.access
-        checkBox.setOnCheckedChangeListener { _,_ ->
-            handleWarningMessages(app, checkBox, callback)
-        }
-    }
-
-    /**
-     * Maneja los mensajes de advertencia si los hay y cambia el acceso a la app.
-     * */
-    private fun handleWarningMessages(
-        app: IApp,
-        checkBox: CompoundButton,
-        callback: (() -> Unit)?
-    ) {
-
-        //Diálogo que se mostrará cuando exista un mensaje de advertencia
-        val dialog = AlertDialog.Builder(context)
-            .setTitle(R.string.warning_title)
-            .setNegativeButton(R.string.btn_cancel
-            ) { _,_ ->
-                /*Si se oprime el botón cancelar se llama al método
-                * setCheckBoxListener para restablecer el estado anterior del checkBox sin
-                * lanzar el evento de este. Este método utiliza la propiedad access de la app,
-                * que no se ha cambiado todavía.*/
-                setVpnAccessCheckBoxListener(app, checkBox, callback)
-            }
-            .setPositiveButton(R.string.btn_continue) { _,_ ->
-                app.access = checkBox.isChecked
-                callback?.invoke()
-            }
-
-        if (checkBox.isChecked && app.allowAnnotations != null) {
-            dialog.setMessage(app.allowAnnotations)
-                .show()
-        } else if (!checkBox.isChecked && app.blockedAnnotations != null) {
-            dialog.setMessage(app.blockedAnnotations)
-                .show()
-        } else {
-            /*Si no hay ningún mensaje de advertencia. Cambio la propiedad access y
-            * notifico que hubo cambios.*/
-            app.access = checkBox.isChecked
-            callback?.invoke()
-        }
-    }
-
     fun blur(inputBitmap: Bitmap, radius: Float = BLUR_RADIUS): Bitmap {
 
         val outputBitmap = Bitmap.createBitmap(inputBitmap)
@@ -400,16 +335,5 @@ class UIHelper(
 fun Context.uiHelper(): Lazy<UIHelper> {
     return lazy {
         UIHelper(this)
-    }
-}
-
-/**
- * Crea una instancia [Lazy] de [UIHelper]
- *
- * Ej: val uiHelper by uiHelper()
- * */
-fun Fragment.uiHelper(): Lazy<UIHelper> {
-    return lazy {
-        UIHelper(requireContext())
     }
 }

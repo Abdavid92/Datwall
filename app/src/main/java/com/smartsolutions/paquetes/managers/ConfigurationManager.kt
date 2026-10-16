@@ -9,8 +9,7 @@ import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
 import com.smartsolutions.paquetes.managers.models.Configuration
 import com.smartsolutions.paquetes.managers.sims.SimType
-import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
-import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
+import com.smartsolutions.paquetes.managers.models.ConfigurationStep
 import javax.inject.Inject
 
 class ConfigurationManager @Inject constructor(
@@ -45,7 +44,7 @@ class ConfigurationManager @Inject constructor(
         list.add(
             Configuration(
                 true,
-                SimsConfigurationFragment::class.java
+                ConfigurationStep.SIMS
             ) {
                 // Sin permiso de teléfono la app usa una línea sin identificar: las líneas
                 // reales aún no están configuradas.
@@ -63,7 +62,7 @@ class ConfigurationManager @Inject constructor(
         list.add(
             Configuration(
                 true,
-                PackagesConfigurationFragment::class.java
+                ConfigurationStep.PACKAGES
             ) {
                 return@Configuration dataPackageManager.isConfiguredDataPackages()
             }

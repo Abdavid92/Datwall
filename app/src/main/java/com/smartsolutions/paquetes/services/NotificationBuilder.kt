@@ -14,7 +14,7 @@ import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import com.smartsolutions.paquetes.settingsDataStore
-import com.smartsolutions.paquetes.ui.SplashActivity
+import com.smartsolutions.paquetes.managers.contracts.appNavigator
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.DateUtils
@@ -159,14 +159,14 @@ abstract class NotificationBuilder(
         }
 
         /**
-         * Retorna un [PendingIntent] para ejecutar el [SplashActivity].
+         * Retorna un [PendingIntent] para abrir la app.
          * */
         fun getSplashActivityPendingIntent(context: Context): PendingIntent {
             return PendingIntent
                 .getActivity(
                     context,
                     0,
-                    Intent(context, SplashActivity::class.java)
+                    context.appNavigator().splash()
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT

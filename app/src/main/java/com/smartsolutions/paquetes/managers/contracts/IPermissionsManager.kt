@@ -10,6 +10,12 @@ interface IPermissionsManager {
 
     fun findPermission(requestCode: Int): Permission?
 
+    /**
+     * Indica si el permiso está concedido. Un permiso que no existe en esta versión de Android
+     * cuenta como concedido.
+     * */
+    fun isGranted(requestCode: Int): Boolean
+
     fun findPermissions(requestCodes: IntArray): List<Permission>
 
     /**

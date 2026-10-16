@@ -4,7 +4,6 @@ import android.R.id.message
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.BufferedReader
@@ -127,8 +126,9 @@ class LocalFileHelper @Inject constructor(
      * @param body Cuerpo o texto del correo
      * @param attachment Archivo adjunto que se incluira en el correo. Es null por defecto. Si se deja
      * o se pasa en null se ignora
+     * @return false si no hay ninguna app de correo.
      */
-    fun sendFileByEmail(emailAddress: String, subject: String, body: String, attachment: Uri? = null){
+    fun sendFileByEmail(emailAddress: String, subject: String, body: String, attachment: Uri? = null): Boolean {
         val email = Intent(Intent.ACTION_SEND).apply {
             type = "*/*"
             putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
@@ -141,14 +141,14 @@ class LocalFileHelper @Inject constructor(
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
-        if (email.resolveActivity(context.packageManager) != null) {
-            context.startActivity(email)
-        }else {
-            Toast.makeText(context, "No se encuentra una app de correo", Toast.LENGTH_SHORT).show()
-        }
+        if (email.resolveActivity(context.packageManager) == null)
+            return false
+
+        context.startActivity(email)
+        return true
     }
 
-    fun sendFileByEmail(emailAddress: String, subject: String, body: String, attachment: String?){
+    fun sendFileByEmail(emailAddress: String, subject: String, body: String, attachment: String?): Boolean {
         val email = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
@@ -157,11 +157,11 @@ class LocalFileHelper @Inject constructor(
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
-        if (email.resolveActivity(context.packageManager) != null) {
-            context.startActivity(email)
-        }else {
-            Toast.makeText(context, "No se encuentra una app de correo", Toast.LENGTH_SHORT).show()
-        }
+        if (email.resolveActivity(context.packageManager) == null)
+            return false
+
+        context.startActivity(email)
+        return true
     }
 
 

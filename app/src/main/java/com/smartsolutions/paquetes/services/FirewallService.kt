@@ -22,7 +22,7 @@ import com.smartsolutions.paquetes.managers.PermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
-import com.smartsolutions.paquetes.ui.SplashActivity
+import com.smartsolutions.paquetes.managers.contracts.appNavigator
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -448,7 +448,7 @@ class FirewallService : VpnService(), IProtectSocket, IObserverPacket, Coroutine
         return PendingIntent.getActivity(
             this,
             FIREWALL_SERVICE_REQUEST_CODE,
-            Intent(this, SplashActivity::class.java)
+            appNavigator().splash()
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT

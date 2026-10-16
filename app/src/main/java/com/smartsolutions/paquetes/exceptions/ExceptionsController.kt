@@ -15,8 +15,7 @@ import com.smartsolutions.paquetes.helpers.LocalFileHelper
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.services.BubbleFloatingService
 import com.smartsolutions.paquetes.services.DatwallService
-import com.smartsolutions.paquetes.ui.SplashActivity
-import com.smartsolutions.paquetes.ui.exceptions.ExceptionsActivity
+import com.smartsolutions.paquetes.managers.contracts.appNavigator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +64,7 @@ class ExceptionsController @Inject constructor(
             notify(
                 context.getString(R.string.missing_permmissions_title_notification),
                 context.getString(R.string.missing_permmissions_description_notification),
-                SplashActivity::class.java
+                context.appNavigator().splash()
             )
         } else {
             kotlin.runCatching {
@@ -73,13 +72,13 @@ class ExceptionsController @Inject constructor(
             }
 
             if (isInForeground()) {
-                context.startActivity(Intent(context, ExceptionsActivity::class.java)
+                context.startActivity(context.appNavigator().exceptions()
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             } else {
                 notify(
                     context.getString(R.string.generic_error_title_notification),
                     context.getString(R.string.generic_error_description_notification),
-                    ExceptionsActivity::class.java
+                    context.appNavigator().exceptions()
                 )
             }
         }
@@ -135,7 +134,7 @@ class ExceptionsController @Inject constructor(
     }
 
 
-    private fun notify(title: String, description: String, clazz: Class<out Activity>? = null) {
+    private fun notify(title: String, description: String, intent: Intent? = null) {
         notificationHelper.notify(
             NotificationHelper.ALERT_NOTIFICATION_ID,
             notificationHelper.buildNotification(
@@ -144,13 +143,12 @@ class ExceptionsController @Inject constructor(
                 setAutoCancel(true)
                 setContentTitle(title)
                 setContentText(description)
-                clazz?.let {
+                intent?.let {
                     setContentIntent(
                         PendingIntent.getActivity(
                             context,
                             0,
-                            Intent(context, clazz)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             PendingIntent.FLAG_IMMUTABLE
                         )
                     )

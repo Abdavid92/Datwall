@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
+import com.smartsolutions.paquetes.helpers.DisplayTexts
 import com.smartsolutions.paquetes.*
 import com.smartsolutions.paquetes.helpers.NotificationHelper
 import com.smartsolutions.paquetes.helpers.notifyIfAllowed
@@ -23,8 +24,7 @@ import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import com.smartsolutions.paquetes.ui.FragmentContainerActivity
-import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
+import com.smartsolutions.paquetes.managers.contracts.appNavigator
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import com.smartsolutions.paquetes.watcher.TrafficRegistration
 import dagger.hilt.android.AndroidEntryPoint
@@ -443,8 +443,8 @@ class DatwallService : Service(), CoroutineScope {
                         remoteView.setImageViewBitmap(R.id.icon_slot_data, it)
                     }
 
-                    remoteView.setTextViewText(R.id.name_slot_call, simVoice.name())
-                    remoteView.setTextViewText(R.id.name_slot_data, simData.name())
+                    remoteView.setTextViewText(R.id.name_slot_call, DisplayTexts.simName(simVoice, this@DatwallService))
+                    remoteView.setTextViewText(R.id.name_slot_data, DisplayTexts.simName(simData, this@DatwallService))
 
                     val color = uiHelper.getTextColorByTheme()
 
@@ -465,15 +465,7 @@ class DatwallService : Service(), CoroutineScope {
                             PendingIntent.getActivity(
                                 applicationContext,
                                 123,
-                                Intent(
-                                    applicationContext,
-                                    FragmentContainerActivity::class.java
-                                ).apply {
-                                    putExtra(
-                                        FragmentContainerActivity.EXTRA_FRAGMENT,
-                                        SimsConfigurationFragment::class.java.name
-                                    )
-                                },
+                                applicationContext.appNavigator().simsConfiguration(),
                                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                             )
                         ).build()

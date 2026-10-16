@@ -8,10 +8,10 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.LifecycleOwner
 import androidx.work.Configuration
 import com.smartsolutions.paquetes.exceptions.ExceptionsController
+import com.smartsolutions.paquetes.repositories.contracts.IPreferencesRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.RuntimeException
@@ -40,6 +40,9 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
     @Inject
     lateinit var kernel: DatwallKernel
+
+    @Inject
+    lateinit var preferencesRepository: IPreferencesRepository
 
     private var kernelRunning = false
 
@@ -72,15 +75,11 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
             exceptionsController.register()
         }
 
-        val themeMode: Int
-
-        runBlocking(Dispatchers.IO) {
-            val preferences = settingsDataStore.data
-                .firstOrNull()
-
-            themeMode = preferences?.get(PreferencesKeys.THEME_MODE) ?:
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        }
+        // Única lectura bloqueante: carga la copia en memoria de las preferencias antes de que
+        // se abra cualquier pantalla, para que estas lean sin bloquear.
+        val themeMode = runBlocking(Dispatchers.IO) {
+            preferencesRepository.awaitLoaded()
+        }.themeMode ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 
         if (themeMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
             AppCompatDelegate.setDefaultNightMode(themeMode)
@@ -103,6 +102,9 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
     fun main() {
         if (!kernelRunning) {
+            // Antes de lanzar el kernel, para que ninguna pantalla siga el destino anterior.
+            kernel.clearStartDestination()
+
             launch {
                 kernelRunning = true
 
@@ -121,20 +123,6 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
         }
     }
 
-    fun addOpenActivityListener(
-        lifecycleOwner: LifecycleOwner,
-        listener: (
-            activity: Class<out Activity>,
-            args: Bundle?,
-            application: DatwallApplication
-        ) -> Unit
-    ) {
-        kernel.addOpenActivityListener(lifecycleOwner, listener)
-    }
-
-    fun removeOpenActivityListener(key: LifecycleOwner) {
-        kernel.removeOpenActivityListener(key)
-    }
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
