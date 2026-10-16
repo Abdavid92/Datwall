@@ -198,12 +198,21 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
 
 **Independent Test**: [quickstart.md](quickstart.md) secciones 1 y 6.
 
-- [ ] T023 [P] [US4] Corregir el nombre y la descripción del permiso de sobreponerse en R/values/strings.xml y
+- [X] T023 [P] [US4] Corregir el nombre y la descripción del permiso de sobreponerse en R/values/strings.xml y
   R/values-es/strings.xml (`draw_overlays_permission` y `draw_overlays_permission_description`): solo lo usa la burbuja
   flotante (comprobado en B/helpers/BubbleServiceHelper.kt y B/services/BubleFloatingService.kt).
-- [ ] T024 [P] [US4] Reescribir los textos de LTE y mensajería que prometen planes que ya no se venden, en
+  **Resultado**: `draw_overlays_permission_description` y `stoped_missing_overlay_permissions_description_notification`
+  (esta última sin uso en el código; la borra o conserva T025) ya nombran solo la burbuja. El nombre del permiso no cambia:
+  es el del sistema.
+- [X] T024 [P] [US4] Reescribir los textos de LTE y mensajería que prometen planes que ya no se venden, en
   notificaciones y estadísticas (R/values*/strings.xml y B/helpers/DisplayTexts.kt), conservando las categorías mientras
   haya datos de ese tipo (opción A de la clarificación). Antes, listar en este archivo cada texto afectado.
+  **Resultado**: revisados todos los textos de LTE y mensajería y no se cambió ninguno. `data_type_messaging_bag`
+  ("Bolsa Mensajería") nombra una bolsa que ya no se vende, pero solo se muestra para datos antiguos que el usuario aún
+  conserva; "Megas de mensajería" no tiene sentido porque los planes de mensajes de Etecsa son por cantidad de mensajes,
+  no por megas. El resto (`data_type_international_lte`, `data_type_promo_bonus_lte`, `traffic_international_lte`,
+  `mb_lte_header`, `international_lte_notification*`, `traffic_messaging`, `tab_messaging`, `messaging_apps`) nombra tipos
+  de datos que el usuario aún puede tener, no ofrece planes.
 - [ ] T025 [US4] Dejar a 0 los avisos de `UnusedResources` y `SetTextI18n` en `lintRelease` (línea base de T002): borrar
   los recursos que solo usaba código eliminado, conservar con `tools:keep` los que se usan por reflexión o desde el
   manifiesto, y mover a strings.xml los textos escritos directamente al asignar texto a una vista.

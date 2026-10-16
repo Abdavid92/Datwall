@@ -33,7 +33,7 @@
     <string name="usage_access_permission">Acceso a Datos de Uso</string>
     <string name="usage_access_permission_description">Este permiso permite obtener del sistema la cantidad de megas consumidos por cada app en diferentes períodos de tiempo</string>
     <string name="draw_overlays_permission">Permiso para sobreponerse a otras apps</string>
-    <string name="draw_overlays_permission_description">Se necesita para que se pueda mostrar la Burbuja Flotante o el Cortafuegos sobre otras apps</string>
+    <string name="draw_overlays_permission_description">Se necesita para que se pueda mostrar la Burbuja Flotante sobre otras apps</string>
     <string name="notifications_permission">Permiso para mostrar notificaciones</string>
     <string name="notifications_permission_description">Se necesita para mostrar la notificación persistente con el consumo y las alertas de datos. Sin él la app funciona, pero no verás esas notificaciones</string>
     <string name="vpn_permission">Permiso para crear vpn</string>
@@ -72,7 +72,7 @@
     <string name="generic_error_title_notification">Error Desconocido</string>
     <string name="generic_error_description_notification">Toque aqui para ver el error</string>
     <string name="stoped_missing_overlay_permissions_title_notification">Se denegó Permiso de Sobreponerse</string>
-    <string name="stoped_missing_overlay_permissions_description_notification">Sin este permiso el cortafuegos o la burbuja flotante no pueden funcionar y se han detenidos</string>
+    <string name="stoped_missing_overlay_permissions_description_notification">Sin este permiso la burbuja flotante no puede funcionar y se ha detenido</string>
     <string name="stoped_missing_vpn_permissions_title_notification">Se denegó el permiso de VPN</string>
     <string name="stoped_missing_vpn_permissions_description_notification">Sin este permiso no puede funcionar el cortafuegos, por lo tanto se ha detenido</string>
     <string name="btn_later">Más tarde</string>
