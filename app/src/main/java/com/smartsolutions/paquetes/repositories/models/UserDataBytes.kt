@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.*
-import com.smartsolutions.paquetes.helpers.getDataTypeName
 import java.util.*
 
 /**
@@ -95,10 +94,6 @@ class UserDataBytes(
      * */
     fun isExpired() = expiredTime != 0L && Date().after(Date(expiredTime))
 
-
-    fun getName(context: Context): String {
-       return getDataTypeName(type, context)
-    }
 
     override fun equals(other: Any?): Boolean {
         if (other is UserDataBytes && other.type == type && other.simId == simId)

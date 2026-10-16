@@ -1,5 +1,7 @@
 package com.smartsolutions.paquetes.ui.settings
 
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import com.smartsolutions.paquetes.helpers.DisplayTexts
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.databinding.FragmentPackagesConfigurationBinding
@@ -98,7 +101,7 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
         val simsNames = mutableListOf<String>()
 
         list.forEach {
-            simsNames.add(it.name())
+            simsNames.add(DisplayTexts.simName(it, requireContext()))
         }
 
         binding.apply {
@@ -157,28 +160,28 @@ class PackagesConfigurationFragment : AbstractSettingsFragment() {
 
 
     override fun complete() {
-        if (configurationRequired) {
-            kotlin.runCatching {
-                val simDefault =
-                    installedSims.first { viewModel.isDefaultSim(it, SimType.VOICE)!! }
-                if (simDefault.setupDate > 0) {
-                    super.complete()
-                    return@runCatching
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Es necesario configurar la ${simDefault.name()} porque es la Predeterminada de Llamadas",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@runCatching
-                }
-            }.onFailure {
-                throw IllegalStateException("No existe Sim Default")
-            }
-        } else {
+        if (!configurationRequired) {
             super.complete()
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val simDefault = installedSims.firstOrNull { viewModel.isDefaultSim(it, SimType.VOICE) == true }
+                ?: throw IllegalStateException("No existe Sim Default")
+
+            if (simDefault.setupDate > 0) {
+                finishStep()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.default_voice_sim_setup_required, DisplayTexts.simName(simDefault, requireContext())),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
+
+    private fun finishStep() = super.complete()
 
     companion object {
 

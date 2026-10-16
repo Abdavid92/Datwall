@@ -98,6 +98,10 @@ class SimManager @Inject constructor(
     }
 
 
+    override suspend fun getSim(id: String, relations: Boolean): Sim? {
+        return simRepository.get(id, relations)
+    }
+
     override fun flowInstalledSims(relations: Boolean): Flow<List<Sim>> {
         return simRepository.flow(relations).map {
             return@map getSimManager().getInstalledSims(relations)

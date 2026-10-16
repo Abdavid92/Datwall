@@ -19,12 +19,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.abdavid92.persistentlog.Log
-import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.services.UIScannerService
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -49,18 +47,6 @@ class USSDHelper @Inject constructor(
      * */
     var timeout = 20000L
 
-    /**
-     * Mensajes de los diferentes errores. Los índices
-     * de este arreglo coinciden con los códigos de error emitidos
-     * junto con el broadcast lanzado.
-     * */
-    val errorMessages = arrayOf(
-        context.getString(R.string.missing_call_permission), //Permiso de realizar llamadas denegado
-        context.getString(R.string.telephony_service_unavailable), //El servicio de telefonía no está disponible
-        context.getString(R.string.ussd_return_failure), //El código ussd falló
-        context.getString(R.string.accessibility_service_unavailable), //Servicio de accesibilidad inactivo
-        context.getString(R.string.response_timeout) //Se ha agotado el tiempo de espera
-    )
 
     /**
      * Ejecuta un código ussd.
@@ -88,9 +74,7 @@ class USSDHelper @Inject constructor(
 
                 //Si el permiso de llamadas está denegado lanzo un error.
                 if (!callPermissionGranted()) {
-                    it.resumeWithException(USSDRequestException(
-                        DENIED_CALL_PERMISSION,
-                        errorMessages[DENIED_CALL_PERMISSION]))
+                    it.resumeWithException(USSDRequestException(DENIED_CALL_PERMISSION))
                     return@suspendCancellableCoroutine
                 }
 
@@ -107,10 +91,7 @@ class USSDHelper @Inject constructor(
                         if (response != null) {
                             it.resume(arrayOf(response))
                         } else {
-                            it.resumeWithException(USSDRequestException(
-                                USSD_CODE_FAILED,
-                                errorMessages[USSD_CODE_FAILED]
-                            ))
+                            it.resumeWithException(USSDRequestException(USSD_CODE_FAILED))
                         }
                     }
 
@@ -132,7 +113,7 @@ class USSDHelper @Inject constructor(
 
                         Log.w("USSD Code Failed", "Code Failure: $failureCode Request: $request")
 
-                        it.resumeWithException(USSDRequestException(code, errorMessages[code]))
+                        it.resumeWithException(USSDRequestException(code))
                     }
                 }, Handler(Looper.getMainLooper()))
             }
@@ -167,7 +148,7 @@ class USSDHelper @Inject constructor(
     ): Array<CharSequence>? {
         //Si el permiso de llamadas está denegado lanzo un error.
         if (!callPermissionGranted())
-            throw USSDRequestException(DENIED_CALL_PERMISSION, errorMessages[DENIED_CALL_PERMISSION])
+            throw USSDRequestException(DENIED_CALL_PERMISSION)
 
         //Intent para ejecutar el código ussd.
         val callIntent = Intent(Intent.ACTION_CALL)
@@ -187,9 +168,7 @@ class USSDHelper @Inject constructor(
 
                 //Si el servicio de accesibilidad está apagado lanzo un error.
                 if (!accessibilityServiceEnabled) {
-                    it.resumeWithException(USSDRequestException(
-                        ACCESSIBILITY_SERVICE_UNAVAILABLE,
-                    errorMessages[ACCESSIBILITY_SERVICE_UNAVAILABLE]))
+                    it.resumeWithException(USSDRequestException(ACCESSIBILITY_SERVICE_UNAVAILABLE))
                 } else {
                     val intent = Intent(context, UIScannerService::class.java)
                         .setAction(UIScannerService.ACTION_WAIT_USSD_CODE)
@@ -208,10 +187,7 @@ class USSDHelper @Inject constructor(
                                 it.resume(response)
                             } else {
                                 it.resumeWithException(
-                                    USSDRequestException(
-                                        USSD_CODE_FAILED,
-                                        errorMessages[USSD_CODE_FAILED]
-                                    )
+                                    USSDRequestException(USSD_CODE_FAILED)
                                 )
                             }
                         }
@@ -231,10 +207,7 @@ class USSDHelper @Inject constructor(
                             context.unregisterReceiver(receiver)
 
                             it.resumeWithException(
-                                USSDRequestException(
-                                    CONNECTION_TIMEOUT,
-                                    errorMessages[CONNECTION_TIMEOUT]
-                                )
+                                USSDRequestException(CONNECTION_TIMEOUT)
                             )
                         }
                     }, timeout)
@@ -320,11 +293,8 @@ class USSDHelper @Inject constructor(
         const val EXTRA_RESULT = "com.smartsolutions.paquetes.extra.RESULT"
 
         /**
-         * Código de error en caso de no tener éxito. Este código coincide
-         * con el orden del arreglo errorMessages. Este es un extra de
-         * tipo Int
-         *
-         * @see errorMessages
+         * Código de error en caso de no tener éxito (una de las constantes de
+         * error de esta clase). Este es un extra de tipo Int.
          * */
         const val EXTRA_ERROR_CODE = "com.smartsolutions.paquetes.extra.ERROR_CODE"
 
@@ -355,6 +325,9 @@ class USSDHelper @Inject constructor(
          * */
         const val CONNECTION_TIMEOUT = 4
 
-        const val USSD_MMI_FULL = "Demasiadas peticiones de USSD"
+        /**
+         * Demasiadas peticiones de USSD seguidas (el operador responde "MMI").
+         * */
+        const val USSD_TOO_MANY_REQUESTS = 5
     }
 }

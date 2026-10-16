@@ -8,7 +8,9 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.smartsolutions.paquetes.managers.models.AppsFilter
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ItemAppGroupBinding
 import com.smartsolutions.paquetes.databinding.ItemAppBinding
@@ -18,8 +20,8 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.repositories.models.App
 import com.smartsolutions.paquetes.repositories.models.AppGroup
 import com.smartsolutions.paquetes.repositories.models.IApp
-import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Job
+import kotlinx.parcelize.Parcelize
 
 private const val APP_HOLDER_TYPE = 0
 private const val APP_GROUP_HOLDER_TYPE = 1
@@ -29,21 +31,8 @@ class AppsListAdapter constructor(
     private val fragment: Fragment,
     private val launcher: ActivityResultLauncher<App>,
     private val iconManager: IIconManager,
-    private var appsFilter: AppsFilter,
-    var list: List<IApp>
-) : RecyclerView.Adapter<AppsListAdapter.AbstractViewHolder>(),
-    CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default
-
-    private var searchJob: Job? = null
-
-    /**
-     * Lista filtrada.
-     * */
-    var finalList: MutableList<IApp> = list.toMutableList()
-        private set
+    private var appsFilter: AppsFilter
+) : ListAdapter<IApp, AppsListAdapter.AbstractViewHolder>(DiffCallback) {
 
     /**
      * Tamaño de los íconos de las aplicaciones.
@@ -63,7 +52,7 @@ class AppsListAdapter constructor(
      * Retorna el tipo de viewHolder que se debe instanciar.
      * */
     override fun getItemViewType(position: Int): Int {
-        return when(finalList[position]) {
+        return when(getItem(position)) {
             is App -> APP_HOLDER_TYPE
             is AppGroup -> APP_GROUP_HOLDER_TYPE
             else -> HEADER_HOLDER_TYPE
@@ -108,7 +97,7 @@ class AppsListAdapter constructor(
     }
 
     override fun onBindViewHolder(holder: AbstractViewHolder, position: Int) {
-        holder.bind(finalList[position])
+        holder.bind(getItem(position))
     }
 
     override fun onViewRecycled(holder: AbstractViewHolder) {
@@ -116,67 +105,17 @@ class AppsListAdapter constructor(
         holder.close()
     }
 
-    override fun getItemCount() = finalList.size
-
     /**
-     * Filtra la lista usando el nombre de las aplicaciones.
-     * Actualiza la lista con los resultados de la búsqueda.
-     *
-     * @param query - Texto que debe contener el nombre de la aplicación a buscar.
+     * Muestra [rows] (apps, grupos y cabeceras). Si cambió el filtro se redibujan todas las
+     * filas, porque el filtro decide qué controles se ven.
      * */
-    fun search(query: String?) {
-        searchJob?.cancel()
-        searchJob = null
+    fun submit(filter: AppsFilter, rows: List<IApp>) {
+        val filterChanged = filter != appsFilter
+        appsFilter = filter
 
-        searchJob = launch {
-
-            val newList = if (query != null && query.isNotBlank()) {
-                list.where { it.name.contains(query, true) }.toMutableList()
-            } else {
-                list.toMutableList()
-            }
-
-            val result = DiffUtil.calculateDiff(DiffCallback(finalList, newList, false))
-
-            if (this.isActive) {
-                finalList = newList
-                expandedList.clear()
-
-                withContext(Dispatchers.Main) {
-                    result.dispatchUpdatesTo(this@AppsListAdapter)
-                }
-            }
-        }
-    }
-
-    fun updateList(result: DiffUtil.DiffResult, newList: List<IApp>) {
-        finalList = newList.toMutableList()
-        expandedList.clear()
-
-        result.dispatchUpdatesTo(this)
-    }
-
-    /**
-     * Actualiza la lista de aplicaciones y refresca el RecyclerView.
-     *
-     * @param newList - Lista de aplicaciones.
-     * */
-    fun updateList(newFilter: AppsFilter, newList: List<IApp>) {
-        if (newFilter == appsFilter && newList == list)
-            return
-
-        launch {
-            val result = DiffUtil.calculateDiff(
-                DiffCallback(finalList, newList, appsFilter != newFilter),
-                true)
-
-            appsFilter = newFilter
-            this@AppsListAdapter.list = newList
-            finalList = newList.toMutableList()
-
-            withContext(Dispatchers.Main) {
-                result.dispatchUpdatesTo(this@AppsListAdapter)
-            }
+        submitList(rows) {
+            if (filterChanged)
+                notifyItemRangeChanged(0, itemCount)
         }
     }
 
@@ -187,21 +126,20 @@ class AppsListAdapter constructor(
      * @param app
      * */
     fun updateApp(app: IApp) {
-        var index = finalList.indexOf(app)
+        val index = currentList.indexOf(app)
 
         if (index != -1) {
-            finalList[index] = app
-            notifyItemChanged(index)
+            submitList(currentList.toMutableList().also { it[index] = app })
         } else if (app is App) {
-            finalList.filterIsInstance<AppGroup>()
+            currentList.filterIsInstance<AppGroup>()
                 .forEach { appGroup ->
 
-                    index = appGroup.indexOf(app)
+                    val appIndex = appGroup.indexOf(app)
 
-                    if (index != -1) {
-                        appGroup[index] = app
+                    if (appIndex != -1) {
+                        appGroup[appIndex] = app
 
-                        notifyItemChanged(finalList.indexOf(appGroup))
+                        notifyItemChanged(currentList.indexOf(appGroup))
                     }
                 }
         }
@@ -216,23 +154,6 @@ class AppsListAdapter constructor(
         set(value) {
             expandedList[this.hashCode()] = value
         }
-
-    /**
-     * Método de extensión para buscar instancias de [IApp] en una lista mixta.
-     * */
-    inline fun List<IApp>.where(predicate: (IApp) -> Boolean): List<IApp> {
-        val result = mutableListOf<IApp>()
-
-        forEach {
-            if (it is AppGroup) {
-                result.addAll(it.filter(predicate))
-            } else {
-                if (predicate(it))
-                    result.add(it)
-            }
-        }
-        return result
-    }
 
     /**
      * Procesa una instancia de [HeaderApp].
@@ -284,7 +205,7 @@ class AppsListAdapter constructor(
                 binding.icon.setImageBitmap(it)
             }
 
-            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+            binding.vpnAccess.bindVpnAccess(app) {
                 if (fragment is OnAppChangeListener) {
                     fragment.onAppChange(app)
                 }
@@ -344,15 +265,15 @@ class AppsListAdapter constructor(
                 fragment,
                 launcher,
                 iconManager,
-                appsFilter,
-                app
+                appsFilter
             ).apply {
                 iconSize = 40
+                submitList(app.toList())
             }
 
             binding.child.adapter = childAdapter
 
-            uiHelper.setVpnAccessCheckBoxListener(app, binding.vpnAccess) {
+            binding.vpnAccess.bindVpnAccess(app) {
                 if (fragment is OnAppChangeListener) {
                     fragment.onAppChange(app)
                     updateApp(app)
@@ -383,28 +304,16 @@ class AppsListAdapter constructor(
         abstract fun close()
     }
 
-    private class DiffCallback(
-        private val oldList: List<IApp>,
-        private val newList: List<IApp>,
-        private val changeFilter: Boolean
-    ) : DiffUtil.Callback() {
-        override fun getOldListSize(): Int {
-            return oldList.size
-        }
+    private object DiffCallback : DiffUtil.ItemCallback<IApp>() {
 
-        override fun getNewListSize(): Int {
-            return newList.size
-        }
+        override fun areItemsTheSame(oldItem: IApp, newItem: IApp): Boolean =
+            if (oldItem is HeaderApp || newItem is HeaderApp)
+                oldItem is HeaderApp && newItem is HeaderApp && oldItem.name == newItem.name
+            else
+                oldItem == newItem
 
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition] && !changeFilter
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].accessHashToken() ==
-                    newList[newItemPosition].accessHashToken()
-        }
-
+        override fun areContentsTheSame(oldItem: IApp, newItem: IApp): Boolean =
+            oldItem.accessHashToken() == newItem.accessHashToken()
     }
 
     /**
@@ -415,5 +324,41 @@ class AppsListAdapter constructor(
          * Se invoca cuando una app cambia.
          * */
         fun onAppChange(app: IApp)
+    }
+}
+
+/**
+ * Modelo que se usa para dibujar un encabezado en la lista. Solo
+ * contiene el nombre del encabezado en la propiedad name. Las demas
+ * propiedades están vacias o nulas. El método [accessHashToken] no está
+ * soportado.
+ * */
+@Parcelize
+class HeaderApp private constructor(
+    override var packageName: String,
+    override var uid: Int,
+    override var name: String,
+    override var access: Boolean,
+    override var system: Boolean,
+    override var allowAnnotations: String?,
+    override var blockedAnnotations: String?
+) : IApp {
+
+    override fun accessHashToken(): String {
+        return "0"
+    }
+
+    companion object {
+        fun newInstance(headerText: String): HeaderApp {
+            return HeaderApp(
+                "",
+                -1,
+                headerText,
+                access = false,
+                system = false,
+                null,
+                null
+            )
+        }
     }
 }

@@ -16,10 +16,10 @@ import androidx.work.WorkManager
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.managers.contracts.*
 import com.smartsolutions.paquetes.services.DatwallService
-import com.smartsolutions.paquetes.ui.MainActivity
-import com.smartsolutions.paquetes.ui.SplashActivity
-import com.smartsolutions.paquetes.ui.permissions.PermissionsActivity
-import com.smartsolutions.paquetes.ui.setup.SetupActivity
+import com.smartsolutions.paquetes.managers.contracts.appNavigator
+import com.smartsolutions.paquetes.managers.models.StartDestination
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import com.smartsolutions.paquetes.watcher.*
 import com.smartsolutions.paquetes.workers.DropLogsWorker
 import com.smartsolutions.paquetes.workers.TrafficDbOptimizer
@@ -74,13 +74,20 @@ class DatwallKernel @Inject constructor(
     }
 
 
-    private var openActivity: Pair<Class<out Activity>, Bundle?>? = null
-    private val openActivitySubscribers =
-        mutableMapOf<LifecycleOwner, (
-            activity: Class<out Activity>,
-            args: Bundle?,
-            application: DatwallApplication
-        ) -> Unit>()
+    private val _startDestination = MutableStateFlow<StartDestination?>(null)
+
+    /**
+     * Destino que decide [main]; null mientras decide.
+     * */
+    val startDestination: StateFlow<StartDestination?> = _startDestination
+
+    /**
+     * Olvida el destino anterior. Se llama antes de lanzar [main], para que ninguna pantalla
+     * siga un destino viejo.
+     * */
+    fun clearStartDestination() {
+        _startDestination.value = null
+    }
 
     init {
         launch {
@@ -97,9 +104,7 @@ class DatwallKernel @Inject constructor(
      * */
     suspend fun main() {
 
-        //Las actividades que se suscriban mientras se ejecuta recibirán la que se decida ahora,
-        //no la de una ejecución anterior.
-        openActivity = null
+        clearStartDestination()
 
         //Verifica que no se haya detenido la app debido a una excepcion. En ese caso detiene la ejecución
         if (!canContinue(true))
@@ -117,22 +122,13 @@ class DatwallKernel @Inject constructor(
         when {
             //Primer uso: explicación de datos y permisos que se piden al inicio
             showFirstUse() -> {
-                openActivity(PermissionsActivity::class.java)
+                _startDestination.value = StartDestination.FirstUse
             }
             //Verfica las configuraciones iniciales. La de las líneas pide el permiso de teléfono;
             //si el usuario lo rechazó ahí, se entra a la app y se configura al conceder el permiso.
             missingSomeConfiguration() && (phonePermissionGranted() || !simSetupSkipped()) -> {
-                openActivity(
-                    SetupActivity::class.java,
-                    Bundle().apply {
-
-                        val configurations = configurationManager.getUncompletedConfigurations()
-
-                        putString(
-                            SetupActivity.EXTRA_INITIAL_FRAGMENT,
-                            configurations[0].fragment.name
-                        )
-                    }
+                _startDestination.value = StartDestination.Setup(
+                    configurationManager.getUncompletedConfigurations()[0].step
                 )
                 considerNotify(
                     context.getString(R.string.missing_configuration_title_notification),
@@ -140,53 +136,16 @@ class DatwallKernel @Inject constructor(
                 )
             }
             else -> {
-                openActivity(SplashActivity::class.java)
                 //Inicia los servicios
                 startMainService()
                 //Registra los broadcasts y los callbacks
                 registerBroadcastsAndCallbacks()
                 //Registra los workers
                 registerWorkers()
-                //Inicia la actividad principal
-                openActivity(MainActivity::class.java)
+                //Abre la pantalla principal
+                _startDestination.value = StartDestination.Main
             }
         }
-    }
-
-    fun addOpenActivityListener(
-        lifecycleOwner: LifecycleOwner,
-        listener: (
-            activity: Class<out Activity>,
-            args: Bundle?,
-            application: DatwallApplication
-        ) -> Unit
-    ) {
-
-        if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-            openActivitySubscribers[lifecycleOwner] = listener
-
-            if (openActivity != null && lifecycleOwner::class.java.name != openActivity!!.first.name)
-                listener(
-                    openActivity!!.first,
-                    openActivity!!.second,
-                    context.applicationContext as DatwallApplication
-                )
-
-            lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
-
-                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                    if (event == Lifecycle.Event.ON_DESTROY) {
-                        openActivitySubscribers.remove(lifecycleOwner)
-
-                        lifecycleOwner.lifecycle.removeObserver(this)
-                    }
-                }
-            })
-        }
-    }
-
-    fun removeOpenActivityListener(key: LifecycleOwner) {
-        openActivitySubscribers.remove(key)
     }
 
     private fun considerNotify(title: String, description: String) {
@@ -391,24 +350,6 @@ class DatwallKernel @Inject constructor(
         }
     }
 
-    private suspend fun openActivity(activity: Class<out Activity>, args: Bundle? = null) {
-        openActivity = activity to args
-
-        withContext(Dispatchers.Main) {
-
-            runCatching {
-                openActivitySubscribers.forEach {
-                    if (it.key.javaClass.name != activity.name)
-                        it.value(
-                            activity,
-                            args,
-                            context.applicationContext as DatwallApplication
-                        )
-                }
-            }
-        }
-    }
-
     private fun isInForeground(): Boolean {
         return activityManager.runningAppProcesses?.any {
             it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
@@ -428,7 +369,7 @@ class DatwallKernel @Inject constructor(
                     PendingIntent.getActivity(
                         context,
                         0,
-                        Intent(context, SplashActivity::class.java)
+                        context.appNavigator().splash()
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT

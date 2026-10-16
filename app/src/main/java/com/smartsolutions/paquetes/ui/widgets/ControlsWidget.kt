@@ -13,7 +13,9 @@ import com.smartsolutions.paquetes.helpers.FirewallHelper
 import com.smartsolutions.paquetes.helpers.UIHelper
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -30,8 +32,27 @@ class ControlsWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        for (appWidgetId in appWidgetIds) {
-            appWidgetManager.updateAppWidget(appWidgetId, getRemotesViews(context))
+        runAsync {
+            val views = getRemotesViews(context)
+
+            for (appWidgetId in appWidgetIds) {
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            }
+        }
+    }
+
+    /**
+     * Ejecuta [block] fuera del hilo principal sin soltar el receptor hasta terminar.
+     * */
+    private fun runAsync(block: suspend () -> Unit) {
+        val pendingResult = goAsync()
+
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                block()
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 
@@ -42,35 +63,19 @@ class ControlsWidget : AppWidgetProvider() {
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
 
-        var isAction = true
+        val action = intent?.action
 
-        when (intent?.action) {
-            START_BUBBLE -> {
-                runBlocking {
-                    bubbleHelper.get().startBubble(true)
-                }
-            }
-            STOP_BUBBLE -> {
-                runBlocking {
-                    bubbleHelper.get().stopBubble(true)
-                }
-            }
-            START_FIREWALL -> {
-                runBlocking {
-                    firewallHelper.get().startFirewall(true)
-                }
-            }
-            STOP_FIREWALL -> {
-                runBlocking {
-                    firewallHelper.get().stopFirewall(true)
-                }
-            }
-            else -> {
-                isAction = false
-            }
-        }
+        if (action !in listOf(START_BUBBLE, STOP_BUBBLE, START_FIREWALL, STOP_FIREWALL))
+            return
 
-        if (isAction) {
+        runAsync {
+            when (action) {
+                START_BUBBLE -> bubbleHelper.get().startBubble(true)
+                STOP_BUBBLE -> bubbleHelper.get().stopBubble(true)
+                START_FIREWALL -> firewallHelper.get().startFirewall(true)
+                STOP_FIREWALL -> firewallHelper.get().stopFirewall(true)
+            }
+
             context?.let { ctx ->
                 AppWidgetManager.getInstance(ctx)
                     .updateAppWidget(
@@ -82,10 +87,9 @@ class ControlsWidget : AppWidgetProvider() {
                     )
             }
         }
-
     }
 
-    private fun getRemotesViews(context: Context): RemoteViews {
+    private suspend fun getRemotesViews(context: Context): RemoteViews {
         val uiHelper = UIHelper(context)
 
         val views = if (uiHelper.isUIDarkTheme()) {
@@ -94,13 +98,9 @@ class ControlsWidget : AppWidgetProvider() {
             RemoteViews(context.packageName, R.layout.widget_controls_light)
         }
 
-        val isBubble = runBlocking {
-            bubbleHelper.get().bubbleEnabled()
-        }
+        val isBubble = bubbleHelper.get().bubbleEnabled()
 
-        val isFirewall = runBlocking {
-            firewallHelper.get().firewallEnabled()
-        }
+        val isFirewall = firewallHelper.get().firewallEnabled()
 
         views.setImageViewResource(
             R.id.icon_firewall,

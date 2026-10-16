@@ -28,8 +28,8 @@ fun Fragment.bindPermissionNeeded(
     binding.root.visibility = if (granted) View.GONE else View.VISIBLE
 
     if (!granted) {
-        binding.permissionNeededName.text = permission.name
-        binding.permissionNeededDescription.text = permission.description
+        binding.permissionNeededName.setText(PermissionTexts.name(permission))
+        binding.permissionNeededDescription.setText(PermissionTexts.description(permission))
         binding.btnPermissionNeeded.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
                 when (permissionsManager.actionFor(permission, requireActivity())) {
@@ -37,7 +37,7 @@ fun Fragment.bindPermissionNeeded(
                     PermissionAction.OpenAppSettings -> requireContext().openAppSettings()
                     PermissionAction.Request -> {
                         permissionsManager.markRequested(requestCode)
-                        permission.requestPermissionFragment(permission, this@bindPermissionNeeded)
+                        PermissionLauncher.request(permission, this@bindPermissionNeeded)
                     }
                 }
             }

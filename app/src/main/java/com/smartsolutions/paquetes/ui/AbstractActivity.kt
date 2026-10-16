@@ -4,11 +4,8 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import com.smartsolutions.paquetes.PreferencesKeys
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.settingsDataStore
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
+import com.smartsolutions.paquetes.repositories.contracts.preferencesRepository
 
 abstract class AbstractActivity : AppCompatActivity {
 
@@ -45,10 +42,6 @@ abstract class AbstractActivity : AppCompatActivity {
     }
 
 
-    private fun getThemeConfigured(): Int{
-        return runBlocking {
-            settingsDataStore.data.firstOrNull()
-                ?.get(PreferencesKeys.APP_THEME) ?: R.style.Theme_Datwall
-        }
-    }
+    private fun getThemeConfigured(): Int =
+        preferencesRepository().preferences.value.appTheme ?: R.style.Theme_Datwall
 }

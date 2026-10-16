@@ -20,15 +20,9 @@ class EventsRecyclerAdapter constructor(
     private var filter: EventType? = null
     private var filtered = events
     private var eventsShow = events
-    private var job: Job? = null
-    private var isSearching = false
 
 
     fun updateEvents(list: List<Event>) {
-
-        if (isSearching) {
-            return
-        }
 
         events = list
 
@@ -51,29 +45,6 @@ class EventsRecyclerAdapter constructor(
     fun setFilter(type: EventType?) {
         filter = type
         updateEvents(events)
-    }
-
-
-    fun search(string: String?) {
-
-        if (job != null) {
-            job?.cancel()
-            job = null
-        }
-
-        job = launch {
-            if (string == null) {
-                isSearching = false
-                updateEvents(events)
-            } else {
-                isSearching = true
-                eventsShow = filtered.filter { it.tag?.contains(string) == true }
-                withContext(Dispatchers.Main) {
-                    notifyDataSetChanged()
-                }
-            }
-
-        }
     }
 
 

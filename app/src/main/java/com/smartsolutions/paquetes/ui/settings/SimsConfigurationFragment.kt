@@ -1,16 +1,19 @@
 package com.smartsolutions.paquetes.ui.settings
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.repositories.models.Sim
+import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sims_configuration) {
@@ -23,24 +26,43 @@ class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sim
         val dataSim = view.findViewById<AppCompatSpinner>(R.id.data_sim)
         val voiceSim = view.findViewById<AppCompatSpinner>(R.id.voice_sim)
 
-        viewModel.getSims(this).observe(viewLifecycleOwner) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.sims.filterNotNull().collect {
+                        if (dataSim.adapter == null)
+                            dataSim.adapter = SimsAdapter(it)
 
-            if (dataSim.adapter == null)
-                dataSim.adapter = SimsAdapter(it)
-
-            if (voiceSim.adapter == null)
-                voiceSim.adapter = SimsAdapter(it)
+                        if (voiceSim.adapter == null)
+                            voiceSim.adapter = SimsAdapter(it)
+                    }
+                }
+                launch { viewModel.events.collect(::onEvent) }
+            }
         }
 
         view.findViewById<Button>(R.id.btn_save)
             .setOnClickListener {
-                viewModel.saveChanges(
+                viewModel.onSave(
                     dataSim.selectedItem as Sim,
                     voiceSim.selectedItem as Sim
-                ) {
-                    complete()
-                }
+                )
             }
+    }
+
+    private fun onEvent(event: SimsConfigurationEvent) {
+        when (event) {
+            is SimsConfigurationEvent.RequestPermission -> SinglePermissionFragment.newInstance(
+                event.requestCode,
+                object : SinglePermissionFragment.SinglePermissionCallback {
+                    override fun onGranted() = viewModel.onPermissionGranted()
+                    override fun onDenied() = viewModel.onPermissionDenied()
+                }
+            ).show(childFragmentManager, null)
+
+            SimsConfigurationEvent.SetupSkipped -> skipSetup()
+            SimsConfigurationEvent.Saved -> complete()
+        }
     }
 
     companion object {

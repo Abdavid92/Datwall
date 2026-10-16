@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import com.smartsolutions.paquetes.managers.models.UsageOrder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,12 @@ import android.widget.AdapterView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageBinding
@@ -60,7 +67,7 @@ class UsageFragment : AbstractFragment() {
                 position: Int,
                 id: Long
             ) {
-                viewModel.setUsagePeriod(position)
+                viewModel.onPeriodChanged(position)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -79,6 +86,14 @@ class UsageFragment : AbstractFragment() {
             tab.text = adapter.fragmentsList[position].second
         }.attach()
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.map { it.period }.distinctUntilChanged().collect { period ->
+                    if (binding.spinnerUsageOptions.selectedItemPosition != period)
+                        binding.spinnerUsageOptions.setSelection(period)
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -94,7 +109,7 @@ class UsageFragment : AbstractFragment() {
         )
 
         if (granted && !usageAccessGranted)
-            viewModel.setUsagePeriod(binding.spinnerUsageOptions.selectedItemPosition)
+            viewModel.onUsageAccessGranted()
 
         usageAccessGranted = granted
     }
@@ -103,7 +118,7 @@ class UsageFragment : AbstractFragment() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_filter_title)
             .setItems(R.array.filter_usage) { _, pos ->
-                viewModel.setUsageFilter(UsageViewModel.UsageFilters.values()[pos])
+                viewModel.onFilterChanged(UsageOrder.entries[pos])
             }.show()
     }
 

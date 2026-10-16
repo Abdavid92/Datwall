@@ -16,5 +16,8 @@ interface IPurchasedPackagesManager {
 
     fun getHistory(): Flow<List<PurchasedPackage>>
 
+    /**
+     * Borra el historial menos las compras sin confirmar.
+     * */
     suspend fun clearHistory()
 }

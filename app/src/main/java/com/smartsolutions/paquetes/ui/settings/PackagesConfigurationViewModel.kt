@@ -11,7 +11,6 @@ import com.smartsolutions.paquetes.managers.sims.SimType
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,10 +30,7 @@ class PackagesConfigurationViewModel @Inject constructor(
         }
     }
 
-    fun isDefaultSim(sim: Sim, type: SimType): Boolean? {
-        return runBlocking {
-            return@runBlocking simManager.isSimDefaultBoth(type, sim)
-        }
-    }
+    suspend fun isDefaultSim(sim: Sim, type: SimType): Boolean? =
+        simManager.isSimDefaultBoth(type, sim)
 
 }

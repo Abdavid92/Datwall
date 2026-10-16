@@ -8,7 +8,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.smartsolutions.paquetes.services.BubbleFloatingService
+import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
+import com.warkiz.widget.IndicatorSeekBar
+import com.warkiz.widget.OnSeekChangeListener
+import com.warkiz.widget.SeekParams
+import kotlinx.coroutines.launch
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentDashboard2Binding
@@ -19,6 +30,13 @@ import dagger.hilt.android.AndroidEntryPoint
 class DashboardFragment2 : AbstractFragment() {
 
     private val viewModel by viewModels<DashboardViewModel>()
+
+    /**
+     * Burbuja de muestra que acompaña a los controles de tamaño y transparencia.
+     * */
+    private var bubbleView: View? = null
+
+    private var rendering = false
 
     private var _binding: FragmentDashboard2Binding? = null
     private val binding get() = _binding!!
@@ -49,44 +67,140 @@ class DashboardFragment2 : AbstractFragment() {
         setUssdButtonsSettings()
         setFirewallSettings()
         setBubbleSettings()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { viewModel.state.collect(::render) }
+                launch { viewModel.events.collect(::onEvent) }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshApps()
     }
 
     private fun setFirewallSettings() {
+        binding.firewall.setOnCheckedChangeListener { _, isChecked ->
+            if (!rendering)
+                viewModel.onFirewallToggled(isChecked)
+        }
 
-        viewModel.setFirewallSwitchListener(binding.firewall, childFragmentManager)
-
-        viewModel.setFirewallDynamicModeListener(
-            binding.dynamicMode,
-            binding.staticMode
-        )
-
-        viewModel.appsData.observe(viewLifecycleOwner) {
-
-            binding.allowedAppsValue.text = it[0].toString()
-            binding.blockedAppsValue.text = it[1].toString()
-            binding.allAppsValue.text = it[2].toString()
+        binding.dynamicMode.setOnCheckedChangeListener { _, isChecked ->
+            if (!rendering)
+                viewModel.onDynamicFirewallToggled(isChecked)
         }
     }
 
     private fun setBubbleSettings() {
+        binding.bubble.setOnCheckedChangeListener { _, isChecked ->
+            if (!rendering)
+                viewModel.onBubbleToggled(isChecked)
+        }
 
-        viewModel.setBubbleSwitchListener(
-            binding.bubble,
-            childFragmentManager
-        )
+        binding.allWay.setOnCheckedChangeListener { _, isChecked ->
+            if (!rendering)
+                viewModel.onBubbleAlwaysShowChanged(isChecked)
+        }
 
-        viewModel.setBubbleAllWayListener(
-            binding.allWay,
-            binding.onlyConsume
-        )
+        // La burbuja de muestra que se ve sobre el control mientras se arrastra.
+        bubbleView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.bubble_floating_layout, null, false).apply {
+                findViewById<LinearLayout>(R.id.lin_background_bubble).visibility = View.VISIBLE
+            }
 
-        viewModel.setTransparencyListener(
-            binding.bubbleTransparency
-        )
+        binding.bubbleTransparency.indicator.contentView = bubbleView
+        binding.bubbleSize.indicator.contentView = bubbleView
 
-        viewModel.setSizeListener(
-            binding.bubbleSize
-        )
+        binding.bubbleTransparency.onSeekChangeListener = object : OnSeekChangeListener {
+            override fun onSeeking(seekParams: SeekParams) {
+                if (seekParams.fromUser) {
+                    bubbleView?.findViewById<LinearLayout>(R.id.lin_background_bubble)
+                        ?.alpha = seekParams.progress.toFloat() / 10f
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: IndicatorSeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
+                viewModel.onBubbleTransparencyChanged(seekBar.progress.toFloat() / 10f)
+            }
+        }
+
+        binding.bubbleSize.onSeekChangeListener = object : OnSeekChangeListener {
+            override fun onSeeking(seekParams: SeekParams) {
+                showSampleSize(seekParams.progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: IndicatorSeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
+                viewModel.onBubbleSizeChanged(seekBar.progress)
+            }
+        }
+    }
+
+    private fun showSampleSize(size: Int) {
+        bubbleView?.let {
+            BubbleFloatingService.setSizeBubble(
+                requireContext(),
+                it,
+                BubbleFloatingService.BubbleSize.entries[size]
+            )
+        }
+    }
+
+    /**
+     * Dibuja el estado sin que los cambios de los controles se tomen como acciones del usuario.
+     * */
+    private fun render(state: DashboardUiState) {
+        rendering = true
+        try {
+            binding.firewall.isChecked = state.firewallOn
+            binding.dynamicMode.isChecked = state.dynamicFirewall
+            binding.staticMode.isChecked = !state.dynamicFirewall
+
+            binding.allowedAppsValue.text = state.allowedApps.toString()
+            binding.blockedAppsValue.text = state.blockedApps.toString()
+            binding.allAppsValue.text = state.totalApps.toString()
+
+            binding.bubble.isChecked = state.bubbleOn
+            binding.allWay.isChecked = state.bubbleAlwaysShow
+            binding.onlyConsume.isChecked = !state.bubbleAlwaysShow
+
+            binding.bubbleTransparency.setProgress(state.bubbleTransparency * 10)
+            bubbleView?.findViewById<LinearLayout>(R.id.lin_background_bubble)
+                ?.alpha = state.bubbleTransparency
+
+            binding.bubbleSize.setProgress(state.bubbleSize.toFloat())
+            showSampleSize(state.bubbleSize)
+        } finally {
+            rendering = false
+        }
+    }
+
+    private fun onEvent(event: DashboardEvent) {
+        when (event) {
+            is DashboardEvent.RequestPermission -> SinglePermissionFragment.newInstance(
+                event.requestCode,
+                object : SinglePermissionFragment.SinglePermissionCallback {
+                    override fun onGranted() = viewModel.onPermissionGranted(event.requestCode)
+                    override fun onDenied() = viewModel.onPermissionDenied()
+                }
+            ).show(childFragmentManager, null)
+
+            DashboardEvent.FirewallNeedsBlockedApp -> {
+                render(viewModel.state.value)
+                Toast.makeText(
+                    requireContext(),
+                    R.string.error_starting_firewall_for_all_access,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            DashboardEvent.StateOutOfSync -> render(viewModel.state.value)
+        }
     }
 
     private fun setFabSettings() {
@@ -184,20 +298,21 @@ class DashboardFragment2 : AbstractFragment() {
 
     private fun setUssdButtonsSettings() {
         binding.queryCredit.setOnClickListener {
-            viewModel.launchUssdCode("*222#", childFragmentManager)
+            viewModel.onUssdShortcut(DashboardViewModel.USSD_CREDIT)
         }
 
         binding.queryBonus.setOnClickListener {
-            viewModel.launchUssdCode("*222*266#", childFragmentManager)
+            viewModel.onUssdShortcut(DashboardViewModel.USSD_BONUS)
         }
 
         binding.queryMb.setOnClickListener {
-            viewModel.launchUssdCode("*222*328#", childFragmentManager)
+            viewModel.onUssdShortcut(DashboardViewModel.USSD_MB)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        bubbleView = null
     }
 }

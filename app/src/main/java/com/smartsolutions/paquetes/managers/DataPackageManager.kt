@@ -7,6 +7,7 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.exceptions.PackageNotConfiguredException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.helpers.*
 import com.smartsolutions.paquetes.internalDataStore
@@ -113,7 +114,7 @@ class DataPackageManager @Inject constructor(
         }
     }
 
-    @Throws(IllegalStateException::class, MissingPermissionException::class, UnprocessableRequestException::class)
+    @Throws(PackageNotConfiguredException::class, MissingPermissionException::class, UnprocessableRequestException::class)
     override suspend fun buyDataPackage(dataPackage: DataPackage, sim: Sim) {
 
         if (sim.packages.isEmpty()) {
@@ -121,7 +122,7 @@ class DataPackageManager @Inject constructor(
         }
 
         if (!sim.packages.contains(dataPackage)) {
-            throw IllegalStateException(context.getString(R.string.pkg_not_configured))
+            throw PackageNotConfiguredException()
         }
 
         when (buyMode) {

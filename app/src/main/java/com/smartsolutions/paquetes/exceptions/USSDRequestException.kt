@@ -5,6 +5,8 @@ package com.smartsolutions.paquetes.exceptions
  * un código ussd.
  * */
 class USSDRequestException(
-    val errorCode: Int,
-    message: String
-): Exception(message)
+    /**
+     * Código del error (constantes de `USSDHelper`). La UI lo traduce a texto.
+     * */
+    val errorCode: Int
+): Exception("USSD error $errorCode")

@@ -2,6 +2,7 @@ package com.smartsolutions.paquetes.managers.contracts
 
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
+import com.smartsolutions.paquetes.exceptions.PackageNotConfiguredException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
 import com.smartsolutions.paquetes.exceptions.UnprocessableRequestException
 import com.smartsolutions.paquetes.repositories.models.DataPackage
@@ -55,7 +56,7 @@ interface IDataPackageManager {
      *
      * @throws MissingPermissionException si no tiene los permisos necesarios.
      *
-     * @throws IllegalStateException si el paquete no se puede comprar
+     * @throws PackageNotConfiguredException si el paquete no se puede comprar
      * porque no está configurado o no está activado para la linea actual.
      * 
      * @throws UnprocessableRequestException si la compra
@@ -65,7 +66,7 @@ interface IDataPackageManager {
      * a la linea.
      * */
     @Throws(
-        IllegalStateException::class,
+        PackageNotConfiguredException::class,
         MissingPermissionException::class,
         UnprocessableRequestException::class,
         NoSuchElementException::class)

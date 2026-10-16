@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.resume
 
+import com.smartsolutions.paquetes.helpers.DataFormatter
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,8 +11,8 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentEditAddUserDataBytesBinding
-import com.smartsolutions.paquetes.helpers.DateCalendarUtils
-import com.smartsolutions.paquetes.helpers.getDataTypeName
+import com.smartsolutions.paquetes.helpers.DisplayTexts
+import com.smartsolutions.paquetes.managers.UserDataBytesEditor
 import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
@@ -75,18 +76,18 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
             val list = if (isEdit == true) {
                 binding.title.text = getString(
                     R.string.edit_user_data_bytes,
-                    getDataTypeName(dataType!!, requireContext())
+                    DisplayTexts.dataTypeName(dataType!!, requireContext())
                 )
                 binding.spinnerDataType.visibility = View.GONE
                 listOf(it.first { it.type == dataType })
             } else {
                 binding.title.text = getString(R.string.add_user_data_bytes)
-                it.filter { !it.exists() || it.isExpired() }
+                UserDataBytesEditor.addable(it)
             }
 
             if(list.isEmpty()){
                 dismiss()
-                Toast.makeText(requireContext(), "No hay más megas que agregar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.no_more_data_to_add, Toast.LENGTH_SHORT).show()
                 return@observe
             }
 
@@ -117,13 +118,8 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
                     DatePickerDialog(
                         requireContext(),
                         { _, year, month, dayOfMonth ->
-                            val cal = Calendar.getInstance()
-                            cal.set(Calendar.YEAR, year)
-                            cal.set(Calendar.MONTH, month)
-                            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                            expireDate = DateCalendarUtils.getLastHour(Date(cal.timeInMillis)).time
+                            expireDate = UserDataBytesEditor.expiryOf(year, month, dayOfMonth)
                             binding.textDate.text = getExpiredTime(expireDate!!)
-                            cal.clear()
                         },
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
@@ -133,36 +129,21 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
                 }
 
                 buttonAction.setOnClickListener {
-                    viewModel.updateUserDataBytes(
-                        list[binding.spinnerDataType.selectedItemPosition].apply {
-
-                            var restBytes = binding.editValueRest.text?.toString()
-
-                            if (restBytes.isNullOrEmpty())
-                                restBytes = "0"
-
-                            bytes = DataUnitBytes.DataValue(
-                                restBytes.toDouble(),
-                                DataUnitBytes.DataUnit.values()[binding.spinnerDataUnitRest.selectedItemPosition]
-                            ).toBytes()
-
-                            var originBytes = binding.editValueInitial.text?.toString()
-
-                            if (originBytes.isNullOrEmpty())
-                                originBytes = "0"
-
-                            initialBytes = DataUnitBytes.DataValue(
-                                originBytes.toDouble(),
-                                DataUnitBytes.DataUnit.values()[binding.spinnerDataUnitInitial.selectedItemPosition]
-                            ).toBytes()
-
-                            expiredTime = expireDate ?: expiredTime
-
-                            if (initialBytes < bytes) {
-                                initialBytes = bytes
-                            }
-                        }
+                    val edited = UserDataBytesEditor.edit(
+                        list[binding.spinnerDataType.selectedItemPosition],
+                        rest = binding.editValueRest.text?.toString(),
+                        restUnit = DataUnitBytes.DataUnit.entries[binding.spinnerDataUnitRest.selectedItemPosition],
+                        initial = binding.editValueInitial.text?.toString(),
+                        initialUnit = DataUnitBytes.DataUnit.entries[binding.spinnerDataUnitInitial.selectedItemPosition],
+                        expiredTime = expireDate
                     )
+
+                    if (edited == null) {
+                        Toast.makeText(requireContext(), R.string.invalid_data_value, Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+
+                    viewModel.updateUserDataBytes(edited)
                     dismiss()
                 }
             }
@@ -174,7 +155,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
         binding.apply {
             val types = mutableListOf<String>()
             list.forEach {
-                types.add(it.getName(requireContext()))
+                types.add(DisplayTexts.dataTypeName(it.type, requireContext()))
             }
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
             spinnerDataType.adapter = adapter
@@ -184,8 +165,8 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
     private fun fillValuesUserDataBytes(userDataBytes: UserDataBytes) {
         binding.apply {
             if (isEdit == true) {
-                val initial = DataUnitBytes(userDataBytes.initialBytes).getValue()
-                val rest = DataUnitBytes(userDataBytes.bytes).getValue()
+                val initial = DataFormatter.bytes(userDataBytes.initialBytes)
+                val rest = DataFormatter.bytes(userDataBytes.bytes)
 
                 editValueInitial.setText(initial.value.toString(), TextView.BufferType.EDITABLE)
                 spinnerDataUnitInitial.setSelection(initial.dataUnit.ordinal)
@@ -203,7 +184,7 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
         return if (time > 0){
             SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.getDefault()).format(Date(time))
         }else {
-            "Desconocido"
+            getString(R.string.unknown_date)
         }
     }
 

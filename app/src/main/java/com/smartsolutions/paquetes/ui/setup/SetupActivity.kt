@@ -7,9 +7,12 @@ import androidx.fragment.app.commitNow
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.IReplaceFragments
-import com.smartsolutions.paquetes.ui.addOpenActivityListener
+import com.smartsolutions.paquetes.ui.followStartDestination
 import com.smartsolutions.paquetes.ui.next
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
+import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
+import com.smartsolutions.paquetes.ui.settings.SimsConfigurationFragment
+import com.smartsolutions.paquetes.managers.models.ConfigurationStep
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -25,11 +28,7 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup),
             nextOrComplete()
         }
 
-        viewModel.addOpenActivityListener(this) { activity, args, application ->
-            application.removeOpenActivityListener(this)
-            startActivity(Intent(this, activity))
-            finish()
-        }
+        followStartDestination()
     }
 
     override fun onCompleted() {
@@ -43,11 +42,19 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup),
     private fun nextOrComplete() {
         if (viewModel.hasNextConfiguration()) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.setup_container, viewModel.nextConfiguration()!!.fragment, null)
+                .replace(R.id.setup_container, screenOf(viewModel.nextConfiguration()!!.step), null)
                 .commit()
         } else {
             viewModel.next()
         }
+    }
+
+    /**
+     * Pantalla que muestra cada paso de la configuración.
+     * */
+    private fun screenOf(step: ConfigurationStep): Class<out AbstractSettingsFragment> = when (step) {
+        ConfigurationStep.SIMS -> SimsConfigurationFragment::class.java
+        ConfigurationStep.PACKAGES -> PackagesConfigurationFragment::class.java
     }
 
     override fun replace(fragment: AbstractSettingsFragment) {
@@ -55,10 +62,5 @@ class SetupActivity : AbstractActivity(R.layout.activity_setup),
             setReorderingAllowed(true)
             replace(R.id.setup_container, fragment)
         }
-    }
-
-    companion object {
-
-        const val EXTRA_INITIAL_FRAGMENT = "com.smartsolutions.paquetes.extra.INITIAL_FRAGMENT"
     }
 }

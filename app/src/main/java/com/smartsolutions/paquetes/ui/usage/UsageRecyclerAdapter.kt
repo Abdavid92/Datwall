@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import com.smartsolutions.paquetes.helpers.DataFormatter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -7,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.ItemUsageBinding
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -74,8 +74,7 @@ class UsageRecyclerAdapter constructor(
                 }
 
                 textAppName.text = app.name
-                val value = app.traffic?.totalBytes?.getValue() ?: DataUnitBytes.DataValue(0.0, DataUnitBytes.DataUnit.B)
-                textUsageValue.text = "${value.value} ${value.dataUnit}"
+                textUsageValue.text = DataFormatter.bytesText(app.traffic?.totalBytes?.bytes ?: 0L)
                 circleColour.circleColor = usageApp.colour
 
                 root.setOnClickListener {

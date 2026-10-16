@@ -42,4 +42,10 @@ interface BindingManagerModule {
 
     @Binds
     fun bindIPermissionsManager(impl: PermissionsManager): IPermissionsManager
+
+    @Binds
+    fun bindIAppsManager(impl: AppsManager): IAppsManager
+
+    @Binds
+    fun bindIUserDataManager(impl: UserDataManager): IUserDataManager
 }

@@ -20,8 +20,6 @@ import kotlin.coroutines.CoroutineContext
 @AndroidEntryPoint
 class SplashActivity : AbstractActivity(R.layout.activity_splash), CoroutineScope {
 
-    private val viewModel by viewModels<SplashViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,11 +38,7 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash), CoroutineScop
                 }) {
 
                 withContext(Dispatchers.Main) {
-                    viewModel.addOpenActivityListener(this@SplashActivity) { activity, args, application ->
-                        application.removeOpenActivityListener(this@SplashActivity)
-                        startActivity(Intent(this@SplashActivity, activity))
-                        finish()
-                    }
+                    followStartDestination()
                 }
             }
         }
@@ -57,11 +51,7 @@ class SplashActivity : AbstractActivity(R.layout.activity_splash), CoroutineScop
 
         if (requestCode == WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST) {
 
-            viewModel.addOpenActivityListener(this) { activity, args, application ->
-                application.removeOpenActivityListener(this)
-                startActivity(Intent(this, activity))
-                finish()
-            }
+            followStartDestination()
         }
     }
 

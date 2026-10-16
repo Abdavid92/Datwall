@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.packages
 
+import com.smartsolutions.paquetes.data.PackagesRules
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,24 +10,22 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentPackagesHolderBinding
-import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
-import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.FragmentContainerActivity
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 
-private const val SIM_ID = "sim_id"
 @AndroidEntryPoint
-class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
-
-    private lateinit var simId: String
+class PackagesHolderFragment : Fragment() {
 
     private var _binding: FragmentPackagesHolderBinding? = null
     private val binding: FragmentPackagesHolderBinding
@@ -36,22 +35,9 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
     private val viewModel by viewModels<PackagesViewModel>()
 
     private var adapter: PackagesRecyclerAdapter? = null
-    private var sim: Sim? = null
-
-    /**
-     * SIM de la última compra, para confirmarla cuando el usuario comparta el SMS.
-     * */
-    private var purchaseSimId: String? = null
 
     private val purchaseSmsConsent = PurchaseSmsConsent(this) { smsBody ->
-        purchaseSimId?.let { viewModel.confirmPurchaseFromSms(smsBody, it) }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            simId = it.getString(SIM_ID) ?: throw IllegalArgumentException()
-        }
+        viewModel.onSmsShared(smsBody)
     }
 
     override fun onCreateView(
@@ -78,35 +64,59 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
                     )
                     putExtra(
                         PackagesConfigurationFragment.EXTRA_DEFAULT_SIM_ID,
-                        sim?.id
+                        arguments?.getString(PackagesViewModel.ARG_SIM_ID)
                     )
                 }
             )
         }
 
-        viewModel.getSimAndPackages(simId).observe(viewLifecycleOwner) {
-            sim = it.first
-
-            if (it.second.isNotEmpty()) {
-                binding.apply {
-                    linSimNotConfigured.visibility = View.GONE
-                    recycler.visibility = View.VISIBLE
-                    setAdapter(it.second)
-                }
-            }else {
-                // Una línea configurada sin planes es una línea empresarial.
-                val configured = it.first.setupDate > 0L
-                binding.apply {
-                    textSimNotConfigured.setText(
-                        if (configured) R.string.no_plans_available else R.string.no_sim_configured
-                    )
-                    buttonConfigureSim.visibility = if (configured) View.GONE else View.VISIBLE
-                    linSimNotConfigured.visibility = View.VISIBLE
-                    recycler.visibility = View.GONE
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { viewModel.state.collect(::render) }
+                launch { viewModel.events.collect(::onEvent) }
             }
         }
+    }
 
+    private fun render(state: PackagesUiState) {
+        if (state.loading)
+            return
+
+        binding.apply {
+            if (state.availability == PackagesRules.Availability.AVAILABLE) {
+                linSimNotConfigured.visibility = View.GONE
+                recycler.visibility = View.VISIBLE
+                setAdapter(
+                    listOf<IDataPackage>(PackagesViewModel.HeaderPackagesItem(name = getString(R.string.plan_title))) +
+                        state.plans
+                )
+            } else {
+                // Una línea configurada sin planes es una línea empresarial.
+                val configured = state.availability == PackagesRules.Availability.NO_PLANS
+                textSimNotConfigured.setText(
+                    if (configured) R.string.no_plans_available else R.string.no_sim_configured
+                )
+                buttonConfigureSim.visibility = if (configured) View.GONE else View.VISIBLE
+                linSimNotConfigured.visibility = View.VISIBLE
+                recycler.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun onEvent(event: PackagesEvent) {
+        when (event) {
+            PackagesEvent.PurchaseStarted -> {
+                Toast.makeText(requireContext(), getString(R.string.purchasing_package), Toast.LENGTH_SHORT).show()
+                purchaseSmsConsent.start()
+            }
+            PackagesEvent.PurchaseFailed ->
+                Toast.makeText(requireContext(), getString(R.string.purchasing_package_failed), Toast.LENGTH_SHORT).show()
+            is PackagesEvent.RequestPermission -> {
+                Toast.makeText(requireContext(), getString(R.string.purchasing_package_permissions), Toast.LENGTH_SHORT).show()
+                SinglePermissionFragment.newInstance(event.requestCode)
+                    .show(childFragmentManager, "PermissionFragment")
+            }
+        }
     }
 
     private fun setAdapter(list: List<IDataPackage>){
@@ -121,32 +131,14 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
 
     fun purchasePackage(iDataPackage: IDataPackage){
         val dataPackage = iDataPackage as DataPackage
-        sim?.let {
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Comprar ${dataPackage.name}")
-                .setMessage(dataPackage.description)
-                .setPositiveButton(getString(R.string.purchase)){_, _ ->
-                    purchaseSimId = it.id
-                    viewModel.purchasePackage(it, dataPackage, this)
-                }
-                .setNegativeButton(getString(R.string.btn_cancel), null)
-                .show()
-        }
-    }
-
-    override fun onSuccess() {
-        Toast.makeText(requireContext(), getString(R.string.purchasing_package), Toast.LENGTH_SHORT).show()
-        purchaseSmsConsent.start()
-    }
-
-    override fun onFailed() {
-        Toast.makeText(requireContext(), getString(R.string.purchasing_package_failed), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onMissingPermission() {
-        Toast.makeText(requireContext(), getString(R.string.purchasing_package_permissions), Toast.LENGTH_SHORT).show()
-        val frag = SinglePermissionFragment.newInstance(IPermissionsManager.CALL_CODE)
-        frag.show(childFragmentManager, "PermissionFragment")
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.buy_plan_title, dataPackage.name))
+            .setMessage(dataPackage.description)
+            .setPositiveButton(getString(R.string.purchase)) { _, _ ->
+                viewModel.onPurchase(dataPackage.id)
+            }
+            .setNegativeButton(getString(R.string.btn_cancel), null)
+            .show()
     }
 
     override fun onDestroyView() {
@@ -160,7 +152,7 @@ class PackagesHolderFragment : Fragment(), PackagesViewModel.PurchaseResult {
         fun newInstance(simID: String) =
             PackagesHolderFragment().apply {
                 arguments = Bundle().apply {
-                    putString(SIM_ID, simID)
+                    putString(PackagesViewModel.ARG_SIM_ID, simID)
                 }
             }
     }

@@ -1,7 +1,5 @@
 package com.smartsolutions.paquetes.exceptions
 
-import android.app.Activity
-import androidx.fragment.app.Fragment
 import java.io.Serializable
 
 class MissingPermissionException: Exception, Serializable {
@@ -22,13 +20,5 @@ class MissingPermissionException: Exception, Serializable {
 
     constructor(permission: Array<String>, message: String): super(message) {
         this.permission = permission
-    }
-
-    fun requestPermission(activity: Activity, requestCode: Int) {
-        activity.requestPermissions(permission, requestCode)
-    }
-
-    fun requestPermission(fragment: Fragment, requestCode: Int) {
-        fragment.requestPermissions(permission, requestCode)
     }
 }

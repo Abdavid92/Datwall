@@ -20,5 +20,7 @@ interface ISimManager {
 
     suspend fun getInstalledSims(relations: Boolean = false): List<Sim>
 
+    suspend fun getSim(id: String, relations: Boolean = false): Sim?
+
     fun flowInstalledSims(relations: Boolean = false): Flow<List<Sim>>
 }

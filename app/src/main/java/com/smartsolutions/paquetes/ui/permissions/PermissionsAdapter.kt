@@ -40,8 +40,8 @@ class PermissionsAdapter(
         fun bind(item: PermissionItem) {
             val granted = item.action == PermissionAction.Nothing
 
-            binding.permissionName.text = item.permission.name
-            binding.description.text = item.permission.description
+            binding.permissionName.setText(PermissionTexts.name(item.permission))
+            binding.description.setText(PermissionTexts.description(item.permission))
             binding.state.setText(
                 if (granted) R.string.permission_state_granted else R.string.permission_state_denied
             )

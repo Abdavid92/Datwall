@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import com.smartsolutions.paquetes.repositories.models.*
-import kotlinx.coroutines.runBlocking
 
 const val DATABASE_VERSION = 1
 

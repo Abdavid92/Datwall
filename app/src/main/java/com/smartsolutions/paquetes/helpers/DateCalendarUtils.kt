@@ -7,7 +7,7 @@ import com.smartsolutions.paquetes.managers.sims.SimType
 import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.apache.commons.lang3.time.DateUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -38,7 +38,7 @@ class DateCalendarUtils @Inject constructor(
      * @see PERIOD_WEEK
      * @see PERIOD_MONTH
      * */
-    fun getTimePeriod(@Period trafficPeriod: Int): Pair<Long, Long> {
+    suspend fun getTimePeriod(@Period trafficPeriod: Int): Pair<Long, Long> {
         val calendar = Calendar.getInstance()
         val currentTime = System.currentTimeMillis()
         return when (trafficPeriod) {
@@ -85,16 +85,16 @@ class DateCalendarUtils @Inject constructor(
                 )
             }
             PERIOD_PACKAGE -> {
-                runBlocking(Dispatchers.Default) {
+                withContext(Dispatchers.Default) {
                     simManager.get().getDefaultSimBoth(SimType.DATA)?.id?.let { id ->
                         purchasedPackagesManager.get().getHistory().firstOrNull()?.filter {
                             it.simId == id
                         }?.maxByOrNull { it.date }?.let {
-                            return@runBlocking it.date to System.currentTimeMillis()
+                            return@withContext it.date to System.currentTimeMillis()
                         }
                     }
 
-                    return@runBlocking Pair(0L, 0L)
+                    return@withContext Pair(0L, 0L)
                 }
             }
             else -> {

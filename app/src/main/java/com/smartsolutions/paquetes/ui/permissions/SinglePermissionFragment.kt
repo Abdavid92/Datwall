@@ -58,10 +58,10 @@ class SinglePermissionFragment private constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<MaterialTextView>(R.id.permission_name)
-            .text = viewModel.permission.name
+            .setText(PermissionTexts.name(viewModel.permission))
 
         view.findViewById<MaterialTextView>(R.id.description)
-            .text = viewModel.permission.description
+            .setText(PermissionTexts.description(viewModel.permission))
 
         view.findViewById<AppCompatButton>(R.id.btn_jump).setOnClickListener {
             notifyResult(false)
@@ -84,8 +84,7 @@ class SinglePermissionFragment private constructor(
                     }
                     PermissionAction.Request -> viewLifecycleOwner.lifecycleScope.launch {
                         viewModel.permissionManager.markRequested(viewModel.permission.requestCode)
-                        viewModel.permission
-                            .requestPermissionFragment(viewModel.permission, this@SinglePermissionFragment)
+                        PermissionLauncher.request(viewModel.permission, this@SinglePermissionFragment)
                     }
                 }
             }

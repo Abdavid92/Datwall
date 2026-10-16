@@ -10,14 +10,21 @@ import android.view.animation.RotateAnimation
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import com.google.android.material.tabs.TabLayoutMediator
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentResumeBinding
-import com.smartsolutions.paquetes.helpers.SimDelegate
-import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
-import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
+import com.smartsolutions.paquetes.ui.setTabLayoutMediatorSims
+import com.smartsolutions.paquetes.managers.models.UserDataOrder
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.AbstractFragment
 import com.smartsolutions.paquetes.ui.BottomSheetDialogBasic
+import com.smartsolutions.paquetes.ui.ErrorTexts
 import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
 import com.smartsolutions.paquetes.ui.permissions.StartAccessibilityServiceFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +32,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult {
+class ResumeFragment : AbstractFragment() {
 
     private val viewModel by viewModels<ResumeViewModel>()
 
@@ -34,7 +41,8 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         get() = _binding!!
 
     private var adapterFragment: ResumePagerAdapter? = null
-    private lateinit var installedSims: List<Sim>
+    private var installedSims: List<Sim> = emptyList()
+    private var tabsMediator: TabLayoutMediator? = null
 
     private val rotateAnimation = RotateAnimation(
         360f,
@@ -62,22 +70,15 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getInstalledSims().observe(viewLifecycleOwner) {
-            installedSims = it
-
-            setAdapter(it)
-
-            setTabLayoutMediatorSims(
-                requireContext(),
-                binding.tabs,
-                binding.pager,
-                it
-            )
-
-            if (it.size <= 1) {
-                binding.tabs.visibility = View.GONE
-            } else {
-                binding.tabs.visibility = View.VISIBLE
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.state.map { it.sims }.distinctUntilChanged().collect(::renderSims)
+                }
+                launch {
+                    viewModel.state.map { it.synchronizing }.distinctUntilChanged().collect(::animateFAB)
+                }
+                launch { viewModel.events.collect(::onEvent) }
             }
         }
 
@@ -91,11 +92,12 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
             kotlin.runCatching {
                 Toast.makeText(
                     requireContext(),
-                    "Actualizado:\n${
+                    getString(
+                        R.string.last_synchronization,
                         SimpleDateFormat("dd/MM/yyyy hh:mm:ss aa", Locale.getDefault()).format(
                             Date(installedSims[binding.pager.currentItem].lastSynchronization)
                         )
-                    }",
+                    ),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -108,11 +110,10 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         }
 
         binding.buttonAdd.setOnClickListener {
-            EditAddUserDataBytesFragment.newInstance(
-                installedSims[binding.pager.currentItem].id,
-                false,
-                null
-            ).show(childFragmentManager, null)
+            installedSims.getOrNull(binding.pager.currentItem)?.let {
+                EditAddUserDataBytesFragment.newInstance(it.id, false, null)
+                    .show(childFragmentManager, null)
+            }
         }
 
         binding.buttonChart.setOnClickListener {
@@ -129,14 +130,14 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_filter_title)
             .setItems(R.array.filter_resume) { _, pos ->
-                viewModel.setFilter(ResumeViewModel.FilterUserDataBytes.values()[pos])
+                viewModel.onFilterChanged(UserDataOrder.entries[pos])
             }.show()
     }
 
     private fun showChartUsageGeneral() {
-        UsageGeneralFragment.newInstance(
-            installedSims[binding.tabs.selectedTabPosition].id
-        ).show(childFragmentManager, null)
+        installedSims.getOrNull(binding.pager.currentItem)?.let {
+            UsageGeneralFragment.newInstance(it.id).show(childFragmentManager, null)
+        }
     }
 
     private fun configureAnimationFAB() {
@@ -206,60 +207,65 @@ class ResumeFragment : AbstractFragment(), ResumeViewModel.SynchronizationResult
         }
     }
 
+    private fun renderSims(sims: List<Sim>) {
+        // El estado empieza sin líneas mientras se leen: no hay nada que dibujar todavía.
+        if (sims.isEmpty())
+            return
+
+        installedSims = sims
+
+        // Las pestañas viejas siguen observando el adaptador: se sueltan antes de crear las nuevas.
+        tabsMediator?.detach()
+
+        setAdapter(sims)
+
+        tabsMediator = setTabLayoutMediatorSims(requireContext(), binding.tabs, binding.pager, sims)
+
+        binding.tabs.visibility = if (sims.size <= 1) View.GONE else View.VISIBLE
+    }
+
     private fun synchronize() {
-        animateFAB(true)
-        viewModel.synchronizeUserDataBytes(installedSims[binding.pager.currentItem], this)
+        installedSims.getOrNull(binding.pager.currentItem)?.let {
+            viewModel.onSyncClicked(it.id)
+        }
     }
 
-    override fun onSuccess() {
-        animateFAB(false)
-    }
-
-    override fun onCallPermissionsDenied() {
-        animateFAB(false)
-        val fragment = SinglePermissionFragment.newInstance(
-            IPermissionsManager.CALL_CODE,
-            object : SinglePermissionFragment.SinglePermissionCallback {
-                // Con el permiso concedido se continúa la sincronización que pidió el usuario.
-                override fun onGranted() = synchronize()
-                override fun onDenied() = Unit
-            }
-        )
-        fragment.show(this.childFragmentManager, "PermissionsFragment")
-    }
-
-    override fun onUSSDFail(message: String) {
-        animateFAB(false)
-        val fragment = BottomSheetDialogBasic.newInstance(
-            BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED,
-            message = message
-        )
-        fragment.show(this.childFragmentManager, "BasicDialog")
-    }
-
-    override fun onFailed(throwable: Throwable?) {
-        animateFAB(false)
-        val fragment =
-            BottomSheetDialogBasic.newInstance(BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED)
-        fragment.show(this.childFragmentManager, "BasicDialog")
-    }
-
-    override fun onAccessibilityServiceDisabled() {
-        animateFAB(false)
-        val fragment = StartAccessibilityServiceFragment.newInstance(
-            object : SinglePermissionFragment.SinglePermissionCallback {
-                override fun onGranted() = synchronize()
-
-                override fun onDenied() {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.accessibility_sync_cancelled,
-                        Toast.LENGTH_SHORT
-                    ).show()
+    private fun onEvent(event: ResumeEvent) {
+        when (event) {
+            is ResumeEvent.RequestPermission -> SinglePermissionFragment.newInstance(
+                event.requestCode,
+                object : SinglePermissionFragment.SinglePermissionCallback {
+                    // Con el permiso concedido se continúa la sincronización que pidió el usuario.
+                    override fun onGranted() = viewModel.onPermissionGranted()
+                    override fun onDenied() = Unit
                 }
-            }
-        )
-        fragment.show(this.childFragmentManager, "AccessibilityFragment")
+            ).show(childFragmentManager, "PermissionsFragment")
+
+            ResumeEvent.RequestAccessibility -> StartAccessibilityServiceFragment.newInstance(
+                object : SinglePermissionFragment.SinglePermissionCallback {
+                    override fun onGranted() = viewModel.onPermissionGranted()
+
+                    override fun onDenied() {
+                        Toast.makeText(
+                            requireContext(),
+                            R.string.accessibility_sync_cancelled,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            ).show(childFragmentManager, "AccessibilityFragment")
+
+            is ResumeEvent.SyncFailed -> BottomSheetDialogBasic.newInstance(
+                BottomSheetDialogBasic.DialogType.SYNCHRONIZATION_FAILED,
+                message = event.ussdErrorCode?.let { getString(ErrorTexts.ussd(it)) }
+            ).show(childFragmentManager, "BasicDialog")
+        }
+    }
+
+    override fun onDestroyView() {
+        tabsMediator?.detach()
+        tabsMediator = null
+        super.onDestroyView()
     }
 
     override fun onDestroy() {

@@ -16,7 +16,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.managers.isNotificationPermissionRequired
-import com.smartsolutions.paquetes.ui.MainActivity
+import com.smartsolutions.paquetes.managers.contracts.appNavigator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -60,11 +60,8 @@ class NotificationHelper @Inject constructor(
                             PendingIntent.getActivity(
                                 context,
                                 123,
-                                Intent(context, MainActivity::class.java).apply {
-                                    action = MainActivity.ACTION_OPEN_FRAGMENT
-                                    putExtra(MainActivity.EXTRA_FRAGMENT, MainActivity.FRAGMENT_UPDATE_DIALOG)
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                },
+                                context.appNavigator().updates()
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                             )
                         )

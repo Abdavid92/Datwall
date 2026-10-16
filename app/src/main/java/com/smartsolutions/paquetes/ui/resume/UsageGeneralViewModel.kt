@@ -5,30 +5,28 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
-import com.smartsolutions.paquetes.repositories.contracts.IUsageGeneralRepository
-import com.smartsolutions.paquetes.repositories.contracts.IUserDataBytesRepository
+import com.smartsolutions.paquetes.managers.UsageChartGrouping
+import com.smartsolutions.paquetes.managers.UsageChartGrouping.GeneralPeriod
+import com.smartsolutions.paquetes.managers.contracts.IUserDataManager
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UsageGeneral
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class UsageGeneralViewModel @Inject constructor(
-    private val usageGeneralRepository: IUsageGeneralRepository,
-    private val dateCalendarUtils: DateCalendarUtils,
-    private val userDataBytesRepository: IUserDataBytesRepository
+    private val userDataManager: IUserDataManager,
+    private val dateCalendarUtils: DateCalendarUtils
 ) : ViewModel() {
 
-    private var period = PeriodUsageGeneral.TODAY
+    private var period = GeneralPeriod.TODAY
 
     private var liveData = MutableLiveData<Pair<List<UsageGeneral>, DateCalendarUtils.MyTimeUnit>>()
 
 
     fun setPeriod(index: Int, simId: String, dataType: DataBytes.DataType) {
-        period = PeriodUsageGeneral.values()[index]
+        period = GeneralPeriod.entries[index]
         getUsage(dataType, simId)
     }
 
@@ -43,38 +41,23 @@ class UsageGeneralViewModel @Inject constructor(
 
     private fun getUsage(dataType: DataBytes.DataType, simId: String) {
         viewModelScope.launch {
-            val period = getPeriod(simId, dataType)
-            val timeUnit = when (this@UsageGeneralViewModel.period) {
-                PeriodUsageGeneral.TODAY, PeriodUsageGeneral.YESTERDAY -> DateCalendarUtils.MyTimeUnit.MINUTE
-                PeriodUsageGeneral.WEEK, PeriodUsageGeneral.MONTH -> DateCalendarUtils.MyTimeUnit.DAY
-                else -> DateCalendarUtils.MyTimeUnit.DAY
-            }
+            val interval = getInterval(simId, dataType)
+            val timeUnit = UsageChartGrouping.generalTimeUnit(period)
 
-            liveData.postValue(
-                filterCompact(
-                    withContext(Dispatchers.IO) {
-                        usageGeneralRepository.inRangeTime(
-                            period.first,
-                            period.second
-                        )
-                    }.filter { it.simId == simId && it.type == dataType },
-                    timeUnit
-                ) to timeUnit
-            )
+            val usage = userDataManager.usage(simId, dataType, interval.first, interval.second)
+
+            liveData.postValue(UsageChartGrouping.compact(usage, timeUnit) to timeUnit)
         }
     }
 
-    private suspend fun getPeriod(simId: String, dataType: DataBytes.DataType): Pair<Long, Long> {
+    private suspend fun getInterval(simId: String, dataType: DataBytes.DataType): Pair<Long, Long> {
         return when (period) {
-            PeriodUsageGeneral.TODAY -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
-            PeriodUsageGeneral.YESTERDAY -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_YESTERDAY)
-            PeriodUsageGeneral.WEEK -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_WEEK)
-            PeriodUsageGeneral.MONTH -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_MONTH)
-            PeriodUsageGeneral.PACKAGE -> {
-
-                val dataBytes = withContext(Dispatchers.IO){
-                    userDataBytesRepository.get(simId, dataType)
-                }
+            GeneralPeriod.TODAY -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
+            GeneralPeriod.YESTERDAY -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_YESTERDAY)
+            GeneralPeriod.WEEK -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_WEEK)
+            GeneralPeriod.MONTH -> dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_MONTH)
+            GeneralPeriod.PACKAGE -> {
+                val dataBytes = userDataManager.get(simId, dataType)
                 if (dataBytes.exists()) {
                     dataBytes.startTime to System.currentTimeMillis()
                 } else {
@@ -82,56 +65,6 @@ class UsageGeneralViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun filterCompact(
-        list: List<UsageGeneral>,
-        timeUnit: DateCalendarUtils.MyTimeUnit
-    ): List<UsageGeneral> {
-        val compacted = mutableListOf<UsageGeneral>()
-
-        var sameUsage: UsageGeneral? = null
-
-        list.forEach { usage ->
-            if (sameUsage == null) {
-                sameUsage = usage
-            } else {
-                val isSame = if (timeUnit == DateCalendarUtils.MyTimeUnit.MINUTE) {
-                    DateCalendarUtils.isSameHour(usage.date, sameUsage!!.date)
-                } else {
-                    DateCalendarUtils.isSameDay(usage.date, sameUsage!!.date)
-                }
-
-                if (isSame) {
-                    sameUsage!! += usage
-                } else {
-                    compacted.add(sameUsage!!)
-                    sameUsage = usage
-                }
-            }
-        }
-
-        if (list.isNotEmpty()) {
-            compacted.add(
-                UsageGeneral(
-                    System.currentTimeMillis(),
-                    list[0].type,
-                    0L,
-                    list[0].simId
-                )
-            )
-        }
-
-        return compacted
-    }
-
-
-    enum class PeriodUsageGeneral {
-        TODAY,
-        YESTERDAY,
-        WEEK,
-        MONTH,
-        PACKAGE
     }
 
 }

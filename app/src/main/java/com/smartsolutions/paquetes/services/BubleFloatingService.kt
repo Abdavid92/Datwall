@@ -33,7 +33,6 @@ import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
 import com.smartsolutions.paquetes.repositories.models.App
-import com.smartsolutions.paquetes.ui.MainActivity
 import com.smartsolutions.paquetes.uiDataStore
 import com.smartsolutions.paquetes.watcher.RxWatcher
 import dagger.hilt.android.AndroidEntryPoint
@@ -338,8 +337,8 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
     private fun setTraffic(app: App) {
-        val period = dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
         runBlocking(Dispatchers.Default) {
+            val period = dateCalendarUtils.getTimePeriod(DateCalendarUtils.PERIOD_TODAY)
             traffic = networkUsageManager.getAppUsage(app.uid, period.first, period.second)
         }
 
@@ -553,7 +552,7 @@ class BubbleFloatingService : Service(), CoroutineScope {
                     }
                 }
             }
-        }, IntentFilter(MainActivity.MAIN_IS_OPEN))
+        }, IntentFilter(ACTION_MAIN_IS_OPEN))
     }
 
 
@@ -683,6 +682,11 @@ class BubbleFloatingService : Service(), CoroutineScope {
     }
 
     companion object {
+
+        /**
+         * Difusión que envía la pantalla principal al abrirse.
+         * */
+        const val ACTION_MAIN_IS_OPEN = "main_is_open"
 
         var SIZE = BubbleSize.MEDIUM
         var TRANSPARENCY = 0.5f

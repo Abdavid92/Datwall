@@ -26,7 +26,7 @@ class PurchasedPackagesManager @Inject constructor(
     private val simDelegate: SimDelegate
 ) : IPurchasedPackagesManager {
 
-    private val dataStore = context.internalDataStore
+    private val dataStore by lazy { context.internalDataStore }
 
     override suspend fun newPurchased(
         dataPackageId: DataPackages.PackageId,
@@ -68,11 +68,14 @@ class PurchasedPackagesManager @Inject constructor(
         withContext(Dispatchers.IO) {
             purchasedPackageRepository
                 .getAll()
-        }.firstOrNull()?.let {
-            withContext(Dispatchers.IO) {
-                purchasedPackageRepository.delete(it)
+        }.firstOrNull()
+            // Las compras sin confirmar se conservan para poder confirmarlas después.
+            ?.filter { !it.pending }
+            ?.let {
+                withContext(Dispatchers.IO) {
+                    purchasedPackageRepository.delete(it)
+                }
             }
-        }
     }
 
 
