@@ -95,14 +95,8 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
         synchronizeDatabase()
 
-        main()
+        kernel.restart()
     }
-
-    /**
-     * Vuelve a ejecutar el arranque. Lo usan las pantallas que aún no tienen el kernel inyectado; las
-     * demás llaman a `kernel.restart()`.
-     * */
-    fun main() = kernel.restart()
 
     private fun synchronizeDatabase(){
         launch {

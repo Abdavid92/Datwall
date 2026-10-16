@@ -7,12 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.ItemPermissionBinding
 import com.smartsolutions.paquetes.managers.PermissionAction
-import com.smartsolutions.paquetes.managers.models.Permission
-
-/**
- * Fila de la lista de permisos: el permiso y lo que pasará al pulsar su botón.
- * */
-data class PermissionItem(val permission: Permission, val action: PermissionAction)
 
 class PermissionsAdapter(
     private val onAction: (PermissionItem) -> Unit

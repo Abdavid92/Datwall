@@ -135,14 +135,14 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
 
 **Independent Test**: [quickstart.md](quickstart.md) secciones 3 y 5 (primer uso y Permisos y privacidad).
 
-- [ ] T013 [P] [US2] Escribir primero T/ui/permissions/PermissionsViewModelTest.kt: en el primer uso solo los permisos
+- [X] T013 [P] [US2] Escribir primero T/ui/permissions/PermissionsViewModelTest.kt: en el primer uso solo los permisos
   de inicio y desde Ajustes todos; `onShown(rationaleKeys)` calcula la acción de cada fila; "Continuar" y "Ahora no"
   guardan `DATA_DISCLOSURE_ANSWERED` con `IPreferencesRepository` y llaman a `kernel.restart()`; la fila cambia de
   acción tras un resultado; con el permiso de llamadas concedido y líneas pendientes se emite `SimSetupPending`.
 - [X] T014 [P] [US2] Escribir primero T/ui/setup/SetupViewModelTest.kt: estado inicial con los pasos pendientes y el
   primero actual; completar avanza; omitir llama a `kernel.restart()`; sin pasos pendientes termina enseguida; con el
   estado de nuevo (lo que hace la pantalla al girar) no cambia de paso (R8, tercer error).
-- [ ] T015 [US2] Reescribir B/ui/permissions/PermissionsViewModel.kt (sin `Application` ni DataStore; estado y eventos de
+- [X] T015 [US2] Reescribir B/ui/permissions/PermissionsViewModel.kt (sin `Application` ni DataStore; estado y eventos de
   data-model) y adaptar PermissionsActivity.kt y PermissionsAdapter.kt:
   - la actividad calcula las claves con rationale y se las pasa a `onShown`;
   - `PermissionRequests.kt`: `actionFor` sigue como ayuda de UI que calcula `canAskAgain` y delega en
@@ -150,6 +150,9 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
   - `restartIfSimSetupPending` se sustituye por abrir la pantalla inicial tras el evento `SimSetupPending`, sin
     comprobar nada de negocio.
   T013 pasa.
+  **Resultado T015**: `onShown(firstUse, rationaleKeys)` y `onSystemResult(requestCode, granted, rationaleKeys)` reciben las claves
+  con rationale como dato; se eliminaron `AndroidViewModel.next()`, `DatwallApplication.main()` y
+  `restartIfSimSetupPending`. Pendiente la validación en dispositivo (T018).
 - [X] T016 [US2] Cambiar el aviso de paso completado: B/ui/settings/AbstractSettingsFragment.kt (`complete()` y
   `skipSetup()` escriben `setup_step_result` en su `parentFragmentManager`), B/ui/FragmentContainerActivity.kt (escucha
   el resultado y cierra con `RESULT_OK`) y eliminar B/ui/setup/OnCompletedListener.kt.

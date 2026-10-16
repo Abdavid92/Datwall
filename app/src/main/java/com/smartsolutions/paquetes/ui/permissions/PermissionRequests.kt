@@ -8,9 +8,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import com.smartsolutions.paquetes.managers.PermissionAction
 import com.smartsolutions.paquetes.managers.PermissionRequestPolicy
-import com.smartsolutions.paquetes.managers.contracts.IConfigurationManager
 import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
-import com.smartsolutions.paquetes.DatwallApplication
 import com.smartsolutions.paquetes.ui.SplashActivity
 import com.smartsolutions.paquetes.managers.models.Permission
 
@@ -29,22 +27,6 @@ suspend fun IPermissionsManager.actionFor(permission: Permission, activity: Acti
             ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
         }
     )
-}
-
-/**
- * Con el permiso de teléfono recién concedido, la app deja de usar la línea sin identificar y
- * ve las SIM reales. Si todavía no están configuradas, se reinicia el flujo de inicio para que
- * el kernel abra su configuración.
- *
- * @return true si se reinició el flujo.
- * */
-suspend fun Activity.restartIfSimSetupPending(configurationManager: IConfigurationManager): Boolean {
-    if (configurationManager.getUncompletedConfigurations().isEmpty())
-        return false
-
-    (application as DatwallApplication).main()
-    openStartScreen()
-    return true
 }
 
 /**

@@ -46,11 +46,12 @@ Ambos viajan como paquete de la API de resultados de fragmentos, con una clave f
 
 - **Estado** `PermissionsUiState`: `items: List<PermissionItem>` (permiso + acción), `firstUse: Boolean`.
 - **Acciones**:
-  - `onShown(rationaleKeys: Set<String>)`;
+  - `onShown(firstUse: Boolean, rationaleKeys: Set<String>)`;
   - `onPermissionClicked(item)`;
   - `onFinishFirstUse()`;
-  - `onSystemResult(requestCode, granted)`.
-- **Eventos**: `RequestFromSystem(permission)`, `OpenAppSettings`, `SimSetupPending`, `Finish`.
+  - `onSystemResult(requestCode, granted, rationaleKeys)`.
+- **Eventos**: `RequestFromSystem(permission)`, `OpenAppSettings`, `SimSetupPending`. Al terminar el primer uso solo se llama
+  a `kernel.restart()`; la pantalla sigue el destino de inicio.
 
 ## Setup (`SetupViewModel`)
 
