@@ -1,252 +1,152 @@
 package com.smartsolutions.paquetes.ui.usage
 
-import android.app.Application
-import android.graphics.Color
-import android.view.View
-import androidx.datastore.preferences.core.edit
-import androidx.lifecycle.*
-import com.github.mikephil.charting.animation.Easing
-import com.github.mikephil.charting.charts.PieChart
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.smartsolutions.paquetes.PreferencesKeys
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.Period
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.NetworkUsageManager
+import com.smartsolutions.paquetes.managers.UsageAggregator
+import com.smartsolutions.paquetes.managers.contracts.IAppsManager
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.managers.models.Traffic
+import com.smartsolutions.paquetes.managers.models.UsageOrder
 import com.smartsolutions.paquetes.managers.sims.SimType
-import com.smartsolutions.paquetes.repositories.contracts.IAppRepository
-import com.smartsolutions.paquetes.repositories.models.App
+import com.smartsolutions.paquetes.repositories.contracts.IPreferencesRepository
+import com.smartsolutions.paquetes.repositories.models.AppPreferences
 import com.smartsolutions.paquetes.repositories.models.TrafficType
-import com.smartsolutions.paquetes.uiDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.*
 import javax.inject.Inject
+import kotlin.random.Random
 
+/**
+ * Porción de la gráfica circular. [label] es null para "otras".
+ * */
+data class UsageSlice(val bytes: Long, val label: String?, val colour: Int)
+
+/**
+ * Consumo de un tipo de tráfico: las apps en el orden elegido, las que pasan del 1 % del total
+ * ([main]) y el resto ([others]), que se agrupan en la gráfica.
+ * */
+data class UsageBreakdown(
+    val total: Long,
+    val apps: List<UsageApp>,
+    val main: List<UsageApp>,
+    val others: List<UsageApp>,
+    val slices: List<UsageSlice>
+)
+
+data class UsageUiState(
+    @Period val period: Int = 0,
+    val order: UsageOrder = UsageOrder.MAX_USAGE,
+    val loading: Boolean = true,
+    val breakdowns: Map<TrafficType, UsageBreakdown> = emptyMap()
+)
+
+/**
+ * Lo comparten la pantalla de consumo y sus pestañas (una por tipo de tráfico).
+ * */
 @HiltViewModel
 class UsageViewModel @Inject constructor(
-    application: Application,
     private val networkUsageManager: NetworkUsageManager,
     private val simManager: ISimManager,
-    private val appRepository: IAppRepository,
+    private val appsManager: IAppsManager,
     private val dateCalendarUtils: DateCalendarUtils,
+    private val preferencesRepository: IPreferencesRepository,
     val iconManager: IIconManager
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
-    private val liveData = MutableLiveData<Pair<Long, List<UsageApp>>>()
-    private var type: TrafficType = TrafficType.International
-    private var period = 0
-    private var filter = UsageFilters.MAX_USAGE
+    private val _state = MutableStateFlow(
+        preferencesRepository.preferences.value.let { UsageUiState(period = it.period(), order = it.order()) }
+    )
+    val state: StateFlow<UsageUiState> = _state.asStateFlow()
 
-    var apps = mutableListOf<UsageApp>()
-    var others = mutableListOf<UsageApp>()
+    private val refreshes = MutableStateFlow(0)
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().uiDataStore.data.collect {
-                withContext(Dispatchers.Default){
-                    delay(300)
-                    period = it[PreferencesKeys.USAGE_PERIOD] ?: 0
-                    filter = UsageFilters.valueOf(it[PreferencesKeys.USAGE_FILTER] ?: UsageFilters.MAX_USAGE.name)
-                    liveData.postValue(getTraffic(period, filter))
-                }
-            }
-        }
-    }
-
-    fun setUsagePeriod(@Period period: Int){
-        viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().uiDataStore.edit {
-                it[PreferencesKeys.USAGE_PERIOD] = period
-            }
-        }
-    }
-
-    fun setUsageFilter(filter: UsageFilters) {
-        viewModelScope.launch(Dispatchers.IO) {
-            getApplication<Application>().uiDataStore.edit {
-                it[PreferencesKeys.USAGE_FILTER] = filter.name
-            }
-        }
-    }
-
-    fun refreshData(){
         viewModelScope.launch {
-            liveData.postValue(getTraffic(period, filter))
-        }
-    }
-
-
-    fun getUsage(type: TrafficType): LiveData<Pair<Long, List<UsageApp>>>{
-        this.type = type
-       return liveData
-    }
-
-    fun processAndFillPieCharData(total: Long, apps: List<UsageApp>, pieChart: PieChart) {
-        viewModelScope.launch {
-            val entries = mutableListOf<PieEntry>()
-
-            val filtered = filterByTrafficApps(total, apps)
-            val colours = mutableListOf<Int>()
-
-            filtered.first.forEach {
-                entries.add(
-                    PieEntry(
-                        it.app.traffic!!.totalBytes.bytes.toFloat(),
-                        it.app.name
-                    )
-                )
-                colours.add(it.colour)
-            }
-
-            if (filtered.second.isNotEmpty()) {
-                entries.add(
-                    PieEntry(
-                        filtered.second[0].app.traffic!!.totalBytes.bytes.toFloat(),
-                        UsageHolderFragment.OTHERS_LABEL
-                    )
-                )
-                val colour = Color.GRAY
-                filtered.second.forEach {
-                    it.colour = colour
+            combine(
+                preferencesRepository.preferences.map { it.period() to it.order() }.distinctUntilChanged(),
+                refreshes
+            ) { selection, _ -> selection }
+                .collectLatest { (period, order) ->
+                    _state.update { it.copy(period = period, order = order, loading = true) }
+                    val breakdowns = load(period, order)
+                    _state.update { it.copy(loading = false, breakdowns = breakdowns) }
                 }
-                colours.add(colour)
-            }
-
-            val pieData = PieData(PieDataSet(entries, "").apply {
-                valueTextSize = 11f
-                colors = colours
-            })
-
-            pieData.setDrawValues(false)
-
-            withContext(Dispatchers.Main) {
-                pieChart.apply {
-                    data = pieData
-                    animateY(1000, Easing.EaseInOutCubic)
-                }.postInvalidate()
-                pieChart.visibility = View.VISIBLE
-            }
         }
     }
 
+    fun onPeriodChanged(@Period period: Int) {
+        if (period == _state.value.period)
+            return
+        viewModelScope.launch {
+            preferencesRepository.setUsagePeriod(period)
+        }
+    }
 
-    private suspend fun getTraffic(@Period period: Int, filter: UsageFilters): Pair<Long, List<UsageApp>> {
+    fun onFilterChanged(order: UsageOrder) {
+        viewModelScope.launch {
+            preferencesRepository.setUsageFilter(order.name)
+        }
+    }
+
+    fun onRefresh() {
+        refreshes.update { it + 1 }
+    }
+
+    /**
+     * Se acaba de conceder el acceso de uso: hasta ahora no había datos.
+     * */
+    fun onUsageAccessGranted() = onRefresh()
+
+    private suspend fun load(@Period period: Int, order: UsageOrder): Map<TrafficType, UsageBreakdown> {
         val interval = dateCalendarUtils.getTimePeriod(period)
         val traffics = networkUsageManager.getAppsUsage(interval.first, interval.second)
-        var total = 0L
+        val apps = appsManager.byUids(traffics.map { it.uid }.toIntArray())
 
-        val uids = mutableListOf<Int>()
+        val simId = simManager.getDefaultSimBoth(SimType.DATA)?.id ?: "unknown"
 
-        traffics.forEach {
-            uids.add(it.uid)
+        return TrafficType.entries.associateWith { type ->
+            val (total, sorted) = UsageAggregator.aggregate(apps, traffics, type, order, simId)
+            breakdown(total, sorted.map { UsageApp(it, randomColour()) })
         }
-
-        val apps = withContext(Dispatchers.IO) {
-            appRepository.get(uids.toIntArray())
-        }.filter { it.trafficType == type }.toMutableList()
-
-        traffics.forEach { traffic ->
-            val toRemove = apps.filter { it.uid == traffic.uid }
-            if (toRemove.size > 1) {
-                apps.removeAll(toRemove.subList(1, toRemove.size - 1))
-            }
-        }
-
-        val simId = simManager.getDefaultSimBoth(SimType.DATA)
-            ?.id ?: "unknown"
-
-        apps.forEach { app ->
-            app.traffic = traffics.firstOrNull { it.uid == app.uid }
-            total += app.traffic?.totalBytes?.bytes ?: 0
-
-            if (app.traffic == null) {
-                app.traffic = Traffic(app.uid, 0, 0, simId)
-            }
-        }
-
-        val appsShorted = when (filter) {
-            UsageFilters.ALPHABETICAL -> {
-                apps.sortedBy { it.name }
-            }
-            UsageFilters.MAX_USAGE -> {
-                apps.sortedByDescending { it.traffic!!.totalBytes.bytes }
-            }
-            UsageFilters.MIN_USAGE -> {
-                apps.sortedBy { it.traffic!!.totalBytes.bytes }
-            }
-        }
-
-        return Pair(
-            total,
-            transformAppsToUsageApps(
-                appsShorted,
-                getRandomsColors(apps.size)
-            )
-        )
     }
 
+    private fun breakdown(total: Long, apps: List<UsageApp>): UsageBreakdown {
+        val (main, others) = UsageAggregator.splitByShare(total, apps) { it.app.traffic!!.totalBytes.bytes }
 
-    private fun filterByTrafficApps(total: Long, list: List<UsageApp>): Pair<List<UsageApp>, List<UsageApp>> {
-        val onePercent = total / 100
+        others.forEach { it.colour = OTHERS_COLOUR }
 
-        apps.clear()
-        others.clear()
+        val slices = main.map { UsageSlice(it.app.traffic!!.totalBytes.bytes, it.app.name, it.colour) } +
+            if (others.isEmpty())
+                emptyList()
+            else
+                listOf(UsageSlice(others.sumOf { it.app.traffic!!.totalBytes.bytes }, null, OTHERS_COLOUR))
 
-        list.forEach {
-            if (it.app.traffic!!.totalBytes.bytes > onePercent){
-                apps.add(it)
-            }else {
-                others.add(it)
-            }
-        }
-
-        return Pair(apps, others)
+        return UsageBreakdown(total, apps, main, others, slices)
     }
 
-    private fun getRandomsColors(size: Int): MutableList<Int> {
-        val colors = mutableListOf<Int>()
-        val rnd = Random()
+    private fun randomColour(): Int =
+        (0xFF shl 24) or (Random.nextInt(256) shl 16) or (Random.nextInt(256) shl 8) or Random.nextInt(256)
 
-        for (i in 1..size) {
-            colors.add(Color.argb(
-                    255,
-                rnd.nextInt(256),
-                rnd.nextInt(256),
-                rnd.nextInt(256)
-                )
-            )
-        }
+    private fun AppPreferences.period() = usagePeriod ?: 0
 
-        return colors
-    }
+    private fun AppPreferences.order() =
+        usageFilter?.let { name -> UsageOrder.entries.firstOrNull { it.name == name } } ?: UsageOrder.MAX_USAGE
 
-
-    private fun transformAppsToUsageApps(apps: List<App>, colours: List<Int>): List<UsageApp> {
-        if (apps.size != colours.size)
-            throw IllegalArgumentException()
-
-        val list = mutableListOf<UsageApp>()
-
-        for (pos in apps.indices) {
-            list.add(UsageApp(apps[pos], colours[pos]))
-        }
-
-        return list
-    }
-
-    enum class UsageFilters {
-        ALPHABETICAL,
-        MAX_USAGE,
-        MIN_USAGE
+    companion object {
+        /**
+         * Gris de `android.graphics.Color.GRAY`.
+         * */
+        const val OTHERS_COLOUR = 0xFF888888.toInt()
     }
 }

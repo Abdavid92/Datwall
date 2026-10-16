@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import com.smartsolutions.paquetes.helpers.DataFormatter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
@@ -9,6 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
@@ -23,7 +29,6 @@ import com.smartsolutions.paquetes.databinding.FragmentUsageAppDetailsBinding
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.UIHelper
 import com.smartsolutions.paquetes.managers.contracts.IIconManager
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.managers.models.Traffic
 import com.smartsolutions.paquetes.repositories.models.App
 import dagger.hilt.android.AndroidEntryPoint
@@ -79,12 +84,18 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
         binding.include.textUsageValue.text = "${value.value} ${value.dataUnit}"
         configureLineChart()
 
-        viewModel.getUsageByTime(app.uid).observe(viewLifecycleOwner, { result ->
-            setLineChart(result.first, result.second)
-            setAdapter(result)
-            binding.progressBar.visibility = View.GONE
-            binding.lineChart.visibility = View.VISIBLE
-        })
+        viewModel.load(app.uid)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.details.filterNotNull().collect { details ->
+                    setLineChart(details.traffics, details.timeUnit)
+                    setAdapter(details.traffics to details.timeUnit)
+                    binding.progressBar.visibility = View.GONE
+                    binding.lineChart.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
 
@@ -138,7 +149,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
             animateY(700)
             axisLeft.valueFormatter = object : ValueFormatter() {
                 override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                    val bytes = DataUnitBytes(value.toLong()).getValue()
+                    val bytes = DataFormatter.bytes(value.toLong())
                     return "${Math.round(bytes.value * 100) / 100.0} ${bytes.dataUnit}"
                 }
             }
@@ -150,7 +161,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
                             SimpleDateFormat("hh aa", Locale.US).format(Date(value.toLong()))
                         }
                         DateCalendarUtils.MyTimeUnit.DAY -> {
-                          "Día " + SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong()))
+                          requireContext().getString(R.string.chart_day, SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong())))
                         }
                         DateCalendarUtils.MyTimeUnit.MONTH -> {
                             SimpleDateFormat("MMM", Locale.getDefault()).format(Date(value.toLong()))

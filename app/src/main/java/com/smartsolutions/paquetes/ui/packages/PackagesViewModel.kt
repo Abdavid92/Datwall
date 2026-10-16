@@ -1,93 +1,123 @@
 package com.smartsolutions.paquetes.ui.packages
 
-import android.app.Application
-import androidx.lifecycle.*
-import com.smartsolutions.paquetes.R
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.smartsolutions.paquetes.annotations.Networks
 import com.smartsolutions.paquetes.data.DataPackages
+import com.smartsolutions.paquetes.data.PackagesRules
 import com.smartsolutions.paquetes.exceptions.MissingPermissionException
 import com.smartsolutions.paquetes.exceptions.USSDRequestException
-import com.smartsolutions.paquetes.helpers.SimDelegate
 import com.smartsolutions.paquetes.managers.contracts.IDataPackageManager
+import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.contracts.ISimManager
-import com.smartsolutions.paquetes.repositories.contracts.ISimRepository
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.repositories.models.Sim
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+data class PackagesUiState(
+    val loading: Boolean = true,
+    val availability: PackagesRules.Availability? = null,
+    val plans: List<DataPackage> = emptyList(),
+    val purchasing: Boolean = false
+)
+
+sealed interface PackagesEvent {
+    /**
+     * La compra se envió: la pantalla espera el SMS de confirmación.
+     * */
+    data object PurchaseStarted : PackagesEvent
+
+    data object PurchaseFailed : PackagesEvent
+
+    data class RequestPermission(val requestCode: Int) : PackagesEvent
+}
+
+/**
+ * Planes de una línea. La línea llega en los argumentos del fragmento ([ARG_SIM_ID]); sin ella
+ * (pantalla con las pestañas) solo se usan las líneas instaladas.
+ * */
 @HiltViewModel
 class PackagesViewModel @Inject constructor(
-    application: Application,
+    private val savedStateHandle: SavedStateHandle,
     private val simManager: ISimManager,
-    private val dataPackageManager: IDataPackageManager,
-    private val simRepository: ISimRepository
-) : AndroidViewModel(application) {
+    private val dataPackageManager: IDataPackageManager
+) : ViewModel() {
 
-    private var liveSimPackageInfo = MutableLiveData<Pair<Sim, List<IDataPackage>>>()
+    private val _state = MutableStateFlow(PackagesUiState())
+    val state: StateFlow<PackagesUiState> = _state.asStateFlow()
+
+    private val _events = Channel<PackagesEvent>(Channel.BUFFERED)
+    val events: Flow<PackagesEvent> = _events.receiveAsFlow()
+
+    private var sim: Sim? = null
+
+    init {
+        savedStateHandle.get<String>(ARG_SIM_ID)?.let { simId ->
+            viewModelScope.launch {
+                val sim = simManager.getSim(simId, true)
+                this@PackagesViewModel.sim = sim
+                _state.value = if (sim == null) {
+                    PackagesUiState(loading = false, availability = PackagesRules.Availability.NOT_CONFIGURED)
+                } else {
+                    PackagesUiState(
+                        loading = false,
+                        availability = PackagesRules.availability(sim),
+                        plans = PackagesRules.visiblePlans(sim)
+                    )
+                }
+            }
+        }
+    }
 
     fun getInstalledSims(): LiveData<List<Sim>> {
         return simManager.flowInstalledSims().asLiveData(Dispatchers.IO)
     }
 
-    fun getSimAndPackages(simID: String): LiveData<Pair<Sim, List<IDataPackage>>>{
-        viewModelScope.launch(Dispatchers.IO) {
-            simRepository.get(simID, true)?.let {
-                liveSimPackageInfo.postValue(it to prepareListPackages(it))
-            }
-        }
-        return liveSimPackageInfo
-    }
+    fun onPurchase(packageId: DataPackages.PackageId) {
+        val sim = sim ?: return
+        val dataPackage = _state.value.plans.firstOrNull { it.id == packageId } ?: return
 
+        _state.update { it.copy(purchasing = true) }
 
-    fun prepareListPackages(sim: Sim): List<IDataPackage> {
-        if (sim.network == Networks.NETWORK_NONE || sim.packages.isEmpty())
-            return emptyList()
-
-        val list = mutableListOf<IDataPackage>()
-
-        list.add(
-            HeaderPackagesItem(
-                name = getApplication<Application>().getString(R.string.plan_title)
-            )
-        )
-        list.addAll(sim.packages)
-
-        return list
-    }
-
-
-    fun confirmPurchaseFromSms(smsBody: String, simId: String) {
-        viewModelScope.launch {
-            dataPackageManager.confirmPurchaseFromSms(smsBody, simId)
-        }
-    }
-
-    fun purchasePackage(sim: Sim, dataPackage: DataPackage, callback: PurchaseResult){
         viewModelScope.launch {
             try {
                 dataPackageManager.buyDataPackage(dataPackage, sim)
-                withContext(Dispatchers.Main){
-                    callback.onSuccess()
-                }
-            }catch (e: Exception){
+                // Se guarda para confirmar la compra con el SMS aunque el proceso muera mientras.
+                savedStateHandle[KEY_PURCHASE_SIM_ID] = sim.id
+                _events.send(PackagesEvent.PurchaseStarted)
+            } catch (e: Exception) {
                 when (e) {
-                    is USSDRequestException, is MissingPermissionException -> {
-                        withContext(Dispatchers.Main){
-                            callback.onMissingPermission()
-                        }
-                    }
-                    else -> {
-                        withContext(Dispatchers.Main){
-                            callback.onFailed()
-                        }
-                    }
+                    is USSDRequestException, is MissingPermissionException ->
+                        _events.send(PackagesEvent.RequestPermission(IPermissionsManager.CALL_CODE))
+                    else -> _events.send(PackagesEvent.PurchaseFailed)
                 }
+            } finally {
+                _state.update { it.copy(purchasing = false) }
             }
+        }
+    }
+
+    /**
+     * El usuario compartió el SMS de confirmación de la última compra.
+     * */
+    fun onSmsShared(smsBody: String) {
+        val simId = savedStateHandle.get<String>(KEY_PURCHASE_SIM_ID) ?: return
+        viewModelScope.launch {
+            dataPackageManager.confirmPurchaseFromSms(smsBody, simId)
         }
     }
 
@@ -108,10 +138,8 @@ class PackagesViewModel @Inject constructor(
         override val sms: Int = 0
     ) : IDataPackage
 
-    interface PurchaseResult {
-        fun onSuccess()
-        fun onFailed()
-        fun onMissingPermission()
+    companion object {
+        const val ARG_SIM_ID = "sim_id"
+        private const val KEY_PURCHASE_SIM_ID = "purchase_sim_id"
     }
-
 }

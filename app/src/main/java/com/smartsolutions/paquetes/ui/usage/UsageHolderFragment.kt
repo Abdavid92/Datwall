@@ -1,5 +1,7 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import com.smartsolutions.paquetes.R
+import com.smartsolutions.paquetes.helpers.DataFormatter
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,13 +9,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.smartsolutions.paquetes.databinding.FragmentUsagePlaceHolderBinding
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.TrafficType
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +31,7 @@ private const val FRAGMENT_TYPE = "fragment_type"
 @AndroidEntryPoint
 class UsageHolderFragment : Fragment() {
 
-    private var type: Int? = null
+    private lateinit var type: TrafficType
 
     private var _binding: FragmentUsagePlaceHolderBinding? = null
     private val binding: FragmentUsagePlaceHolderBinding
@@ -33,11 +43,13 @@ class UsageHolderFragment : Fragment() {
 
     private var adapter: UsageRecyclerAdapter? = null
 
-    private val viewModel by viewModels<UsageViewModel>()
+    private val viewModel by viewModels<UsageViewModel>({ requireParentFragment() })
+
+    private var breakdown: UsageBreakdown? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        type = arguments?.getInt(FRAGMENT_TYPE) ?: throw IllegalArgumentException("The type is NULL")
+        type = TrafficType.entries[arguments?.getInt(FRAGMENT_TYPE) ?: throw IllegalArgumentException("The type is NULL")]
     }
 
     override fun onCreateView(
@@ -61,29 +73,54 @@ class UsageHolderFragment : Fragment() {
         }
 
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshData()
+            viewModel.onRefresh()
         }
 
         configurePieChart()
 
-        type?.let {
-            viewModel.getUsage(TrafficType.values()[it]).observe(viewLifecycleOwner, { result ->
-
-                val total = DataUnitBytes(result.first).getValue()
-
-                setAdapter(result.second)
-
-                binding.pieChart.centerText = "${total.value} ${total.dataUnit}"
-
-                viewModel.processAndFillPieCharData(result.first, result.second, binding.pieChart)
-
-                binding.swipeRefresh.isRefreshing = false
-            })
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state
+                    .map { it.loading to it.breakdowns[type] }
+                    .distinctUntilChanged()
+                    .collect { (loading, breakdown) -> render(loading, breakdown) }
+            }
         }
-
     }
 
+    private fun render(loading: Boolean, breakdown: UsageBreakdown?) {
+        binding.swipeRefresh.isRefreshing = loading
 
+        if (loading || breakdown == null)
+            return
+
+        this.breakdown = breakdown
+
+        val total = DataFormatter.bytes(breakdown.total)
+
+        setAdapter(breakdown.apps)
+
+        binding.pieChart.centerText = "${total.value} ${total.dataUnit}"
+
+        fillPieChart(breakdown.slices)
+    }
+
+    private fun fillPieChart(slices: List<UsageSlice>) {
+        val entries = slices.map { PieEntry(it.bytes.toFloat(), it.label ?: getString(R.string.usage_others)) }
+
+        val pieData = PieData(PieDataSet(entries, "").apply {
+            valueTextSize = 11f
+            colors = slices.map { it.colour }
+        })
+
+        pieData.setDrawValues(false)
+
+        binding.pieChart.apply {
+            data = pieData
+            animateY(1000, Easing.EaseInOutCubic)
+            visibility = View.VISIBLE
+        }.postInvalidate()
+    }
 
     private fun setAdapter(apps: List<UsageApp>){
         if (adapter == null){
@@ -114,10 +151,11 @@ class UsageHolderFragment : Fragment() {
 
             override fun onValueSelected(e: Entry?, h: Highlight?) {
                 val label = (e as PieEntry).label
-                if (label == OTHERS_LABEL) {
-                    adapter?.filter(viewModel.others)
+                val breakdown = breakdown ?: return
+                if (label == getString(R.string.usage_others)) {
+                    adapter?.filter(breakdown.others)
                 } else {
-                    viewModel.apps.firstOrNull { it.app.name == label }?.let {
+                    breakdown.main.firstOrNull { it.app.name == label }?.let {
                         adapter?.filter(listOf(it))
                     }
                 }
@@ -131,11 +169,12 @@ class UsageHolderFragment : Fragment() {
 
     override fun onDestroyView() {
         _binding = null
+        adapter = null
+        breakdown = null
         super.onDestroyView()
     }
 
     companion object {
-        const val OTHERS_LABEL = "Otras"
         @JvmStatic
         fun newInstance(type: TrafficType) =
             UsageHolderFragment().apply {

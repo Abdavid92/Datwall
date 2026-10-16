@@ -1,11 +1,11 @@
 package com.smartsolutions.paquetes.ui.packages
 
+import com.smartsolutions.paquetes.helpers.DataFormatter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.databinding.*
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 
 class PackagesRecyclerAdapter(
@@ -49,8 +49,8 @@ class PackagesRecyclerAdapter(
 
         override fun onBind(iPackage: IDataPackage) {
             binding?.apply {
-                val international = DataUnitBytes(iPackage.bytes).getValue()
-                val national = DataUnitBytes(iPackage.nationalBytes).getValue()
+                val international = DataFormatter.bytes(iPackage.bytes)
+                val national = DataFormatter.bytes(iPackage.nationalBytes)
 
                 titlePackage.text = iPackage.name
                 textPrice.text = iPackage.price.toString()

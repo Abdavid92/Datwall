@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.resume
 
+import com.smartsolutions.paquetes.helpers.DataFormatter
 import android.graphics.Color
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -22,7 +23,6 @@ import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.databinding.FragmentUsageGeneralBinding
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils
 import com.smartsolutions.paquetes.helpers.UIHelper
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UsageGeneral
 import dagger.hilt.android.AndroidEntryPoint
@@ -179,7 +179,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
             animateY(700)
             axisLeft.valueFormatter = object : ValueFormatter() {
                 override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                    val bytes = DataUnitBytes(value.toLong()).getValue()
+                    val bytes = DataFormatter.bytes(value.toLong())
                     return "${Math.round(bytes.value * 100) / 100.0} ${bytes.dataUnit}"
                 }
             }
@@ -191,7 +191,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
                             SimpleDateFormat("hh aa", Locale.US).format(Date(value.toLong()))
                         }
                         DateCalendarUtils.MyTimeUnit.DAY -> {
-                            "Día " + SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong()))
+                            requireContext().getString(R.string.chart_day, SimpleDateFormat("dd", Locale.getDefault()).format(Date(value.toLong())))
                         }
                         DateCalendarUtils.MyTimeUnit.MONTH -> {
                             SimpleDateFormat("MMM", Locale.getDefault()).format(Date(value.toLong()))
@@ -210,7 +210,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
                 override fun refreshContent(e: Entry?, highlight: Highlight?) {
                     val index = entries.indexOf(e)
                     if (index in 0..usages.size) {
-                        val bytes = DataUnitBytes(usages[index].bytes).getValue()
+                        val bytes = DataFormatter.bytes(usages[index].bytes)
                         text.text = "${bytes.value} ${bytes.dataUnit.name}"
                     }
                     super.refreshContent(e, highlight)

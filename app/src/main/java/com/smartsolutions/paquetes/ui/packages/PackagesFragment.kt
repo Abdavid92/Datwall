@@ -5,7 +5,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.smartsolutions.paquetes.databinding.FragmentPackagesBinding
-import com.smartsolutions.paquetes.helpers.setTabLayoutMediatorSims
+import com.smartsolutions.paquetes.ui.setTabLayoutMediatorSims
 import com.smartsolutions.paquetes.repositories.models.Sim
 import com.smartsolutions.paquetes.ui.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint

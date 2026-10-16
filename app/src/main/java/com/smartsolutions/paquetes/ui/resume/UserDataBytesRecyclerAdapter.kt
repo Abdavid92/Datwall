@@ -1,16 +1,16 @@
 package com.smartsolutions.paquetes.ui.resume
 
+import com.smartsolutions.paquetes.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.smartsolutions.paquetes.helpers.DisplayTexts
 import com.smartsolutions.paquetes.databinding.ItemUserDataBytesBinding
-import com.smartsolutions.paquetes.helpers.DateCalendarUtils
+import com.smartsolutions.paquetes.helpers.DataFormatter
 import com.smartsolutions.paquetes.helpers.DateCalendarUtils.Companion.nameLegible
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.managers.UserDataSummary
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
-import java.text.SimpleDateFormat
-import java.util.*
 
 class UserDataBytesRecyclerAdapter constructor(
     private val fragment: ResumeHolderFragment,
@@ -54,24 +54,13 @@ class UserDataBytesRecyclerAdapter constructor(
 
             binding?.apply {
 
-                val usage = DataUnitBytes(
-                    userDataBytes.initialBytes - userDataBytes.bytes
-                ).getValue()
-
-                val rest = DataUnitBytes(userDataBytes.bytes).getValue()
-
-                val percent = DateCalendarUtils.calculatePercent(
-                    userDataBytes.initialBytes.toDouble(),
-                    userDataBytes.bytes.toDouble()
-                )
-
-                val expire = if (userDataBytes.expiredTime == 0L) {
-                    "Desconocido"
-                } else {
-                    SimpleDateFormat("dd MMMM", Locale.getDefault()).format(Date(userDataBytes.expiredTime))
-                }
-
-                val restDate = DateCalendarUtils.calculateDiffDate(System.currentTimeMillis(), userDataBytes.expiredTime)
+                val item = UserDataSummary.item(userDataBytes)
+                val usage = DataFormatter.bytes(item.usedBytes)
+                val rest = DataFormatter.bytes(item.restBytes)
+                val percent = item.percent
+                val expire = DataFormatter.expiryDate(userDataBytes.expiredTime)
+                    ?: fragment.getString(R.string.unknown_date)
+                val restDate = item.timeLeft
 
                 progressBar.apply {
                     max = 100
@@ -82,7 +71,7 @@ class UserDataBytesRecyclerAdapter constructor(
                     }
                 }
 
-                dataType.text = userDataBytes.getName(fragment.requireContext())
+                dataType.text = DisplayTexts.dataTypeName(userDataBytes.type, fragment.requireContext())
                 textRestValue.text = rest.value.toString()
                 textRestUnit.text = rest.dataUnit.name
                 textUsageValue.text = usage.value.toString()

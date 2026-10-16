@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.usage
 
+import com.smartsolutions.paquetes.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,7 @@ class UsageAppDetailsRecyclerAdapter(
                         SimpleDateFormat("hh:mm aa", Locale.US).format(Date(traffic.startTime))
                     }
                     DateCalendarUtils.MyTimeUnit.DAY -> {
-                        "Día " + SimpleDateFormat("dd", Locale.getDefault()).format(Date(traffic.startTime))
+                        itemView.context.getString(R.string.chart_day, SimpleDateFormat("dd", Locale.getDefault()).format(Date(traffic.startTime)))
                     }
                     DateCalendarUtils.MyTimeUnit.MONTH -> {
                         SimpleDateFormat("MMMM", Locale.getDefault()).format(Date(traffic.startTime))

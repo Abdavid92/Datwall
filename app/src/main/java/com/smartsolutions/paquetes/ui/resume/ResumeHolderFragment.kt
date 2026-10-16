@@ -1,13 +1,20 @@
 package com.smartsolutions.paquetes.ui.resume
 
+import com.smartsolutions.paquetes.R
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import com.smartsolutions.paquetes.databinding.FragmentResumeHolderBinding
-import com.smartsolutions.paquetes.managers.models.DataUnitBytes
+import com.smartsolutions.paquetes.helpers.DataFormatter
+import com.smartsolutions.paquetes.managers.UserDataSummary
 import com.smartsolutions.paquetes.repositories.models.DataBytes
 import com.smartsolutions.paquetes.repositories.models.UserDataBytes
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +31,7 @@ class ResumeHolderFragment : Fragment() {
     private val binding: FragmentResumeHolderBinding
         get() = _binding!!
 
-    private val viewModel by viewModels<ResumeViewModel>()
+    private val viewModel by viewModels<ResumeViewModel>({ requireParentFragment() })
     private var adapter: UserDataBytesRecyclerAdapter? = null
 
 
@@ -47,41 +54,54 @@ class ResumeHolderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getUserDataBytes(simID).observe(viewLifecycleOwner) {
-            if (it.first.isEmpty()) {
-                binding.linNoData.visibility = View.VISIBLE
-                binding.recycler.visibility = View.GONE
-                binding.cardResumeProgress.visibility = View.GONE
-            } else {
-                binding.linNoData.visibility = View.GONE
-                binding.recycler.visibility = View.VISIBLE
-                binding.cardResumeProgress.visibility = View.VISIBLE
-                setTotals(it.second)
-                setAdapter(it.first)
+        viewModel.onLineShown(simID)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Sin distinctUntilChanged: los datos se comparan solo por tipo y línea, así que un
+                // cambio de megas pasaría por "igual". El estado trae su propia revisión.
+                viewModel.state
+                    .map { it.lines[simID] }
+                    .collect { line -> line?.let(::render) }
             }
         }
-
-        viewModel.getAverages().observe(viewLifecycleOwner){
-            binding.apply {
-                val usage = it.first.getValue()
-                val rest = it.second.getValue()
-                averageDay.text = "${usage.value}"
-                averageDayUnit.text = "${usage.dataUnit}"
-                averageRest.text = "${rest.value}"
-                averageRestUnit.text = "${rest.dataUnit}"
-            }
-        }
-
     }
 
-    private fun setTotals(data: Triple<Int, DataUnitBytes.DataValue, DataUnitBytes.DataValue>){
+    private fun render(line: ResumeLineState) {
+        binding.apply {
+            if (line.data.isEmpty()) {
+                linNoData.visibility = View.VISIBLE
+                recycler.visibility = View.GONE
+                cardResumeProgress.visibility = View.GONE
+            } else {
+                linNoData.visibility = View.GONE
+                recycler.visibility = View.VISIBLE
+                cardResumeProgress.visibility = View.VISIBLE
+                setTotals(line.summary)
+                setAdapter(line.data)
+            }
+
+            line.dailyAverage?.getValue()?.let {
+                averageDay.text = "${it.value}"
+                averageDayUnit.text = "${it.dataUnit}"
+            }
+            line.dailyRemainder?.getValue()?.let {
+                averageRest.text = "${it.value}"
+                averageRestUnit.text = "${it.dataUnit}"
+            }
+        }
+    }
+
+    private fun setTotals(summary: UserDataSummary) {
+        val rest = DataFormatter.bytes(summary.restBytes)
+        val used = DataFormatter.bytes(summary.usedBytes)
         binding.apply {
             progressBar.isIndeterminate = false
             progressBar.max = 100
-            progressBar.progress = data.first
-            textPercentTotal.text = "${data.first}%"
-            textRestTotal.text = "Rest: ${data.second.value} ${data.second.dataUnit}"
-            textUsageTotal.text = "Gast: ${data.third.value} ${data.third.dataUnit}"
+            progressBar.progress = summary.percent
+            textPercentTotal.text = "${summary.percent}%"
+            textRestTotal.text = getString(R.string.resume_rest_total, rest.value.toString(), rest.dataUnit.name)
+            textUsageTotal.text = getString(R.string.resume_used_total, used.value.toString(), used.dataUnit.name)
         }
     }
 
