@@ -10,7 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.repositories.models.Sim
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
+import com.smartsolutions.paquetes.ui.permissions.onPermissionResult
+import com.smartsolutions.paquetes.ui.permissions.showPermissionSheet
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -19,6 +20,17 @@ import kotlinx.coroutines.launch
 class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sims_configuration) {
 
     private val viewModel by viewModels<SimsConfigurationViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        onPermissionResult { _, granted ->
+            if (granted)
+                viewModel.onPermissionGranted()
+            else
+                viewModel.onPermissionDenied()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,13 +64,7 @@ class SimsConfigurationFragment : AbstractSettingsFragment(R.layout.fragment_sim
 
     private fun onEvent(event: SimsConfigurationEvent) {
         when (event) {
-            is SimsConfigurationEvent.RequestPermission -> SinglePermissionFragment.newInstance(
-                event.requestCode,
-                object : SinglePermissionFragment.SinglePermissionCallback {
-                    override fun onGranted() = viewModel.onPermissionGranted()
-                    override fun onDenied() = viewModel.onPermissionDenied()
-                }
-            ).show(childFragmentManager, null)
+            is SimsConfigurationEvent.RequestPermission -> showPermissionSheet(event.requestCode)
 
             SimsConfigurationEvent.SetupSkipped -> skipSetup()
             SimsConfigurationEvent.Saved -> complete()

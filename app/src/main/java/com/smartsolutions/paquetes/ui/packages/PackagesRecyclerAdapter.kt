@@ -1,5 +1,6 @@
 package com.smartsolutions.paquetes.ui.packages
 
+import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.helpers.DataFormatter
 import android.view.LayoutInflater
 import android.view.View
@@ -53,11 +54,11 @@ class PackagesRecyclerAdapter(
                 val national = DataFormatter.bytes(iPackage.nationalBytes)
 
                 titlePackage.text = iPackage.name
-                textPrice.text = iPackage.price.toString()
-                valueMb.text = "${international.value} ${international.dataUnit}"
-                valueMbCu.text = "${national.value} ${national.dataUnit}"
-                valueMin.text = "${iPackage.minutes} min"
-                valueSms.text = "${iPackage.sms} sms"
+                textPrice.text = root.context.getString(R.string.value_decimal, iPackage.price.toString())
+                valueMb.text = root.context.getString(R.string.data_amount, international.value.toString(), international.dataUnit.toString())
+                valueMbCu.text = root.context.getString(R.string.data_amount, national.value.toString(), national.dataUnit.toString())
+                valueMin.text = root.context.getString(R.string.minutes_value, iPackage.minutes)
+                valueSms.text = root.context.getString(R.string.sms_value, iPackage.sms)
 
                 //La oferta actual no tiene datos solo para LTE. Los recursos a cero no se muestran.
                 hMbLte.visibility = View.GONE

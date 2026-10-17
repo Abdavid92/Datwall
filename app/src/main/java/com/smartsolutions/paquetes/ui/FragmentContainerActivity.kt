@@ -5,15 +5,21 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import com.smartsolutions.paquetes.R
 import com.smartsolutions.paquetes.ui.settings.AbstractSettingsFragment
-import com.smartsolutions.paquetes.ui.setup.OnCompletedListener
+import com.smartsolutions.paquetes.ui.setup.onSetupStepResult
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class FragmentContainerActivity : AbstractActivity(R.layout.activity_fragment_container),
-    OnCompletedListener, IReplaceFragments {
+    IReplaceFragments {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Al terminar o al omitir el paso, se cierra con resultado correcto.
+        onSetupStepResult {
+            setResult(RESULT_OK)
+            finish()
+        }
 
         val fragmentName = intent.getStringExtra(EXTRA_FRAGMENT)
 
@@ -33,11 +39,6 @@ class FragmentContainerActivity : AbstractActivity(R.layout.activity_fragment_co
             setResult(RESULT_CANCELED)
             finish()
         }
-    }
-
-    override fun onCompleted() {
-        setResult(RESULT_OK)
-        finish()
     }
 
     override fun replace(fragment: AbstractSettingsFragment) {

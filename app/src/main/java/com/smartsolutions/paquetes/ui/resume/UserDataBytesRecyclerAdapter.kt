@@ -72,9 +72,9 @@ class UserDataBytesRecyclerAdapter constructor(
                 }
 
                 dataType.text = DisplayTexts.dataTypeName(userDataBytes.type, fragment.requireContext())
-                textRestValue.text = rest.value.toString()
+                textRestValue.text = fragment.requireContext().getString(R.string.value_decimal, rest.value.toString())
                 textRestUnit.text = rest.dataUnit.name
-                textUsageValue.text = usage.value.toString()
+                textUsageValue.text = fragment.requireContext().getString(R.string.value_decimal, usage.value.toString())
                 textUsageUnit.text = usage.dataUnit.name
                 expireDate.text = expire
 

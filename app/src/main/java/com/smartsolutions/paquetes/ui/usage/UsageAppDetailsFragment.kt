@@ -81,7 +81,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
 
         binding.include.textAppName.text = app.name
         val value = app.traffic!!.totalBytes.getValue()
-        binding.include.textUsageValue.text = "${value.value} ${value.dataUnit}"
+        binding.include.textUsageValue.text = getString(R.string.data_amount, value.value.toString(), value.dataUnit.toString())
         configureLineChart()
 
         viewModel.load(app.uid)
@@ -179,7 +179,7 @@ class UsageAppDetailsFragment : BottomSheetDialogFragment() {
                     val index = entries.indexOf(e)
                     if (index in 0..traffics.size) {
                         val bytes = traffics[index].totalBytes.getValue()
-                        text.text = "${bytes.value} ${bytes.dataUnit.name}"
+                        text.text = context.getString(R.string.data_amount, bytes.value.toString(), bytes.dataUnit.name)
                     }
                     super.refreshContent(e, highlight)
                 }

@@ -168,10 +168,10 @@ class EditAddUserDataBytesFragment : BottomSheetDialogFragment() {
                 val initial = DataFormatter.bytes(userDataBytes.initialBytes)
                 val rest = DataFormatter.bytes(userDataBytes.bytes)
 
-                editValueInitial.setText(initial.value.toString(), TextView.BufferType.EDITABLE)
+                editValueInitial.setText(getString(R.string.value_decimal, initial.value.toString()), TextView.BufferType.EDITABLE)
                 spinnerDataUnitInitial.setSelection(initial.dataUnit.ordinal)
 
-                editValueRest.setText(rest.value.toString(), TextView.BufferType.EDITABLE)
+                editValueRest.setText(getString(R.string.value_decimal, rest.value.toString()), TextView.BufferType.EDITABLE)
                 spinnerDataUnitRest.setSelection(rest.dataUnit.ordinal)
 
                 textDate.text = getExpiredTime(userDataBytes.expiredTime)

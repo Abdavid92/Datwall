@@ -44,8 +44,6 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
     @Inject
     lateinit var preferencesRepository: IPreferencesRepository
 
-    private var kernelRunning = false
-
     /**
      * Indica si el servicio de accesibilidad está listo para trabajar.
      * */
@@ -97,22 +95,7 @@ class DatwallApplication : Application(), Configuration.Provider, CoroutineScope
 
         synchronizeDatabase()
 
-        main()
-    }
-
-    fun main() {
-        if (!kernelRunning) {
-            // Antes de lanzar el kernel, para que ninguna pantalla siga el destino anterior.
-            kernel.clearStartDestination()
-
-            launch {
-                kernelRunning = true
-
-                kernel.main()
-
-                kernelRunning = false
-            }
-        }
+        kernel.restart()
     }
 
     private fun synchronizeDatabase(){

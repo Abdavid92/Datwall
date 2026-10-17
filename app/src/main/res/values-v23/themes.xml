@@ -22,13 +22,5 @@
         <!--<item name="spinnerStyle">@style/SpinnerStyle</item>-->
     </style>
 
-    <style name="Theme.Datwall.Fullscreen">
-        <item name="android:actionBarStyle">@style/Widget.Theme.Datwall.ActionBar.Fullscreen</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="splash_icon">@drawable/splash_screen</item>
-        <item name="android:windowBackground">@color/white</item>
-        <item name="android:colorBackground">@color/white</item>
-        <item name="android:windowLightStatusBar">true</item>
-    </style>
 
 </resources>

@@ -19,7 +19,7 @@ import com.smartsolutions.paquetes.databinding.FragmentPackagesHolderBinding
 import com.smartsolutions.paquetes.repositories.models.DataPackage
 import com.smartsolutions.paquetes.repositories.models.IDataPackage
 import com.smartsolutions.paquetes.ui.FragmentContainerActivity
-import com.smartsolutions.paquetes.ui.permissions.SinglePermissionFragment
+import com.smartsolutions.paquetes.ui.permissions.showPermissionSheet
 import com.smartsolutions.paquetes.ui.settings.PackagesConfigurationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -113,8 +113,7 @@ class PackagesHolderFragment : Fragment() {
                 Toast.makeText(requireContext(), getString(R.string.purchasing_package_failed), Toast.LENGTH_SHORT).show()
             is PackagesEvent.RequestPermission -> {
                 Toast.makeText(requireContext(), getString(R.string.purchasing_package_permissions), Toast.LENGTH_SHORT).show()
-                SinglePermissionFragment.newInstance(event.requestCode)
-                    .show(childFragmentManager, "PermissionFragment")
+                showPermissionSheet(event.requestCode)
             }
         }
     }

@@ -1,53 +1,39 @@
 package com.smartsolutions.paquetes.ui.permissions
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textview.MaterialTextView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.managers.PermissionAction
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-
-private const val ARG_REQUEST_CODE = "request_code"
+import kotlinx.coroutines.launch
 
 /**
+ * Hoja inferior que explica un permiso y lo pide. Se abre con [showPermissionSheet] y devuelve su
+ * resultado a [onPermissionResult]; la pantalla de origen no le pasa ningún objeto de respuesta.
  *
- * A fragment that shows a list of items as a modal bottom sheet.
- *
- * You can show this modal bottom sheet from your activity like this:
- * <pre>
- *    SinglePermissionFragment.newInstance(30).show(supportFragmentManager, "dialog")
- * </pre>
+ * Los permisos del sistema se piden al diálogo propio de Android; los especiales (acceso de uso,
+ * superposición, VPN) abren su pantalla de ajustes. Si el permiso fue rechazado de forma permanente
+ * el botón lleva a los ajustes de la app.
  */
 @AndroidEntryPoint
-class SinglePermissionFragment private constructor(
-    private val callback: SinglePermissionCallback?
-) : BottomSheetDialogFragment() {
-
-    constructor() : this(null)
+class SinglePermissionFragment : BottomSheetDialogFragment() {
 
     private val viewModel by viewModels<SinglePermissionViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val requestCode = arguments?.getInt(ARG_REQUEST_CODE)
-
-        viewModel.initPermission(requestCode)
-
-        if (viewModel.callback == null)
-            viewModel.callback = callback
-    }
+    private val permission get() = viewModel.state.value.permission
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,72 +44,65 @@ class SinglePermissionFragment private constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<MaterialTextView>(R.id.permission_name)
-            .setText(PermissionTexts.name(viewModel.permission))
+            .setText(PermissionTexts.name(permission))
 
         view.findViewById<MaterialTextView>(R.id.description)
-            .setText(PermissionTexts.description(viewModel.permission))
+            .setText(PermissionTexts.description(permission))
 
         view.findViewById<AppCompatButton>(R.id.btn_jump).setOnClickListener {
-            notifyResult(false)
+            viewModel.onSkipClicked()
         }
 
         val grantButton = view.findViewById<AppCompatButton>(R.id.btn_grant)
 
+        grantButton.setOnClickListener {
+            viewModel.onGrantClicked()
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
-            val action = viewModel.permissionManager.actionFor(viewModel.permission, requireActivity())
-
-            if (action == PermissionAction.OpenAppSettings)
-                grantButton.setText(R.string.btn_open_settings)
-
-            grantButton.setOnClickListener {
-                when (action) {
-                    PermissionAction.Nothing -> notifyResult(true)
-                    PermissionAction.OpenAppSettings -> {
-                        waitingAppSettings = true
-                        requireContext().openAppSettings()
-                    }
-                    PermissionAction.Request -> viewLifecycleOwner.lifecycleScope.launch {
-                        viewModel.permissionManager.markRequested(viewModel.permission.requestCode)
-                        PermissionLauncher.request(viewModel.permission, this@SinglePermissionFragment)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.state.collect { state ->
+                        if (state.action == PermissionAction.OpenAppSettings)
+                            grantButton.setText(R.string.btn_open_settings)
                     }
                 }
+                launch { viewModel.events.collect(::onEvent) }
             }
         }
     }
-
-    /**
-     * El usuario fue a los ajustes de la app a conceder un permiso rechazado de forma permanente.
-     * */
-    private var waitingAppSettings = false
 
     override fun onResume() {
         super.onResume()
 
-        if (waitingAppSettings) {
-            waitingAppSettings = false
-            notifyResult(viewModel.permission.checkPermission(viewModel.permission, requireContext()))
-        }
+        viewModel.onResumed()
+        viewModel.onShown(canAskAgain())
     }
 
-    private fun notifyResult(granted: Boolean) {
-        viewModel.granted = granted
+    /**
+     * El sistema todavía deja volver a preguntar por el permiso. Se calcula aquí porque necesita la
+     * actividad, y se entrega a la lógica como un dato.
+     * */
+    private fun canAskAgain() = permission.keys.any {
+        ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
+    }
 
-        if (granted && viewModel.permission.requestCode == IPermissionsManager.CALL_CODE) {
-            val activity = requireActivity()
-            val callback = viewModel.callback
+    private fun onEvent(event: SinglePermissionEvent) {
+        when (event) {
+            SinglePermissionEvent.RequestFromSystem -> PermissionLauncher.request(permission, this)
 
-            // Si hay que configurar las SIM, se configuran antes de seguir con la acción.
-            activity.lifecycleScope.launch {
-                if (!activity.restartIfSimSetupPending(viewModel.configurationManager))
-                    callback?.onGranted()
+            SinglePermissionEvent.OpenAppSettings -> requireContext().openAppSettings()
+
+            is SinglePermissionEvent.Finish -> {
+                sendPermissionResult(permission.requestCode, event.granted)
+                dismiss()
             }
-        } else if (granted) {
-            viewModel.callback?.onGranted()
-        } else {
-            viewModel.callback?.onDenied()
-        }
 
-        this.dismiss()
+            SinglePermissionEvent.SimSetupPending -> {
+                requireActivity().openStartScreen()
+                dismiss()
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -133,50 +112,42 @@ class SinglePermissionFragment private constructor(
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == viewModel.permission.requestCode) {
-            var granted = true
-
-            grantResults.forEach {
-                if (it == PackageManager.PERMISSION_DENIED)
-                    granted = false
-            }
-
-            notifyResult(granted)
+        // Una petición interrumpida llega sin resultados: no es ni un sí ni un no.
+        if (requestCode == permission.requestCode && grantResults.isNotEmpty()) {
+            viewModel.onRequestPermissionsResult(
+                grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            )
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == viewModel.permission.requestCode) {
-            context?.let {
-                notifyResult(viewModel.permission.checkPermission(viewModel.permission, it))
-            }
-        }
+        if (requestCode == permission.requestCode)
+            viewModel.onReturnedFromSystem()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
 
-        if (!viewModel.granted)
-            viewModel.callback?.onDenied()
+        // DialogFragment también llama a onDismiss cuando la pantalla se recrea (por ejemplo, al
+        // girar): eso no es una respuesta del usuario.
+        if (activity?.isChangingConfigurations != false)
+            return
+
+        // Descartada sin responder (gesto de volver o tocar fuera).
+        if (viewModel.onDismissed() && isAdded)
+            sendPermissionResult(permission.requestCode, false)
     }
 
     companion object {
 
-        fun newInstance(
-            requestCode: Int,
-            callback: SinglePermissionCallback? = null
-        ): SinglePermissionFragment =
-            SinglePermissionFragment(callback).apply {
+        fun newInstance(requestCode: Int): SinglePermissionFragment =
+            SinglePermissionFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_REQUEST_CODE, requestCode)
+                    putInt(SinglePermissionViewModel.ARG_REQUEST_CODE, requestCode)
                 }
             }
-    }
-
-    interface SinglePermissionCallback {
-        fun onGranted()
-        fun onDenied()
     }
 }

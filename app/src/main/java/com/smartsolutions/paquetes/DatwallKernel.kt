@@ -29,6 +29,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -87,6 +88,28 @@ class DatwallKernel @Inject constructor(
      * */
     fun clearStartDestination() {
         _startDestination.value = null
+    }
+
+    private val running = AtomicBoolean(false)
+
+    /**
+     * Vuelve a decidir el destino de inicio y a lanzar [main]. Las pantallas que siguen el destino
+     * abren la que corresponda. Si ya hay un arranque en curso no lanza otro.
+     * */
+    fun restart() {
+        if (!running.compareAndSet(false, true))
+            return
+
+        // Antes de lanzar el arranque, para que ninguna pantalla siga el destino anterior.
+        clearStartDestination()
+
+        launch {
+            try {
+                main()
+            } finally {
+                running.set(false)
+            }
+        }
     }
 
     init {

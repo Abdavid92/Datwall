@@ -43,29 +43,9 @@
         <item>Paquete</item>
     </string-array>
 
-    <integer-array name="colors_chart">
-        <item>@color/red</item>
-        <item>@color/blue</item>
-        <item>@color/orange</item>
-        <item>@color/yellow</item>
-        <item>@color/green_light</item>
-        <item>@color/magent</item>
-        <item>@color/purple</item>
-        <item>@color/gray_400</item>
-    </integer-array>
 
     <!--Theme mode Preference-->
-    <string-array name="theme_mode_entries">
-        <item>Claro</item>
-        <item>Oscuro</item>
-        <item>Predeterminado del sistema</item>
-    </string-array>
 
-    <string-array name="theme_mode_values">
-        <item>light</item>
-        <item>dark</item>
-        <item>default_system</item>
-    </string-array>
 
     <string-array name="data_unit_types">
         <item>B</item>

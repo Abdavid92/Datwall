@@ -1,15 +1,17 @@
 package com.smartsolutions.paquetes.ui.permissions
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.smartsolutions.paquetes.R
-import com.smartsolutions.paquetes.managers.PermissionAction
-import com.smartsolutions.paquetes.managers.contracts.IPermissionsManager
 import com.smartsolutions.paquetes.ui.AbstractActivity
 import com.smartsolutions.paquetes.ui.followStartDestination
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +27,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
     private val viewModel by viewModels<PermissionsViewModel>()
 
-    private val adapter = PermissionsAdapter { onPermissionAction(it) }
+    private val adapter = PermissionsAdapter { viewModel.onPermissionClicked(it) }
 
     private val isFirstUse by lazy { intent.action != ACTION_PERMISSIONS_SETTINGS }
 
@@ -43,6 +45,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
         findViewById<View>(R.id.battery_recommendation).apply {
             visibility = if (isFirstUse) View.GONE else View.VISIBLE
+
             findViewById<View>(R.id.btn_battery).setOnClickListener {
                 startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
             }
@@ -50,10 +53,16 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
         if (isFirstUse) {
             findViewById<View>(R.id.startup_buttons).visibility = View.VISIBLE
-            findViewById<View>(R.id.btn_not_now).setOnClickListener { viewModel.finishFirstUse() }
-            findViewById<View>(R.id.btn_continue).setOnClickListener { viewModel.finishFirstUse() }
-
+            findViewById<View>(R.id.btn_not_now).setOnClickListener { viewModel.onFinishFirstUse() }
+            findViewById<View>(R.id.btn_continue).setOnClickListener { viewModel.onFinishFirstUse() }
             followStartDestination()
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { viewModel.state.collect { adapter.items = it.items } }
+                launch { viewModel.events.collect(::onEvent) }
+            }
         }
     }
 
@@ -64,24 +73,24 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
 
     override fun onResume() {
         super.onResume()
-        refresh()
+        viewModel.onShown(isFirstUse, rationaleKeys())
     }
 
-    private fun refresh() {
-        lifecycleScope.launch {
-            adapter.items = viewModel.permissions(isFirstUse).map {
-                PermissionItem(it, viewModel.permissionsManager.actionFor(it, this@PermissionsActivity))
-            }
-        }
-    }
+    /**
+     * Claves para las que el sistema todavía deja volver a preguntar. Se calculan aquí porque
+     * necesitan la actividad, y se entregan a la lógica como un dato.
+     * */
+    private fun rationaleKeys() = viewModel.permissionKeys.filter {
+        ActivityCompat.shouldShowRequestPermissionRationale(this, it)
+    }.toSet()
 
-    private fun onPermissionAction(item: PermissionItem) {
-        when (item.action) {
-            PermissionAction.Nothing -> Unit
-            PermissionAction.OpenAppSettings -> openAppSettings()
-            PermissionAction.Request -> lifecycleScope.launch {
-                viewModel.permissionsManager.markRequested(item.permission.requestCode)
-                PermissionLauncher.request(item.permission, this@PermissionsActivity)
+    private fun onEvent(event: PermissionsEvent) {
+        when (event) {
+            is PermissionsEvent.RequestFromSystem -> PermissionLauncher.request(event.permission, this)
+            PermissionsEvent.OpenAppSettings -> openAppSettings()
+            PermissionsEvent.SimSetupPending -> {
+                openStartScreen()
+                finish()
             }
         }
     }
@@ -89,7 +98,7 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        refresh()
+        viewModel.onShown(isFirstUse, rationaleKeys())
     }
 
     override fun onRequestPermissionsResult(
@@ -99,22 +108,15 @@ class PermissionsActivity : AbstractActivity(R.layout.activity_permissions) {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        val granted = grantResults.isNotEmpty() &&
-                grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED }
-
-        if (!isFirstUse && granted && requestCode == IPermissionsManager.CALL_CODE) {
-            lifecycleScope.launch {
-                if (restartIfSimSetupPending(viewModel.configurationManager))
-                    finish()
-                else
-                    refresh()
-            }
-        } else {
-            refresh()
-        }
+        viewModel.onSystemResult(
+            requestCode,
+            grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED },
+            rationaleKeys()
+        )
     }
 
     companion object {
+
         /**
          * Acción con la que Ajustes abre la sección "Permisos y privacidad"
          * (res/xml/header_preferences.xml).

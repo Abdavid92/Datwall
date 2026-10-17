@@ -211,7 +211,7 @@ class UsageGeneralFragment : BottomSheetDialogFragment() {
                     val index = entries.indexOf(e)
                     if (index in 0..usages.size) {
                         val bytes = DataFormatter.bytes(usages[index].bytes)
-                        text.text = "${bytes.value} ${bytes.dataUnit.name}"
+                        text.text = context.getString(R.string.data_amount, bytes.value.toString(), bytes.dataUnit.name)
                     }
                     super.refreshContent(e, highlight)
                 }
