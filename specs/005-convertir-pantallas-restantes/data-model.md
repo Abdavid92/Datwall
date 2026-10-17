@@ -75,7 +75,7 @@ Ambos viajan como paquete de la API de resultados de fragmentos, con una clave f
 
 - **Estado** `EventsUiState`: `loading`, `events` (más reciente primero), `filter: EventType?`.
 - **Acciones**: `onFilterChanged(type)`, `onSendByEmail(event)`.
-- **Eventos**: `ShowMessage(NO_EMAIL_APP)`.
+- **Eventos**: `NoEmailApp`.
 
 ## Relación con el dominio
 

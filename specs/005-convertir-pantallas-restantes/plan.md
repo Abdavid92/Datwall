@@ -86,7 +86,7 @@ specs/005-convertir-pantallas-restantes/
 ```text
 app/src/
 ├── main/
-│   ├── res/values*/strings.xml                      # nombre y descripción del permiso de sobreponerse; textos LTE/mensajería
+│   ├── res/values*/strings.xml                      # descripción del permiso de sobreponerse y su aviso (solo la burbuja); sin cambios en LTE/mensajería
 │   └── java/com/smartsolutions/paquetes/
 │       ├── DatwallKernel.kt                         # + restart(): limpia el destino y vuelve a ejecutar main()
 │       ├── DatwallApplication.kt                    # − main() (lo reemplaza kernel.restart())
@@ -96,7 +96,7 @@ app/src/
 │           ├── FragmentContainerActivity.kt         # escucha el resultado de paso, no OnCompletedListener
 │           ├── permissions/
 │           │   ├── PermissionResult.kt              # clave, datos y funciones de apertura/escucha de las hojas
-│           │   ├── PermissionRequests.kt            # actionFor sigue como ayuda de UI; restart sin lógica de decisión
+│           │   ├── PermissionRequests.kt            # actionFor sigue como ayuda de UI; openStartScreen (sin lógica de decisión)
 │           │   ├── PermissionsActivity.kt + PermissionsViewModel.kt      # estado + eventos
 │           │   ├── SinglePermissionFragment.kt + SinglePermissionViewModel.kt
 │           │   └── StartAccessibilityServiceFragment.kt + StartAccessibilityServiceViewModel.kt
@@ -105,10 +105,10 @@ app/src/
 │           ├── history/ events/                     # estado + eventos
 │           └── dashboard/ resume/ packages/ settings/   # abren la hoja con el mecanismo nuevo
 └── test/java/com/smartsolutions/paquetes/ui/
-    ├── permissions/   # 3 pruebas
-    ├── setup/         # 1 prueba
-    ├── history/       # 1 prueba
-    └── events/        # 1 prueba
+    ├── permissions/   # 3 archivos de pruebas (hojas, accesibilidad y lista)
+    ├── setup/         # 1 archivo
+    ├── history/       # 1 archivo
+    └── events/        # 1 archivo; DatwallKernelRestartTest va en la raíz de test
 ```
 
 **Structure Decision**: estructura existente; solo cambia el interior de `ui/` y dos puntos pequeños del dominio.
@@ -124,7 +124,7 @@ app/src/
 4. **Setup (US2)**: `SetupViewModel`, `SetupActivity`, resultado de paso en `AbstractSettingsFragment` y
    `FragmentContainerActivity`; se elimina `OnCompletedListener`.
 5. **Historial y Eventos (US3)**.
-6. **Cierre (US4)**: nombre del permiso, textos LTE/mensajería y avisos de lint.
+6. **Cierre (US4)**: texto del permiso de sobreponerse, revisión de textos LTE/mensajería (sin cambios) y avisos de lint.
 7. **Verificación** con [quickstart.md](quickstart.md).
 
 Cada paso deja la app compilando y con las pruebas en verde. La validación visible se hace en el paso 7.

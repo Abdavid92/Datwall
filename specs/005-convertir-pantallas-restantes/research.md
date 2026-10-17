@@ -93,7 +93,7 @@ cambio, no es un error: se vuelven a calcular los pasos pendientes.
   revisión como Resumen: `PurchasedPackage` es una clase de datos con todos sus campos en `equals`.
 - **Eventos**: el gestor de registros se inyecta (proveedor en un módulo de Hilt) para poder sustituirlo en las pruebas; `DropLogsWorker` no es un worker de Hilt y no cambia. El
   estado lleva la lista ordenada del más reciente al más antiguo y el filtro por tipo, que hoy aplica el adaptador.
-  Enviar por correo es una acción: si no hay app de correo, el evento `ShowMessage(NO_EMAIL_APP)` avisa.
+  Enviar por correo es una acción: si no hay app de correo, el evento `NoEmailApp` avisa.
 
 ## R8. Posibles errores a comprobar
 

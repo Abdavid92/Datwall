@@ -24,4 +24,4 @@ estado están en [data-model.md](../data-model.md).
 | `PermissionsViewModel` | solo permisos de inicio en el primer uso; todos desde Ajustes | continuar y "Ahora no" guardan la preferencia y reinician el arranque; la acción de cada fila cambia al conceder |
 | `SetupViewModel` | pasos pendientes y primer paso | completar avanza, omitir termina, sin pasos pendientes termina enseguida, leer el estado de nuevo (giro) no cambia de paso |
 | `HistoryViewModel` | cargando, luego líneas y filas | una compra nueva aparece sin reabrir; línea sin compras |
-| `EventsViewModel` | lista ordenada del más reciente al más antiguo | filtrar por tipo, enviar por correo sin app de correo → `ShowMessage` |
+| `EventsViewModel` | lista ordenada del más reciente al más antiguo | filtrar por tipo, enviar por correo sin app de correo → `NoEmailApp` |

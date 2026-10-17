@@ -31,8 +31,9 @@ reintentar. En el teléfono, los toques por `adb input` funcionan; los de `mobil
 
 ## Phase 1: Setup
 
-- [ ] T001 Comprobar que el árbol compila y pasa las pruebas antes de empezar: `./gradlew testDebugUnitTest
+- [X] T001 Comprobar que el árbol compila y pasa las pruebas antes de empezar: `./gradlew testDebugUnitTest
   assembleDebug`.
+  **Resultado**: al empezar compilaba y pasaban las 110 pruebas que había entonces.
 - [X] T002 Medir la línea base de lint con `./gradlew lintRelease` y anotar al final de este archivo cuántos avisos hay
   de `UnusedResources` y de `SetTextI18n` (R9). `app/build` se borró al liberar disco: la primera compilación es larga.
   **Línea base** (medida en T025, antes de limpiar): 453 avisos en total, 170 de `UnusedResources` y 23 de `SetTextI18n`.
@@ -166,8 +167,20 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
   el paso de `state` y recuerda el último que mostró; en el emulador Android 7, girar en el paso de planes lo
   conserva y "Continuar" termina el asistente y abre Resumen. `OnCompletedListener` desaparece: los pasos avisan con
   `setup_step_result` (B/ui/setup/SetupStepResult.kt).
-- [ ] T018 [US2] Validar el primer uso y Setup en el emulador Android 7 con instalación limpia
+- [X] T018 [US2] Validar el primer uso y Setup en el emulador Android 7 con instalación limpia
   ([quickstart.md](quickstart.md) sección 3) y la lista de Permisos en el teléfono. Anotar los resultados aquí.
+  **Resultado** (emulador Android 7, instalación limpia con acceso de uso y permiso de llamadas revocados; teléfono con
+  Android 16):
+  - Bienvenida → Permisos y privacidad (solo "Acceso a Datos de Uso" y los botones del primer uso) → "Continuar" →
+    Setup con la hoja del permiso de llamadas → "Ahora no" → pantalla principal. Igual con "Ahora no" en la lista.
+  - Girar en la lista y en Setup: no se reinicia ni se salta el paso (la hoja sigue abierta).
+  - Matar el proceso en Setup y reabrir: vuelve a Setup, no se queda en blanco; tras omitir y reabrir, arranca
+    en la pantalla principal sin volver a pedir nada.
+  - Antes (misma sesión de validación del paso de Permisos): la fila pasa a "Concedido" al volver de la pantalla del
+    sistema; rechazar el permiso de llamadas deja la fila igual; concederlo con líneas pendientes abre Setup.
+  - Teléfono: "Permisos y privacidad" desde Ajustes muestra los estados reales (acceso de uso y llamadas concedidos,
+    sobreponerse no concedido) con el texto nuevo del permiso.
+  - Teléfono: "Abrir ajustes" tras rechazar el permiso dos veces, probado por el usuario: funciona bien.
 
 **Checkpoint**: ni Permisos ni Setup usan `Application`, DataStore, `LiveData` ni interfaces de aviso.
 
@@ -229,13 +242,41 @@ configuración de líneas, con giro a mitad y con el diálogo del sistema visibl
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T026 Ejecutar `./gradlew lintRelease testDebugUnitTest assembleDebug assembleRelease` y corregir lo nuevo.
-- [ ] T027 Ejecutar las búsquedas de [quickstart.md](quickstart.md) sección 2 (sin `SinglePermissionCallback`,
+- [X] T026 Ejecutar `./gradlew lintRelease testDebugUnitTest assembleDebug assembleRelease` y corregir lo nuevo.
+  **Resultado**: los cuatro pasan. 151 pruebas, 0 fallos ni omitidas; `lintRelease` con 0 errores y 247 avisos (0 de
+  `UnusedResources`, 0 de `SetTextI18n`); `assembleRelease` genera el APK sin firmar.
+- [X] T027 Ejecutar las búsquedas de [quickstart.md](quickstart.md) sección 2 (sin `SinglePermissionCallback`,
   `OnCompletedListener`, `AndroidViewModel`, DataStore ni `LiveData` en las 4 pantallas; sin `runBlocking` en `ui/`).
-- [ ] T028 Validar [quickstart.md](quickstart.md) en el teléfono y en el emulador Android 7 (todas las secciones);
+  **Resultado**: las tres búsquedas no devuelven nada.
+- [X] T028 Validar [quickstart.md](quickstart.md) en el teléfono y en el emulador Android 7 (todas las secciones);
   anotar los resultados y los errores nuevos al final de este archivo.
-- [ ] T029 Actualizar la documentación si la implementación se apartó del plan, actualizar la hoja de ruta de revisión
+  **Resultado** (teléfono Android 16 con la compilación debug, emulador Android 7):
+  - Secciones 1 a 3: ver T018, T026 y T027.
+  - Sección 4, teléfono: Resumen → Sincronizar sin el permiso de llamadas abre la hoja; rechazar con volver la cierra y
+    conceder lo otorga. Controles → Burbuja: rechazar deja el interruptor apagado; conceder abre la pantalla del sistema
+    y, al volver, la burbuja queda activa. Controles → Cortafuegos: la hoja de VPN aparece y, al cancelar el diálogo del
+    sistema, el interruptor vuelve a apagarse. "Abrir ajustes" tras dos rechazos: probado por el usuario.
+    Girar con la hoja abierta, descartar con volver y las hojas de Paquetes y de líneas: emulador (ver el paso de hojas).
+  - **No probado en el teléfono**: la hoja de accesibilidad (ir a los ajustes y volver con y sin activar el servicio);
+    la cubren `StartAccessibilityServiceViewModelTest` (7 pruebas) y la comprobación del emulador.
+  - Sección 5: Permisos y privacidad, Historial vacío y Eventos (orden y filtro) en el teléfono.
+  - Sección 6: el cambio a inglés no aplica (no hay `values-en`; `values` y `values-es` son idénticos). Los chips
+    "Internacional LTE", "Mensajería" y "Bono Promoción" de la gráfica de Consumo general siempre se muestran aunque no
+    haya datos de ese tipo; es el comportamiento de siempre y no se cambia.
+  - Gráfica de Consumo general al cambiar de rango: con los datos del teléfono (solo de hoy, de una misma hora) Hoy,
+    Mes y Paquete dibujan la misma línea, Ayer muestra "No hay datos" y las etiquetas del eje cambian de hora a "Día 17".
+    Con esos datos del teléfono no se vio un fallo.
+    **Comprobado con datos ficticios en el emulador** (36 filas de `usage_general` en 28 días y el paquete iniciado hace
+    20 días): Hoy, Ayer, Semana, Mes y Paquete dibujan series distintas con sus etiquetas (horas, o "Día NN"). No hay
+    fallo. Rarezas de diseño, no de datos: la serie se cierra siempre con un punto vacío en "ahora" (en Ayer alarga la
+    línea hasta hoy) y el eje repite etiquetas cuando todo el consumo cae en un mismo día.
+- [X] T029 Actualizar la documentación si la implementación se apartó del plan, actualizar la hoja de ruta de revisión
   de la 004 si procede, y preparar los commits de implementación. Esperar a que el usuario los pida.
+  **Resultado**: `plan.md`, `data-model.md`, `contracts/ui-state.md` y `research.md` ajustados a lo construido (evento
+  `NoEmailApp`, `openStartScreen`, textos de cierre sin cambios en LTE/mensajería, pruebas por archivo); el resto ya se
+  actualizó en cada paso. La hoja de ruta de la 004 (`review-roadmap.md`) es la guía de revisión del paso 1 y no se
+  modifica. Todas las implementaciones ya están en commits (uno por pantalla, hojas de permisos, lista de Permisos,
+  textos del permiso de sobreponerse y lint); queda el commit de documentación.
 
 ---
 
